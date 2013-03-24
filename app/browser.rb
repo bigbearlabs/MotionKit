@@ -12,16 +12,22 @@ class BrowserViewController < MotionViewController
   
   def awakeFromNib
     super
-    
-    @web_view.js_alert 'document'
   end
   
   def handle_input_changed(sender)
-    # @web_view.load_url sender.text
+    input = sender.text
+
+    case input
+    when /^js:/
+      result = @web_view.stringByEvaluatingJavaScriptFromString input.gsub(/^js:/, '')
+      puts result
+
+      # @web_view.js_alert result
+    else
+      # default to treat it as a url.
+      @web_view.load_url input
+    end
     
-    result = @web_view.stringByEvaluatingJavaScriptFromString sender.text
-    puts result
-    # @web_view.js_alert result
   end
   
 end
