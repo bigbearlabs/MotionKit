@@ -7,3 +7,10 @@ Motion::Project::App.setup do |app|
   app.name = 'BBLMotionKit'
   app.device_family = [:iphone, :ipad]
 end
+
+# unfinished; find a good way to grab the build product path.
+=begin
+task :copy => 'target/' do
+  sh 'rsync -ru web/ target'  # trailing slash is significant; target will be created
+done
+=end
