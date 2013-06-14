@@ -9,6 +9,7 @@ require 'motion-hockeyrink'
 require 'bubble-wrap'
 # require 'motion-pixate'
 require 'ib'
+require 'motion-live'
 
 
 Motion::Project::App.setup do |app|
@@ -18,7 +19,7 @@ Motion::Project::App.setup do |app|
 
   app.files = app.files | Dir.glob(File.join(app.project_dir, 'app/lib/**/*.rb')) |
               Dir.glob(File.join(app.project_dir, 'app/**/*.rb'))
-              
+
 end
 
 # Track and specify files and their mutual dependencies within the :motion 

@@ -12,6 +12,7 @@ gem 'sugarcube'
 # gem 'motion-pixate'
 # gem 'motion-xray'
 gem 'motion-hockeyrink'
+gem 'motion-live'
 
 # gem 'formotion'
 
