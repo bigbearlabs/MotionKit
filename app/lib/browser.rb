@@ -11,7 +11,37 @@ class BrowserViewController < MotionViewController
   def awakeFromNib
     super
   end
+
+
+  # parse the query string and perform the op. TODO
+  def perform_op( query_hash )
+
+    # dispatch_action query_hash["op"], query_hash
+    # IMPL
+    
+    case query_hash['op']
+    when 'load_url'
+      load_url_in_overlay query_hash['url']  # CLEANUP
+    when 'send_data'
+      @data_handler.data_received BubbleWrap::JSON.parse( query_hash['data'] )
+    else
+      puts "can't handle query #{query_hash}"
+    end
+  end
+
   
+  def eval_js input
+    tidied_input = input.gsub(/^(js|javascript):/, '')
+    tidied_input = CGI::unescape tidied_input
+
+    pe_log "evaluating js: #{tidied_input}"
+
+    result = @web_view.stringByEvaluatingJavaScriptFromString tidied_input
+
+  end
+  
+
+  #= text field integration
   
   def handle_input_changed(sender)
     input = sender.text
@@ -30,15 +60,13 @@ class BrowserViewController < MotionViewController
     
   end
   
-  def eval_js input
-    tidied_input = input.gsub(/^(js|javascript):/, '')
-    tidied_input = CGI::unescape tidied_input
-
-    pe_log "evaluating js: #{tidied_input}"
-
-    result = @web_view.stringByEvaluatingJavaScriptFromString tidied_input
-
+  def textFieldShouldReturn(textField)
+    # return pressed - just raise the event.
+    self.handle_input_changed textField
   end
+  
+  
+  #= webview integration
 
   def webView(webView, shouldStartLoadWithRequest:request, navigationType:navigationType)
     # working with perform_op
@@ -57,22 +85,6 @@ class BrowserViewController < MotionViewController
     end
 
     true
-  end
-
-  # parse the query string and perform the op. TODO
-  def perform_op( query_hash )
-
-    # dispatch_action query_hash["op"], query_hash
-    # IMPL
-    
-    case query_hash['op']
-    when 'load_url'
-      load_url_in_overlay query_hash['url']  # CLEANUP
-    when 'send_data'
-      @data_handler.data_received BubbleWrap::JSON.parse( query_hash['data'] )
-    else
-      puts "can't handle query #{query_hash}"
-    end
   end
 
 end
