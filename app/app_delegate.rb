@@ -19,8 +19,7 @@ class AppDelegate
   end
 
   def setup_root_vc
-    browser_vc = BrowserViewController.alloc.init
-    browser_vc.load_view 'Browser'
+    browser_vc = BrowserViewController.alloc.init 'Browser'
     
     @window.rootViewController = browser_vc
     

@@ -1,26 +1,107 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    ProMotion (0.5.2)
+    activemodel (3.2.13)
+      activesupport (= 3.2.13)
+      builder (~> 3.0.0)
     activesupport (3.2.13)
       i18n (= 0.6.1)
       multi_json (~> 1.0)
-    bubble-wrap (1.1.5)
+    addressable (2.3.4)
+    awesome_print (1.1.0)
+    bubble-wrap (1.3.0)
+    builder (3.0.4)
+    claide (0.3.2)
+    cocoapods (0.20.2)
+      activesupport (~> 3.2.13)
+      claide (~> 0.3.2)
+      cocoapods-core (= 0.20.2)
+      cocoapods-downloader (~> 0.1.1)
+      colored (~> 1.2)
+      escape (~> 0.0.4)
+      faraday (~> 0.8.1)
+      json (~> 1.8.0)
+      octokit (~> 1.7)
+      open4 (~> 1.3.0)
+      rake (~> 10.0.0)
+      xcodeproj (~> 0.6.0)
+    cocoapods-core (0.20.2)
+      activesupport (~> 3.2.13)
+      rake (~> 10.0.0)
+    cocoapods-downloader (0.1.1)
     colored (1.2)
-    formotion (1.2)
-      bubble-wrap (>= 1.1.4)
+    diff-lcs (1.2.4)
+    escape (0.0.4)
+    faraday (0.8.7)
+      multipart-post (~> 1.1)
+    faraday_middleware (0.9.0)
+      faraday (>= 0.7.4, < 0.9)
+    hashie (2.0.5)
+    hockeyapp (0.0.15)
+      activemodel
+      awesome_print
+      httmultiparty
+      multi_json
+      rake
+      rspec
+      simplecov
+    hockeyapp-config (0.1)
+      hockeyapp
+    httmultiparty (0.3.10)
+      httparty (>= 0.7.3)
+      multipart-post
+    httparty (0.11.0)
+      multi_json (~> 1.0)
+      multi_xml (>= 0.5.2)
     i18n (0.6.1)
-    ib (0.2.10)
+    ib (0.3.0)
       thor (>= 0.15.4)
       xcodeproj (>= 0.4.1)
-    multi_json (1.7.2)
-    thor (0.17.0)
-    xcodeproj (0.5.2)
-      activesupport (~> 3.2.6)
+    json (1.8.0)
+    motion-cocoapods (1.3.2)
+      cocoapods (>= 0.17.0)
+    motion-hockeyrink (0.1.2)
+      hockeyapp-config
+    multi_json (1.7.6)
+    multi_xml (0.5.4)
+    multipart-post (1.2.0)
+    netrc (0.7.7)
+    octokit (1.24.0)
+      addressable (~> 2.2)
+      faraday (~> 0.8)
+      faraday_middleware (~> 0.9)
+      hashie (~> 2.0)
+      multi_json (~> 1.3)
+      netrc (~> 0.7.7)
+    open4 (1.3.0)
+    rake (10.0.4)
+    rspec (2.13.0)
+      rspec-core (~> 2.13.0)
+      rspec-expectations (~> 2.13.0)
+      rspec-mocks (~> 2.13.0)
+    rspec-core (2.13.1)
+    rspec-expectations (2.13.0)
+      diff-lcs (>= 1.1.3, < 2.0)
+    rspec-mocks (2.13.1)
+    simplecov (0.7.1)
+      multi_json (~> 1.0)
+      simplecov-html (~> 0.7.1)
+    simplecov-html (0.7.1)
+    sugarcube (0.20.22)
+    thor (0.18.1)
+    xcodeproj (0.6.0)
+      activesupport (~> 3.2.13)
       colored (~> 1.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  formotion
+  ProMotion (~> 0.5.0)
+  bubble-wrap (~> 1.3.0.osx)
+  cocoapods-core
   ib
+  motion-cocoapods (~> 1.3.0.rc1)
+  motion-hockeyrink
+  sugarcube
