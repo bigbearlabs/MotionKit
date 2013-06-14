@@ -59,6 +59,7 @@ GEM
       thor (>= 0.15.4)
       xcodeproj (>= 0.4.1)
     json (1.8.0)
+    motion-bundler (0.1.6)
     motion-cocoapods (1.3.2)
       cocoapods (>= 0.17.0)
     motion-hockeyrink (0.1.2)
@@ -102,6 +103,7 @@ DEPENDENCIES
   bubble-wrap (~> 1.3.0.osx)
   cocoapods-core
   ib
+  motion-bundler
   motion-cocoapods (~> 1.3.0.rc1)
   motion-hockeyrink
   sugarcube

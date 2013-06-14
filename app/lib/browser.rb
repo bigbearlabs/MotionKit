@@ -1,3 +1,6 @@
+require "cgi"
+
+
 class BrowserViewController < MotionViewController
   extend IB
 
@@ -14,8 +17,8 @@ class BrowserViewController < MotionViewController
     input = sender.text
 
     case input
-    when /^js:/
-      result = @web_view.stringByEvaluatingJavaScriptFromString input.gsub(/^js:/, '')
+    when /^(js|javascript):/
+      result = eval_js input
       puts result
       # NOTE result should strictly be a string.
 
@@ -27,7 +30,18 @@ class BrowserViewController < MotionViewController
     
   end
   
+  def eval_js input
+    tidied_input = input.gsub(/^(js|javascript):/, '')
+    tidied_input = CGI::unescape tidied_input
+
+    pe_log "evaluating js: #{tidied_input}"
+
+    result = @web_view.stringByEvaluatingJavaScriptFromString tidied_input
+
+  end
+
   def webView(webView, shouldStartLoadWithRequest:request, navigationType:navigationType)
+    # working with perform_op
     if request.url.last_path_segment.eql? "perform"
       puts "got request #{request.url.absoluteString}"
 

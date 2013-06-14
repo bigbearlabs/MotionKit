@@ -18,7 +18,18 @@ Motion::Project::App.setup do |app|
 
   app.files = app.files | Dir.glob(File.join(app.project_dir, 'app/lib/**/*.rb')) |
               Dir.glob(File.join(app.project_dir, 'app/**/*.rb'))
+              
 end
+
+# Track and specify files and their mutual dependencies within the :motion 
+# Bundler group
+MotionBundler.setup do |app|
+  app.require "cgi/core"
+  app.require "cgi/cookie"
+  app.require "cgi/util"
+  app.require "cgi/html"
+end
+
 
 # unfinished; find a good way to grab the build product path.
 =begin

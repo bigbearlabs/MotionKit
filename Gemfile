@@ -14,3 +14,10 @@ gem 'sugarcube'
 gem 'motion-hockeyrink'
 
 # gem 'formotion'
+
+gem "motion-bundler"
+
+# RubyMotion unaware gems
+group :motion do
+#   gem "slot_machine"
+end
