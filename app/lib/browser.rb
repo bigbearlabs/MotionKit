@@ -73,6 +73,10 @@ class BrowserViewController < MotionViewController
   def textFieldShouldReturn(textField)
     # return pressed - just raise the event.
     self.handle_input_changed textField
+
+    textField.resignFirstResponder
+    
+    true
   end
   
   
