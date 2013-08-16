@@ -1,6 +1,16 @@
 require "cgi"
 
 
+# test for platform specificity
+# if MOTION_ENV == :ios
+  PlatformWebView = UIWebView
+# else 
+#   # mac
+#   platformWebView = WebView
+# end
+
+
+
 class BrowserViewController < MotionViewController
   extend IB
 
@@ -90,7 +100,7 @@ class BrowserViewController < MotionViewController
 end
 
 
-class UIWebView
+class BBLWebView < PlatformWebView
   def load_bundle_file(name, extension = 'html')
     url = "#{name}.#{extension}".resource_url
     self.load_url url
@@ -116,6 +126,7 @@ class UIWebView
 end
 
 
+
 class NSURLRequest
   def url
     self.URL
@@ -128,3 +139,4 @@ class NSString
     self.stringByReplacingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
   end
 end
+
