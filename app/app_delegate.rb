@@ -20,6 +20,12 @@ class AppDelegate
 
   def mouseEntered event
     puts "entered: #{event}"
+
+    content_view = @wc.window.contentView
+    point = content_view.convertPoint(event.locationInWindow, fromView:nil)
+    hit_view = content_view.hitTest(point)
+
+    puts "hit_view: #{hit_view}"
   end
 
   def mouseExited event
