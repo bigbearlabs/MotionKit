@@ -5,8 +5,25 @@ class AppDelegate
   def applicationDidFinishLaunching(notification)
     buildMenu
 
-    @wc = WebCollectionWindowController.alloc.init
+    @wc = DevWindowController.alloc.init
     @wc.window.orderFrontRegardless
+
+    # add tracking areas to views
+    [ @wc.view_1, @wc.view_2 ].map do |view|
+      tracking_area = NSTrackingArea.alloc.initWithRect(view.bounds, options:NSTrackingMouseEnteredAndExited|NSTrackingActiveInKeyWindow|NSTrackingInVisibleRect, owner:self, userInfo:nil)
+      view.addTrackingArea( tracking_area )
+
+      puts "tracking areas for #{view}: #{view.trackingAreas.map &:description}"
+    end
+
+  end
+
+  def mouseEntered event
+    puts "entered: #{event}"
+  end
+
+  def mouseExited event
+    puts "exited: #{event}"
   end
 
   def buildWindow
@@ -97,6 +114,30 @@ when :osx
       WebView.alloc.initWithFrame(frameRect, frameName:frameName, groupName:groupName)
     end
 
+  end
+
+  class DevWindowController < NSWindowController
+  end
+
+end
+
+class DevWindowController
+  extend IB
+
+  outlet :view_1
+  outlet :view_2
+
+  def handle_view_click sender
+    
+    # move 20 sender points to right.
+    frame = sender.frame
+    new_frame = NSMakeRect( frame.origin.x + 20, frame.origin.y, frame.size.width, frame.size.height)
+    sender.frame = new_frame
+
+    # log the tracking areas.
+    [ view_1, view_2 ].map do |view|
+      puts "#{view}: #{view.trackingAreas.map &:description}"
+    end
   end
 end
 
