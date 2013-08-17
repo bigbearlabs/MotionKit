@@ -1,22 +1,24 @@
 source 'https://rubygems.org'
 
+gemspec
 
-gem 'motion-cocoapods',  "~> 1.3.0"
-gem 'cocoapods-core'
+gem 'motion-cocoapods'
 
-gem 'ib'
-gem "ProMotion", "~> 0.5.0"
-gem 'bubble-wrap', "~> 1.3.0.osx"
+gem "motion-bundler"
+gem 'motion-require'
+
+gem 'bubble-wrap', :git => 'https://github.com/rubymotion/BubbleWrap.git'
 gem 'sugarcube'
 
 # gem 'motion-pixate'
+
+## DEV
+gem 'ib'
 # gem 'motion-xray'
 gem 'motion-hockeyrink'
 gem 'motion-live'
 
 # gem 'formotion'
-
-gem "motion-bundler"
 
 
 # RubyMotion unaware gems

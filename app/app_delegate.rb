@@ -1,5 +1,9 @@
 class AppDelegate
   def application(application, didFinishLaunchingWithOptions:launchOptions)
+# motion_require '../ProMotion/lib/ProMotion.rb'
+
+# class AppDelegate < ProMotion::Delegate
+#   def on_load(application, launchOptions)
     
     setup_window 
     
