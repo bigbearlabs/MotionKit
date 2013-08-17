@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 $:.unshift("/Library/RubyMotion/lib")
+
 require 'rubygems'
+require 'bundler'
 require 'motion/project/template/ios'
 require 'motion-cocoapods'
-require 'bundler'
 Bundler.require
 require 'motion-hockeyrink'
 require 'bubble-wrap'
@@ -16,7 +17,7 @@ Motion::Project::App.setup do |app|
   app.pods do
     # pod 'FontReplacer'
     pod 'HockeySDK'
-  end    
+  end
 
   # motion-hockeyrink
   app.hockeyapp do
