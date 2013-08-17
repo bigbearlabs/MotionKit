@@ -27,6 +27,8 @@ when :osx
 
   class NSWindowController
 
+  #= lifecycle
+
     def init
       # platform-specific init
       case MOTION_PLATFORM
@@ -36,18 +38,31 @@ when :osx
         raise "undefined for platform #{MOTION_PLATFORM}"
       end
 
-
-
       self
 
       # TODO refactor usages
     end
 
+  #= window management
+
     def show
       showWindow(self)
     end
 
-    #=
+
+  #= view management
+
+    def add_vc view_controller, frame_view = self.window.contentView
+      unless frame_view.subviews.empty?
+        puts "subviews #{frame_view.subviews} will potentially be masked"
+      end
+
+      frame_view.addSubview view_controller.view
+      view_controller.view.fit_superview
+
+      @vcs ||= []
+      @vcs << view_controller
+    end
 
     def view
       self.window.contentView
@@ -75,24 +90,6 @@ when :osx
 
     #= webview setup
 
-    def add_webviews to_view
-      content_bounds = to_view.bounds
-
-      top_half_frame = CGRectMake( content_bounds.origin.x, content_bounds.origin.y, 
-        content_bounds.size.width, content_bounds.size.height / 2 )
-      bottom_half_frame = CGRectMake( content_bounds.origin.x, content_bounds.origin.y + content_bounds.size.height / 2, 
-        content_bounds.size.width, content_bounds.size.height / 2 )
-
-      webview_1 = new_webview frame: top_half_frame
-      webview_2 = new_webview frame: bottom_half_frame
-
-      to_view.addSubview webview_1
-      to_view.addSubview webview_2
-
-      webview_1.mainFrameURL = 'http://google.com'
-      webview_2.mainFrameURL = 'http://stackoverflow.com'
-    end
-
     def new_webview args
       frameRect = args[:frame]
       frameName = nil
@@ -115,6 +112,7 @@ class WebCollectionWindowController
 
     # add_webviews window.contentView
 
+    # make inner scroll view pass all scroll events to outer scroll view.
     [ webview_1, webview_2].map do |webview|
       outer_scroll_view = webview.superview.superview.superview
       inner_scroll_view = webview.subviews[0].subviews[0]
@@ -137,5 +135,8 @@ class WebCollectionWindowController
 end
 
 
-class WebView
+class NSView
+  def fit_superview
+    self.frame = self.superview.bounds
+  end
 end
