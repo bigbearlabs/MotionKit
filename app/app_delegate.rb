@@ -1,16 +1,42 @@
-MOTION_PLATFORM = :osx
-
 class AppDelegate
-  include Reactive
-
   def applicationDidFinishLaunching(notification)
     buildMenu
 
     @wc = DevWindowController.alloc.init
     @wc.window.orderFrontRegardless
 
+    view_stacker = ViewStacksViewController.alloc.init
+    @wc.add_vc view_stacker
+    view_stacker.setup
+  end
+
+  #= 
+
+  def buildWindow
+    @mainWindow = NSWindow.alloc.initWithContentRect([[240, 180], [480, 360]],
+      styleMask: NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask,
+      backing: NSBackingStoreBuffered,
+      defer: false)
+    @mainWindow.title = NSBundle.mainBundle.infoDictionary['CFBundleName']
+    @mainWindow.orderFrontRegardless
+
+    @mainWindow
+  end
+
+end
+
+class ViewStacksViewController < MotionViewController
+  extend IB  
+  include Reactive
+
+  outlet :view_1
+  outlet :view_2
+  outlet :view_3
+  outlet :view_4
+
+  def setup
     # add tracking areas to views
-    [ @wc.view_1, @wc.view_2, @wc.view_3, @wc.view_4 ].map do |view|
+    [ @view_1, @view_2, @view_3, @view_4 ].map do |view|
       tracking_area = NSTrackingArea.alloc.initWithRect(view.bounds, options:NSTrackingMouseEnteredAndExited|NSTrackingActiveInKeyWindow|NSTrackingInVisibleRect, owner:self, userInfo:nil)
       view.addTrackingArea( tracking_area )
 
@@ -47,30 +73,33 @@ class AppDelegate
   end
 
   def update_hit_view event
-    content_view = @wc.window.contentView
+    content_view = self.view.window.contentView
     point = content_view.convertPoint(event.locationInWindow, fromView:nil)
     self.hit_view = content_view.hitTest(point)
     
     puts "hit_view: #{self.hit_view}"
   end
 
-  #= 
+  #=
 
-  def buildWindow
-    @mainWindow = NSWindow.alloc.initWithContentRect([[240, 180], [480, 360]],
-      styleMask: NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask,
-      backing: NSBackingStoreBuffered,
-      defer: false)
-    @mainWindow.title = NSBundle.mainBundle.infoDictionary['CFBundleName']
-    @mainWindow.orderFrontRegardless
+  def handle_view_click sender
+    
+    # move 20 sender points to right.
+    frame = sender.frame
+    new_frame = NSMakeRect( frame.origin.x + 20, frame.origin.y, frame.size.width, frame.size.height)
+    sender.frame = new_frame
 
-    @mainWindow
+    # log the tracking areas.
+    [ view_1, view_2 ].map do |view|
+      puts "#{view}: #{view.trackingAreas.map &:description}"
+    end
   end
+
 
 end
 
-case MOTION_PLATFORM
-when :osx
+
+if BubbleWrap::App.osx?
 
   class NSWindowController
 
@@ -78,11 +107,10 @@ when :osx
 
     def init
       # platform-specific init
-      case MOTION_PLATFORM
-      when :osx
+      if BubbleWrap::App.osx?
         self.initWithWindowNibName(self.class.name.gsub('Controller', ''))
       else
-        raise "undefined for platform #{MOTION_PLATFORM}"
+        raise "undefined for this platform #{BubbleWrap::App}"
       end
 
       self
@@ -149,28 +177,6 @@ when :osx
   class DevWindowController < NSWindowController
   end
 
-end
-
-class DevWindowController
-  extend IB
-
-  outlet :view_1
-  outlet :view_2
-  outlet :view_3
-  outlet :view_4
-
-  def handle_view_click sender
-    
-    # move 20 sender points to right.
-    frame = sender.frame
-    new_frame = NSMakeRect( frame.origin.x + 20, frame.origin.y, frame.size.width, frame.size.height)
-    sender.frame = new_frame
-
-    # log the tracking areas.
-    [ view_1, view_2 ].map do |view|
-      puts "#{view}: #{view.trackingAreas.map &:description}"
-    end
-  end
 end
 
 
