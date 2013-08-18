@@ -1,7 +1,8 @@
 MOTION_PLATFORM = :osx
 
-
 class AppDelegate
+  include Reactive
+
   def applicationDidFinishLaunching(notification)
     buildMenu
 
@@ -9,28 +10,51 @@ class AppDelegate
     @wc.window.orderFrontRegardless
 
     # add tracking areas to views
-    [ @wc.view_1, @wc.view_2 ].map do |view|
+    [ @wc.view_1, @wc.view_2, @wc.view_3, @wc.view_4 ].map do |view|
       tracking_area = NSTrackingArea.alloc.initWithRect(view.bounds, options:NSTrackingMouseEnteredAndExited|NSTrackingActiveInKeyWindow|NSTrackingInVisibleRect, owner:self, userInfo:nil)
       view.addTrackingArea( tracking_area )
 
       puts "tracking areas for #{view}: #{view.trackingAreas.map &:description}"
     end
 
+    # on hit_view update, bring it to the front.
+    react_to :hit_view do
+      puts "hit_view updated."
+
+      if @hit_view.is_a? NSButton
+        superview = @hit_view.superview
+        # @hit_view.removeFromSuperview
+        superview.addSubview(@hit_view, positioned:NSWindowAbove, relativeTo:nil)
+      end
+    end
   end
+
+  #=
+
+  attr_accessor :hit_view
 
   def mouseEntered event
     puts "entered: #{event}"
 
-    content_view = @wc.window.contentView
-    point = content_view.convertPoint(event.locationInWindow, fromView:nil)
-    hit_view = content_view.hitTest(point)
+    update_hit_view event
 
-    puts "hit_view: #{hit_view}"
   end
 
   def mouseExited event
     puts "exited: #{event}"
+    
+    update_hit_view event
   end
+
+  def update_hit_view event
+    content_view = @wc.window.contentView
+    point = content_view.convertPoint(event.locationInWindow, fromView:nil)
+    self.hit_view = content_view.hitTest(point)
+    
+    puts "hit_view: #{self.hit_view}"
+  end
+
+  #= 
 
   def buildWindow
     @mainWindow = NSWindow.alloc.initWithContentRect([[240, 180], [480, 360]],
@@ -132,6 +156,8 @@ class DevWindowController
 
   outlet :view_1
   outlet :view_2
+  outlet :view_3
+  outlet :view_4
 
   def handle_view_click sender
     
