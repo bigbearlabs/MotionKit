@@ -18,5 +18,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_dependency 'bubble-wrap'
+  gem.add_dependency 'motion-bundler'
 
 end

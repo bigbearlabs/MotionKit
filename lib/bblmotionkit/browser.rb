@@ -1,13 +1,11 @@
 require "cgi"
 
 
-# test for platform specificity
-# if MOTION_ENV == :ios
+if BubbleWrap::App.ios?
   PlatformWebView = UIWebView
-# else 
-#   # mac
-#   platformWebView = WebView
-# end
+else 
+  PlatformWebView = WebView
+end
 
 
 

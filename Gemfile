@@ -4,7 +4,6 @@ gemspec
 
 gem 'motion-cocoapods'
 
-gem "motion-bundler"
 gem 'motion-require'
 
 gem 'sugarcube'

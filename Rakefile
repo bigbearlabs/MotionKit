@@ -7,6 +7,7 @@ require 'rubygems'
 require 'bundler'
 Bundler.require
 
+require 'bubble-wrap'
 
 # require 'motion-require'
 # Motion::Require.all Dir.glob('app/**/*.rb', ) | Dir.glob('ProMotion/lib/**/*.rb')

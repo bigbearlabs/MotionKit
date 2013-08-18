@@ -1,4 +1,11 @@
-class MotionViewController < UIViewController
+PlatformViewController = 
+	if BubbleWrap::App.ios?
+		UIViewController
+	else
+		NSViewController
+	end
+
+class MotionViewController < PlatformViewController
 =begin
   def load_view nib_name
       views = NSBundle.mainBundle.loadNibNamed nib_name, owner:self, options:nil
