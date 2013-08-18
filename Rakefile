@@ -6,8 +6,6 @@ require 'rubygems'
 require 'bundler'
 Bundler.require
 
-# HACK unsure why bundler / gem-fronting file doesn't take care of this.
-require 'bubble-wrap/core'
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
@@ -15,4 +13,11 @@ Motion::Project::App.setup do |app|
 
   app.frameworks << 'WebKit'
   # app.embedded_frameworks << '../MyFramework.framework'
+end
+
+
+# Track and specify files and their mutual dependencies within the :motion 
+# Bundler group
+MotionBundler.setup do |app|
+  app.require "cgi"
 end
