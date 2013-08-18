@@ -7,7 +7,6 @@ gem 'motion-cocoapods'
 gem "motion-bundler"
 gem 'motion-require'
 
-gem 'bubble-wrap', :git => 'https://github.com/rubymotion/BubbleWrap.git'
 gem 'sugarcube'
 
 # gem 'motion-pixate'

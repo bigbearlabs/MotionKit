@@ -2,11 +2,14 @@
 #   raise "This file must be required within a RubyMotion project Rakefile."
 # end
 
-Motion::Project::App.setup do |app|
-	
-  Dir.glob(File.join(File.dirname(__FILE__), 'bblmotionkit/*.rb')).each do |file|
-    app.files.unshift(file)
-  end
+if defined? Motion
+	Motion::Project::App.setup do |app|
 
-  # TODO frameworks, vendor projects
+	  Dir.glob(File.join(File.dirname(__FILE__), 'bblmotionkit/*.rb')).each do |file|
+	    app.files.unshift(file)
+	  end
+
+	  # TODO frameworks, vendor projects
+	  require 'bubble-wrap/core'
+	end
 end
