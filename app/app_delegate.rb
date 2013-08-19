@@ -5,7 +5,7 @@ class AppDelegate
     @wc = DevWindowController.alloc.init
     @wc.window.orderFrontRegardless
 
-    view_stacker = ViewStacksViewController.alloc.init
+    view_stacker = WebStacksViewController.alloc.init
     @wc.add_vc view_stacker
     view_stacker.setup
   end
@@ -25,24 +25,12 @@ class AppDelegate
 
 end
 
+
 class ViewStacksViewController < MotionViewController
   extend IB  
   include Reactive
 
-  outlet :view_1
-  outlet :view_2
-  outlet :view_3
-  outlet :view_4
-
   def setup
-    # add tracking areas to views
-    [ @view_1, @view_2, @view_3, @view_4 ].map do |view|
-      tracking_area = NSTrackingArea.alloc.initWithRect(view.bounds, options:NSTrackingMouseEnteredAndExited|NSTrackingActiveInKeyWindow|NSTrackingInVisibleRect, owner:self, userInfo:nil)
-      view.addTrackingArea( tracking_area )
-
-      puts "tracking areas for #{view}: #{view.trackingAreas.map &:description}"
-    end
-
     # on hit_view update, bring it to the front.
     react_to :hit_view do
       puts "hit_view updated."
@@ -53,9 +41,33 @@ class ViewStacksViewController < MotionViewController
         superview.addSubview(@hit_view, positioned:NSWindowAbove, relativeTo:nil)
       end
     end
+
   end
 
   #=
+
+  def add_view view
+    self.view.addSubview( view )
+
+    # self.trackingAreas.map do |area|
+    #   self.removeTrackingArea(area)
+    # end
+
+    # on_main_async do
+      tracking_area =   NSTrackingArea.alloc.initWithRect(view.bounds, options:NSTrackingMouseEnteredAndExited|NSTrackingActiveInActiveApp|NSTrackingInVisibleRect, owner:self, userInfo:nil)
+      view.addTrackingArea( tracking_area )
+
+      puts "tracking areas for #{view}: #{view.trackingAreas.map &:description}"
+    # end
+  end
+
+  def on_main_async( &block )
+    Dispatch::Queue.main.async do
+      block.call
+    end
+  end
+
+#=
 
   attr_accessor :hit_view
 
@@ -95,6 +107,35 @@ class ViewStacksViewController < MotionViewController
     end
   end
 
+end
+
+
+class WebStacksViewController < ViewStacksViewController
+  extend IB
+
+  outlet :search_page_view
+
+  def setup
+    super
+
+    self.add_view @search_page_view
+    @search_page_view.mainFrameURL = 'http://google.com'
+
+    # TEMP
+    self.add_page 'http://duckduckgo.com'
+
+    # TODO on webview search result link click, create / select new stack element.
+  end
+
+  def add_page url
+    parent_frame = self.view.frame
+    delta = 30
+    frame = NSMakeRect( parent_frame.origin.x + delta, parent_frame.origin.y,
+      parent_frame.size.width - delta, parent_frame.size.height)
+    web_view = WebView.alloc.init frame:frame, url:url
+
+    self.add_view web_view
+  end
 
 end
 
@@ -180,6 +221,7 @@ if BubbleWrap::App.osx?
 end
 
 
+# experimental logic to horizontally to webviews with sane scrolling behaviour.
 class WebCollectionWindowController
   extend IB
 
@@ -217,5 +259,21 @@ end
 class NSView
   def fit_superview
     self.frame = self.superview.bounds
+  end
+end
+
+class WebView
+  def init args = {}
+    frame = args[:frame]
+    frame_name = args[:frame_name]
+    group_name = args[:group_name]
+    obj = self.initWithFrame frame, frameName:frame_name, groupName:group_name
+
+    url = args[:url]
+    if url
+      obj.mainFrameURL = url
+    end
+
+    obj
   end
 end
