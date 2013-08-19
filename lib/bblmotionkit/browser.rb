@@ -1,11 +1,12 @@
 require "cgi"
 
 
-if BubbleWrap::App.ios?
-  PlatformWebView = UIWebView
-else 
-  PlatformWebView = WebView
-end
+PlatformWebView = 
+  if BubbleWrap::App.ios?
+    UIWebView
+  else 
+    WebView
+  end
 
 
 
