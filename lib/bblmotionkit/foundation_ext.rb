@@ -16,6 +16,10 @@ def pe_report(*args)
   puts args
 end
 
+def debug( *args )
+  pe_debug args.to_s
+end
+
 
 class NSThread
   def self.is_main?

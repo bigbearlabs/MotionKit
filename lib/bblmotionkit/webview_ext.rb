@@ -58,15 +58,6 @@ if BubbleWrap::App.osx?
         data: event_data
       }
 
-      if $DEBUG
-        # also snapshot the bfreport if it changes.
-
-        bf_report = @browser_vc.bf_report
-        if @last_bf_report != bf_report
-          event[:bf_report] = bf_report
-          @last_bf_report = bf_report
-        end
-      end
           
       pe_debug "webview event: #{event}"
       @events << event
@@ -214,8 +205,6 @@ if BubbleWrap::App.osx?
       if frame == webView.mainFrame
         self.push_event 'didFinishLoadFrame'
         
-        # attempt #1 to deal with the allowsScrolling == false anomaly
-        webView.mainFrame.frame=View.allowsScrolling = true
       end
     end
 
