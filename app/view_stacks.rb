@@ -144,6 +144,19 @@ class WebStacksViewController < ViewStacksViewController
     super
 
     self.add_view @search_page_view
+
+    @delegate = WebViewDelegate.new
+    @delegate.web_view = @search_page_view
+    @delegate.matching_nav_handler = -> url {
+      self.add_page url
+    }
+    @delegate.setup
+    
+    @search_page_view.frameLoadDelegate = @delegate
+    @search_page_view.policyDelegate = @delegate
+    @search_page_view.UIDelegate = @delegate
+    @search_page_view.downloadDelegate = @delegate
+
     @search_page_view.mainFrameURL = 'http://google.com'
 
     # TEMP
