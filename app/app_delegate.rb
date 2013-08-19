@@ -35,13 +35,8 @@ class ViewStacksViewController < MotionViewController
     react_to :hit_view do
       puts "hit_view updated."
 
-      if @hit_view.is_a? NSButton
-        superview = @hit_view.superview
-        # @hit_view.removeFromSuperview
-        superview.addSubview(@hit_view, positioned:NSWindowAbove, relativeTo:nil)
-      end
+      refresh_visible_view @hit_view
     end
-
   end
 
   #=
@@ -59,11 +54,50 @@ class ViewStacksViewController < MotionViewController
 
       puts "tracking areas for #{view}: #{view.trackingAreas.map &:description}"
     # end
+
+    self.hit_view = view
   end
 
-  def on_main_async( &block )
-    Dispatch::Queue.main.async do
-      block.call
+#=
+
+  def refresh_visible_view visible_view
+    # pull out all views below visible_view.
+    # self.view.views_below(visible_view).map do |view_below|
+    #   self.pull_out view_below
+    # end
+    self.pull_out visible_view
+
+    # push in all views above visible_view.
+    self.view.subviews_above(visible_view).map do |view_above|
+      self.push_in view_above
+    end
+  end
+
+  def pull_out subview
+    @pulled_out_views ||= []
+
+    if @pulled_out_views.include? subview
+    else
+      offset = 20 * @pulled_out_views.size
+
+      subview.set_x self.view.x + offset
+
+      @pulled_out_views << subview
+      @pushed_in_views.delete subview if @pushed_in_views
+    end
+  end
+
+  def push_in subview
+    @pushed_in_views ||= []
+
+    if @pushed_in_views.include? subview
+    else      
+      offset = 20 * (@pushed_in_views.size + 1)
+
+      subview.set_x self.view.x + subview.width - offset
+
+      @pushed_in_views << subview
+      @pulled_out_views.delete subview if @pulled_out_views
     end
   end
 
@@ -87,8 +121,17 @@ class ViewStacksViewController < MotionViewController
   def update_hit_view event
     content_view = self.view.window.contentView
     point = content_view.convertPoint(event.locationInWindow, fromView:nil)
-    self.hit_view = content_view.hitTest(point)
-    
+    hit_subview = content_view.hitTest(point)
+
+    # work out the immediate subview that contains the hit.
+    if hit_subview
+      self.view.subviews.map do |child_view|
+        if hit_subview.isDescendantOf(child_view)
+          self.hit_view = child_view
+        end
+      end
+    end
+
     puts "hit_view: #{self.hit_view}"
   end
 
@@ -97,9 +140,7 @@ class ViewStacksViewController < MotionViewController
   def handle_view_click sender
     
     # move 20 sender points to right.
-    frame = sender.frame
-    new_frame = NSMakeRect( frame.origin.x + 20, frame.origin.y, frame.size.width, frame.size.height)
-    sender.frame = new_frame
+    sender.move_x 20
 
     # log the tracking areas.
     [ view_1, view_2 ].map do |view|
@@ -257,8 +298,36 @@ end
 
 
 class NSView
+
   def fit_superview
     self.frame = self.superview.bounds
+  end
+
+  def move_x offset
+    new_frame = NSMakeRect( frame.origin.x + offset, frame.origin.y, frame.size.width, frame.size.height)
+    self.frame = new_frame
+  end
+
+  def set_x new_x
+    new_frame = NSMakeRect( new_x, frame.origin.y, frame.size.width, frame.size.height)
+    self.frame = new_frame
+  end
+
+  #=
+
+  def subviews_above view
+    view_index = self.subviews.index view
+    self.subviews[view_index + 1..-1]
+  end
+
+  #=
+
+  def width
+    self.frame.size.width
+  end
+
+  def x
+    self.frame.origin.x
   end
 end
 
