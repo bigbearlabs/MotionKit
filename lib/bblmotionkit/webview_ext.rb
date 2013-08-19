@@ -30,6 +30,8 @@ if BubbleWrap::App.osx?
 
     attr_accessor :web_view
 
+    attr_accessor :matching_nav_handler
+
     def setup   
       @events = []
 
@@ -280,8 +282,45 @@ if BubbleWrap::App.osx?
         }
       end
      
-      listener.use
+      # listener.use
+
+      self.matching_nav_policy.call listener
     end
+
+    #= nav policy
+
+      Default_nav_policy_handler = -> listener {
+        listener.use
+      }
+
+      Google_url_pattern = 'http://www.google.com/url?'
+
+      def matching_nav_policy
+        # default
+        ## pattern for search result link nav:
+        # didStartProvisionalLoad, http://www.google.com/url?q=#{url}.*
+        # decidePolicyForNavigation, #{the_url}
+        events_by_name = Hash[ @events.map { |h| [ h[:name], h[:url] ] } ]
+
+        if events_by_name['didStartProvisionalLoad'] =~ /#{Regexp.escape Google_url_pattern}(.*)/
+          params = CGI::parse $1
+          url = params['q'].first
+
+          if events_by_name['decidePolicyForNavigation'] =~ /#{Regexp.escape url}/
+            # this is the result nav.
+
+            puts "loading #{url} as separate page"
+
+            return -> listener {
+              @matching_nav_handler.call url
+
+              listener.ignore
+            }
+          end
+        end
+
+        Default_nav_policy_handler
+      end
 
   #=
 
