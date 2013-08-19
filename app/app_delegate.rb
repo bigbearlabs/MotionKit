@@ -31,18 +31,32 @@ class ViewStacksViewController < MotionViewController
   include Reactive
 
   def setup
+
     # on hit_view update, bring it to the front.
     react_to :hit_view do
       puts "hit_view updated."
 
       refresh_visible_view @hit_view
     end
+
+    # states for pushing in / pulling out
+    @pulled_out_views ||= []
+    @pushed_in_views ||= []
+
   end
 
   #=
 
   def add_view view
-    self.view.addSubview( view )
+    # push in all the loose views on the stack.
+    if @pulled_out_views.size > 1
+      @pulled_out_views[1..-1].map do |view|
+        push_in view
+      end
+    end
+    last_pushed_in_view = @pushed_in_views.last
+    # set the frame.
+    self.view.add_subview view, before:last_pushed_in_view
 
     # self.trackingAreas.map do |area|
     #   self.removeTrackingArea(area)
@@ -62,20 +76,18 @@ class ViewStacksViewController < MotionViewController
 
   def refresh_visible_view visible_view
     # pull out all views below visible_view.
-    # self.view.views_below(visible_view).map do |view_below|
-    #   self.pull_out view_below
-    # end
+    self.view.subviews_below(visible_view).map do |view_below|
+      self.pull_out view_below
+    end
     self.pull_out visible_view
 
     # push in all views above visible_view.
-    self.view.subviews_above(visible_view).map do |view_above|
+    self.view.subviews_above(visible_view).reverse.map do |view_above|
       self.push_in view_above
     end
   end
 
   def pull_out subview
-    @pulled_out_views ||= []
-
     if @pulled_out_views.include? subview
     else
       offset = 20 * @pulled_out_views.size
@@ -83,12 +95,11 @@ class ViewStacksViewController < MotionViewController
       subview.set_x self.view.x + offset
 
       @pulled_out_views << subview
-      @pushed_in_views.delete subview if @pushed_in_views
+      @pushed_in_views.delete subview
     end
   end
 
   def push_in subview
-    @pushed_in_views ||= []
 
     if @pushed_in_views.include? subview
     else      
@@ -97,7 +108,7 @@ class ViewStacksViewController < MotionViewController
       subview.set_x self.view.x + subview.width - offset
 
       @pushed_in_views << subview
-      @pulled_out_views.delete subview if @pulled_out_views
+      @pulled_out_views.delete subview
     end
   end
 
@@ -164,6 +175,7 @@ class WebStacksViewController < ViewStacksViewController
 
     # TEMP
     self.add_page 'http://duckduckgo.com'
+    self.add_page 'http://yahoo.com'
 
     # TODO on webview search result link click, create / select new stack element.
   end
@@ -303,6 +315,36 @@ class NSView
     self.frame = self.superview.bounds
   end
 
+  #=
+
+  def subviews_above view
+    view_index = self.subviews.index view
+    self.subviews[view_index + 1..-1]
+  end
+
+  def subviews_below view
+    view_index = self.subviews.index view
+    self.subviews[0..view_index - 1]
+  end
+
+  def add_subview subview, params = {}
+    before_view = params[:before]
+    if before_view
+      self.addSubview(subview, positioned:NSWindowBelow, relativeTo:before_view)
+    else
+      self.addSubview(subview)
+    end
+  end
+  #=
+
+  def width
+    self.frame.size.width
+  end
+
+  def x
+    self.frame.origin.x
+  end
+
   def move_x offset
     new_frame = NSMakeRect( frame.origin.x + offset, frame.origin.y, frame.size.width, frame.size.height)
     self.frame = new_frame
@@ -313,22 +355,6 @@ class NSView
     self.frame = new_frame
   end
 
-  #=
-
-  def subviews_above view
-    view_index = self.subviews.index view
-    self.subviews[view_index + 1..-1]
-  end
-
-  #=
-
-  def width
-    self.frame.size.width
-  end
-
-  def x
-    self.frame.origin.x
-  end
 end
 
 class WebView
