@@ -1,4 +1,3 @@
-
 class ViewStacksViewController < MotionViewController
   extend IB  
   include Reactive
@@ -20,6 +19,13 @@ class ViewStacksViewController < MotionViewController
 
   #=
 
+  def add_vc vc
+    @vcs ||= []
+
+    @vcs << vc unless @vcs.include? vc
+    self.add_view vc.view
+  end
+
   def add_view view
     # push in all the loose views on the stack.
     if @pulled_out_views.size > 1
@@ -27,8 +33,13 @@ class ViewStacksViewController < MotionViewController
         push_in view
       end
     end
+
+    # horizontally align next to the last pushed in view.
+    width = subview_width
+    view.frame = NSMakeRect(self.view.width - width, self.view.y, width, self.view.height)
+    view.move_x pushed_in_offset
+
     last_pushed_in_view = @pushed_in_views.last
-    # set the frame.
     self.view.add_subview view, before:last_pushed_in_view
 
     # self.trackingAreas.map do |area|
@@ -63,12 +74,12 @@ class ViewStacksViewController < MotionViewController
   def pull_out subview
     if @pulled_out_views.include? subview
     else
-      offset = 20 * @pulled_out_views.size
-
-      subview.set_x self.view.x + offset
 
       @pulled_out_views << subview
       @pushed_in_views.delete subview
+
+      new_x = self.view.width + pushed_in_offset - subview.width
+      subview.set_x new_x
     end
   end
 
@@ -76,13 +87,24 @@ class ViewStacksViewController < MotionViewController
 
     if @pushed_in_views.include? subview
     else      
-      offset = 20 * (@pushed_in_views.size + 1)
 
-      subview.set_x self.view.x + subview.width - offset
+      subview.set_x self.view.width + pushed_in_offset - subview_offset
 
       @pushed_in_views << subview
       @pulled_out_views.delete subview
     end
+  end
+
+  def pushed_in_offset
+    -1 * subview_offset * @pushed_in_views.size 
+  end
+
+  def subview_offset
+    30
+  end
+
+  def subview_width
+    self.view.width * 0.8
   end
 
 #=
@@ -151,7 +173,7 @@ class WebStacksViewController < ViewStacksViewController
       self.add_page url
     }
     @delegate.setup
-    
+
     @search_page_view.frameLoadDelegate = @delegate
     @search_page_view.policyDelegate = @delegate
     @search_page_view.UIDelegate = @delegate
@@ -159,21 +181,25 @@ class WebStacksViewController < ViewStacksViewController
 
     @search_page_view.mainFrameURL = 'http://google.com'
 
-    # TEMP
-    self.add_page 'http://duckduckgo.com'
-    self.add_page 'http://yahoo.com'
-
-    # TODO on webview search result link click, create / select new stack element.
   end
 
   def add_page url
-    parent_frame = self.view.frame
-    delta = 30
-    frame = NSMakeRect( parent_frame.origin.x + delta, parent_frame.origin.y,
-      parent_frame.size.width - delta, parent_frame.size.height)
-    web_view = WebView.alloc.init frame:frame, url:url
+    # parent_frame = self.view.frame
+    # delta = 30
+    # frame = NSMakeRect( parent_frame.origin.x + delta, parent_frame.origin.y,
+    #   parent_frame.size.width - delta, parent_frame.size.height)
+    # web_view = WebView.alloc.init frame:frame, url:url
 
-    self.add_view web_view
+    # self.add_view web_view
+
+    vc = PageViewController.alloc.init
+    vc.view.mainFrameURL = url
+    self.add_vc vc
   end
+
+end
+
+
+class PageViewController < MotionViewController
 
 end
