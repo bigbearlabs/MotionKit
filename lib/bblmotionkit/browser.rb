@@ -1,13 +1,6 @@
 require "cgi"
 
 
-PlatformWebView = 
-  if BubbleWrap::App.ios?
-    UIWebView
-  else 
-    WebView
-  end
-
 
 
 class BrowserViewController < MotionViewController

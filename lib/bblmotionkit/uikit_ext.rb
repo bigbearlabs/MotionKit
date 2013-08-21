@@ -6,18 +6,22 @@ module NibLoading
 end
 
 
-class UIView
-  def width
-    self.frame.size.width
-  end
-  
-  def height
-    self.frame.size.height
+class UIApplication
+  def window
+    self.delegate.window
   end
 
-  def hidden
-    self.isHidden
+  def controller
+    self.window.rootViewController
   end
+end
+
+def app
+  UIApplication.sharedApplication
+end
+
+
+class UIView
 
 #= radian
 
@@ -37,6 +41,21 @@ class UIView
     transform = CGAffineTransformMakeRotation(angle_rad)
     self.transform = transform
   end
+
+  # geometry changes - until we figure out the deal with flippedness, leave this here.
+
+  def set_height height, anchor = :bottom
+    case anchor
+    when :bottom
+      diff = self.height - height  # -ve if growing.
+      new_y = self.y + diff 
+      self.frame = CGRectMake( x, new_y, self.width, height )
+    else
+      raise "unknown anchor #{anchor}"
+    end
+  end
+
+
 end
 
 
