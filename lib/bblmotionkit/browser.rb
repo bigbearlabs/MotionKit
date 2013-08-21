@@ -72,7 +72,12 @@ class BrowserViewController < MotionViewController
   end
   
   def toggle_input sender
-    self.input_field.hidden = ! @input_field.hidden
+    input_field.hidden = ! input_field.hidden
+    if input_field.hidden
+      @web_view.set_height @web_view.height + input_field.height
+    else
+      @web_view.set_height @web_view.height - input_field.height
+    end
   end
 
   def textFieldShouldReturn(textField)
