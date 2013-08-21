@@ -20,7 +20,7 @@ class OverlayWebViewController < BrowserViewController
   def load_url_in_overlay( url )
     self.view.hidden = false
 
-    self.web_view.load_url url
+    self.load_url url
   end
 
   def view_shown?

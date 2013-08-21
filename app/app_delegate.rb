@@ -23,7 +23,7 @@ class AppDelegate
   end
 
   def setup_root_vc
-    browser_vc = BrowserViewController.alloc.init 'Browser'
+    browser_vc = BrowserViewController.alloc.init
     @window.rootViewController = browser_vc
     
     @window.rootViewController.wantsFullScreenLayout = true
