@@ -78,6 +78,13 @@ class NSObject
     end
   end
 
+  def kvo_change( prop, &change_block )
+    self.willChangeValueForKey(prop.to_s)
+    yield
+    self.didChangeValueForKey(prop.to_s)
+  end
+
+
   private
 
   def nil_sub_key_path(key_path)

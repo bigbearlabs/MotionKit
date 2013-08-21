@@ -32,6 +32,10 @@ if BubbleWrap::App.osx?
       end
 
       frame_view.addSubview view_controller.view
+
+      view_controller.view.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
+      view_controller.view.translatesAutoresizingMaskIntoConstraints = true
+
       view_controller.view.fit_superview
 
       @vcs ||= []
@@ -89,9 +93,17 @@ if BubbleWrap::App.osx?
     def width
       self.frame.size.width
     end
+    
+    def height
+      self.frame.size.height
+    end
 
     def x
       self.frame.origin.x
+    end
+
+    def y
+      self.frame.origin.y
     end
 
     def move_x offset

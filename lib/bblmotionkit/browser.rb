@@ -14,6 +14,7 @@ class BrowserViewController < MotionViewController
   extend IB
 
   outlet :web_view
+  outlet :input_field
 
   attr_accessor :data_handler
   
@@ -65,13 +66,22 @@ class BrowserViewController < MotionViewController
     when /^http/
       @web_view.load_url input
     else
-      # default to preprend http:// and re-call.
-      sender.text = "http://#{sender.text}"
-      self.handle_input_changed sender
+      begin
+        # attempt to load file.
+        @web_view.load_file input
+      rescue
+        # default to preprend http:// and re-call.
+        sender.text = "http://#{sender.text}"
+        self.handle_input_changed sender
+      end
     end
-    
+
   end
   
+  def toggle_input sender
+    self.input_field.hidden = ! @input_field.hidden
+  end
+
   def textFieldShouldReturn(textField)
     # return pressed - just raise the event.
     self.handle_input_changed textField
@@ -103,12 +113,24 @@ class BrowserViewController < MotionViewController
     true
   end
 
-end
+#= loading
 
+  # TODO need to figure out how to get the files copied to the bundle.
+  def load_file(name, location = :bundle)
+    case location
+    when :bundle
+      url = name.resource_url
 
-class BBLWebView < PlatformWebView
-  def load_bundle_file(name, extension = 'html')
-    url = "#{name}.#{extension}".resource_url
+      # check, fail to documents.
+      exists = true  # stub
+      unless exists
+        self.load_file name, :documents
+        return
+      end
+    when :documents
+      # TODO
+    end
+
     self.load_url url
   end
 
@@ -123,9 +145,14 @@ class BBLWebView < PlatformWebView
     puts "loading url #{url_obj.description}"
 
     req = NSURLRequest.requestWithURL url_obj
-    self.loadRequest req
+    @web_view.loadRequest req
   end
   
+end
+
+
+class BBLWebView < PlatformWebView
+
   def js_alert( js )
     self.stringByEvaluatingJavaScriptFromString "alert(#{js});"
   end
@@ -143,6 +170,11 @@ end
 class NSString
   def decode_uri_component
     self.stringByReplacingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
+  end
+
+  def resource_url
+    nsurl = NSURL.fileURLWithPath(File.join(NSBundle.mainBundle.resourcePath, self))
+    nsurl.to_s
   end
 end
 

@@ -74,7 +74,9 @@ end
 
 class NSURL
   def last_path_segment
-    self.path.split('/').last
+    segments = self.path.split('/')
+    segments ? segments.last : nil
+
   end
 end
 
