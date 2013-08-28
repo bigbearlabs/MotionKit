@@ -1,7 +1,7 @@
 # stub
 
 def pe_debug(msg)
-  puts msg
+  puts "DEBUG: #{msg}" if $DEBUG
 end
 
 def pe_log(msg)
