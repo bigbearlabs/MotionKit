@@ -60,13 +60,46 @@ end
 
 
 class CALayer
+
   # not working?
   def rotate( angles_rad )
     # self.transform = CATransform3DMakeRotation(angles_rad, 0, 0, 1)
     self.transform = CATransform3DRotate(self.transform, angles_rad, 0.0,0.0,0.0)
     self.setNeedsDisplay
   end
+
+  def self.new_layer frame
+    CALayer.layer.tap do |obj|
+      obj.frame = frame
+    end
+  end
+  
+  def circle radius, params = {width: 1}
+    CAShapeLayer.layer.tap do |layer|
+      self.add_layer layer
+  
+      path = UIBezierPath.bezierPathWithArcCenter(self.center, radius:radius, startAngle:0, endAngle:2*Math::PI, clockwise:true)
+
+      layer.path = path.CGPath
+
+      layer.lineWidth = params[:width]
+      layer.strokeColor = NSColor.redColor.CGColor
+      layer.fillColor = NSColor.clearColor.CGColor
+    end
+  end
+  
+  def add_layer layer
+    self.addSublayer layer
+    layer.frame = self.bounds
+    layer
+  end
+
+  def center
+    CGPointMake( CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds) )
+  end  
+
 end
+
 
 class CIImage
   def blurred_image( filter_options = {} )
