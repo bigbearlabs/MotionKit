@@ -2,7 +2,9 @@
 
 module Notifications
 
-  def notify_in( time_interval = 10, owner = self, since = Time.now, message = 'Alert')
+  def notify_in( time_interval = 10, message = 'Alert', owner = self)
+    since = Time.now
+
     application = UIApplication.sharedApplication
 
     notification = UILocalNotification.alloc.init
@@ -10,7 +12,7 @@ module Notifications
     notification.fireDate = NSDate.dateWithTimeIntervalSinceNow(time_interval)
     notification.alertBody = message
     notification.alertAction = "View Timer"
-    notification.applicationIconBadgeNumber = badge_number + 1
+    notification.applicationIconBadgeNumber = [badge_number, 0].max + 1
     # TODO dismiss button label
 
     application.scheduleLocalNotification(notification)
