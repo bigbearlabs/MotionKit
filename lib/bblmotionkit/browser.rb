@@ -55,13 +55,13 @@ class BrowserViewController < MotionViewController
       puts result
       # NOTE result should strictly be a string.
 
-      # @web_view.js_alert result
+      # self.js_alert result
     when /^http/
-      @web_view.load_url input
+      self.load_url input
     else
       begin
         # attempt to load file.
-        @web_view.load_file input
+        self.load_file input
       rescue
         # default to preprend http:// and re-call.
         sender.text = "http://#{sender.text}"
