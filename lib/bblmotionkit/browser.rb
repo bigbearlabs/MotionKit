@@ -169,10 +169,5 @@ class NSString
   def decode_uri_component
     self.stringByReplacingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
   end
-
-  def resource_url
-    nsurl = NSURL.fileURLWithPath(File.join(NSBundle.mainBundle.resourcePath, self))
-    nsurl.to_s
-  end
 end
 
