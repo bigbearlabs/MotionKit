@@ -1,6 +1,7 @@
 # stub
 
 def pe_debug(msg)
+  # pe_log msg
   puts "DEBUG: #{msg}" if $DEBUG
 end
 
@@ -45,6 +46,13 @@ end
 
 
 # from Execution.rb
+
+def on_main_async( &block )
+  Dispatch::Queue.main.async do
+    block.call
+  end
+end
+
 class ProcRunner
   attr_reader :result
   attr_reader :exception

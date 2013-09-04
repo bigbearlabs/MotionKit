@@ -23,7 +23,22 @@ class NSObject
     self.valueForKeyPath(key_path)
   end
   
-  def kvc_set( key_path, val )
+  def kvc_set( key_path_or_hash, val = nil )
+    if key_path_or_hash.is_a? NSDictionary
+      kv_hash = key_path_or_hash
+      pe_debug "setting #{self} with #{kv_hash}"
+      kv_hash.map do |k,v|
+        self.kvc_set k, v
+      end
+
+      return
+    end
+
+    key_path = key_path_or_hash.to_s
+    if val.nil?
+      raise "nil value given for #{key_path}"
+    end
+    
     # # check for an intermediate nil.
     # key_path_segments = key_path.split('.')
     # keypath_segment = ''
