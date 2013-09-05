@@ -11,7 +11,7 @@ module Notifications
     notification.userInfo = { "owner" => owner.to_s }
     notification.fireDate = NSDate.dateWithTimeIntervalSinceNow(time_interval)
     notification.alertBody = message
-    notification.alertAction = "View Timer"
+    notification.alertAction = "Open #{BW::App.name}"
     notification.applicationIconBadgeNumber = badge_count if badge_count
 
     # TODO set dismiss button message.
@@ -39,9 +39,13 @@ module Notifications
     end
   end
 
-  def notifications_for owner
+  def notifications( owner = nil )
     app.scheduledLocalNotifications.select do |notif|
-      notif.userInfo && notif.userInfo["owner"] == owner.to_s
+      if owner
+        notif.userInfo && notif.userInfo["owner"] == owner.to_s
+      else
+        notif
+      end
     end
   end
   
