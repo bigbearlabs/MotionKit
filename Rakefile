@@ -20,11 +20,9 @@ Motion::Project::App.setup do |app|
   end
 
   # motion-hockeyrink
-  app.hockeyapp do
     app.hockeyapp.api_token = "575af155f66340e1a6a2c974f889c9c4"
     app.hockeyapp.app_id = "7a4f593356d12375b19d9ed86b285d79"
     app.hockeyapp.status = "allow" 
-  end
 
 
   # Use `rake config' to see complete project settings.
