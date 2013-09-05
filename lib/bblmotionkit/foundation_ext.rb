@@ -80,6 +80,15 @@ class ProcRunner
 end
 
 
+class NSArray
+  def format_backtrace
+    self.collect do |trace_line|
+      trace_line.gsub(/^(.*?)(?=\w+\.rb)/, '')
+    end
+  end
+end
+
+
 class NSURL
   def last_path_segment
     segments = self.path.split('/')
