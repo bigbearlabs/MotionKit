@@ -8,7 +8,7 @@ end
 
 class UIApplication
   def window
-    self.delegate.window
+    self.windows[0]
   end
 
   def controller
@@ -29,6 +29,7 @@ class UIView
     deltaVector = CGPointMake(p.x - q.x, p.y - q.y)
     angle = Math.atan(deltaVector.y / deltaVector.x) + (deltaVector.x < 0 ? Math::PI : 0)
   end
+  
 #= convenience
 
   def fit_superview
@@ -68,13 +69,17 @@ class CALayer
     self.setNeedsDisplay
   end
 
-  def self.new_layer frame
+  def self.new_layer( frame )
     CALayer.layer.tap do |obj|
       obj.frame = frame
     end
   end
   
-  def circle radius, params = {width: 1}
+  def circle( radius, args = nil )
+    args[:width] ||= 1
+    args[:stroke] ||= :red
+    args[:fill] ||= :clear
+
     CAShapeLayer.layer.tap do |layer|
       self.add_layer layer
   
@@ -82,9 +87,9 @@ class CALayer
 
       layer.path = path.CGPath
 
-      layer.lineWidth = params[:width]
-      layer.strokeColor = NSColor.redColor.CGColor
-      layer.fillColor = NSColor.clearColor.CGColor
+      layer.lineWidth = args[:width]
+      layer.strokeColor = args[:stroke].uicolor.CGColor
+      layer.fillColor = args[:fill].uicolor.CGColor
     end
   end
   
