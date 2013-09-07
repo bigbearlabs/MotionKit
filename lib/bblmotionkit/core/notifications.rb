@@ -11,10 +11,8 @@ module Notifications
     notification.userInfo = { "owner" => owner.to_s }
     notification.fireDate = NSDate.dateWithTimeIntervalSinceNow(time_interval)
     notification.alertBody = message
+    notification.alertAction = "Open #{BW::App.name}"
     notification.applicationIconBadgeNumber = badge_count if badge_count
-
-    notification.alertAction = "Open"
-    notification.soundName = UILocalNotificationDefaultSoundName
 
     # TODO set dismiss button message.
 
