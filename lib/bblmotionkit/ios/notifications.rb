@@ -2,7 +2,8 @@
 
 module Notifications
 
-  def notify_in( time_interval = 10, message = 'Notification', badge_count = nil, owner = self)
+  def notify_in( time_interval = 10, message = 'Notification', badge_count = nil, owner = self, sound = nil)
+    sound ||= UILocalNotificationDefaultSoundName
     since = Time.now
 
     application = UIApplication.sharedApplication
@@ -11,14 +12,17 @@ module Notifications
     notification.userInfo = { "owner" => owner.to_s }
     notification.fireDate = NSDate.dateWithTimeIntervalSinceNow(time_interval)
     notification.alertBody = message
-    notification.alertAction = "Open #{BW::App.name}"
     notification.applicationIconBadgeNumber = badge_count if badge_count
+
+    notification.alertAction = "Open"
+
+    notification.soundName = sound
 
     # TODO set dismiss button message.
 
     application.scheduleLocalNotification(notification)
 
-    pe_log "scheduled #{notification} with badge_count #{badge_count}, owner #{owner.to_s}" 
+    pe_log "scheduled #{notification} with badge_count #{badge_count}, sound #{notification.soundName}, owner #{owner.to_s}" 
 
     notification
   end
@@ -39,6 +43,12 @@ module Notifications
     end
   end
 
+  #=
+
+  def test_notification( n )
+    app.presentLocalNotificationNow( n )
+  end
+
   def notifications( owner = nil )
     app.scheduledLocalNotifications.select do |notif|
       if owner
@@ -49,7 +59,6 @@ module Notifications
     end
   end
   
-  #=
 
   def badge_count
     app.applicationIconBadgeNumber
