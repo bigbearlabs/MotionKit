@@ -81,8 +81,8 @@ if BW::App.ios?
         layer.path = path.CGPath
 
         layer.lineWidth = args[:width]
-        layer.strokeColor = args[:stroke].uicolor.CGColor
-        layer.fillColor = args[:fill].uicolor.CGColor
+        layer.strokeColor = args[:stroke].to_color.CGColor
+        layer.fillColor = args[:fill].to_color.CGColor
       end
     end
     
