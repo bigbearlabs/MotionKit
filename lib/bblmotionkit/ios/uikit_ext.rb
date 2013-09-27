@@ -68,6 +68,14 @@ if BW::App.ios?
       end
     end
     
+
+    def new_layer( frame = self.bounds )
+      layer = CALayer.new_layer frame
+      self.add_layer layer
+      layer
+    end
+    
+
     def circle( radius, args = nil )
       args[:width] ||= 1
       args[:stroke] ||= :red
@@ -81,8 +89,8 @@ if BW::App.ios?
         layer.path = path.CGPath
 
         layer.lineWidth = args[:width]
-        layer.strokeColor = args[:stroke].to_color.CGColor
-        layer.fillColor = args[:fill].to_color.CGColor
+        layer.strokeColor = args[:stroke].to_s.dup.to_color.CGColor
+        layer.fillColor = args[:fill].to_s.dup.to_color.CGColor
       end
     end
     
