@@ -1,5 +1,18 @@
 if BubbleWrap::App.osx?
 
+  module AppBehaviour
+
+    def setup_wc window_controller_class, ivar_name = nil
+      instance = window_controller_class.alloc.init
+
+      ivar_name ||= "component_#{window_controller_class.name}"
+      ivar_name = "@#{ivar_name}"
+      instance_variable_set ivar_name, instance
+
+      instance
+    end
+    
+  end
   class NSWindowController
 
   #= lifecycle
