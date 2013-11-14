@@ -13,6 +13,8 @@ Motion::Project::App.setup do |app|
 
   app.frameworks << 'WebKit'
   # app.embedded_frameworks << '../MyFramework.framework'
+
+  app.files_dependencies 'app/app_delegate.rb' => 'app/pemacrubyinfra/CocoaHelper.rb'
 end
 
 

@@ -16,3 +16,20 @@ class BrowserWindowController
 
   outlet :page_details_vc
 end
+
+class MainWindowPopoverController
+  
+end
+
+# class InputFieldViewController
+  
+# end
+
+# class ContextGalleryViewController
+  
+# end
+
+# class BarViewController
+  
+# end
+

@@ -4,9 +4,9 @@ class AppDelegate
   def applicationDidFinishLaunching(notification)
     buildMenu
 
-    setup_stacks_wc
+    # setup_stacks_wc
 
-    # setup_viewer_wc
+    setup_viewer_wc
   end
 
   def setup_viewer_wc
