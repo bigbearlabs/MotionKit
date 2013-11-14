@@ -1,12 +1,24 @@
 class AppDelegate
+  include AppBehaviour
+
   def applicationDidFinishLaunching(notification)
     buildMenu
 
-    @wc = DevWindowController.alloc.init
-    @wc.window.orderFrontRegardless
+    setup_stacks_wc
+
+    # setup_viewer_wc
+  end
+
+  def setup_viewer_wc
+    setup_wc ViewerWindowController
+
+  end
+  
+  def setup_stacks_wc
+    setup_wc DevWindowController, 'stacks_wc'
 
     view_stacker = WebStacksViewController.alloc.init
-    @wc.add_vc view_stacker
+    @stacks_wc.add_vc view_stacker
     view_stacker.setup
   end
 
@@ -26,6 +38,8 @@ class AppDelegate
 end
 
 
+
+# generic wc.
 class DevWindowController < NSWindowController
 end
 
