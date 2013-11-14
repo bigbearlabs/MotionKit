@@ -184,14 +184,6 @@ class WebStacksViewController < ViewStacksViewController
   end
 
   def add_page url
-    # parent_frame = self.view.frame
-    # delta = 30
-    # frame = NSMakeRect( parent_frame.origin.x + delta, parent_frame.origin.y,
-    #   parent_frame.size.width - delta, parent_frame.size.height)
-    # web_view = WebView.alloc.init frame:frame, url:url
-
-    # self.add_view web_view
-
     vc = PageViewController.alloc.init
     vc.view.mainFrameURL = url
     self.add_vc vc
