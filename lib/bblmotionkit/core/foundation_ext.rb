@@ -91,8 +91,11 @@ end
 
 class NSURL
   def last_path_segment
-    segments = self.absoluteString.split('/')
+    return '' if self.path.nil?
+    
+    segments = self.path.split('/')
     segments ? segments.last : ''
+
   end
 end
 
