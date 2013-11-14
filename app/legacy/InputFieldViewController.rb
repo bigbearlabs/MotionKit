@@ -14,6 +14,8 @@
 # require 'KVOMixin'
 # require 'defaults'
 
+### MOTION-MIGRATION
+=begin
 
 Display_tags_by_modes = { 
 	Display_enquiry: 7001, 
@@ -774,4 +776,5 @@ class InputFieldMenu < NSMenu
 	end
 
 end
+=end
 

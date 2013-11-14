@@ -1,25 +1,25 @@
-class PEPopoverController < NSViewController
-end
+# class PEPopoverController < NSViewController
+# end
 
-module KVOMixin
-end
-
-
-class MainWindowController
-  extend IB
-  outlet :page_details_vc
-end
+# module KVOMixin
+# end
 
 
-class BrowserWindowController
-  extend IB
+# class MainWindowController
+#   extend IB
+#   outlet :page_details_vc
+# end
 
-  outlet :page_details_vc
-end
 
-class MainWindowPopoverController
+# class BrowserWindowController
+#   extend IB
+
+#   outlet :page_details_vc
+# end
+
+# class MainWindowPopoverController
   
-end
+# end
 
 # class InputFieldViewController
   
