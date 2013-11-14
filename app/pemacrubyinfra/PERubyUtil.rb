@@ -8,10 +8,10 @@
 
 # TODO should live outside PEMacRubyInfra.
 
-require 'cgi'
-require 'uri'
-require 'timeout'
-require 'open-uri'
+# require 'cgi'
+# require 'uri'
+# require 'timeout'
+# require 'open-uri'
 
 #== simple test class for experiments
 # 
@@ -344,7 +344,7 @@ end
 
 
 # profiling
-require 'benchmark'
+# require 'benchmark'
 def trace_time( description = 'anonymous block', condition = $DEBUG )
   if condition
     time = Benchmark.measure {

@@ -8,22 +8,16 @@
 
 # REFACTOR rename to foundation_additions.rb
 
-require 'PERubyUtil'
-require 'KVCUtil'
-require 'KVOMixin'
-require 'LoggerMixin'
+### MOTION-MIGRATION
+# ## benchmark framework load time.
+# def macruby_framework(*args)
+# 	trace_time "framework #{args}" do
+# 		framework(*args)
+# 	end
+# end
 
-## benchmark framework load time.
-def macruby_framework(*args)
-	trace_time "framework #{args}" do
-		framework(*args)
-	end
-end
-
-macruby_framework 'Foundation'
-
-require 'yaml'
-require 'net/http'
+# macruby_framework 'Foundation'
+### END-MOTION-MIGRATION
 
 # BUG wrong result when no network connection.
 def network_connection?( timeout = 3 )

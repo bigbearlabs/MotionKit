@@ -6,13 +6,13 @@
 #  Copyright 2011 __MyCompanyName__. All rights reserved.
 #
 
-require 'cgi'
-require 'uri'
+# require 'pemacrubyinfra/CocoaHelper'
+# require 'appkit_additions'
+# require 'KVOMixin'
+# require 'defaults'
 
-require 'pemacrubyinfra/CocoaHelper'
-require 'appkit_additions'
-require 'KVOMixin'
-require 'defaults'
+# require 'cgi'
+# require 'uri'
 
 Display_tags_by_modes = { 
 	Display_enquiry: 7001, 

@@ -14,7 +14,6 @@ Motion::Project::App.setup do |app|
   app.frameworks << 'WebKit'
   # app.embedded_frameworks << '../MyFramework.framework'
 
-  app.files_dependencies 'app/app_delegate.rb' => 'app/pemacrubyinfra/CocoaHelper.rb'
 end
 
 
@@ -22,4 +21,10 @@ end
 # Bundler group
 MotionBundler.setup do |app|
   app.require "cgi"
+  
+  # app.require 'logger'
+
+  # CocoaHelper
+  # app.require 'yaml'
+  # app.require 'net/http'
 end
