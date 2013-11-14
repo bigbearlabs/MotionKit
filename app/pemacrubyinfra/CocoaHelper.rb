@@ -19,27 +19,58 @@
 # macruby_framework 'Foundation'
 ### END-MOTION-MIGRATION
 
-# BUG wrong result when no network connection.
-def network_connection?( timeout = 3 )
-	test_uri = "http://www.w3c.org"
 
-	group = Dispatch::Group.new
-	
-	@network_test_result = nil
 
-	Dispatch::Queue.main.async(group) do
-		begin
-			@network_test_result = Net::HTTP.get_response URI(test_uri)
-		rescue Exception => e
-			pe_log "#{e} while testing network"
-		end
-	end
-	
-	group.wait timeout
+# HACK
+def write_file path, content
+  # make the dir if necessary.
+  unless File.exist? path
+    dir = File.dirname path
+    pe_log "making dir #{dir}"
+    FileUtils.mkdir_p dir
+  end
 
-	@network_test_result != nil
+  # write the file.
+  File.open(path, "w") do |file|
+    bytes = file.write content
+
+    pe_log "#{self.object_id} saved to #{path}: #{bytes} bytes"
+
+    return bytes
+  end
+rescue Exception => e
+  pe_report e, "saving to #{path}"
 end
 
+
+
+def network_connection?( timeout = 2 )
+  result = nil
+  begin
+  	test_file = nil
+    quickly_connect = -> {
+      test_file = Net::HTTP.get_response URI("http://www.w3c.org/")
+    }
+
+		group = Dispatch::Group.new
+		Dispatch::Queue.concurrent.async(group) do
+			begin
+	      quickly_connect.call
+		 	rescue Exception
+		 	end
+    end
+
+		group.wait timeout
+
+    result = (test_file != nil)
+  rescue Exception => e
+  	pe_debug "exception: #{e}"
+    result = false
+  end
+
+  pe_debug "network connectivity: #{result}"
+  result
+end
 
 
 class NSObject
@@ -143,6 +174,21 @@ class NSArray
 		NSIndexSet.alloc.initWithIndexSet(index_set)
 	end
 	
+	def for_range( range )
+		puts "range: #{range.description}"
+		range ?
+			self.subarrayWithRange( range ) :
+			self
+	rescue Exception => e
+		pe_report e, "array: #{self}, range: #{range.description}"
+		[]
+	end
+
+	def for_predicate( predicate )
+		predicate.nil? ?
+			self :
+			self.filteredArrayUsingPredicate( predicate )
+	end
 end
 	
 class NSDictionary
@@ -158,16 +204,10 @@ class NSDictionary
 
 	def save_to( path_string )
 		path_string = NSApp.app_support_dir + "/" + path_string
-		File.open(path_string, "w") do |file|
-			bytes = file.write self.to_yaml
-
-			pe_log "#{self.object_id} saved to #{path_string}: #{bytes} bytes"
-
-			return bytes
-		end
-	rescue Exception => e
-		pe_report e, "saving to #{path_string}"
-	end
+    content = self.to_yaml
+    
+    write_file path_string, content
+  end
 
 end
 
@@ -237,18 +277,34 @@ class NSBundle
 		end
 	end
 	
+	def path
+		self.resourcePath
+	end
+
+	#=
+
 	def content( resource_name, subdirectory = nil )
-		file_path = "#{NSBundle.mainBundle.resourcePath}#{subdirectory ? '/' + subdirectory : ''}/#{resource_name}"
-		content = File.open(file_path).read
+		file_path = "#{self.path}#{subdirectory ? '/' + subdirectory : ''}/#{resource_name}"
+		begin
+			content = File.open(file_path).read
+			content
+		rescue
+			pe_warn "failed to load #{file_path}"
+		end
 	end
 	
-	def dictionary_from_plist( plist_name, subdirectory = nil )
-		NSDictionary.alloc.initWithContentsOfURL(self.url("#{plist_name}.plist", subdirectory))
-	end
-end
+	# FIXME get rid of subdirectory param
+	def dictionary_from_plist( plist_name )
+		pe_debug "plist_name: #{plist_name}"
 
-def load_plist( url_string )
-	NSDictionary.alloc.initWithContentsOfURL( url_string.to_url )
+		dir, filename = plist_name.gsub(/\/(\w+(\.\w+)?)$/, ''), $1.to_s
+		pe_debug "dir, filename: #{dir}, #{filename}"
+		path = self.pathForResource(filename.gsub(/\.plist$/, ''), ofType:"plist", inDirectory:dir)
+		raise "invalid plist path #{path}" if ! path or path.empty?
+
+		pe_debug "make dictionary from #{path}"
+		NSDictionary.dictionaryWithContentsOfFile(path)
+	end
 end
 
 class IntegerToIndexes < NSValueTransformer
@@ -264,6 +320,7 @@ end
 
 # methods which really should be under Hash, but here to work around class anomaly when NSDictionary made from url.
 class NSDictionary
+
 	def overwritten_hash( priority_hash = {} )
 		hash = {}
 		
@@ -276,6 +333,7 @@ class NSDictionary
 				if v.is_a? NSDictionary
 					val = v.overwritten_hash val
 				end
+				
 			else
 				val = v
 			end
@@ -286,6 +344,7 @@ class NSDictionary
 		
 		hash
 	end
+
 
 	def deep_mutable_copy
 		instance = NSMutableDictionary.new
@@ -312,7 +371,7 @@ end
 class NSTimer
   def self.new_timer( interval, &action )
     action_holder = ProcRunner.new -> {
-      pe_log "#{self}: interval reached, yielding to block"
+      pe_debug "#{self}: interval reached, yielding to block"
       action.call
     }
 
@@ -325,3 +384,78 @@ class NSTimer
 end
 
 
+#= NSPredicate
+
+# FIXME rename / relocate.
+def and_predicates(formatted_str, words)
+	predicates = words.collect do |word|
+		new_predicate formatted_str, word
+	end
+	NSCompoundPredicate.andPredicateWithSubpredicates(predicates)
+end
+
+def new_predicate formatted_str, word
+	NSPredicate.predicateWithFormat(formatted_str, word)
+end
+
+class NSPredicate
+  
+  def self.widening_predicates( array_controller, chunk_size = 30, another_predicate = nil)
+
+    ## NOTE as this requires the filter to be present in order to test for membership in the slice, it needs to be instantiated every time the collection mutates. 
+    filtered_objects = array_controller.unfiltered_objects.for_predicate another_predicate
+
+    slices = filtered_objects.each_slice(chunk_size).to_a
+    
+    if slices.empty?
+      pe_log "no widening predicates created for #{another_predicate.description} - just returning the original predicate."
+        
+      return [ another_predicate ]
+    end
+
+    selection = []
+    slices.map do |slice|
+      selection.concat slice
+
+      # a limited predicate includes the object if it's in the slice.
+      my_selection = selection.dup
+      limited_predicate = NSPredicate.predicateWithBlock(
+        -> evaluatedObject, bindings {
+          my_selection.include? evaluatedObject
+          })
+    end
+    
+  end
+
+  # returns a predicate that matches the first n sorted elements of the array controller.
+  def self.limit_predicate array_controller, limit, another_predicate = nil
+  	puts "creating predicate with limit #{limit}"
+    NSPredicate.predicateWithBlock(
+      -> evaluatedObject, bindings {
+        unfiltered_objects = array_controller.unfiltered_objects
+        if another_predicate
+        	unfiltered_objects = unfiltered_objects.for_predicate another_predicate
+        end
+
+        index = unfiltered_objects.index(evaluatedObject)
+
+        puts "#{self} limit: #{limit}, index: #{index}"
+        index.to_i < limit
+      }
+    )
+  end
+
+
+  def new_and predicate
+    predicate.nil? ?
+      self :
+      NSCompoundPredicate.andPredicateWithSubpredicates( [ self, predicate ] )
+  end
+
+  def new_or predicate
+    predicate.nil? ?
+      self :
+      NSCompoundPredicate.orPredicateWithSubpredicates( [ self, predicate ] )
+  end
+
+end

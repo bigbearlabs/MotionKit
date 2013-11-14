@@ -23,11 +23,12 @@ end
 # TODO change envvar value to a csv of log module - level pairs.
 module LoggerMixin
 	
-	NSLog_levels = case ENV['NSLog_levels']
+	logging_str = ENV['LOGGING']
+	NSLog_levels = case logging_str
 	when nil
 		[ :warn ]
 	else
-		ENV['NSLog_levels'].split(',').collect { |s| s.intern }
+		logging_str.split(',').collect { |s| s.intern }
 	end
 
 	$pe_logger = StubLogger.new(STDOUT)
@@ -53,21 +54,23 @@ module LoggerMixin
   
 	def pe_warn( msg )
 		if should_nslog :warn
-			NSLog( "## WARNING ##: #{pe_escape_format_specifiers(msg)}" )
+			NSLog( "#{Environment.instance.isDebugBuild ? "##WARN## " : ""}#{pe_escape_format_specifiers(msg)}" )
 		else 
 			$pe_logger.warn msg
 		end
 	end
 
   def pe_trace(msg = nil)
-  	stack = $DEBUG ? caller : caller[0..2]
-    pe_log "** TRACE #{msg.to_s} ** #{stack.format_backtrace.join(" - ")}"
+  	if Environment.instance.isDebugBuild
+	  	stack = $DEBUG ? caller : caller[0..2]
+	    pe_log "** TRACE #{msg.to_s} ** #{stack.format_backtrace.join(" - ")}"
+	end
   end
 
 
 	def pe_report( exception, msg = nil )
 		pe_warn "** Exception ** #{exception.inspect} #{msg ? msg : nil} ** backtrace: #{exception.report}"
-		breakpoint exception: exception
+		debug exception: exception
 	end
 	
 	def pe_escape_format_specifiers(str)

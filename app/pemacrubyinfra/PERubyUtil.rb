@@ -143,12 +143,6 @@ class String
     self.gsub(/\/+$/,'') == url.gsub(/\/+$/,'')
   end
   
-  def is_valid_url?
-    return true if URI::DEFAULT_PARSER.regexp[:ABS_URI].match self
-    return true if URI::DEFAULT_PARSER.regexp[:ABS_URI].match self.to_url_string
-    false
-  end
-  
   def to_url_string # PROTO
     if self[0] == '/'
       "file://#{self}"
@@ -239,7 +233,10 @@ class Array
   
 end
 
+# ?? can't get this work with the defaults loaded from the cocoa api. clobbering in CocoaHelper.
 class Hash
+  # @return a new hash with values defined in priority_hash replaced.
+  # for an entry that is itself a hash, assume keys in original entry but not in priority entry are new entries rather than deletions.
   def overwritten_hash( priority_hash )
     overwritten_hash = {}
     
@@ -247,7 +244,7 @@ class Hash
       if v.is_a? Hash
         new_val = v.overwritten_hash( priority_hash[k] )
       else
-        if priority_hash && priority_hash.has_key?(k)
+        if priority_hash.has_key?(k)
           pe_log "overwriting #{k} with value from priority hash"
           new_val = priority_hash[k]
         else
@@ -357,20 +354,28 @@ def trace_time( description = 'anonymous block', condition = $DEBUG )
 end
 
 
-# network
-def network_connection?( timeout = 5 )
+#= network
+
+# NOTE this deadlocks when used in macruby.
+def network_connection?( timeout = 2 )
+  result = nil
   begin
+    test_file = nil
     Timeout::timeout(timeout) do
-      return true if open("http://www.w3c.org/")
+      test_file = open("http://www.w3c.org/")
     end
-  rescue Timeout::Error, StandardError 
+
+    result = test_file != nil
+  rescue Exception 
+    result = false
   end
 
-  return false
+  pe_debug "network connectivity: #{result}"
+  result
 end
 
 def is_reachable_host?( host )
-  result = system "ping -t 1 -c 1 #{host}"
+  system "ping -t 1 -c 1 #{host}"
   $?.exitstatus == 0
 end
 
