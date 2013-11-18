@@ -9,14 +9,21 @@ Bundler.require
 # motion-require
 Motion::Require.all
 
+
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'webbuddy-motion'
 
-  app.frameworks << 'WebKit'
+  # app.frameworks += %W[ WebKit Carbon CoreServices LaunchServices ]  # Carbon contains ApplicationServices
   # app.embedded_frameworks << '../MyFramework.framework'
+  app.frameworks << 'WebKit'
+  app.frameworks << 'Carbon'
+  app.frameworks << 'CoreServices'
+  app.frameworks << 'LaunchServices'
 
   # app.files_dependencies 'app/legacy/NSViewController_additions.rb' => 'app/pemacrubyinfra/KVOMixin.rb'
+
+  app.delegate_class = "WebBuddyAppDelegate"
 end
 
 

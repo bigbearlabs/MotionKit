@@ -4,3 +4,5 @@ ib.xcodeproj/Stubs.h
 ib.xcodeproj/Stubs.m
 *.nib
 .repl_history
+
+/.motion-bundler.rb
