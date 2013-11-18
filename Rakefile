@@ -20,6 +20,7 @@ Motion::Project::App.setup do |app|
   app.frameworks << 'Carbon'
   app.frameworks << 'CoreServices'
   app.frameworks << 'LaunchServices'
+  app.frameworks << 'ExceptionHandling'
 
   # app.files_dependencies 'app/legacy/NSViewController_additions.rb' => 'app/pemacrubyinfra/KVOMixin.rb'
 

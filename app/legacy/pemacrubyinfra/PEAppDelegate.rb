@@ -283,13 +283,14 @@ class PEAppDelegate
 			pe_warn "#{exception} occurred."
 		}
 
-		NSExceptionHandler.defaultExceptionHandler.setExceptionHandlingMask(
-			NSLogUncaughtExceptionMask | NSHandleUncaughtExceptionMask |
-			NSLogUncaughtSystemExceptionMask | NSHandleUncaughtSystemExceptionMask |
-			NSLogUncaughtRuntimeErrorMask | NSHandleUncaughtRuntimeErrorMask |
-			NSLogTopLevelExceptionMask | NSHandleTopLevelExceptionMask |
-			NSLogOtherExceptionMask | NSHandleOtherExceptionMask
-			)
+		# MOTION-MIGRATION
+		# NSExceptionHandler.defaultExceptionHandler.setExceptionHandlingMask(
+		# 	NSLogUncaughtExceptionMask | NSHandleUncaughtExceptionMask |
+		# 	NSLogUncaughtSystemExceptionMask | NSHandleUncaughtSystemExceptionMask |
+		# 	NSLogUncaughtRuntimeErrorMask | NSHandleUncaughtRuntimeErrorMask |
+		# 	NSLogTopLevelExceptionMask | NSHandleTopLevelExceptionMask |
+		# 	NSLogOtherExceptionMask | NSHandleOtherExceptionMask
+		# 	)
 
 		# FIXME this results in duplicate logging.
 

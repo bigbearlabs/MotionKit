@@ -343,14 +343,15 @@ end
 # profiling
 # require 'benchmark'
 def trace_time( description = 'anonymous block', condition = $DEBUG )
-  if condition
-    time = Benchmark.measure {
-  		yield
-  	}
-    puts "##trace_time #{description} took #{time}"
-  else
+  # MOTION-MIGRATION
+  # if condition
+  #   time = Benchmark.measure {
+  # 		yield
+  # 	}
+  #   puts "##trace_time #{description} took #{time}"
+  # else
     yield
-  end
+  # end
 end
 
 

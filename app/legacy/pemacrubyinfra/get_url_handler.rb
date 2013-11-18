@@ -19,11 +19,12 @@ module GetUrlHandler
 
 	#= platform integration
 
-	def applicationWillFinishLaunching(notification)
-		self.register_url_handling
+	# MOTION-MIGRATION
+	# def applicationWillFinishLaunching(notification)
+	# 	self.register_url_handling
 
-		super
-	rescue NoMethodError
-	end
+	# 	super if defined?(super)
+	# rescue NoMethodError
+	# end
 
 end
