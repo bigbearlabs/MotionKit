@@ -1,9 +1,9 @@
-require 'CocoaHelper'
-require 'NSViewController_additions'
-require 'NSWindow_additions'
+# require 'CocoaHelper'
+# require 'NSViewController_additions'
+# require 'NSWindow_additions'
 
-macruby_framework 'AppKit'
-macruby_framework 'ExceptionHandling'
+# macruby_framework 'AppKit'
+# macruby_framework 'ExceptionHandling'
 
 class NSApplication
 
@@ -1096,7 +1096,7 @@ end
 
 #== webkit
 
-macruby_framework 'WebKit'
+# macruby_framework 'WebKit'
 
 class WebView
 	def url
