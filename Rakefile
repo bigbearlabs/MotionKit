@@ -22,6 +22,8 @@ Motion::Project::App.setup do |app|
   app.frameworks << 'LaunchServices'
   app.frameworks << 'ExceptionHandling'
 
+  app.vendor_project('vendor/NSFileManager_DirectoryLocations', :static)
+    
   # app.files_dependencies 'app/legacy/NSViewController_additions.rb' => 'app/pemacrubyinfra/KVOMixin.rb'
 
   app.delegate_class = "WebBuddyAppDelegate"
