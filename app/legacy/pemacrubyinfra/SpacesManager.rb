@@ -84,7 +84,7 @@ class SpacesManager
 	end
 
 	# FIXME this won't work with pid other than this app's.
-	def windows_in_space( criteria = { pid: NSApp.pid } )
+	def windows_in_space( criteria = { :pid => NSApp.pid } )
 		window_list = [].concat self.space_window_data
 		if criteria
 			window_list.keep_if do |window_info|
@@ -118,7 +118,7 @@ class SpacesManager
 		window_report = window_data.collect{ |e| [ e["kCGWindowOwnerName"], e["kCGWindowName"] ] }
 		pe_log "all windows: #{ window_report.to_s}"
 
-		delayed_cancelling_previous 0.05, -> {
+		delayed_cancelling_previous 0.05, proc {
 			on_main do
 				@should_drop_anchor = true
 
