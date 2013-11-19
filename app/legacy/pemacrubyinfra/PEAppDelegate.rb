@@ -89,7 +89,8 @@ class PEAppDelegate
 		
 		on_main_async do
 			# quick, the dev console!
-			new_debug_window if Environment.instance.isDebugBuild
+			# MOTION-MIGRATION
+			# new_debug_window if Environment.instance.isDebugBuild
 		end
 	end
 
