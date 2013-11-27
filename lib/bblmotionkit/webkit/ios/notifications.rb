@@ -22,7 +22,7 @@ module Notifications
 
     application.scheduleLocalNotification(notification)
 
-    pe_log "scheduled #{notification} with badge_count #{badge_count}, sound #{notification.soundName}, owner #{owner.to_s}" 
+    pe_log "scheduled #{notification}, time_interval:#{time_interval}, badge_count:#{badge_count}, sound:#{notification.soundName}, owner:#{owner.to_s}" 
 
     notification
   end
