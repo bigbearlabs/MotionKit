@@ -6,7 +6,7 @@
 #  Copyright 2011 TheFunHouseProject. All rights reserved.
 #
 
-motion_require 'pemacrubyinfra/NSWindow_additions'
+# motion_require 'pemacrubyinfra/NSWindow_additions'
 
 ##
 # the main window.

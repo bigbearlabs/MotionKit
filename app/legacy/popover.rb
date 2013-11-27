@@ -15,12 +15,13 @@ class PEPopoverController < PEViewController
     # REFACTOR change to reactive
     # on_main_async do
 
-    observe_kvo self, "popover.shown" do |k,c,ctx|
-      #     self.view.window.visible = true
-      #     self.view.window.makeKeyAndOrderFront(self)
+    # MOTION-MIGRATION
+    # observe_kvo self, "popover.shown" do |k,c,ctx|
+    #   #     self.view.window.visible = true
+    #   #     self.view.window.makeKeyAndOrderFront(self)
 
-      self.view.window.recalculateKeyViewLoop
-    end
+    #   self.view.window.recalculateKeyViewLoop
+    # end
   end
   
   def show_popover(anchor_view = self.anchor_view)

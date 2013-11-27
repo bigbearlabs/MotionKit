@@ -10,7 +10,8 @@ class AppDelegate
   end
 
   def setup_viewer_wc
-    setup_wc ViewerWindowController
+    # MOTION-MIGRATION
+    # setup_wc ViewerWindowController
 
   end
   

@@ -7,15 +7,14 @@ require 'bundler'
 Bundler.require
 
 # motion-require
-Motion::Require.all
+# require 'motion-require'
+# Motion::Require.all
 
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'webbuddy-motion'
 
-  # app.frameworks += %W[ WebKit Carbon CoreServices LaunchServices ]  # Carbon contains ApplicationServices
-  # app.embedded_frameworks << '../MyFramework.framework'
   app.frameworks << 'WebKit'
   app.frameworks << 'Carbon'
   app.frameworks << 'CoreServices'
@@ -23,10 +22,10 @@ Motion::Project::App.setup do |app|
   app.frameworks << 'ExceptionHandling'
 
   app.vendor_project('vendor/NSFileManager_DirectoryLocations', :static)
-    
-  # app.files_dependencies 'app/legacy/NSViewController_additions.rb' => 'app/pemacrubyinfra/KVOMixin.rb'
 
   app.delegate_class = "WebBuddyAppDelegate"
+
+  # app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb'
 end
 
 
@@ -37,10 +36,4 @@ end
 
 MotionBundler.setup do |app|
   app.require "cgi"
-
-  # app.require 'logger'
-
-  # CocoaHelper
-  # app.require 'yaml'
-  # app.require 'net/http'
 end

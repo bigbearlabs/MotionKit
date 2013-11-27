@@ -283,7 +283,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		
 		if ! network_connection?
 			pe_log "no network connectivity. showing local welcome page"
-			url = NSBundle.mainBundle.url( 'modules/start/index.html' ).absoluteString
+			url = NSBundle.mainBundle.url( 'modules/welcome/index.html' ).absoluteString
 		end
 			
 		self.load_url url
@@ -860,15 +860,15 @@ class WebBuddyAppDelegate < PEAppDelegate
 #== hotkey
 
 	def setup_hotkey
-		@hotkey_manager.remove_modkey_action_definition  # necessary for no-op.
+		# @hotkey_manager.remove_modkey_action_definition  # necessary for no-op.
 
-		if default 'enable_hotkey_dtap'
-			self.setup_hotkey_dtap
-		end
+		# if default 'enable_hotkey_dtap'
+		# 	self.setup_hotkey_dtap
+		# end
 	end
 
 	def setup_hotkey_dtap
-		execute_policy :hotkey  # TODO this usage of policy looks very unnatural
+		# execute_policy :hotkey  # TODO this usage of policy looks very unnatural
 	end
 
 	# policies

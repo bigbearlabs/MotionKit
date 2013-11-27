@@ -270,11 +270,16 @@ end
 
 class NSBundle
 	def url( resource_name, subdirectory = nil)
-		if subdirectory
-			self.URLForResource(resource_name, withExtension:nil, subdirectory:subdirectory, localization:nil)
-		else
-			self.URLForResource(resource_name, withExtension:nil)
-		end
+		url = 
+      if subdirectory
+  			self.URLForResource(resource_name, withExtension:nil, subdirectory:subdirectory, localization:nil)
+  		else
+  			self.URLForResource(resource_name, withExtension:nil)
+  		end
+
+    raise "no resource #{subdirectory.to_s.empty? ? '' : subdirectory + '/'}#{resource_name} in #{path}" if url.nil?
+
+    url
 	end
 	
 	def path
