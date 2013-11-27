@@ -27,12 +27,8 @@ Motion::Project::App.setup do |app|
   ]
 
   # TODO declare document types
-  
-  app.frameworks << 'WebKit'
-  app.frameworks << 'Carbon'
-  app.frameworks << 'CoreServices'
-  app.frameworks << 'LaunchServices'
-  app.frameworks << 'ExceptionHandling'
+
+  app.frameworks += %w( WebKit Carbon ExceptionHandling )
 
   app.vendor_project('vendor/NSFileManager_DirectoryLocations', :static)
   app.vendor_project('vendor/DDHotKeyCenter', :static)

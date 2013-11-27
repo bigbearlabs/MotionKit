@@ -6,3 +6,7 @@ ib.xcodeproj/Stubs.m
 .repl_history
 
 /.motion-bundler.rb
+
+resources/modules
+vendor/**/build*
+vendor/**/*.bridgesupport
