@@ -14,7 +14,11 @@ module FilesystemAccess
     loc = parse_location_sym location_sym
     File.read(File.join(loc, filename))
   end
+end
 
+#== NS*
+
+module FilesystemAccess
   def parse_location_sym(location_sym)
     case location_sym
     when :docs
