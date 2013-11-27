@@ -2,7 +2,10 @@ require "cgi"
 
 
 
-
+# TODO this is the conceptual equivalent of the BrowserWindowController. Need to reconcile the compositional manager role between ios an osx.
+# work around for now by making code contingent to ios.
+if BubbleWrap::App.ios?
+  
 class BrowserViewController < MotionViewController
   extend IB
 
@@ -79,6 +82,10 @@ class BrowserViewController < MotionViewController
       @web_view.set_height @web_view.height - input_field.height
     end
   end
+
+  #== ios platform integration layer
+
+  #= input
 
   def textFieldShouldReturn(textField)
     # return pressed - just raise the event.
@@ -171,3 +178,4 @@ class NSString
   end
 end
 
+end
