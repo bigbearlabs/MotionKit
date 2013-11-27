@@ -5,14 +5,19 @@ if BubbleWrap::App.osx?
     def setup_wc window_controller_class, ivar_name = nil
       instance = window_controller_class.alloc.init
 
+      # hold the wc as an ivar.
       ivar_name ||= "component_#{window_controller_class.name}"
       ivar_name = "@#{ivar_name}"
       instance_variable_set ivar_name, instance
+
+      # prod the window.
+      instance.window.visible = true
 
       instance
     end
     
   end
+  
   class NSWindowController
 
   #= lifecycle
@@ -97,8 +102,14 @@ if BubbleWrap::App.osx?
         self.addSubview(subview)
       end
     end
+
     #=
 
+    # for debugging
+    def tree
+      puts self._subtreeDescription
+    end
+    
   end
 
 end
