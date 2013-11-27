@@ -22,6 +22,7 @@ Motion::Project::App.setup do |app|
   app.frameworks << 'ExceptionHandling'
 
   app.vendor_project('vendor/NSFileManager_DirectoryLocations', :static)
+  app.vendor_project('vendor/DDHotKeyCenter', :static)
 
   app.delegate_class = "WebBuddyAppDelegate"
 

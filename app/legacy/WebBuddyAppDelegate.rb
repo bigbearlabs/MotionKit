@@ -26,8 +26,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= major lifecycle
 
 	def setup
-		# MOTION-MIGRATION
-		# self.hotkey_manager ||= HotkeyManager.new
+		self.hotkey_manager ||= HotkeyManager.new
 
 		super
 
