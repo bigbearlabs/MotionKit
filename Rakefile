@@ -7,14 +7,27 @@ require 'bundler'
 Bundler.require
 
 # motion-require
-# require 'motion-require'
-# Motion::Require.all
+require 'motion-require'
+Motion::Require.all
 
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
-  app.name = 'webbuddy-motion'
+  app.name = 'WebBuddy'
+  app.identifier = "com.bigbearlabs.WebBuddy"
 
+  app.version = "200"
+  app.short_version = "1.1.9"
+
+  app.info_plist['CFBundleURLTypes'] = [
+    { 'CFBundleURLName' => 'Web site URL',
+      'CFBundleURLSchemes' => ['http', 'https'] },
+    { 'CFBundleURLName' => 'Local file URL',
+      'CFBundleURLSchemes' => ['file'] }
+  ]
+
+  # TODO declare document types
+  
   app.frameworks << 'WebKit'
   app.frameworks << 'Carbon'
   app.frameworks << 'CoreServices'
