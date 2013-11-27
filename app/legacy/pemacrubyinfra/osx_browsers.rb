@@ -25,25 +25,23 @@ module Browsers
 	}
 
 	def self.default_browser
-		# MOTION-MIGRATION
-		# default_browser_bid = LSCopyDefaultHandlerForURLScheme("http")
-		# default_browser_bid
+		default_browser_bid = LSCopyDefaultHandlerForURLScheme("http")
+		default_browser_bid
 
 		'com.bigbearlabs.WebBuddy'
 	end
 
 	# FIXME when bundle id resolves to multiple apps, we can have weird issues here.
 	def self.set_default_browser( bundle_id )
-		# MOTION-MIGRATION
-		# ret1 = LSSetDefaultHandlerForURLScheme("http",  bundle_id)
-		# ret2 = LSSetDefaultHandlerForURLScheme("https", bundle_id)
-		# ret3 = LSSetDefaultHandlerForURLScheme("file", bundle_id) # EDGECASE folders
-		# if (ret1 == 0 && ret2 == 0 && ret3 == 0)
-		# 	pe_warn "set default browser to #{bundle_id}"
-		# else
-		# 	raise "return codes #{ret1}, #{ret2}, #{ret3} setting default browser to #{bundle_id}"
-		# 	# TODO user-friendly dialog for the error.
-		# end
+		ret1 = LSSetDefaultHandlerForURLScheme("http",  bundle_id)
+		ret2 = LSSetDefaultHandlerForURLScheme("https", bundle_id)
+		ret3 = LSSetDefaultHandlerForURLScheme("file", bundle_id) # EDGECASE folders
+		if (ret1 == 0 && ret2 == 0 && ret3 == 0)
+			pe_warn "set default browser to #{bundle_id}"
+		else
+			raise "return codes #{ret1}, #{ret2}, #{ret3} setting default browser to #{bundle_id}"
+			# TODO user-friendly dialog for the error.
+		end
 	end
 
 	# return hash of details bundle_id, description keyed by name

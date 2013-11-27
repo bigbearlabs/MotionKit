@@ -19,12 +19,12 @@ module GetUrlHandler
 
 	#= platform integration
 
-	# MOTION-MIGRATION
-	# def applicationWillFinishLaunching(notification)
-	# 	self.register_url_handling
+	# FIXME make it clobber-safe
+	def applicationWillFinishLaunching(notification)
+		self.register_url_handling
 
-	# 	super if defined?(super)
-	# rescue NoMethodError
-	# end
+		super if defined?(super)
+	rescue NoMethodError
+	end
 
 end
