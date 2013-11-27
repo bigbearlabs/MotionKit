@@ -98,9 +98,11 @@ class BrowserWindowController < NSWindowController
 			observe_notification :Item_selected_notification
 
 			self.setup_title_bar
-			# self.setup_actions_bar
 			self.setup_responder_chain
-			self.setup_reactive_detail_input
+
+			# MOTION-MIGRATION
+			# self.setup_actions_bar
+			# self.setup_reactive_detail_input
 			# self.setup_popover
 		end
 	end
