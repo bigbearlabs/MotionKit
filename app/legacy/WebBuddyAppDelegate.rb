@@ -2,11 +2,12 @@
 
 
 class WebBuddyAppDelegate < PEAppDelegate
+	include ComponentAware
+
 	include InputHandler
 	include ServicesHandler
 	include KVOMixin
 	include Reactive
-	include InputHandler
 
 	# collaborators
 	attr_accessor :hotkey_manager
@@ -22,13 +23,33 @@ class WebBuddyAppDelegate < PEAppDelegate
 	# observable state - gradually migrate observation to frp-style.
 	attr_accessor :active_status  # RENAME main window status
 
+	def components
+		[
+			{
+				module: DefaultBrowserHandler,
+			},
+			# {
+			# 	module: InputHandler,
+			# },
+			# {
+			# 	module: ServicesHandler,
+			# },
+		]
+		# should call setup_components for each element in order.
+		# should add component's event handlers to the handler chains, initialising if necessary.
+	end
+
 
 #= major lifecycle
 
 	def setup
+
+		# this call made prior to super, to work around dep issue in super. FIXME
 		self.hotkey_manager ||= HotkeyManager.new
 
 		super
+
+		setup_components
 
 		@intro_enabled = default :intro_enabled
 		@load_welcome = default :load_welcome
@@ -68,9 +89,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		self.setup_context_store
 
 		try {
-			# in order to handle the ext urls, we need to be the default browser.
-			self.make_default_browser
-
 			watch_notification NSWindowDidEndLiveResizeNotification
 			watch_notification NSWindowDidMoveNotification
 		}
@@ -174,6 +192,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		end
 	end
 
+	# NOTE if prefs can be lined up to the component abstraction, we can get rid of this method and split up the contents in each component instead.
 	def preferences_by_id
 		{
 			9001 => {
@@ -662,8 +681,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= system events
 
 	def on_terminate
-		self.revert_default_browser
-
 		@context_store.save
 	end
 
@@ -759,23 +776,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 			}
 		end
 =end
-	end
-
-#= system-default browser
-
-	def make_default_browser
-		previous_browser_bid = Browsers::default_browser
-		unless NSApp.bundle_id.casecmp(previous_browser_bid) == 0
-			pe_log "saving previous browser: #{previous_browser_bid}"
-			set_default 'GeneralPreferencesViewController.previous_default_browser', previous_browser_bid
-		end
-
-		Browsers::set_default_browser NSApp.bundle_id
-	end
-
-	def revert_default_browser
-		previous_browser_bid = default 'GeneralPreferencesViewController.previous_default_browser'
-		Browsers::set_default_browser previous_browser_bid unless previous_browser_bid.empty?
 	end
 
 #= menu

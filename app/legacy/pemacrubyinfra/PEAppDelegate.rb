@@ -76,6 +76,7 @@ class PEAppDelegate
 				watch_notification NSWindowWillExitFullScreenNotification
 				watch_notification NSWindowWillEnterFullScreenNotification
 				# watch_notification NSWindowDidChangeScreenProfileNotification  # MOTION-MIGRATION
+				# need to replace usage of define_*_method
 				## (main)> <RBAnonymous68 0x7fa53a44deb0> method `handle_NSWindowDidChangeScreenProfileNotification:' created by attr_reader/writer or define_method cannot be called from Objective-C. Please manually define the method instead (using the `def' keyword).
 
 				watch_workspace_notification NSWorkspaceActiveSpaceDidChangeNotification
