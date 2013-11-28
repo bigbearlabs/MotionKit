@@ -18,7 +18,7 @@ class ContextStore
 	attr_accessor :contexts
 	attr_accessor :current_context
 
-	default :plist_name
+	default :plist_name  # RENAME yaml_name.  # REFACTOR abstract into a uri
 	default :default_plist_name
 	default :thumbnail_dir
 	default :thumbnail_extension
@@ -106,15 +106,17 @@ class ContextStore
 	end
 	
 	def load_contexts
-		begin
-			pe_log "loading contexts from #{plist_name}"
-			context_store_data  = NSDictionary.dictionary_from plist_name
-		rescue Exception => e
-			pe_report e
-			pe_warn "TODO trigger backup restoration workflow"  # IMPL
+		# MOTION-MIGRATION
+		## re-enable after migration and rationalisation of the context model.
+		# begin
+		# 	pe_log "loading contexts from #{plist_name}"
+		# 	context_store_data  = NSDictionary.dictionary_from plist_name
+		# rescue Exception => e
+		# 	pe_report e
+		# 	pe_warn "TODO trigger backup restoration workflow"  # IMPL
 			
 			context_store_data = {}
-		end
+		# end
 		
 		if ( ! context_store_data || context_store_data.keys.empty? )
 			pe_log "initializing empty context store from default template."

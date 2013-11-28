@@ -11,6 +11,7 @@ gem 'motion-require'
 gem 'ib'
 
 gem 'bubble-wrap'
+gem 'motion-yaml'
 
 # gem 'motion-cocoapods',  "~> 1.3.0.rc1"
 # gem 'cocoapods-core'

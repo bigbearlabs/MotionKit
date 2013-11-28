@@ -196,7 +196,10 @@ class NSDictionary
 	def self.dictionary_from( path_string )
 		path_string = NSApp.app_support_dir + "/" + path_string
 		if File.exist? path_string
-			instance = YAML::load_file path_string
+      content = File.open(path_string).read
+
+      # TODO test if yaml file.
+			instance = YAML::load content
 		end
 
 		instance ? instance : {}

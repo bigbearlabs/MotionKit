@@ -170,16 +170,17 @@ class BrowserWindowController < NSWindowController
 			window.title = self.url if self.window_title_mode == :url			
 		end
 
-		# add a click handler in the region of the title,
-		# invoke page popover.
-		window.frame_view.track_mouse_down do |event, hit_view|
-			# if event.locationInWindow.in_rect( window.frame_view._titleControlRect )  # MOTION-MIGRATION
-			if NSPointInRect(event.locationInWindow, window.frame_view._titleControlRect )
-				# handle_carousel_title self
+		# # MOTION-MIGRATION
+		# # add a click handler in the region of the title,
+		# # invoke page popover.
+		# window.frame_view.track_mouse_down do |event, hit_view|
+		# 	# if event.locationInWindow.in_rect( window.frame_view._titleControlRect )  # MOTION-MIGRATION
+		# 	if NSPointInRect(event.locationInWindow, window.frame_view._titleControlRect )
+		# 		# handle_carousel_title self
 
-				handle_toggle_page_detail self
-			end
-		end
+		# 		handle_toggle_page_detail self
+		# 	end
+		# end
 	end
 
 	def handle_carousel_title( sender )
