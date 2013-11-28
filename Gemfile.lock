@@ -1,5 +1,5 @@
 PATH
-  remote: ../bblmotionkit
+  remote: ./bblmotionkit
   specs:
     bblmotionkit (0.0.5)
       bubble-wrap
