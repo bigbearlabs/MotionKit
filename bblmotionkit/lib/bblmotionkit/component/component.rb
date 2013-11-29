@@ -14,7 +14,7 @@ module ComponentClient
 
     # TACTICAL naive implementation keeps instantiating new instances..
     defaults = default "#{self.class.name}.#{component_class.name}"
-    instance = component_class.new( defaults )
+    instance = component_class.new( self, defaults )
     @registered_components << instance
 
     # set up event method chaining.
@@ -51,9 +51,12 @@ end
 
 
 class BBLComponent
-  def initialize(defaults)
+  attr_reader :client
+  
+  def initialize(client, defaults)
     raise "nil defaults" if defaults.nil?
 
+    @client = client
     @defaults = defaults
   end
 

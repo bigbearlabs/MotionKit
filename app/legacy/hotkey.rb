@@ -2,16 +2,9 @@ class HotkeyHandler < BBLComponent
 
 	attr_accessor :hotkey_manager
 
-	def initialize(arg)
-		super
-
+	def on_setup
 		@hotkey_manager ||= HotkeyManager.new
 
-		@hotkey_policy = default :hotkey_policy
-		@hotkey_action_policy = default :hotkey_action_policy
-	end
-
-	def on_setup
 		@hotkey_manager.remove_modkey_action_definition  # necessary for no-op.
 
 		if default :enable_hotkey_dtap
@@ -57,11 +50,11 @@ class HotkeyHandler < BBLComponent
 	end
 	
 	def hotkey_action_activate_main_window( params )
-		NSApp.delegate.toggle_main_window({ activation_type: :hotkey })
+		client.toggle_main_window({ activation_type: :hotkey })
 	end
 
 	def hotkey_action_activate_viewer_window( params )
-		NSApp.delegate.toggle_viewer_window
+		client.toggle_viewer_window
 		
 		# # temporarily mirror with main window.
 		# if ! current_viewer_wc.window.visible  # taking advantage of main runloop
@@ -69,7 +62,7 @@ class HotkeyHandler < BBLComponent
 		# end
 		#
 		# it2
-		self.main_window_shown = ! self.main_window_shown
+		client.main_window_shown = ! client.main_window_shown
 	end
 
 	#= modkey pref CLEANUP
@@ -94,14 +87,14 @@ class HotkeyHandler < BBLComponent
 	#= events
 
 	def on_double_tap_hold
-		self.activate_viewer_window
+		client.activate_viewer_window
 
 		# NSApp.send_to_responder "handle_show_page_detail:", self
 
 		# oh, the dream.
 		# NSApp.delegate.handle_show_app_actions
 
-		wc.hide_input_field
+		client.wc.hide_input_field
 	end
 
 #== modifier related
