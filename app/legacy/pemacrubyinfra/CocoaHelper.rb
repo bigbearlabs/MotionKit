@@ -142,11 +142,12 @@ class NSString
 	end
 
 	def to_base_url
-			String.new(self).to_base_url
+		url = NSURL.URLWithString(self)
+    "#{url.scheme}://#{url.host}"
 	end
 
-	def is_valid_url?
-		String.new(self).is_valid_url?
+	def valid_url?
+		String.new(self).valid_url?
 	end
 
 	def to_search_url_string

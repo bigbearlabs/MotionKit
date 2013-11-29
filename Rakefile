@@ -39,12 +39,8 @@ Motion::Project::App.setup do |app|
     'app/legacy/filtering.rb' => 'app/legacy/window_controllers.rb'
 end
 
-
 # Track and specify files and their mutual dependencies within the :motion Bundler group
-# group :motion do
-#    gem 'slot_machine'
-# end
-
 MotionBundler.setup do |app|
   app.require "cgi"
+  # app.require 'addressable/uri'
 end

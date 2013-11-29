@@ -56,9 +56,12 @@ class NSString
     "http://google.com/search?q=#{CGI.escape(self)}"
   end
   
-  def is_valid_url?
-    return true if URI::DEFAULT_PARSER.regexp[:ABS_URI].match self
-    return true if URI::DEFAULT_PARSER.regexp[:ABS_URI].match self.to_url_string
+  def valid_url?
+    # MOTION-MIGRATION temp disable due to 'uri' not being compatible
+    # return true if URI::DEFAULT_PARSER.regexp[:ABS_URI].match self
+    # return true if URI::DEFAULT_PARSER.regexp[:ABS_URI].match self.to_url_string
+    # false
+
     false
   end
   
@@ -68,13 +71,13 @@ class NSString
 
   def pe_type
 =begin
-    if ! self.is_valid_url? || 
+    if ! self.valid_url? || 
       # exceptionally handle single words which aren't pingable as enquiries.
         (self.is_single_word? && ! is_reachable_host?(self))
 =end
     if self =~ /^>/
       :cmd
-    elsif ! self.strip.is_valid_url? || self.is_single_word?
+    elsif ! self.strip.valid_url? || self.is_single_word?
       :enquiry
     else
       :url
