@@ -1,3 +1,8 @@
+def pe_trace(msg)
+  # pe_log msg
+  puts "DEBUG: #{msg}" if $DEBUG
+end
+
 def pe_debug(msg)
   # pe_log msg
   puts "DEBUG: #{msg}" if $DEBUG
