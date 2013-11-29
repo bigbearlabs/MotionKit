@@ -52,6 +52,24 @@
 	<false/>
 	<key>WebBuddyAppDelegate</key>
 	<dict>
+		<key>HotkeyHandler</key>
+		<dict>
+			<key>hotkey_policy</key>
+			<string>enabled</string>
+			<key>hotkey_action_policy</key>
+			<string>activate_viewer_window</string>
+			<key>enable_hotkey_dtap</key>
+			<true/>
+			<key>hotkey_modkey</key>
+			<string>alt</string>
+			<key>hotkey_manager</key>
+			<dict>
+				<key>modkey_hold_interval</key>
+				<real>0.3</real>
+				<key>modkey_double_threshold</key>
+				<real>0.5</real>
+			</dict>
+		</dict>
 		<key>DefaultBrowserHandler</key>
 		<dict>
 			<key>make_default_browser</key>
@@ -90,21 +108,6 @@
 		<string>http://start.webbuddyapp.com</string>
 		<key>load_ext_url_policy</key>
 		<string>in_space_window</string>
-		<key>hotkey_policy</key>
-		<string>enabled</string>
-		<key>enable_hotkey_dtap</key>
-		<true/>
-		<key>hotkey_action_policy</key>
-		<string>activate_viewer_window</string>
-		<key>hotkey_modkey</key>
-		<string>alt</string>
-		<key>hotkey_manager</key>
-		<dict>
-			<key>modkey_hold_interval</key>
-			<real>0.3</real>
-			<key>modkey_double_threshold</key>
-			<real>0.5</real>
-		</dict>
 	</dict>
 	<key>ContextStore</key>
 	<dict>
