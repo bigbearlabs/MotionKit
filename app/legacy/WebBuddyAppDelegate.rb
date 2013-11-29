@@ -35,8 +35,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# 	module: ServicesHandler,
 			# },
 		]
-		# should call setup_components for each element in order.
-		# should add component's event handlers to the handler chains, initialising if necessary.
 	end
 
 

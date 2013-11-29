@@ -1,4 +1,7 @@
 module ComponentClient
+
+  # should call setup_components for each element in order.
+  # should add component's event handlers to the handler chains, initialising if necessary.
   def setup_components( component_defs = self.components )
     component_defs.map do |component_def|
       component_class = component_def[:module]
@@ -52,7 +55,7 @@ end
 
 class BBLComponent
   attr_reader :client
-  
+
   def initialize(client, defaults)
     raise "nil defaults" if defaults.nil?
 
