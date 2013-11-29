@@ -73,7 +73,7 @@ class HotkeyHandler < BBLComponent
 		# when released, stop carouselling, invalidate mod key timer.
 		if activation_modifier_released?
 			
-			if @hotkey_action_policy == "switcher"
+			if default(:hotkey_action_policy) == "switcher"
 				stop_carouselling if carouselling
 			end
 
@@ -146,7 +146,7 @@ class HotkeyManager
 
 
 	def defaults_root_key
-		'WebBuddyAppDelegate.hotkey_manager'
+		'WebBuddyAppDelegate.HotkeyHandler.hotkey_manager'  # TACTICAL resolve with bbl-component framework.
 	end
 
 
