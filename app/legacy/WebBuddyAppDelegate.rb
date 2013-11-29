@@ -336,7 +336,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 
 	# FIXME move to the wc.
-	def on_Filter_spec_updated_notification( notification )
+	def handle_Filter_spec_updated_notification( notification )
 		filter_spec = notification.userInfo
 
 		# @main_window_controller.filter filter_spec

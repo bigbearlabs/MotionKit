@@ -4,6 +4,11 @@ class BrowserWindowController < NSWindowController
 	include SheetHandling
 	include Reactive
 
+	# cover interface for BVC
+	extend Delegating
+	def_delegator :browser_vc, :load_location
+	
+
 	# influenceables.
 	attr_accessor :should_close
 

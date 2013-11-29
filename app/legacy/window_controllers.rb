@@ -2,6 +2,7 @@
 
 # a Viewer is used for all links originating from other apps.
 class ViewerWindowController < BrowserWindowController
+	include Filtering
 
 	# bindable
 	attr_accessor :input_field_shown
