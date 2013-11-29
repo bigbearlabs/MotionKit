@@ -52,6 +52,11 @@
 	<false/>
 	<key>WebBuddyAppDelegate</key>
 	<dict>
+		<key>DefaultBrowserHandler</key>
+		<dict>
+			<key>make_default_browser</key>
+			<true/>
+		</dict>
 		<key>tags_by_description</key>
 		<dict>
 			<key>menu_item_debug_console</key>
