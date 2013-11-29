@@ -1,4 +1,4 @@
-module ComponentAware
+module ComponentClient
   def setup_components( component_defs = self.components )
     component_defs.map do |component_def|
       component_class = component_def[:module]

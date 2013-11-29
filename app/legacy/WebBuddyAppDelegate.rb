@@ -2,7 +2,7 @@
 
 
 class WebBuddyAppDelegate < PEAppDelegate
-	include ComponentAware
+	include ComponentClient
 	include KVOMixin
 	include Reactive
 
