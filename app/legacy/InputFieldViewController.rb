@@ -1,11 +1,3 @@
-#
-#  InputFieldViewController.rb
-#  WebBuddy
-#
-#  Created by Park Andy on 13/10/2011.
-#  Copyright 2011 __MyCompanyName__. All rights reserved.
-#
-
 # require 'cgi'
 # require 'uri'
 
@@ -100,9 +92,9 @@ class InputFieldViewController < PEViewController
 			self.setup_kvo_display_strings
 			self.setup_kvo_tracks
 
-			observe_notification :Activation_notification
-			observe_notification :Site_search_notification
-			observe_notification :Visit_request_notification
+			watch_notification :Activation_notification
+			watch_notification :Site_search_notification
+			watch_notification :Visit_request_notification
 
 			self.refresh_input_field
 		end

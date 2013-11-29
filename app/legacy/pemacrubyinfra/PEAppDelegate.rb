@@ -1,12 +1,3 @@
-#
-#  HotCocoaApplication.rb
-#  WebBuddy
-#
-#  Created by Park Andy on 13/10/2011.
-#  Copyright 2011 __MyCompanyName__. All rights reserved.
-#
-# TEST-CHANGE-ACROSS-PROJECTS
-
 # require 'CocoaHelper'
 # require 'appkit_additions'
 # require 'defaults'
@@ -70,7 +61,7 @@ class PEAppDelegate
 				self.setup_status_menu
 
 				# app notifications
-				observe_notification :Preference_updated_notification
+				watch_notification :Preference_updated_notification
 
 				# system notifications
 				watch_notification NSWindowWillExitFullScreenNotification

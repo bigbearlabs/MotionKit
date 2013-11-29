@@ -41,7 +41,7 @@ if BubbleWrap::App.osx?
       @policy_error_handler = -> url {
       }
 
-      # observe_notification WebHistoryItemChangedNotification
+      # watch_notification WebHistoryItemChangedNotification
     end
 
   #= event logging

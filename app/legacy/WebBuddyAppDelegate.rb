@@ -70,13 +70,13 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def setup_part2
 		super
 
-		observe_notification :Activation_notification
+		watch_notification :Activation_notification
 
 		# user actions
-		observe_notification :Visit_request_notification
-		observe_notification :Revisit_request_notification
-		observe_notification :Site_search_notification
-		observe_notification :Filter_spec_updated_notification
+		watch_notification :Visit_request_notification
+		watch_notification :Revisit_request_notification
+		watch_notification :Site_search_notification
+		watch_notification :Filter_spec_updated_notification
 		
 		# the app's domain model / storage scheme.
 		self.setup_context_store

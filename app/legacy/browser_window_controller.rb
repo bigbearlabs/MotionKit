@@ -82,12 +82,12 @@ class BrowserWindowController < NSWindowController
 
 			# self.setup_overlay
 
-			observe_notification :Load_request_notification, @browser_vc.web_view_delegate
-			observe_notification :Title_received_notification, @browser_vc.web_view_delegate
-			observe_notification :Link_navigation_notification, @browser_vc.web_view_delegate
+			watch_notification :Load_request_notification, @browser_vc.web_view_delegate
+			watch_notification :Title_received_notification, @browser_vc.web_view_delegate
+			watch_notification :Link_navigation_notification, @browser_vc.web_view_delegate
 
 			# user
-			observe_notification :Bf_navigation_notification
+			watch_notification :Bf_navigation_notification
 
 			# @progress_vc.setup
 
@@ -95,7 +95,7 @@ class BrowserWindowController < NSWindowController
 			# self.setup_input_field
 
 			# history views
-			observe_notification :Item_selected_notification
+			watch_notification :Item_selected_notification
 
 			self.setup_title_bar
 			self.setup_responder_chain
@@ -109,9 +109,9 @@ class BrowserWindowController < NSWindowController
 
 	def setup_input_field
 		# @input_field_vc.setup
-		observe_notification :Input_field_focused_notification, @input_field_vc
-		observe_notification :Input_field_unfocused_notification, @input_field_vc
-		observe_notification :Input_field_cancelled_notification, @input_field_vc
+		watch_notification :Input_field_focused_notification, @input_field_vc
+		watch_notification :Input_field_unfocused_notification, @input_field_vc
+		watch_notification :Input_field_cancelled_notification, @input_field_vc
 	end
 
 	def setup_popover
@@ -144,9 +144,9 @@ class BrowserWindowController < NSWindowController
 	def setup_actions_bar
 		@bar_vc.setup
 
-		observe_notification :Bar_item_selected_notification
-		observe_notification :Bar_item_edit_notification
-		observe_notification :Bar_item_delete_notification
+		watch_notification :Bar_item_selected_notification
+		watch_notification :Bar_item_edit_notification
+		watch_notification :Bar_item_delete_notification
 	end
 
 	def setup_title_bar
