@@ -28,9 +28,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 			{
 				module: DefaultBrowserHandler,
 			},
-			# {
-			# 	module: InputHandler,
-			# },
+			{
+				module: HotkeyHandler,
+			},
 			# {
 			# 	module: ServicesHandler,
 			# },
@@ -44,9 +44,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	def setup
 
-		# this call made prior to super, to work around dep issue in super. FIXME
-		self.hotkey_manager ||= HotkeyManager.new
-
 		super
 
 		setup_components
@@ -54,8 +51,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		@intro_enabled = default :intro_enabled
 		@load_welcome = default :load_welcome
 
-		@hotkey_policy = default :hotkey_policy
-		@hotkey_action_policy = default :hotkey_action_policy
 		@load_ext_url_policy = default :load_ext_url_policy
 
 		# deprecated / unused defaults
@@ -120,7 +115,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		try {
 			self.setup_main_window
 
-			apply_preferences
+			apply_preferences  # TACTICAL
 
 			NSApp.activate
 
@@ -165,8 +160,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# using a previous version will then become wonky.
 		# there's got to be a better way to do this.
 		overwrite_user_defaults [
-			'WebBuddyAppDelegate.hotkey_policy',
-			'WebBuddyAppDelegate.hotkey_action_policy',
 			'WebBuddyAppDelegate.load_ext_url_policy',
 			# 'WebBuddyAppDelegate.hotkey_manager.modkey_hold_interval',
 			# 'WebBuddyAppDelegate.hotkey_manager.modkey_double_threshold',
@@ -204,12 +197,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 #					else
 #						NSApp.delegate.revert_default_browser
 #					end
-				}
-			},
-			9002 => {
-				name: :enable_hotkey_dtap,
-				postflight: -> val {
-					NSApp.delegate.setup_hotkey
 				}
 			},
 			9003 => {
@@ -1037,11 +1024,18 @@ end
 # legacy assembly.
 # TODO port to BBLComponent
 
-class WebBuddyAppDelegate
-
-#== hotkey
+class HotkeyHandler < BBLComponent
 
 	attr_accessor :hotkey_manager
+
+	def initialize(arg)
+		super
+
+		@hotkey_manager ||= HotkeyManager.new
+
+		@hotkey_policy = default :hotkey_policy
+		@hotkey_action_policy = default :hotkey_action_policy
+	end
 
 	def setup_hotkey
 		@hotkey_manager.remove_modkey_action_definition  # necessary for no-op.
