@@ -434,7 +434,7 @@ class BrowserWindowController < NSWindowController
 		NSApp.delegate.user.perform_track_navigation( notification.userInfo )
 	end
 	
-	def on_Bf_navigation_notification( notification )
+	def handle_Bf_navigation_notification( notification )
 		if @overlay_window && ! self.overlay_shown?
 			on_main {
 				self.show_navigation_overlay
