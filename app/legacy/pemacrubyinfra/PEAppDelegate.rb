@@ -10,7 +10,6 @@
 
 class PEAppDelegate
 	include DefaultsAccess
-	include GetUrlHandler
 
 	include InteractiveApplication if ENV['INTERACTIVE']
 
@@ -41,7 +40,6 @@ class PEAppDelegate
 
 			# ready to do some business now
 
-			register_url_handling
 		end
 
 		on_main_async do
@@ -139,12 +137,6 @@ class PEAppDelegate
 		@status_bar_menu.itemArray.select do |item|
 			@tags_by_description.select{|k,v| k =~ /_DEV/}.values.include? item.tag
 		end
-	end
-
-#==
-
-	def open_browser(browser_id, url_string)
-		Browsers::open_url( url_string, browser_id )
 	end
 
 #= services

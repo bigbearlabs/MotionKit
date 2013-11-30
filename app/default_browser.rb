@@ -64,4 +64,12 @@ class DefaultBrowserHandler < BBLComponent
   #= 
 
   # prefs: on change, :default_browser should invoke appropriate method. probably can extract an on-off pattern for this.
+
+  def preference_spec
+    {
+      key: :make_default_browser,
+      description: "Make #{NSApp.name} my default browser",
+      
+    }
+  end
 end
