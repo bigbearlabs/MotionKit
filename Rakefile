@@ -31,6 +31,8 @@ Motion::Project::App.setup do |app|
 
   # TODO declare document types
 
+  app.info_plist['LSUIElement'] = true
+
   app.frameworks += %w( WebKit Carbon ExceptionHandling )
 
   app.vendor_project('vendor/NSFileManager_DirectoryLocations', :static)
