@@ -169,8 +169,7 @@ module Filtering
 
   def data
     # REFACTOR move method.
-    window_controller = self.view.window.windowController
-    data = window_controller.filtering_data
+    data = self.filtering_data
   end
   
   def update_data data
