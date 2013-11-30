@@ -153,10 +153,11 @@ class String
     end
   end
   
-  def to_base_url
-    uri = URI(self)
-    "#{uri.scheme}://#{uri.host}"
-  end
+  # MOTION-MIGRATION
+  # def to_base_url
+  #   uri = URI(self)
+  #   "#{uri.scheme}://#{uri.host}"
+  # end
 
 #= hacks
 

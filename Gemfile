@@ -20,3 +20,8 @@ gem 'motion-yaml'
 # gem 'motion-pixate'
 # gem 'motion-xray'
 # gem 'motion-hockeyrink'
+
+group :motion do
+  # gem 'idn'
+  # gem 'addressable'
+end

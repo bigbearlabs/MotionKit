@@ -324,19 +324,19 @@ class WebBuddyAppDelegate < PEAppDelegate
 		self.load_url new_location.to_url_string, track_id: 'stub-visit-track'
 	end
 	
-	def on_Revisit_request_notification( notification )
+	def handle_Revisit_request_notification( notification )
 		url = notification.userInfo.url
 		self.load_url url, track_id: notification.userInfo.track_id
 	end
 
-	def on_Site_search_notification(notification)
+	def handle_Site_search_notification(notification)
 		search_details = notification.userInfo
 
 		wc.do_activate.do_search search_details
 	end
 
 	# FIXME move to the wc.
-	def on_Filter_spec_updated_notification( notification )
+	def handle_Filter_spec_updated_notification( notification )
 		filter_spec = notification.userInfo
 
 		# @main_window_controller.filter filter_spec

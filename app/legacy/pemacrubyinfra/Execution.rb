@@ -38,8 +38,24 @@ def on_main( &block )
 end
 
 def on_main_async( &block )
+  # NOTE several attempts to log stack trace at dispatch request didn't work in motion.
+  # queuer = nil
+  # begin
+  #   raise "stub"
+  # rescue Exception => e
+  #   queuer = e.backtrace
+  # end
+
+  # queuer = NSThread.callStackSymbols
+  # queuer = caller
+
   Dispatch::Queue.main.async do
-    block.call
+    begin
+      block.call
+    rescue Exception => e
+      pe_warn "#{block} threw #{e}"
+      # puts queuer
+    end
   end
 end
 

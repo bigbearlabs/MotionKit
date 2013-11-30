@@ -13,8 +13,8 @@ Motion::Require.all
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
-  app.name = 'WebBuddy'
-  app.identifier = "com.bigbearlabs.WebBuddy"
+  app.name = 'WebBuddy-motion'
+  app.identifier = "com.bigbearlabs.WebBuddy-motion"
 
   app.version = "200"
   app.short_version = "1.1.9"
@@ -35,15 +35,12 @@ Motion::Project::App.setup do |app|
 
   app.delegate_class = "WebBuddyAppDelegate"
 
-  # app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb'
+  app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb',
+    'app/legacy/filtering.rb' => 'app/legacy/window_controllers.rb'
 end
 
-
 # Track and specify files and their mutual dependencies within the :motion Bundler group
-# group :motion do
-#    gem 'slot_machine'
-# end
-
 MotionBundler.setup do |app|
   app.require "cgi"
+  # app.require 'addressable/uri'
 end

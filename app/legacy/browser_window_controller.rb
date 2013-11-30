@@ -4,6 +4,11 @@ class BrowserWindowController < NSWindowController
 	include SheetHandling
 	include Reactive
 
+	# cover interface for BVC
+	extend Delegating
+	def_delegator :browser_vc, :load_location
+	
+
 	# influenceables.
 	attr_accessor :should_close
 
@@ -92,7 +97,7 @@ class BrowserWindowController < NSWindowController
 			# @progress_vc.setup
 
 			# input field
-			# self.setup_input_field
+			self.setup_input_field
 
 			# history views
 			watch_notification :Item_selected_notification
@@ -108,7 +113,7 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def setup_input_field
-		# @input_field_vc.setup
+		@input_field_vc.setup
 		watch_notification :Input_field_focused_notification, @input_field_vc
 		watch_notification :Input_field_unfocused_notification, @input_field_vc
 		watch_notification :Input_field_cancelled_notification, @input_field_vc

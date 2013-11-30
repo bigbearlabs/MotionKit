@@ -1,8 +1,4 @@
 # work around blocking failures while refactoring to components.
-class InputFieldViewController < NSViewController
-  include MsgLogging
-end
-
 class PageDetailsViewController < NSViewController
   include MsgLogging
 end
