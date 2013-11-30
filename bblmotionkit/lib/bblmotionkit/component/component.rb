@@ -78,8 +78,12 @@ class BBLComponent
     pe_log "TODO persist #{key} with #{val}"
 
     default_def = self.defaults[key]
-    postflight = default_def[:postflight]
-    postflight.call(val) if postflight
+    unless default_def.nil?
+      postflight = default_def[:postflight]
+      postflight.call(val) if postflight
+
+      pe_log "called postflight #{postflight} for default '#{key}'"
+    end
   end
 end
 
