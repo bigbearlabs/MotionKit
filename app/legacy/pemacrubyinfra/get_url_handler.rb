@@ -17,14 +17,4 @@ module GetUrlHandler
 		# TODO replace with user.perform_url_invocation
 	end
 
-	#= platform integration
-
-	# FIXME make it clobber-safe
-	def applicationWillFinishLaunching(notification)
-		self.register_url_handling
-
-		super if defined?(super)
-	rescue NoMethodError
-	end
-
 end

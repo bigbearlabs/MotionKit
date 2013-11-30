@@ -40,6 +40,8 @@ class PEAppDelegate
 
 
 			# ready to do some business now
+
+			register_url_handling
 		end
 
 		on_main_async do
