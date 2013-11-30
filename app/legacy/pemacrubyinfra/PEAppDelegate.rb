@@ -1,12 +1,3 @@
-#
-#  HotCocoaApplication.rb
-#  WebBuddy
-#
-#  Created by Park Andy on 13/10/2011.
-#  Copyright 2011 __MyCompanyName__. All rights reserved.
-#
-# TEST-CHANGE-ACROSS-PROJECTS
-
 # require 'CocoaHelper'
 # require 'appkit_additions'
 # require 'defaults'
@@ -70,12 +61,13 @@ class PEAppDelegate
 				self.setup_status_menu
 
 				# app notifications
-				observe_notification :Preference_updated_notification
+				watch_notification :Preference_updated_notification
 
 				# system notifications
 				watch_notification NSWindowWillExitFullScreenNotification
 				watch_notification NSWindowWillEnterFullScreenNotification
 				# watch_notification NSWindowDidChangeScreenProfileNotification  # MOTION-MIGRATION
+				# need to replace usage of define_*_method
 				## (main)> <RBAnonymous68 0x7fa53a44deb0> method `handle_NSWindowDidChangeScreenProfileNotification:' created by attr_reader/writer or define_method cannot be called from Objective-C. Please manually define the method instead (using the `def' keyword).
 
 				watch_workspace_notification NSWorkspaceActiveSpaceDidChangeNotification

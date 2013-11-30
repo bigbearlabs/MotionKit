@@ -2,14 +2,15 @@
 
 
 class WebBuddyAppDelegate < PEAppDelegate
-	include InputHandler
-	include ServicesHandler
+	include ComponentClient
 	include KVOMixin
 	include Reactive
+
 	include InputHandler
+	include ServicesHandler
 
 	# collaborators
-	attr_accessor :hotkey_manager
+
 	# we modelled the domain a bit inaccurately with regards to things like 'page'.
 	attr_accessor :user
 
@@ -22,19 +23,32 @@ class WebBuddyAppDelegate < PEAppDelegate
 	# observable state - gradually migrate observation to frp-style.
 	attr_accessor :active_status  # RENAME main window status
 
+	def components
+		[
+			{
+				module: DefaultBrowserHandler,
+			},
+			{
+				module: HotkeyHandler,
+			},
+			# {
+			# 	module: ServicesHandler,
+			# },
+		]
+	end
+
 
 #= major lifecycle
 
 	def setup
-		self.hotkey_manager ||= HotkeyManager.new
 
 		super
+
+		setup_components
 
 		@intro_enabled = default :intro_enabled
 		@load_welcome = default :load_welcome
 
-		@hotkey_policy = default :hotkey_policy
-		@hotkey_action_policy = default :hotkey_action_policy
 		@load_ext_url_policy = default :load_ext_url_policy
 
 		# deprecated / unused defaults
@@ -56,21 +70,18 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def setup_part2
 		super
 
-		observe_notification :Activation_notification
+		watch_notification :Activation_notification
 
 		# user actions
-		observe_notification :Visit_request_notification
-		observe_notification :Revisit_request_notification
-		observe_notification :Site_search_notification
-		observe_notification :Filter_spec_updated_notification
+		watch_notification :Visit_request_notification
+		watch_notification :Revisit_request_notification
+		watch_notification :Site_search_notification
+		watch_notification :Filter_spec_updated_notification
 		
 		# the app's domain model / storage scheme.
 		self.setup_context_store
 
 		try {
-			# in order to handle the ext urls, we need to be the default browser.
-			self.make_default_browser
-
 			watch_notification NSWindowDidEndLiveResizeNotification
 			watch_notification NSWindowDidMoveNotification
 		}
@@ -102,7 +113,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		try {
 			self.setup_main_window
 
-			apply_preferences
+			apply_preferences  # TACTICAL
 
 			NSApp.activate
 
@@ -147,8 +158,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# using a previous version will then become wonky.
 		# there's got to be a better way to do this.
 		overwrite_user_defaults [
-			'WebBuddyAppDelegate.hotkey_policy',
-			'WebBuddyAppDelegate.hotkey_action_policy',
 			'WebBuddyAppDelegate.load_ext_url_policy',
 			# 'WebBuddyAppDelegate.hotkey_manager.modkey_hold_interval',
 			# 'WebBuddyAppDelegate.hotkey_manager.modkey_double_threshold',
@@ -159,7 +168,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def apply_preferences
 		self.preferences_by_id.values.map do |preference|
 			key = preference[:key] || preference[:name]
-			val = default key.to_s
+			val = default key
 
 			postflight = preference[:postflight]
 			if postflight
@@ -174,6 +183,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		end
 	end
 
+	# NOTE if prefs can be lined up to the component abstraction, we can get rid of this method and split up the contents in each component instead.
 	def preferences_by_id
 		{
 			9001 => {
@@ -185,12 +195,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 #					else
 #						NSApp.delegate.revert_default_browser
 #					end
-				}
-			},
-			9002 => {
-				name: :enable_hotkey_dtap,
-				postflight: -> val {
-					NSApp.delegate.setup_hotkey
 				}
 			},
 			9003 => {
@@ -662,8 +666,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= system events
 
 	def on_terminate
-		self.revert_default_browser
-
 		@context_store.save
 	end
 
@@ -761,23 +763,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 =end
 	end
 
-#= system-default browser
-
-	def make_default_browser
-		previous_browser_bid = Browsers::default_browser
-		unless NSApp.bundle_id.casecmp(previous_browser_bid) == 0
-			pe_log "saving previous browser: #{previous_browser_bid}"
-			set_default 'GeneralPreferencesViewController.previous_default_browser', previous_browser_bid
-		end
-
-		Browsers::set_default_browser NSApp.bundle_id
-	end
-
-	def revert_default_browser
-		previous_browser_bid = default 'GeneralPreferencesViewController.previous_default_browser'
-		Browsers::set_default_browser previous_browser_bid unless previous_browser_bid.empty?
-	end
-
 #= menu
 	
 	def validateMenuItem( item )
@@ -856,82 +841,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 
 
-#== hotkey
-
-	def setup_hotkey
-		# @hotkey_manager.remove_modkey_action_definition  # necessary for no-op.
-
-		# if default 'enable_hotkey_dtap'
-		# 	self.setup_hotkey_dtap
-		# end
-	end
-
-	def setup_hotkey_dtap
-		# execute_policy :hotkey  # TODO this usage of policy looks very unnatural
-	end
-
-	# policies
-	
-	def hotkey_noop( params )
-	end
-	
-	def hotkey_enabled( params )
-		@dtap_definition = {
-			modifier: default(:hotkey_modkey),
-			handler: -> {
-				execute_policy :hotkey_action
-			},
-			handler_hold: -> {
-				if ! NSApp.active? && @hotkey_manager.modkey_counter == 2
-					self.on_double_tap_hold
-				else
-					NSApp.send_to_responder "handle_show_page_detail:", self
-				end
-			}
-		}
-
-		# set up the modkey.
-		@hotkey_manager.add_modkey_action_definition @dtap_definition
-
-=begin
-		@hotkey_manager.add_hotkey_definition( {
-			id: :activation,
-			defaults_key: 'hotkeys.activation',
-
-		self.update_toggle_menu_item
-=end
-	end
-	
-	def hotkey_action_activate_main_window( params )
-		self.toggle_main_window({ activation_type: :hotkey })
-	end
-
-	def hotkey_action_activate_viewer_window( params )
-		self.toggle_viewer_window
-		
-		# # temporarily mirror with main window.
-		# if ! current_viewer_wc.window.visible  # taking advantage of main runloop
-		# 	self.activate_main_window
-		# end
-		#
-		# it2
-		self.main_window_shown = ! self.main_window_shown
-	end
-
-	#= events
-
-	def on_double_tap_hold
-		self.activate_viewer_window
-
-		# NSApp.send_to_responder "handle_show_page_detail:", self
-
-		# oh, the dream.
-		# NSApp.delegate.handle_show_app_actions
-
-		wc.hide_input_field
-	end
-
-
 
 #= menu
 	
@@ -959,25 +868,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		end
 	end
 	
-#= modkey pref CLEANUP
-
-	def handle_modkey_change( event )
-		pe_log "flags changed!! #{event.description}"
-			
-		# when released, stop carouselling, invalidate mod key timer.
-		if activation_modifier_released?
-			
-			if @hotkey_action_policy == "switcher"
-				stop_carouselling if carouselling
-			end
-
-			@modkey_timer.invalidate if @modkey_timer
-
-		else
-			# the app is in the foreground and modifier is pressed.
-		end
-	end
-
 #= carouselling
 
 	def setup_kvo_carousel_state
@@ -1021,42 +911,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 		load_selected_tool
 	end
-
-#== modifier related
-# REFACTOR push up.
-
-	def setup_modkey_monitoring(&block)
-		# watch the modifier keys.
-		# e.g. opt modifier down -> up:
-		# I, [2012-12-10T20:26:20.987551 #680]	INFO -- : flags changed!! NSEvent: type=FlagsChanged loc=(0,874) time=522965.8 flags=0x80140 win=0x0 winNum=100661 ctxt=0x0 keyCode=61
-		# I, [2012-12-10T20:26:21.381591 #680]	INFO -- : flags changed!! NSEvent: type=FlagsChanged loc=(0,874) time=522966.2 flags=0x100 win=0x0 winNum=100661 ctxt=0x0 keyCode=61
-		NSEvent.addLocalMonitorForEventsMatchingMask(NSEventMaskFromType(NSFlagsChanged), handler: -> event {
-			block.call event
-			event
-		})
-	end
-
-	def setup_modkey_held_action(&block)
-		@modkey_timer = NSTimer.new_timer self.modkey_hold_interval do
-			unless activation_modifier_released?
-				block.call
-			end
-		end
-	end
-
-	def activation_modifier_released?
-		registrations = @hotkey_manager.registrations[:activation]
-
-		if ! registrations
-			pe_warn "no hotkey registrations!"
-			return false
-		end
-
-		flags = @hotkey_manager.registrations[:activation][:flags]
-
-		! NSEvent.modifiers_down?( flags )
-	end
-
 
 #= switcher integration point
 

@@ -1,3 +1,140 @@
+class HotkeyHandler < BBLComponent
+
+	attr_accessor :hotkey_manager
+
+	def on_setup
+		@hotkey_manager ||= HotkeyManager.new
+
+		@hotkey_manager.remove_modkey_action_definition  # necessary for no-op.
+
+		if default :enable_hotkey_dtap
+			self.setup_hotkey_dtap
+		end
+	end
+
+	def setup_hotkey_dtap
+		execute_policy :hotkey  # TODO this usage of policy looks very unnatural
+	end
+
+	# policies
+	# NOTE this was the attempt to make have the feature switcheable on/off using the pref. it didn't work out so well.
+
+	def hotkey_noop( params )
+	end
+	
+	def hotkey_enabled( params )
+		@dtap_definition = {
+			modifier: default(:hotkey_modkey),
+			handler: -> {
+				execute_policy :hotkey_action
+			},
+			handler_hold: -> {
+				if ! NSApp.active? && @hotkey_manager.modkey_counter == 2
+					self.on_double_tap_hold
+				else
+					NSApp.send_to_responder "handle_show_page_detail:", self
+				end
+			}
+		}
+
+		# set up the modkey.
+		@hotkey_manager.add_modkey_action_definition @dtap_definition
+
+=begin
+		@hotkey_manager.add_hotkey_definition( {
+			id: :activation,
+			defaults_key: 'hotkeys.activation',
+
+		self.update_toggle_menu_item
+=end
+	end
+	
+	def hotkey_action_activate_main_window( params )
+		client.toggle_main_window({ activation_type: :hotkey })
+	end
+
+	def hotkey_action_activate_viewer_window( params )
+		client.toggle_viewer_window
+		
+		# # temporarily mirror with main window.
+		# if ! current_viewer_wc.window.visible  # taking advantage of main runloop
+		# 	self.activate_main_window
+		# end
+		#
+		# it2
+		client.main_window_shown = ! client.main_window_shown
+	end
+
+	#= modkey pref CLEANUP
+
+	def handle_modkey_change( event )
+		pe_log "flags changed!! #{event.description}"
+			
+		# when released, stop carouselling, invalidate mod key timer.
+		if activation_modifier_released?
+			
+			if default(:hotkey_action_policy) == "switcher"
+				stop_carouselling if carouselling
+			end
+
+			@modkey_timer.invalidate if @modkey_timer
+
+		else
+			# the app is in the foreground and modifier is pressed.
+		end
+	end
+
+	#= events
+
+	def on_double_tap_hold
+		client.activate_viewer_window
+
+		# NSApp.send_to_responder "handle_show_page_detail:", self
+
+		# oh, the dream.
+		# NSApp.delegate.handle_show_app_actions
+
+		client.wc.hide_input_field
+	end
+
+#== modifier related
+# REFACTOR push up.
+
+	def setup_modkey_monitoring(&block)
+		# watch the modifier keys.
+		# e.g. opt modifier down -> up:
+		# I, [2012-12-10T20:26:20.987551 #680]	INFO -- : flags changed!! NSEvent: type=FlagsChanged loc=(0,874) time=522965.8 flags=0x80140 win=0x0 winNum=100661 ctxt=0x0 keyCode=61
+		# I, [2012-12-10T20:26:21.381591 #680]	INFO -- : flags changed!! NSEvent: type=FlagsChanged loc=(0,874) time=522966.2 flags=0x100 win=0x0 winNum=100661 ctxt=0x0 keyCode=61
+		NSEvent.addLocalMonitorForEventsMatchingMask(NSEventMaskFromType(NSFlagsChanged), handler: -> event {
+			block.call event
+			event
+		})
+	end
+
+	def setup_modkey_held_action(&block)
+		@modkey_timer = NSTimer.new_timer self.modkey_hold_interval do
+			unless activation_modifier_released?
+				block.call
+			end
+		end
+	end
+
+	def activation_modifier_released?
+		registrations = @hotkey_manager.registrations[:activation]
+
+		if ! registrations
+			pe_warn "no hotkey registrations!"
+			return false
+		end
+
+		flags = @hotkey_manager.registrations[:activation][:flags]
+
+		! NSEvent.modifiers_down?( flags )
+	end
+
+end
+
+
 class HotkeyManager
 	include DefaultsAccess
 	include KVOMixin
@@ -9,7 +146,7 @@ class HotkeyManager
 
 
 	def defaults_root_key
-		'WebBuddyAppDelegate.hotkey_manager'
+		'WebBuddyAppDelegate.HotkeyHandler.hotkey_manager'  # TACTICAL resolve with bbl-component framework.
 	end
 
 

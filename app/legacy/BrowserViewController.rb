@@ -106,8 +106,8 @@ class BrowserViewController < PEViewController
 		
 		@web_view_delegate.setup
 		
-		observe_notification :Find_request_notification
-		observe_notification :Text_finder_notification
+		watch_notification :Find_request_notification
+		watch_notification :Text_finder_notification
 					
 		self.setup_text_finder
 		
