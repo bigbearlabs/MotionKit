@@ -19,14 +19,15 @@ class ViewStacksViewController < MotionViewController
 
   #=
 
+  # adds a vc to the stack.
   def add_vc vc
     @vcs ||= []
 
     @vcs << vc unless @vcs.include? vc
-    self.add_view vc.view
+    self.add_stackable_view vc.view
   end
 
-  def add_view view
+  def add_stackable_view view
     # push in all the loose views on the stack.
     if @pulled_out_views.size > 1
       @pulled_out_views[1..-1].map do |view|
@@ -165,7 +166,7 @@ class WebStacksViewController < ViewStacksViewController
   def setup
     super
 
-    self.add_view @search_page_view
+    self.add_stackable_view @search_page_view
 
     @delegate = WebViewDelegate.new
     @delegate.web_view = @search_page_view
