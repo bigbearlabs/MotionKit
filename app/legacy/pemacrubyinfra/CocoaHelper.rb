@@ -20,6 +20,11 @@
 ### END-MOTION-MIGRATION
 
 
+# environment variables, analogous to ruby ENV.
+def env
+  NSProcessInfo.processInfo.environment
+end
+
 
 # HACK
 def write_file path, content
