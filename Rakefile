@@ -19,6 +19,8 @@ Motion::Project::App.setup do |app|
   app.version = "200"
   app.short_version = "1.1.9"
 
+  app.info_plist['NSMainNibFile'] = 'MainMenu'
+  
   app.info_plist['CFBundleURLTypes'] = [
     { 'CFBundleURLName' => 'Web site URL',
       'CFBundleURLSchemes' => ['http', 'https'] },
