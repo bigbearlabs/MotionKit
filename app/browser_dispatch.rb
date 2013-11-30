@@ -10,17 +10,41 @@ class BrowserDispatch < BBLComponent
     register_url_handling    
   end
   
+  #=
+
+  def defaults
+    {
+      click_handler_spec: {
+        postflight: -> new_specs {
+          # TODO does there need to be anything?
+        },
+        preference_spec: {
+          view_type: :list,
+          item_type: :menu,
+          item_choice_accessor: :installed_browsers,
+          item_selection_handler: -> menu_item {
+            # TODO from menu item, generate new spec and write default.
+          }
+        }
+
+        # MAYBE post_register to specify actions after defaults registered.
+        # MAYBE initial val
+      }
+    }
+  end
+
+  #=
+
   # the handler for url invocations from the outside world.
   def on_get_url( details )
     url_event = details[:url_event]
     url = details[:url]
 
-    current_modifiers = NSEvent.modifiers
-
-    # HACK!!! very brittle coupling to defaults structure
     handler_specs = default :click_handler_specs
 
-    # dispatch to the right handler spec based on what keys are pressed.
+    # based on modifiers, dispatch to corresponding browser.
+    # HACK!!! very brittle coupling to defaults structure. re-arranging list will break browser dispatch.
+    current_modifiers = NSEvent.modifiers
     if ( (current_modifiers & Keycodes[:shift]) != 0 && ( current_modifiers & Keycodes[:opt]) != 0 )
       bundle_id = handler_specs[2][:browser_bundle_id]
     elsif (current_modifiers & Keycodes[:opt]) != 0

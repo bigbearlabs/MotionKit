@@ -25,13 +25,18 @@ class DefaultBrowserHandler < BBLComponent
           else
             revert_default_browser
           end
+        },
+        preference_spec: {
+          view_type: :boolean
+          label: "Make #{NSApp.name} my default browser",
         }
         # MAYBE post_register to specify actions after defaults registered.
         # MAYBE initial val
       }
     }
   end
-  # TODO find a hash with guaranteed order
+  # TODO find a Hash subclass with guaranteed order
+
 
   #= 
 
@@ -61,15 +66,4 @@ class DefaultBrowserHandler < BBLComponent
     end
   end
   
-  #= 
-
-  # prefs: on change, :default_browser should invoke appropriate method. probably can extract an on-off pattern for this.
-
-  def preference_spec
-    {
-      key: :make_default_browser,
-      description: "Make #{NSApp.name} my default browser",
-      
-    }
-  end
 end
