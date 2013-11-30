@@ -15,6 +15,7 @@ Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'WebBuddy-motion'
   app.identifier = "com.bigbearlabs.WebBuddy-motion"
+  app.icon = "icon.icns"
 
   app.version = "200"
   app.short_version = "1.1.9"
