@@ -27,7 +27,7 @@ class DefaultBrowserHandler < BBLComponent
           end
         },
         preference_spec: {
-          view_type: :boolean
+          view_type: :boolean,
           label: "Make #{NSApp.name} my default browser",
         }
         # MAYBE post_register to specify actions after defaults registered.

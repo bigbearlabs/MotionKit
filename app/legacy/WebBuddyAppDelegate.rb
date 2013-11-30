@@ -8,6 +8,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	include InputHandler
 	include ServicesHandler
+	include Preferences
 
 	# collaborators
 
@@ -172,6 +173,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		], defaults_hash
 	end
 
+	# DEPRECATED preference application is handled by ComponentClient
 	def apply_preferences
 		self.preferences_by_id.values.map do |preference|
 			key = preference[:key] || preference[:name]
@@ -361,33 +363,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 
 
-#= prefs
-	
-	def new_pref_window(sender)
-		flavour = case sender.tag
-			when @tags_by_description['menu_item_prefs_DEV']
-				:dev
-			else
-				:standard
-			end
-
-		@prefs_window_controller = PreferencesWindowController.alloc.init( {
-			hotkey_manager: @hotkey_manager,
-			flavour: flavour
-		})
-		@prefs_window_controller.showWindow(self)
-		@prefs_window_controller.window.makeKeyAndOrderFront(self)
-
-		# we need this in order to avoid the window opening up but failing to catch the user's attention.
-		NSApp.activate
-	end
-
-	def handle_Preference_updated_notification( notification )
-		# TODO check if display set changed, process window frame as necessary
-
-		self.update_toggle_menu_item
-	end
-	
 	#= policies
 
 	def load_ext_url_in_main_window( params )

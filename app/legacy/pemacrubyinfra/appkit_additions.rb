@@ -70,7 +70,7 @@ def new_rect( x, y, w, h )
 	NSMakeRect(x, y, w, h)
 end
 
-def new_view( rect_or_x, y = 0, w = 0, h = 0 )
+def new_view( rect_or_x = NSZeroRect, y = 0, w = 0, h = 0 )
 	if rect_or_x.is_a? NSRect
 		rect = rect_or_x
 	else
@@ -198,8 +198,7 @@ end
 class NSView
 
 #= quick testing
-	def add_view( v_x = 10, v_y = 10, v_w = width - 20, v_h = height - 20 )
-		view =  new_view v_x, v_y, v_w, v_h
+	def add_view( view = new_view(10, 10, width - 20, height - 20) )
 		self.addSubview( view )
 		view
 	end
@@ -338,10 +337,6 @@ class NSView
 
 #=
 
-	def view_tree
-		self.views_where { true }
-	end
-	
 	def views_where(&block)
 		# traverse view hierarchy and collect views matching condition.
 		hits = []
