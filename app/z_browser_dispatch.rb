@@ -20,21 +20,43 @@ class BrowserDispatch < BBLComponent
         },
         preference_spec: {
           view_type: :list,
-          item_type: :menu,
-          item_choice_accessor: :installed_browsers,
-          item_selection_handler: -> menu_item {
+          list_items_accessor: :installed_browsers_menu,
+          list_select_handler: -> menu_item {
             # TODO from menu item, generate new spec and write default.
           }
         }
 
         # MAYBE post_register to specify actions after defaults registered.
         # MAYBE initial val
-      }
+      },
+      # opt_click_handler_spec
+      # opt_shift_click_handler_spec
     }
   end
 
   #=
 
+  def installed_browsers_menu
+    get_description = proc { |entry_key, details| 
+      desc = details[:description].tap do |desc|
+        # default to the entry key.
+        desc = entry_key if desc.to_s.empty?
+      end
+    }
+
+    menu_data = Browsers.installed_browsers.map do |entry_key, details|
+      { 
+        title: get_description.call(entry_key, details),
+        icon: details[:icon],
+        value: details[:bundle_id],
+      }
+    end
+    pe_debug "created menu data #{menu_data}"
+
+    new_menu menu_data
+  end
+
+  
   # the handler for url invocations from the outside world.
   def on_get_url( details )
     url_event = details[:url_event]

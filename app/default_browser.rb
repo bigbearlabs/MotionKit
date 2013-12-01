@@ -3,6 +3,7 @@ class DefaultBrowserHandler < BBLComponent
   #= app lifecycle
 
   def on_setup
+    
     if default :make_default_browser
       # TODO show user dialog if setting needs to change
 
@@ -48,7 +49,7 @@ class DefaultBrowserHandler < BBLComponent
 
   def revert_default_browser
     previous_browser_bid = default :previous_default_browser
-    Browsers::make_default_browser previous_browser_bid unless previous_browser_bid.empty?
+    Browsers::make_default_browser previous_browser_bid unless previous_browser_bid.to_s.empty?
   end
 
   #=

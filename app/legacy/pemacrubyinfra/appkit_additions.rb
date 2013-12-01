@@ -467,7 +467,9 @@ def new_menu( data )
 	menu = NSMenu.alloc.initWithTitle('')
 	data.each do |item_data|
 		item = new_menu_item item_data[:title], item_data[:proc]
-		item.representedObject = item_data
+		item.representedObject = item_data[:value]
+		item.representedObject ||= item_data
+
 		if item_data.key? :icon
 			item.setImage(item_data[:icon])
 		end
@@ -709,17 +711,15 @@ end
 
 class NSButton
 	def on_click(&handler)
-		handler_wrapper = Object.new
-		class << handler_wrapper
-			attr_accessor :click_handler
-			def handleClick(sender)
-				click_handler.call(sender)
-			end
-		end
-		handler_wrapper.click_handler = handler
+		@click_handler = handler
 
-		self.target = handler_wrapper
-		self.action = 'handleClick:'
+		self.target = self
+		self.action = 'handle_click:'
+	end
+
+	# 
+	def handle_click(sender)
+		@click_handler.call sender
 	end
 
 	def on_r_click(&handler)

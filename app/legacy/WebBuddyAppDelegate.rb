@@ -54,6 +54,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 		setup_components
 
+		# legacy defaults
 		@intro_enabled = default :intro_enabled
 		@load_welcome = default :load_welcome
 

@@ -1,5 +1,20 @@
 module Preferences
 
+#= app-specific
+
+  def preference_panes
+    obj = 
+      new_pref_pane :general do |pane|
+        pane.add_view new_pref_view DefaultBrowserHandler
+        pane.add_view new_pref_view BrowserDispatch
+
+        # TODO sizing
+      end
+    [ obj ]
+  end
+  
+#=
+
   def new_pref_window(sender)
     flavour = case sender.tag
       when @tags_by_description['menu_item_prefs_DEV']
@@ -37,26 +52,54 @@ module Preferences
     defaults_spec.keys.map do |default|
       pref_spec = defaults_spec[default][:preference_spec]
       if pref_spec
-        case pref_spec[:view_type]
-        when :boolean
-          view = NSBundle.load_nib 'BooleanPreference', {
-            checkbox: 101
-          }
+        view = 
+          case pref_spec[:view_type]
+          when :boolean
+            new_boolean_preference_view default, pref_spec, component
+          when :list
+            new_list_preference_view default, pref_spec, component
+          end
 
-          # set label
-          view.subview(:checkbox).title = pref_spec[:label]
-          # set default value
-          view.subview(:checkbox).state = component.default default
-
-          return view
-          # TODO sizing
-        when :list
-          raise "view_type:list unimplemented"
-        end
+        return view
       end
     end
   end
 
+  def new_boolean_preference_view default, pref_spec, component
+    view = NSBundle.load_nib 'BooleanPreference', {
+      checkbox: 101
+    }
+    checkbox = view.subview(:checkbox)
+    checkbox.title = pref_spec[:label]
+    checkbox.state = component.default(default) ? NSOnState : NSOffState
+    checkbox.on_click do
+      # set the default.
+      component.set_default default, (checkbox.state == NSOnState)
+      # setup the component.
+      component.setup  # FIXME need to distinguish setup and update
+    end
+    view
+  end
+  
+  def new_list_preference_view default, pref_spec, component
+    view = NSBundle.load_nib 'ListPreference', {
+      popup_button: 101
+    }
+    popup_button = view.subview(:popup_button)
+    # set items
+    popup_button.menu = component.send pref_spec[:list_items_accessor]
+    # set selected item
+    popup_button.select_value(component.default default)
+    # set handler
+    popup_button.on_select do |selected_item|
+      # set the default.
+      component.set_default default, selected_item.value
+      # setup the component.
+      component.setup
+    end
+    view
+  end
+  
 
   # FIXME replace this with a mechanism to always display up-to-date defaults with e.g. hotkey.
   def handle_Preference_updated_notification( notification )
@@ -65,17 +108,7 @@ module Preferences
     self.update_toggle_menu_item
   end
   
-  #= app-specific
 
-  def preference_panes
-    obj = 
-      new_pref_pane :general do |pane|
-        pane.add_view( new_pref_view DefaultBrowserHandler)
-        # pane.add_view new_pref_view BrowserDispatch
-      end
-    [ obj ]
-  end
-  
 end
 
 
@@ -109,15 +142,8 @@ end
 class NSBundle
 
   def self.load_nib nib_name, tag_defs = nil
-    @top_level_objs_pointer = Pointer.new '@'
-    @top_level_objs_pointer[0] = []
-    loaded = NSBundle.mainBundle.loadNibNamed(nib_name, owner:self, topLevelObjects:@top_level_objs_pointer)
-
-    raise "failed to load #{nib_name}" unless loaded
-
-    # the 2nd element of the tlo array is the one we want in the nib.
-    first_tlo = @top_level_objs_pointer[0][1]
-    @top_level_objs_pointer = nil
+    temp_vc = NSViewController.alloc.initWithNibName(nib_name, bundle:nil)
+    first_tlo = temp_vc.view
 
     if tag_defs
       first_tlo.tag_defs = tag_defs
@@ -129,6 +155,7 @@ class NSBundle
 end
 
 
+# subview retrieval based on mapping of tag symbols and tags
 class NSView
   attr_accessor :tag_defs
 
@@ -138,5 +165,35 @@ class NSView
     view = self.viewWithTag(tag)
     raise "no subview tagged #{tag_symbol}" if view.nil?
     view
+  end
+end
+
+class NSPopUpButton
+  def on_select &handler
+    @select_handler = handler
+    self.target = self
+    self.action = 'handle_popup_select:'
+  end
+  def handle_popup_select(sender)
+    @select_handler.call self.selectedItem
+  end
+
+  def items
+    self.itemArray
+  end
+  
+  def items=(items)
+    self.itemArray = items
+  end
+  
+  def select_value value
+    item = self.items.select { |e| e.value == value } [0]
+    self.selectItem(item)
+  end
+end
+
+class NSMenuItem
+  def value
+    self.representedObject
   end
 end

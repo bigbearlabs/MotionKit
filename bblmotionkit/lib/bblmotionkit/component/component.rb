@@ -62,7 +62,7 @@ class BBLComponent
   attr_reader :client
 
   def initialize(client, defaults)
-    pe_warn "nil defaults given for #{self}" if defaults.nil?
+    raise "nil defaults" if defaults.nil?
 
     @client = client
     @defaults = defaults
@@ -72,7 +72,7 @@ class BBLComponent
     pe_log "setting up #{self}"
     self.on_setup
   end
-
+  
   def event_methods
     self.methods.grep /^on_/
   end
