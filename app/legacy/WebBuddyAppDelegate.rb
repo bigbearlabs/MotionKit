@@ -11,6 +11,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	# collaborators
 
+
 	# we modelled the domain a bit inaccurately with regards to things like 'page'.
 	attr_accessor :user
 
@@ -25,6 +26,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	def components
 		[
+			{
+				module: HotloaderComponent,
+			},
 			{
 				module: DefaultBrowserHandler,
 			},

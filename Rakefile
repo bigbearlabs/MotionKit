@@ -20,6 +20,7 @@ Motion::Project::App.setup do |app|
   app.version = "200"
   app.short_version = "1.1.9"
 
+
   app.info_plist['NSMainNibFile'] = 'MainMenu'
   
   app.info_plist['CFBundleURLTypes'] = [
@@ -33,7 +34,9 @@ Motion::Project::App.setup do |app|
 
   app.info_plist['LSUIElement'] = true
 
+
   app.frameworks += %w( WebKit Carbon ExceptionHandling )
+
 
   app.vendor_project('vendor/NSFileManager_DirectoryLocations', :static)
   app.vendor_project('vendor/DDHotKeyCenter', :static)
@@ -42,6 +45,14 @@ Motion::Project::App.setup do |app|
 
   app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb',
     'app/legacy/filtering.rb' => 'app/legacy/window_controllers.rb'
+
+  # cocoapods deps
+  app.pods do
+    # pod 'HockeySDK'
+    pod 'CocoaHTTPServer', '~> 2.3'
+    pod 'RoutingHTTPServer', '~> 1.0.0'
+  end
+
 end
 
 # Track and specify files and their mutual dependencies within the :motion Bundler group

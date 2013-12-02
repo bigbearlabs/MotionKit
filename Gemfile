@@ -9,6 +9,8 @@ gem 'rake'
 gem 'motion-bundler'
 gem 'motion-require'
 gem 'ib'
+gem 'motion-cocoapods'
+gem 'cocoapods-core'
 
 gem 'bubble-wrap'
 gem 'motion-yaml'
@@ -24,4 +26,10 @@ gem 'motion-yaml'
 group :motion do
   # gem 'idn'
   # gem 'addressable'
+  # gem 'rack'
+end
+
+group :development do
+  gem 'guard'
+  gem 'guard-shell'
 end
