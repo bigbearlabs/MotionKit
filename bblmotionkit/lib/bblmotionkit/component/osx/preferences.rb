@@ -5,8 +5,7 @@ module Preferences
   def preference_panes
     obj = 
       new_pref_pane :general do |pane|
-        pane.add_view new_pref_view DefaultBrowserHandler
-        pane.add_view new_pref_view BrowserDispatch
+        pane.add_view new_pref_view( DefaultBrowserHandler), new_pref_view(BrowserDispatch)
 
         # TODO sizing
       end
@@ -39,6 +38,7 @@ module Preferences
 
   def new_pref_pane( name )
     pane = new_view
+    pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
     yield pane
     pane
 
@@ -46,11 +46,11 @@ module Preferences
   end
 
   def new_pref_view( component_class )
-    component = self.component(component_class)
+    component = self.component component_class
 
     defaults_spec = component.defaults
-    defaults_spec.keys.map do |default|
-      pref_spec = defaults_spec[default][:preference_spec]
+    defaults_spec.map do |default, val|
+      pref_spec = val[:preference_spec]
       if pref_spec
         view = 
           case pref_spec[:view_type]
@@ -83,20 +83,28 @@ module Preferences
   
   def new_list_preference_view default, pref_spec, component
     view = NSBundle.load_nib 'ListPreference', {
-      popup_button: 101
+      popup_button: 101,
+      label: 102
     }
-    popup_button = view.subview(:popup_button)
-    # set items
-    popup_button.menu = component.send pref_spec[:list_items_accessor]
-    # set selected item
-    popup_button.select_value(component.default default)
-    # set handler
-    popup_button.on_select do |selected_item|
-      # set the default.
-      component.set_default default, selected_item.value
-      # setup the component.
-      component.setup
+    
+    view.subview :popup_button do |popup_button|
+      # set items
+      popup_button.menu = component.send pref_spec[:list_items_accessor]
+      # set selected item
+      popup_button.select_value(component.default default)
+      # set handler
+      popup_button.on_select do |selected_item|
+        # set the default.
+        component.set_default default, selected_item.value
+        # setup the component.
+        component.setup
+      end
     end
+
+    view.subview :label do |label|
+      label.stringValue = pref_spec[:label]
+    end
+
     view
   end
   
@@ -164,6 +172,9 @@ class NSView
     raise "no tag defined for #{tag_symbol}" if tag.nil?
     view = self.viewWithTag(tag)
     raise "no subview tagged #{tag_symbol}" if view.nil?
+
+    yield view if block_given?
+
     view
   end
 end

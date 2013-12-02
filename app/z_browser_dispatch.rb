@@ -20,6 +20,7 @@ class BrowserDispatch < BBLComponent
         },
         preference_spec: {
           view_type: :list,
+          label: 'Click on URL',
           list_items_accessor: :installed_browsers_menu,
           list_select_handler: -> menu_item {
             # TODO from menu item, generate new spec and write default.

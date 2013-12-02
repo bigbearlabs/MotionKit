@@ -197,10 +197,25 @@ end
 
 class NSView
 
-#= quick testing
-	def add_view( view = new_view(10, 10, width - 20, height - 20) )
-		self.addSubview( view )
-		view
+	def add_view( view = new_view(10, 10, self.width - 20, self.height - 20), *views)
+		self.addSubview(view)		
+		view.snap_to_top
+
+		# y = view.y
+		prev_view = view
+		views.map do |view|
+
+			self.addSubview( view )
+			
+			# # stack down.
+			# y -= view.height
+			# view.frame = NSMakeRect(view.x, y, view.width, view.height)
+
+			view.snap_to_bottom_of prev_view
+			prev_view = view
+		end
+		
+		self
 	end
 
 #= general / geometry
