@@ -26,6 +26,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def components
 		[
 			{
+				module: DynamicServerComponent,
+			},
+			{
 				module: DefaultBrowserHandler,
 			},
 			{

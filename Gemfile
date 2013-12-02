@@ -9,6 +9,8 @@ gem 'rake'
 gem 'motion-bundler'
 gem 'motion-require'
 gem 'ib'
+gem 'motion-cocoapods'
+gem 'cocoapods-core'
 
 gem 'bubble-wrap'
 gem 'motion-yaml'

@@ -26,8 +26,13 @@ module ComponentClient
     end
 
     # one-time setup.
-    instance.on_setup
+    instance.setup
   end
+
+  def component component_class
+    @registered_components.select { |e| e.is_a? component_class } [0]
+  end
+  
 
   def chain method_name, method
     pe_log "TODO chain #{method} to #{method_name}"
@@ -57,10 +62,15 @@ class BBLComponent
   attr_reader :client
 
   def initialize(client, defaults)
-    raise "nil defaults" if defaults.nil?
+    pe_warn "nil defaults given for #{self}" if defaults.nil?
 
     @client = client
     @defaults = defaults
+  end
+
+  def setup
+    pe_log "setting up #{self}"
+    self.on_setup
   end
 
   def event_methods
