@@ -142,6 +142,9 @@ class PreferencesWindowController < NSWindowController
   def add_pane pane
     self.window.view.add_view pane
     pane.fit_to_superview
+
+    # re-position subviews
+    pane.add_view *pane.subviews
   end
   
 end
