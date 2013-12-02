@@ -10,3 +10,4 @@ ib.xcodeproj/Stubs.m
 resources/modules
 vendor/**/build*
 vendor/**/*.bridgesupport
+vendor/Pods

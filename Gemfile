@@ -26,4 +26,10 @@ gem 'motion-yaml'
 group :motion do
   # gem 'idn'
   # gem 'addressable'
+  # gem 'rack'
+end
+
+group :development do
+  gem 'guard'
+  gem 'guard-shell'
 end
