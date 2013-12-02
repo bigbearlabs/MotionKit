@@ -75,6 +75,36 @@
 			<key>make_default_browser</key>
 			<true/>
 		</dict>
+		<key>BrowserDispatch</key>
+		<dict>
+			<key>click_handler_specs</key>
+			<array>
+				<dict>
+					<key>button_outlet_name</key>
+					<string>@click_options</string>
+					<key>modifiers</key>
+					<string></string>
+					<key>browser_bundle_id</key>
+					<string>com.bigbearlabs.WebBuddy</string>
+				</dict>
+				<dict>
+					<key>button_outlet_name</key>
+					<string>@mod_click_1_options</string>
+					<key>modifiers</key>
+					<string>opt</string>
+					<key>browser_bundle_id</key>
+					<string>com.apple.Safari</string>
+				</dict>
+				<dict>
+					<key>button_outlet_name</key>
+					<string>@mod_click_2_options</string>
+					<key>modifiers</key>
+					<string>opt,shift</string>
+					<key>browser_bundle_id</key>
+					<string>com.google.Chrome</string>
+				</dict>
+			</array>
+		</dict>
 		<key>tags_by_description</key>
 		<dict>
 			<key>menu_item_debug_console</key>
@@ -226,33 +256,6 @@
 	</dict>
 	<key>GeneralPreferencesViewController</key>
 	<dict>
-		<key>click_handler_specs</key>
-		<array>
-			<dict>
-				<key>button_outlet_name</key>
-				<string>@click_options</string>
-				<key>modifiers</key>
-				<string></string>
-				<key>browser_bundle_id</key>
-				<string>com.bigbearlabs.WebBuddy</string>
-			</dict>
-			<dict>
-				<key>button_outlet_name</key>
-				<string>@mod_click_1_options</string>
-				<key>modifiers</key>
-				<string>opt</string>
-				<key>browser_bundle_id</key>
-				<string>com.apple.Safari</string>
-			</dict>
-			<dict>
-				<key>button_outlet_name</key>
-				<string>@mod_click_2_options</string>
-				<key>modifiers</key>
-				<string>opt,shift</string>
-				<key>browser_bundle_id</key>
-				<string>com.google.Chrome</string>
-			</dict>
-		</array>
 		<key>previous_default_browser</key>
 		<string></string>
 	</dict>
