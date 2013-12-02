@@ -62,7 +62,7 @@ class BBLComponent
   attr_reader :client
 
   def initialize(client, defaults)
-    raise "nil defaults" if defaults.nil?
+    pe_warn "nil defaults" if defaults.nil?
 
     @client = client
     @defaults = defaults
