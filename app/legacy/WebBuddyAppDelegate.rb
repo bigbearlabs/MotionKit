@@ -62,7 +62,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 		# deprecated / unused defaults
 		# @selection_grab_enabled = default :selection_grab_enabled
-		# @show_input_field_on_hotkey = default :show_input_field_on_hotkey
+		# @show_toolbar_on_hotkey = default :show_toolbar_on_hotkey
 
 
 		# important domain object
@@ -122,8 +122,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		try {
 			self.setup_main_window
 
-			apply_preferences  # TACTICAL
-
 			NSApp.activate
 
 			if @intro_enabled
@@ -174,50 +172,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		], defaults_hash
 	end
 
-	# DEPRECATED preference application is handled by ComponentClient
-	def apply_preferences
-		self.preferences_by_id.values.map do |preference|
-			key = preference[:key] || preference[:name]
-			val = default key
-
-			postflight = preference[:postflight]
-			if postflight
-				pe_log "applying preference #{key}"
-				postflight.call val
-			# REDUNDANT if these need to map to properties, define a postflight.
-			# elsif ! val.nil?
-				# self.kvc_set key, val
-			else
-				"no postflight or val for preference '#{key}', doing nothing."
-			end
-		end
-	end
-
-	# NOTE if prefs can be lined up to the component abstraction, we can get rid of this method and split up the contents in each component instead.
-	def preferences_by_id
-		{
-			9001 => {
-				name: :enable_default_url_handler,
-				postflight: -> val {
-					# TODO needs to register an app quit event handler instead.
-#					if val
-#						NSApp.delegate.make_default_browser
-#					else
-#						NSApp.delegate.revert_default_browser
-#					end
-				}
-			},
-			9003 => {
-				name: :enable_input_field,
-			},
-			9004 => {
-				name: :enable_gallery,
-				postflight: -> val {
-					NSApp.delegate.setup_gallery
-				}
-			}
-		}
-	end
 
 	def setup_context_store
 		@context_store = ContextStore.new
@@ -513,7 +467,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 	
 	def activate_viewer_window
 		self.current_viewer_wc.do_activate
-		self.current_viewer_wc.show_input_field
+		self.current_viewer_wc.show_toolbar
 		
 		NSApp.activate
 

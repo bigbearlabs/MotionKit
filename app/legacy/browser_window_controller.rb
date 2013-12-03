@@ -111,6 +111,9 @@ class BrowserWindowController < NSWindowController
 			self.setup_actions_bar
 			# self.setup_reactive_detail_input
 			# self.setup_popover
+
+			# MOTION-MIGRATION hack for 1.1.8 feature parity
+			@input_field_vc.view.visible = false
 		end
 	end
 
@@ -231,7 +234,7 @@ class BrowserWindowController < NSWindowController
 
 	def handle_show_page_detail(sender)
 		# self.show_page_detail_popover
-		# self.show_input_field
+		# self.show_toolbar
 	end
 
 	def refresh_page_detail
@@ -338,14 +341,14 @@ class BrowserWindowController < NSWindowController
 	
 	# actions - the name is now lagging as these control the control overlay.
 	
-	def handle_hide_input_field(sender)
-		self.hide_input_field
+	def handle_hide_toolbar(sender)
+		self.hide_toolbar
 	end
 	
 	def handle_focus_input_field(sender)
 		send_notification :Input_field_focused_notification
 
-		self.show_input_field
+		self.show_toolbar
 
 		@input_field_vc.focus_input_field
 	end
@@ -353,7 +356,7 @@ class BrowserWindowController < NSWindowController
 
 	# view operations
 		
-	def hide_input_field( delay = 0 )
+	def hide_toolbar( delay = 0 )
 		delayed_cancelling_previous delay, -> {
 			on_main {
 				@top_portion_frame.visible = false
@@ -364,7 +367,7 @@ class BrowserWindowController < NSWindowController
 	end
 
 	# TODO there are cases where this doesn't render properly - implement the top-of-scroll-view solution.
-	def show_input_field
+	def show_toolbar
 		on_main {
 			@top_portion_frame.visible = true
 			# @bar_vc.frame_view.snap_to_bottom_of @input_field_vc.frame_view
@@ -372,17 +375,16 @@ class BrowserWindowController < NSWindowController
 		}
 	end
 	
-	def input_field_shown?
+	def toolbar_shown?
 		@top_portion_frame.visible
 	end
-
 
 	# events
 
 	def handle_Input_field_focused_notification( notification )
 		# self.show_popover(@nav_buttons_view)
 	
-		self.show_input_field
+		self.show_toolbar
 
 		# disable the overlay for now.		
 =begin
@@ -766,12 +768,12 @@ class BrowserWindowController < NSWindowController
 	
 	def show_filter_overlay
 		self.overlay_enabled = false
-		self.show_overlay if input_field_shown?
+		self.show_overlay if toolbar_shown?
 	end
 	
 	def show_navigation_overlay
 		self.overlay_enabled = false
-		self.show_overlay if input_field_shown?
+		self.show_overlay if toolbar_shown?
 	end
 	
 	def show_overlay

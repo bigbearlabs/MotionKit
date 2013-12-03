@@ -26,9 +26,9 @@ class ViewerWindowController < BrowserWindowController
 			react_to :input_field_shown do
 				# view model -> view
 				if self.input_field_shown
-					self.show_input_field
+					self.show_toolbar
 				else
-					self.hide_input_field
+					self.hide_toolbar
 				end
 			end
 
@@ -39,13 +39,13 @@ class ViewerWindowController < BrowserWindowController
 
 					# react to mouse out of the wider tracking area TODO
 				else
-					# self.hide_input_field 2
+					# self.hide_toolbar 2
 				end
 			end
 
 			react_to 'browser_vc.event' do |new_val|
 				if new_val
-					self.hide_input_field
+					self.hide_toolbar
 				end
 			end
 		end
