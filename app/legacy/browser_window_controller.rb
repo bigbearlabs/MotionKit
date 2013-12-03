@@ -113,7 +113,7 @@ class BrowserWindowController < NSWindowController
 			# self.setup_popover
 
 			# MOTION-MIGRATION hack for 1.1.8 feature parity
-			@input_field_vc.view.visible = false
+			handle_hide_input_field self
 		end
 	end
 
@@ -341,14 +341,16 @@ class BrowserWindowController < NSWindowController
 	
 	# actions - the name is now lagging as these control the control overlay.
 	
-	def handle_hide_toolbar(sender)
-		self.hide_toolbar
+	def handle_hide_input_field(sender)
+		@input_field_vc.view.visible = false
 	end
 	
 	def handle_focus_input_field(sender)
 		send_notification :Input_field_focused_notification
 
 		self.show_toolbar
+
+		@input_field_vc.view.visible = true
 
 		@input_field_vc.focus_input_field
 	end
