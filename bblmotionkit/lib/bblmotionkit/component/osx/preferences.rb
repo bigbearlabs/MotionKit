@@ -52,7 +52,8 @@ module Preferences
       component = self.component component_class
 
       defaults_spec = component.defaults_spec
-      defaults_spec.map do |default, val|
+
+      views = defaults_spec.map do |default, val|
         pref_spec = val[:preference_spec]
         if pref_spec
           view = 
@@ -62,10 +63,13 @@ module Preferences
             when :list
               new_list_preference_view default, pref_spec, component
             end
-
-          return view
         end
       end
+
+      pref_view = new_view.add_view *views      
+      pref_view.size_to_fit
+      # reposition the subviews after the resize.
+      pref_view.add_view *views
     end
   end
 
@@ -98,8 +102,6 @@ module Preferences
       popup_button.on_select do |selected_item|
         # set the default.
         component.update_default default, selected_item.value
-        # setup the component.
-        component.setup
       end
     end
 

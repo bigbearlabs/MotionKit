@@ -14,7 +14,7 @@ class BrowserDispatch < BBLComponent
 
   def defaults_spec
     {
-      click_handler_spec: {
+      click_handler: {
         postflight: -> new_specs {
           # TODO does there need to be anything?
         },
@@ -22,16 +22,29 @@ class BrowserDispatch < BBLComponent
           view_type: :list,
           label: 'Click on URL',
           list_items_accessor: :installed_browsers_menu,
-          list_select_handler: -> menu_item {
-            # TODO from menu item, generate new spec and write default.
-          }
         }
-
-        # MAYBE post_register to specify actions after defaults registered.
         # MAYBE initial val
       },
-      # opt_click_handler_spec
-      # opt_shift_click_handler_spec
+      opt_click_handler: {
+        postflight: -> new_specs {
+          # TODO does there need to be anything?
+        },
+        preference_spec: {
+          view_type: :list,
+          label: 'Alt/Option + Click on URL',
+          list_items_accessor: :installed_browsers_menu,
+        }
+      },
+      shift_opt_click_handler: {
+        postflight: -> new_specs {
+          # TODO does there need to be anything?
+        },
+        preference_spec: {
+          view_type: :list,
+          label: 'Shift + Alt/Option + Click on URL',
+          list_items_accessor: :installed_browsers_menu,
+        }
+      },
     }
   end
 

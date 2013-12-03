@@ -77,8 +77,12 @@
 		</dict>
 		<key>BrowserDispatch</key>
 		<dict>
-			<key>click_handler_spec</key>
+			<key>click_handler</key>
 			<string>com.bigbearlabs.WebBuddy</string>
+			<key>opt_click_handler</key>
+			<string>com.apple.Safari</string>
+			<key>shift_opt_click_handler</key>
+			<string>com.google.Chrome</string>
 			<key>_click_handler_specs</key>
 			<array>
 				<dict>

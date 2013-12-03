@@ -197,6 +197,7 @@ end
 
 class NSView
 
+
 	def add_view( view = new_view(10, 10, self.width - 20, self.height - 20), *views)
 		self.addSubview(view)		
 		view.snap_to_top
@@ -204,6 +205,11 @@ class NSView
 		# y = view.y
 		prev_view = view
 		views.map do |view|
+			if view.nil?
+				view = NSTextField.new
+				view.frame = [[0,0], [80,20]]
+				view.stringValue = "nil view!"
+			end
 
 			self.addSubview( view )
 			
@@ -274,6 +280,8 @@ class NSView
 		self.frameOrigin = new_origin
 	end
 
+	#= redundant: x=, x +=
+
   def move_x offset
     new_frame = NSMakeRect( frame.origin.x + offset, frame.origin.y, frame.size.width, frame.size.height)
     self.frame = new_frame
@@ -286,6 +294,15 @@ class NSView
 
 #=
 	
+	def size_to_fit
+		subview_frame = self.frame_for_subviews
+		self.frame = subview_frame
+
+		# TODO reference point is unclear.
+
+		self
+	end
+
 	def frame_for_subviews
 		union = NSZeroRect
 		self.subviews.each do |v|
@@ -504,7 +521,7 @@ end
 # creates a menu item that invokes selection_handler with itself as the proc param when selected.
 def new_menu_item( title = 'stub-title', selection_handler = nil)
 	target, action = nil
-		if selection_handler
+	if selection_handler
 		target = item
 		action = 'handle_menu_item_select:'
 	
@@ -513,7 +530,7 @@ def new_menu_item( title = 'stub-title', selection_handler = nil)
 		end
 		def item.handle_menu_item_select(sender)
 			@selection_handler.call item
-	end
+		end
 	end
 
 	item = NSMenuItem.alloc.initWithTitle(title, action:action, keyEquivalent:'')

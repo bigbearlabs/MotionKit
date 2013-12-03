@@ -27,8 +27,6 @@ module Browsers
 	def self.default_browser
 		default_browser_bid = LSCopyDefaultHandlerForURLScheme("http")
 		default_browser_bid
-
-		'com.bigbearlabs.WebBuddy'
 	end
 
 	# FIXME when bundle id resolves to multiple apps, we can have weird issues here.

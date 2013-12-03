@@ -23,7 +23,6 @@ class DefaultBrowserHandler < BBLComponent
     {
       make_default_browser: {
         postflight: -> val {
-          puts "** val: #{val}"
           if val
             make_default_browser
           else
