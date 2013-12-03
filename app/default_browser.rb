@@ -3,10 +3,13 @@ class DefaultBrowserHandler < BBLComponent
   #= app lifecycle
 
   def on_setup
+    
     if default :make_default_browser
       # TODO show user dialog if setting needs to change
 
       make_default_browser
+    else
+      save_previous_if_needed
     end
   end
 
@@ -16,7 +19,7 @@ class DefaultBrowserHandler < BBLComponent
 
   #= framework integration
   
-  def defaults
+  def defaults_spec
     {
       make_default_browser: {
         postflight: -> val {
@@ -25,13 +28,18 @@ class DefaultBrowserHandler < BBLComponent
           else
             revert_default_browser
           end
+        },
+        preference_spec: {
+          view_type: :boolean,
+          label: "Make #{NSApp.name} my default browser",
         }
         # MAYBE post_register to specify actions after defaults registered.
         # MAYBE initial val
       }
     }
   end
-  # TODO find a hash with guaranteed order
+  # TODO find a Hash subclass with guaranteed order
+
 
   #= 
 
@@ -43,7 +51,11 @@ class DefaultBrowserHandler < BBLComponent
 
   def revert_default_browser
     previous_browser_bid = default :previous_default_browser
-    Browsers::make_default_browser previous_browser_bid unless previous_browser_bid.empty?
+    unless previous_browser_bid.to_s.empty?
+      Browsers::set_default_browser previous_browser_bid
+    else
+      pe_log "no previous browser bid found, can't revert default browser"
+    end
   end
 
   #=
@@ -57,19 +69,8 @@ class DefaultBrowserHandler < BBLComponent
     else
       pe_log "saving previous browser: #{previous_browser_bid}"
 
-      set_default :previous_default_browser, previous_browser_bid
+      self.update_default :previous_default_browser, previous_browser_bid
     end
   end
   
-  #= 
-
-  # prefs: on change, :default_browser should invoke appropriate method. probably can extract an on-off pattern for this.
-
-  def preference_spec
-    {
-      key: :make_default_browser,
-      description: "Make #{NSApp.name} my default browser",
-      
-    }
-  end
 end

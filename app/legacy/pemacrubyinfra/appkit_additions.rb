@@ -70,7 +70,7 @@ def new_rect( x, y, w, h )
 	NSMakeRect(x, y, w, h)
 end
 
-def new_view( rect_or_x, y = 0, w = 0, h = 0 )
+def new_view( rect_or_x = NSZeroRect, y = 0, w = 0, h = 0 )
 	if rect_or_x.is_a? NSRect
 		rect = rect_or_x
 	else
@@ -197,11 +197,31 @@ end
 
 class NSView
 
-#= quick testing
-	def add_view( v_x = 10, v_y = 10, v_w = width - 20, v_h = height - 20 )
-		view =  new_view v_x, v_y, v_w, v_h
-		self.addSubview( view )
-		view
+
+	def add_view( view = new_view(10, 10, self.width - 20, self.height - 20), *views)
+		self.addSubview(view)		
+		view.snap_to_top
+
+		# y = view.y
+		prev_view = view
+		views.map do |view|
+			if view.nil?
+				view = NSTextField.new
+				view.frame = [[0,0], [80,20]]
+				view.stringValue = "nil view!"
+			end
+
+			self.addSubview( view )
+			
+			# # stack down.
+			# y -= view.height
+			# view.frame = NSMakeRect(view.x, y, view.width, view.height)
+
+			view.snap_to_bottom_of prev_view
+			prev_view = view
+		end
+		
+		self
 	end
 
 #= general / geometry
@@ -260,6 +280,8 @@ class NSView
 		self.frameOrigin = new_origin
 	end
 
+	#= redundant: x=, x +=
+
   def move_x offset
     new_frame = NSMakeRect( frame.origin.x + offset, frame.origin.y, frame.size.width, frame.size.height)
     self.frame = new_frame
@@ -272,6 +294,15 @@ class NSView
 
 #=
 	
+	def size_to_fit
+		subview_frame = self.frame_for_subviews
+		self.frame = subview_frame
+
+		# TODO reference point is unclear.
+
+		self
+	end
+
 	def frame_for_subviews
 		union = NSZeroRect
 		self.subviews.each do |v|
@@ -338,10 +369,6 @@ class NSView
 
 #=
 
-	def view_tree
-		self.views_where { true }
-	end
-	
 	def views_where(&block)
 		# traverse view hierarchy and collect views matching condition.
 		hits = []
@@ -472,7 +499,9 @@ def new_menu( data )
 	menu = NSMenu.alloc.initWithTitle('')
 	data.each do |item_data|
 		item = new_menu_item item_data[:title], item_data[:proc]
-		item.representedObject = item_data
+		item.representedObject = item_data[:value]
+		item.representedObject ||= item_data
+
 		if item_data.key? :icon
 			item.setImage(item_data[:icon])
 		end
@@ -490,16 +519,22 @@ def new_menu( data )
 end
 
 # creates a menu item that invokes selection_handler with itself as the proc param when selected.
-def new_menu_item( title = 'stub-title', selection_handler )
-	item = NSMenuItem.alloc.initWithTitle(title, action:'invoke_proc:', keyEquivalent:'')
-	item.target = item
-	item.def_method_once :'invoke_proc:' do |sender|
-		if selection_handler
-			selection_handler.call item
-		else
-			pe_log "no proc given for menu item #{item}"
+def new_menu_item( title = 'stub-title', selection_handler = nil)
+	target, action = nil
+	if selection_handler
+		target = item
+		action = 'handle_menu_item_select:'
+	
+		def item.selection_handler(handler)
+			@selection_handler = handler
+		end
+		def item.handle_menu_item_select(sender)
+			@selection_handler.call item
 		end
 	end
+
+	item = NSMenuItem.alloc.initWithTitle(title, action:action, keyEquivalent:'')
+	item.target = target
 
 	item
 end
@@ -714,17 +749,15 @@ end
 
 class NSButton
 	def on_click(&handler)
-		handler_wrapper = Object.new
-		class << handler_wrapper
-			attr_accessor :click_handler
-			def handleClick(sender)
-				click_handler.call(sender)
-			end
-		end
-		handler_wrapper.click_handler = handler
+		@click_handler = handler
 
-		self.target = handler_wrapper
-		self.action = 'handleClick:'
+		self.target = self
+		self.action = 'handle_click:'
+	end
+
+	# 
+	def handle_click(sender)
+		@click_handler.call sender
 	end
 
 	def on_r_click(&handler)

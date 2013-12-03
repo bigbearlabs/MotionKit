@@ -77,33 +77,12 @@
 		</dict>
 		<key>BrowserDispatch</key>
 		<dict>
-			<key>click_handler_specs</key>
-			<array>
-				<dict>
-					<key>button_outlet_name</key>
-					<string>@click_options</string>
-					<key>modifiers</key>
-					<string></string>
-					<key>browser_bundle_id</key>
-					<string>com.bigbearlabs.WebBuddy</string>
-				</dict>
-				<dict>
-					<key>button_outlet_name</key>
-					<string>@mod_click_1_options</string>
-					<key>modifiers</key>
-					<string>opt</string>
-					<key>browser_bundle_id</key>
-					<string>com.apple.Safari</string>
-				</dict>
-				<dict>
-					<key>button_outlet_name</key>
-					<string>@mod_click_2_options</string>
-					<key>modifiers</key>
-					<string>opt,shift</string>
-					<key>browser_bundle_id</key>
-					<string>com.google.Chrome</string>
-				</dict>
-			</array>
+			<key>click_handler</key>
+			<string>com.bigbearlabs.WebBuddy</string>
+			<key>opt_click_handler</key>
+			<string>com.apple.Safari</string>
+			<key>shift_opt_click_handler</key>
+			<string>com.google.Chrome</string>
 		</dict>
 		<key>tags_by_description</key>
 		<dict>
