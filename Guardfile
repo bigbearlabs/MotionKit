@@ -38,8 +38,10 @@
 
 
 guard :shell do
-  watch %r{^app/(.+)\.rb$} do |m|
+  watch %r{^(?:app|bblmotionkit)/(.+)\.rb$} do |m|
     # `say #{m[0]}`
     `curl -i -T #{m[0]} http://localhost:59123`
   end
+
+  # TODO watch /resources, copy to resources path.
 end
