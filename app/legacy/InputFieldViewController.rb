@@ -93,6 +93,8 @@ class InputFieldViewController < PEViewController
 			watch_notification :Site_search_notification
 			watch_notification :Visit_request_notification
 
+		 # 	watch_notification :Url_load_finished_notification
+
 			self.refresh_input_field
 		end
 		
@@ -108,15 +110,15 @@ class InputFieldViewController < PEViewController
    #    self.current_url = self.current_enquiry.to_search_url_string
    #  end
 
-   #  react_to :current_url do
-   #    self.current_enquiry = self.current_url
+    # react_to :current_url do
+    #   # self.current_enquiry = self.current_url
       
-   #    # alternative approaches:
-   #    # use previous enquiry
-   #    # extract enquiry from url
+    #   # alternative approaches:
+    #   # use previous enquiry
+    #   # extract enquiry from url
       
-   #    NSApp.delegate.user.perform_url_input self.input_text
-   #  end
+    #   refresh_input_field
+    # end
 	end
 	
 #=
@@ -156,6 +158,10 @@ class InputFieldViewController < PEViewController
 		self.display_mode = :Display_url
 	end
 
+ #  def handle_Url_load_finished_notification( notif )
+	# 	self.current_url = notif.userInfo
+	# end
+		
 #= controller -> ui
 	
 	# this was slightly back-doorish in the days when we were trying to get page find input through this class. OBSOLETE
@@ -307,22 +313,22 @@ class InputFieldViewController < PEViewController
 
 	#= menu validation sysint
 
-	def validateMenuItem( menuItem )
+	# def validateMenuItem( menuItem )
 
-		# reflect current state on menu title.
-		new_title = 
-			case Display_tags_by_modes.key(menuItem.tag)
-			when :Display_url then "Address: #{self.current_url}"
-			when :Display_enquiry then "Enquiry: #{self.current_enquiry}"
-			when :Display_filter then "Filter: #{self.current_filter}"
-			else
-			  pe_warn "unknown menu tag #{menuItem.tag} from #{menuItem}"
-			  ''
-			end  
-		menuItem.title = new_title
+	# 	# reflect current state on menu title.
+	# 	new_title = 
+	# 		case Display_tags_by_modes.key(menuItem.tag)
+	# 		when :Display_url then "Address: #{self.current_url}"
+	# 		when :Display_enquiry then "Enquiry: #{self.current_enquiry}"
+	# 		when :Display_filter then "Filter: #{self.current_filter}"
+	# 		else
+	# 		  pe_warn "unknown menu tag #{menuItem.tag} from #{menuItem}"
+	# 		  ''
+	# 		end  
+	# 	menuItem.title = new_title
 		  
-		true
-	end
+	# 	true
+	# end
 	
 #=
 	
