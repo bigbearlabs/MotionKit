@@ -1,3 +1,5 @@
+# TODO reconcile postflight proc, calls to on_setup, another call to on_update.
+
 module Preferences
 
 #= app-specific
@@ -35,7 +37,7 @@ module Preferences
     NSApp.activate
   end
 
-
+  # TODO replace with the 3rd-party prefpane framework
   def new_pref_pane( name )
     pane = new_view
     pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
@@ -46,21 +48,23 @@ module Preferences
   end
 
   def new_pref_view( component_class )
-    component = self.component component_class
+    try do
+      component = self.component component_class
 
-    defaults_spec = component.defaults
-    defaults_spec.map do |default, val|
-      pref_spec = val[:preference_spec]
-      if pref_spec
-        view = 
-          case pref_spec[:view_type]
-          when :boolean
-            new_boolean_preference_view default, pref_spec, component
-          when :list
-            new_list_preference_view default, pref_spec, component
-          end
+      defaults_spec = component.defaults_spec
+      defaults_spec.map do |default, val|
+        pref_spec = val[:preference_spec]
+        if pref_spec
+          view = 
+            case pref_spec[:view_type]
+            when :boolean
+              new_boolean_preference_view default, pref_spec, component
+            when :list
+              new_list_preference_view default, pref_spec, component
+            end
 
-        return view
+          return view
+        end
       end
     end
   end
@@ -74,9 +78,7 @@ module Preferences
     checkbox.state = component.default(default) ? NSOnState : NSOffState
     checkbox.on_click do
       # set the default.
-      component.set_default default, (checkbox.state == NSOnState)
-      # setup the component.
-      component.setup  # FIXME need to distinguish setup and update
+      component.update_default default, (checkbox.state == NSOnState)
     end
     view
   end
@@ -95,7 +97,7 @@ module Preferences
       # set handler
       popup_button.on_select do |selected_item|
         # set the default.
-        component.set_default default, selected_item.value
+        component.update_default default, selected_item.value
         # setup the component.
         component.setup
       end
@@ -116,7 +118,6 @@ module Preferences
     self.update_toggle_menu_item
   end
   
-
 end
 
 

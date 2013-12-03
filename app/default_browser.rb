@@ -8,6 +8,8 @@ class DefaultBrowserHandler < BBLComponent
       # TODO show user dialog if setting needs to change
 
       make_default_browser
+    else
+      save_previous_if_needed
     end
   end
 
@@ -17,10 +19,11 @@ class DefaultBrowserHandler < BBLComponent
 
   #= framework integration
   
-  def defaults
+  def defaults_spec
     {
       make_default_browser: {
         postflight: -> val {
+          puts "** val: #{val}"
           if val
             make_default_browser
           else
@@ -49,7 +52,11 @@ class DefaultBrowserHandler < BBLComponent
 
   def revert_default_browser
     previous_browser_bid = default :previous_default_browser
-    Browsers::make_default_browser previous_browser_bid unless previous_browser_bid.to_s.empty?
+    unless previous_browser_bid.to_s.empty?
+      Browsers::set_default_browser previous_browser_bid
+    else
+      pe_log "no previous browser bid found, can't revert default browser"
+    end
   end
 
   #=
@@ -63,7 +70,7 @@ class DefaultBrowserHandler < BBLComponent
     else
       pe_log "saving previous browser: #{previous_browser_bid}"
 
-      set_default :previous_default_browser, previous_browser_bid
+      self.update_default :previous_default_browser, previous_browser_bid
     end
   end
   

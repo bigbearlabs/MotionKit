@@ -12,7 +12,7 @@ class BrowserDispatch < BBLComponent
   
   #=
 
-  def defaults
+  def defaults_spec
     {
       click_handler_spec: {
         postflight: -> new_specs {

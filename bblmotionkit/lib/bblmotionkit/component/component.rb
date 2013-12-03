@@ -4,11 +4,13 @@ module ComponentClient
   # should add component's event handlers to the handler chains, initialising if necessary.
   def setup_components( component_defs = self.components )
     component_defs.map do |component_def|
-      component_class = component_def[:module]
+      try do
+        component_class = component_def[:module]
 
-      register component_class
+        register component_class
 
-      pe_log "assembled component #{component_class} into #{self}"
+        pe_log "assembled component #{component_class} into #{self}"
+      end
     end
   end
 
@@ -17,7 +19,7 @@ module ComponentClient
 
     # TACTICAL naive implementation keeps instantiating new instances..
     defaults = default "#{self.class.name}.#{component_class.name}"
-    instance = component_class.new( self, defaults )
+    instance = component_class.new( self )
     @registered_components << instance
 
     # set up event method chaining.
@@ -30,19 +32,24 @@ module ComponentClient
   end
 
   def component component_class
-    @registered_components.select { |e| e.is_a? component_class } [0]
+    o = @registered_components.select { |e| e.is_a? component_class } [0]
+    raise "no component #{component_class} found" if nil
+    o
   end
   
 
   def chain method_name, method
-    pe_log "TODO chain #{method} to #{method_name}"
 
     original_method = 
       if self.respond_to? method_name
         self.method method_name
       else
-        # define a no-op method
+        # define a no-op method?
+
+        pe_log "no method #{method_name} found on client."
+        nil
       end
+      return if original_method.nil?
 
     do_chain = proc {
       method.call
@@ -52,20 +59,18 @@ module ComponentClient
     self.define_singleton_method method_name do
       do_chain.call
     end
+
+    pe_log "chained #{method} to #{method_name}"
   end
 
-  # TODO wire platform events to registered components.
 end
 
 
 class BBLComponent
   attr_reader :client
 
-  def initialize(client, defaults)
-    pe_warn "nil defaults" if defaults.nil?
-
+  def initialize(client)
     @client = client
-    @defaults = defaults
   end
 
   def setup
@@ -77,23 +82,26 @@ class BBLComponent
     self.methods.grep /^on_/
   end
 
-  #= MOVE
+  #= defaults-related
 
   def default key
-    @defaults[key.to_s]
+    self.client.default full_key(key)
   end
+  
+  def update_default key, val
+    self.client.set_default full_key(key), val
 
-  def set_default key, val
-
-    pe_log "TODO persist #{key} with #{val}"
-
-    default_def = self.defaults[key]
+    default_def = self.defaults_spec[key]
     unless default_def.nil?
       postflight = default_def[:postflight]
       postflight.call(val) if postflight
 
       pe_log "called postflight #{postflight} for default '#{key}'"
     end
+  end
+
+  def full_key key
+    :"#{self.class.name}.#{key}"
   end
 end
 

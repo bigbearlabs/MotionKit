@@ -502,16 +502,22 @@ def new_menu( data )
 end
 
 # creates a menu item that invokes selection_handler with itself as the proc param when selected.
-def new_menu_item( title = 'stub-title', selection_handler )
-	item = NSMenuItem.alloc.initWithTitle(title, action:'invoke_proc:', keyEquivalent:'')
-	item.target = item
-	item.def_method_once :'invoke_proc:' do |sender|
+def new_menu_item( title = 'stub-title', selection_handler = nil)
+	target, action = nil
 		if selection_handler
-			selection_handler.call item
-		else
-			pe_log "no proc given for menu item #{item}"
+		target = item
+		action = 'handle_menu_item_select:'
+	
+		def item.selection_handler(handler)
+			@selection_handler = handler
 		end
+		def item.handle_menu_item_select(sender)
+			@selection_handler.call item
 	end
+	end
+
+	item = NSMenuItem.alloc.initWithTitle(title, action:action, keyEquivalent:'')
+	item.target = target
 
 	item
 end

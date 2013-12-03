@@ -4,13 +4,19 @@ module DefaultsAccess
 	include KVC
 
 	# call with a symbol in order to access using the object's defaults_root_key.
+	def full_key key
+		raise "invalid key: #{key}" if key.to_s.empty?
+
+		key = 
+			if key.is_a? Symbol
+				self.defaults_root_key + "." + key.to_s
+			else
+				key.to_s
+			end
+	end
+	
 	def default( key )
-		raise "invalid key: #{key}" unless key
-
-		if key.is_a? Symbol
-			key = self.defaults_root_key + "." + key.to_s
-		end
-
+		key = full_key key
 		val = NSUserDefaults.standardUserDefaults.kvc_get(key)
 
 		pe_warn "nil value for default '#{key}'" if val.nil?
@@ -26,7 +32,7 @@ module DefaultsAccess
 	end
 
 	def set_default(key, value)
-		key = key.to_s
+		key = full_key key
 
 		if key.index '.'
 			# if e.g. keypath involves a dictionary in the middle, this will fail. so
