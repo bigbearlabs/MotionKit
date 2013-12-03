@@ -7,7 +7,9 @@ module Preferences
   def preference_panes
     obj = 
       new_pref_pane :general do |pane|
-        pane.add_view new_pref_view( DefaultBrowserHandler), new_pref_view(BrowserDispatch)
+        pane.add_view new_pref_view( DefaultBrowserHandler), 
+          new_pref_view(BrowserDispatch),
+          new_pref_view(HotkeyHandler)
 
         # TODO sizing
       end

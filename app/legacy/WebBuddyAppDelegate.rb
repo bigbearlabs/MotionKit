@@ -1,5 +1,6 @@
 # require 'debugging'
 
+# TODO finish factoring out all hotkey concerns.
 
 class WebBuddyAppDelegate < PEAppDelegate
 	include ComponentClient

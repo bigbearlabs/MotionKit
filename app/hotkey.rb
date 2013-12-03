@@ -5,19 +5,39 @@ class HotkeyHandler < BBLComponent
 	def on_setup
 		@hotkey_manager ||= HotkeyManager.new
 
-		@hotkey_manager.remove_modkey_action_definition  # necessary for no-op.
-
 		if default :enable_hotkey_dtap
 			self.setup_hotkey_dtap
 		end
+	end
+
+	def defaults_spec
+		{
+			enable_hotkey_dtap: {
+        preference_spec: {
+          view_type: :boolean,
+          label: 'Hit Alt/Option twice to reveal / hide',
+        },
+        postflight: -> val {
+        	if val
+        		setup_hotkey_dtap
+        	else
+        		setup_hotkey_noop
+        	end
+        }
+			}
+		}
 	end
 
 	def setup_hotkey_dtap
 		execute_policy :hotkey  # TODO this usage of policy looks very unnatural
 	end
 
+	def setup_hotkey_noop
+		@hotkey_manager.remove_modkey_action_definition  # necessary for no-op.
+	end
+	
 	# policies
-	# NOTE this was the attempt to make have the feature switcheable on/off using the pref. it didn't work out so well.
+	# NOTE this was the attempt to make have the feature switcheable on/off using the pref. it resulted in less-than-ideal legibility.
 
 	def hotkey_noop( params )
 	end
@@ -94,7 +114,7 @@ class HotkeyHandler < BBLComponent
 		# oh, the dream.
 		# NSApp.delegate.handle_show_app_actions
 
-		client.wc.hide_input_field
+		client.wc.hide_toolbar
 	end
 
 #== modifier related
