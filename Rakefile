@@ -38,6 +38,8 @@ Motion::Project::App.setup do |app|
   app.frameworks += %w( WebKit Carbon ExceptionHandling )
 
 
+  # app.vendor_project('vendor/PEFramework', :xcode)
+  app.vendor_project('vendor/misc', :static)
   app.vendor_project('vendor/NSFileManager_DirectoryLocations', :static)
   app.vendor_project('vendor/DDHotKeyCenter', :static)
 
