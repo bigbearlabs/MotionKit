@@ -51,18 +51,13 @@ class BrowserDispatch < BBLComponent
   #=
 
   def installed_browsers_menu
-    get_description = proc { |entry_key, details| 
-      desc = details[:description].tap do |desc|
-        # default to the entry key.
-        desc = entry_key if desc.to_s.empty?
-      end
-    }
-
-    menu_data = Browsers.installed_browsers.map do |entry_key, details|
+    menu_data = Browsers.installed_browsers.map do |bundle_id, details|
+      description = details[:description]
+      description ||= bundle_id
       { 
-        title: get_description.call(entry_key, details),
+        title: description,
         icon: details[:icon],
-        value: details[:bundle_id],
+        value: bundle_id
       }
     end
     pe_debug "created menu data #{menu_data}"
@@ -76,17 +71,15 @@ class BrowserDispatch < BBLComponent
     url_event = details[:url_event]
     url = details[:url]
 
-    handler_specs = default :click_handler_specs
-
     # based on modifiers, dispatch to corresponding browser.
     # HACK!!! very brittle coupling to defaults structure. re-arranging list will break browser dispatch.
     current_modifiers = NSEvent.modifiers
     if ( (current_modifiers & Keycodes[:shift]) != 0 && ( current_modifiers & Keycodes[:opt]) != 0 )
-      bundle_id = handler_specs[2][:browser_bundle_id]
+      bundle_id = default :shift_opt_click_handler
     elsif (current_modifiers & Keycodes[:opt]) != 0
-      bundle_id = handler_specs[1][:browser_bundle_id]
+      bundle_id = default :opt_click_handler
     else
-      bundle_id = handler_specs[0][:browser_bundle_id]
+      bundle_id = default :click_handler
     end
 
     load_url_proc = -> {

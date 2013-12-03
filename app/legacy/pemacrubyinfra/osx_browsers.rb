@@ -60,7 +60,7 @@ module Browsers
 					}
 
 					pe_debug "create a browser definition for #{browser_spec}"
-					acc[app_name.intern] = browser_spec
+					acc[handler_bundle_id] = browser_spec
 				else
 					pe_warn "bundle_path for #{handler_bundle_id} is nil; skipping."
 				end

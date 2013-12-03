@@ -83,29 +83,6 @@
 			<string>com.apple.Safari</string>
 			<key>shift_opt_click_handler</key>
 			<string>com.google.Chrome</string>
-			<key>_click_handler_specs</key>
-			<array>
-				<dict>
-					<key>button_outlet_name</key>
-					<string>@mod_click_1_options</string>
-					<key>modifiers</key>
-					<string>opt</string>
-					<key>browser_bundle_id</key>
-					<string>com.apple.Safari</string>
-					<key>label</key>
-					<string>Alt + click on URL</string>
-				</dict>
-				<dict>
-					<key>button_outlet_name</key>
-					<string>@mod_click_2_options</string>
-					<key>modifiers</key>
-					<string>opt,shift</string>
-					<key>browser_bundle_id</key>
-					<string>com.google.Chrome</string>
-					<key>label</key>
-					<string>Alt + shift + click on URL</string>
-				</dict>
-			</array>
 		</dict>
 		<key>tags_by_description</key>
 		<dict>

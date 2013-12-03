@@ -84,6 +84,10 @@ class BBLComponent
 
   #= defaults-related
 
+  def defaults
+    self.client.default :"#{self.class.name}"
+  end
+
   def default key
     self.client.default full_key(key)
   end
