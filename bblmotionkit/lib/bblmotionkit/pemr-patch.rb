@@ -18,6 +18,7 @@ end
 
 def pe_report(*args)
   puts args
+  puts args[0].backtrace if args[0].is_a? Exception
 end
 
 def debug( *args )

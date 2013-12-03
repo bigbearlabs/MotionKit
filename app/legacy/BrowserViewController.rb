@@ -410,7 +410,7 @@ class BrowserViewController < PEViewController
 
 		browser_bundle_id ||= params[:bundle_id]
 
-		NSApp.delegate.open_browser browser_bundle_id, self.url
+		NSApp.delegate.component(BrowserDispatch).open_browser browser_bundle_id, self.url
 
 		# NSApp.hide(self)  # a bit abrupt.
 		self.view.window.windowController.do_deactivate

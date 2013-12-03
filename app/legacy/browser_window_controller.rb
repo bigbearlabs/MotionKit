@@ -49,8 +49,10 @@ class BrowserWindowController < NSWindowController
 				@context = context
 				
 				@browser_vc.context = @context
+
+				# MOTION-MIGRATION
 				#@context_vc.context = @context
-				# @bar_vc.context = @context
+				@bar_vc.context = @context
 				# @history_vc.representedObject = @context
 			end
 		end
@@ -106,7 +108,7 @@ class BrowserWindowController < NSWindowController
 			self.setup_responder_chain
 
 			# MOTION-MIGRATION
-			# self.setup_actions_bar
+			self.setup_actions_bar
 			# self.setup_reactive_detail_input
 			# self.setup_popover
 		end
