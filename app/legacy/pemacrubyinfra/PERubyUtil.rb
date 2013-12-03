@@ -131,7 +131,7 @@ class String
     self[0, prefix.length] == prefix
   end
 
-  def is_single_word?
+  def single_word?
     self =~ /[ \.\/]/ ? false : true
   end
 

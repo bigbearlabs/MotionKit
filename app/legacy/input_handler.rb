@@ -51,11 +51,7 @@ module InputHandler
 end
 
 
-class NSString
-  def to_search_url_string
-    "http://google.com/search?q=#{CGI.escape(self)}"
-  end
-  
+class String
   def valid_url?
     # MOTION-MIGRATION temp disable due to 'uri' not being compatible
     # return true if URI::DEFAULT_PARSER.regexp[:ABS_URI].match self
@@ -65,19 +61,15 @@ class NSString
     false
   end
   
-  def is_single_word?
-    self =~ /[ \.\/]/ ? false : true
-  end
-
   def pe_type
 =begin
     if ! self.valid_url? || 
       # exceptionally handle single words which aren't pingable as enquiries.
-        (self.is_single_word? && ! is_reachable_host?(self))
+        (self.single_word? && ! is_reachable_host?(self))
 =end
     if self =~ /^>/
       :cmd
-    elsif ! self.strip.valid_url? || self.is_single_word?
+    elsif ! self.strip.valid_url? || self.single_word?
       :enquiry
     else
       :url
