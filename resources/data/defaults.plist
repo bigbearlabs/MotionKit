@@ -59,7 +59,7 @@
 			<key>hotkey_action_policy</key>
 			<string>activate_viewer_window</string>
 			<key>enable_hotkey_dtap</key>
-			<true/>
+			<false/>
 			<key>hotkey_modkey</key>
 			<string>alt</string>
 			<key>hotkey_manager</key>

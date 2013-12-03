@@ -463,6 +463,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 			self.deactivate_viewer_window
 		else
 			self.activate_viewer_window
+			self.current_viewer_wc.handle_focus_input_field self
 		end
 	end
 	
