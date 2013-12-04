@@ -82,12 +82,12 @@ if BubbleWrap::App.osx?
             pe_debug "link nav."
             debug( {msg: "link nav", data: event_data})
 
-            BW::App.notification_center.post :Link_navigation_notification, event_data[:url]
+            send_notification :Link_navigation_notification, event_data[:url]
             # FIXME this doesn't cover all link navs - e.g. google search result links emit WebNavigationTypeOther, probably due to ajax-based loading.
           end
           
         when 'didStartProvisionalLoad'
-          BW::App.notification_center.post :Load_request_notification, url
+          send_notification :Load_request_notification, url
 
           self.update_last_url url
           # TODO integrate with cancels.
@@ -98,12 +98,12 @@ if BubbleWrap::App.osx?
 
 
         when 'didReceiveTitle'
-          BW::App.notification_center.post :Title_received_notification, { 
+          send_notification :Title_received_notification, { 
             url: url, title: event_data[:title] 
           }
 
         when 'didFinishLoadFrame'
-          BW::App.notification_center.post :Url_load_finished_notification, url
+          send_notification :Url_load_finished_notification, url
 
           @load_success_handler.call url
 
