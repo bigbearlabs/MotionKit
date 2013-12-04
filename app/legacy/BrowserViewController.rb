@@ -108,6 +108,7 @@ class BrowserViewController < PEViewController
 		
 		watch_notification :Find_request_notification
 		watch_notification :Text_finder_notification
+		watch_notification :Url_load_finished_notification
 					
 		self.setup_text_finder
 		
@@ -251,6 +252,9 @@ class BrowserViewController < PEViewController
 	
 
 #=
+	def handle_Url_load_finished_notification(notif)
+		handle_load_success notif.userInfo
+	end
 
 	def handle_load_success( url )
 		if url.is_a? NSString
@@ -269,6 +273,7 @@ class BrowserViewController < PEViewController
 		end
 	end
 
+	# TODO wire up
 	def handle_load_failure( url )
 		# remove the handler.
 		@load_handler = nil

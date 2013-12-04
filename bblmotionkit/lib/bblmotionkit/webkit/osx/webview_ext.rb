@@ -102,7 +102,7 @@ if BubbleWrap::App.osx?
             url: url, title: event_data[:title] 
           }
 
-        when 'didFinishLoadFrame'
+        when 'didFinishLoadMainFrame'
           send_notification :Url_load_finished_notification, url
 
           @load_success_handler.call url
@@ -206,7 +206,7 @@ if BubbleWrap::App.osx?
     
     def webView(webView, didFinishLoadForFrame:frame)    
       if frame == webView.mainFrame
-        self.push_event 'didFinishLoadFrame'
+        self.push_event 'didFinishLoadMainFrame'
         
       end
     end
