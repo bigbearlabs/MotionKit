@@ -165,6 +165,7 @@ class BrowserViewController < PEViewController
 		# FIXME somehow optimise the invocation frequency, e.g. once per page
 	end
 	
+	# call with a return statement at the end of the js to ensure a value back.
 	def eval_js( script_string, script_description = "#{script_string[0..60]}..." )
 
 		# wrap script in a try block to get the error back if any.
@@ -188,8 +189,8 @@ class BrowserViewController < PEViewController
 			dom_window = @web_view.windowScriptObject
 			result = dom_window.evaluateWebScript(script_string)
 		
-			pe_log "completed eval_js: '#{script_description}'"
-			pe_log "eval_results: #{result.description}"
+			pe_debug "completed eval_js: '#{script_description}'"
+			pe_debug "eval_results: #{result.description}"
 		
 			result
 		end
