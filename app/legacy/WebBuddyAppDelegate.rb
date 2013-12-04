@@ -305,7 +305,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		filter_spec = notification.userInfo
 
 		# @main_window_controller.filter filter_spec
-		# wc.filter filter_spec
+		wc.filter filter_spec
 	end
 
 #= tracks

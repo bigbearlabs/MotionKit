@@ -603,8 +603,7 @@ end
 
 
 
-# class InputField < NSTokenField
-class InputField < NSTextField
+class InputField < NSTokenField
 	include NSTextFieldResponderHandling
 	
 	attr_accessor :notification_on_next_first_responder
