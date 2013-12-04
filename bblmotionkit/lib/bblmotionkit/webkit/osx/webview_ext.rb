@@ -23,6 +23,7 @@ if BubbleWrap::App.osx?
 
 
   # adapted from WebBuddy with tactical modifications.
+  # FIXME resolve delta from WebViewDelegate.rb since migration.
   class WebViewDelegate
 
     # a running history 
@@ -360,10 +361,17 @@ if BubbleWrap::App.osx?
 
       self.push_event 'policyImplError', { error: error, url: url }
 
-      @policy_error_handler.call url, error
-
+      @policy_error_handler.call url
     end
 
+    def webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)
+      pe_log [err, frame]
+    end
+
+    def webView(webView, didFailLoadWithError:err, forFrame:frame)
+      pe_log [err, frame]
+    end
+  
   end
 
 
