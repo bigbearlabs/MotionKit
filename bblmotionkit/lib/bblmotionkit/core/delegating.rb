@@ -1,20 +1,20 @@
 # a duck-typing-compliant replacement for Forwardable that works with RubyMotion.
 
 module Delegating
-  def def_delegator accessor, method
+  def def_delegator accessor, *methods
     self.send :include, InstanceMethods
 
     # FIXME can't handle multiple calls
     @@delegating_accessor = accessor
-    @@delegating_method = method
+    @@delegating_methods = methods.map &:intern
   end
 
   def delegating_accessor
     @@delegating_accessor
   end
   
-  def delegating_method
-    @@delegating_method
+  def delegating_methods
+    @@delegating_methods
   end
   
   # when extended, check if at risk of clobbering.
@@ -22,7 +22,7 @@ module Delegating
 
   module InstanceMethods
     def method_missing(method, *args)
-      if self.class.delegating_method.to_s.eql? method.to_s
+      if self.class.delegating_methods.include? method.intern
         # send the method to the obj returned from the accessor instead.
         self.send(self.class.delegating_accessor).send method, *args
       else
@@ -31,7 +31,7 @@ module Delegating
     end
 
     def respond_to?(method)
-      super || (self.class.delegating_method.to_s.eql? method.to_s)
+      super || (self.class.delegating_methods.include? method.intern)
     end    
   end
 end

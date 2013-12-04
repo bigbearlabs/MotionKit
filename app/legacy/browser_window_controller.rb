@@ -6,7 +6,7 @@ class BrowserWindowController < NSWindowController
 
 	# cover interface for BVC
 	extend Delegating
-	def_delegator :browser_vc, :load_location
+	def_delegator :browser_vc, :load_location, :eval_js
 	
 
 	# influenceables.
