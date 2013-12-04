@@ -239,8 +239,10 @@ class InputFieldViewController < PEViewController
 				# # exceptionally map an empty input as an unfilter action.
 				# 	NSApp.delegate.user.perform_unfilter
 			# else
+				concurrently -> {
 				pe_trace "perform filter #{input_string}"
 				NSApp.delegate.user.perform_filter(input_string)
+				}
 			# end
 	end
 	
@@ -451,7 +453,9 @@ class InputFieldViewController < PEViewController
 	end
 		
 	def controlTextDidChange( notification )
-		pe_debug "textDidChange: #{notification.description}"
+		# if $DEBUG
+		# 	pe_debug "textDidChange: #{notification.description}"
+		# end
 		
 		self.input_text = @input_field.stringValue.gsub TOPIC_DELIM, SEGMENT_DELIM
 
@@ -672,7 +676,7 @@ class InputField < NSTextField
 	#= field editor delegate methods
 
 	def textViewDidChangeSelection( notification )
-		pe_debug "textDidChange: #{self.stringValue}"
+		pe_debug "textDidChangeSelection: #{self.stringValue}"
 
 		# DISABLED multiple token selection is unfinished.
 		## trigger the menu for multiple token selection

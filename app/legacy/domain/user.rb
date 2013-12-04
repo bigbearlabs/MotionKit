@@ -53,7 +53,7 @@ class User
     self.add_action action
 
     filter_spec = FilterSpec.new(:recent_first, action.filter_string, self.page)
-    # self.update_filter_spec filter_spec
+    self.update_filter_spec filter_spec
   end
   
   def perform_unfilter
