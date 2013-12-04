@@ -7,19 +7,25 @@ module ComponentClient
       try do
         component_class = component_def[:module]
 
-        register component_class
+        register component_class, component_def[:deps]
 
         pe_log "assembled component #{component_class} into #{self}"
       end
     end
   end
 
-  def register component_class
+  def register component_class, deps
     @registered_components ||= []
 
     # TACTICAL naive implementation keeps instantiating new instances..
     defaults = default "#{self.class.name}.#{component_class.name}"
-    instance = component_class.new( self )
+    instance = 
+      if deps
+        component_class.new( self, deps)
+      else
+        component_class.new( self )
+      end
+
     @registered_components << instance
 
     # set up event method chaining.
