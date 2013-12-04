@@ -390,8 +390,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# subsystems
 		# @anchor_window_controller.load_anchor_for_space @spaces_manager.current_space_id, true
 		self.main_window_controller = MainWindowController.alloc.init
-		@main_window_controller.setup
-		@main_window_controller.context = @context_store.current_context
+		@main_window_controller.setup	:data_manager => @context_store
+
+		@main_window_controller.context = @context_store.current_context  # REDUNDANT
 
 		# @context_gallery_vc.setup
 
@@ -504,11 +505,12 @@ class WebBuddyAppDelegate < PEAppDelegate
 		end
 		
 		trace_time 'viewer_wc setup' do
-			viewer_wc.setup
+			viewer_wc.setup :data_manager => @context_store
 		end
 		trace_time 'viewer_wc set_context' do
 			# viewer_wc.context = @context_store.new_context viewer_wc.to_s
-			viewer_wc.context = @context_store.current_context
+
+			viewer_wc.context = @context_store.current_context  # REDUNDANT
 		end
 
 		viewer_wc

@@ -13,8 +13,8 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :should_close
 
 	# all the data. LEAKY
-	attr_accessor :context
-	attr_accessor :track_id
+	attr_accessor :stack	
+	attr_accessor :context  # TODO clean up usage and remove.
 	attr_accessor :search_details
 
 	# bindable data
@@ -73,11 +73,15 @@ class BrowserWindowController < NSWindowController
 		super
 	end
 	
-	def setup		
+	def setup(collaborators)		
 		raise "no window for #{self}" unless self.window
 				
 		# self.setup_tracking_region
 		# self.setup_nav_long_click
+
+		collaborators.map do |var_name, obj|
+			instance_variable_set :"@#{var_name}", obj
+		end
 
 		self.window_title_mode = :title
 
@@ -163,10 +167,10 @@ class BrowserWindowController < NSWindowController
 		# just watch the context.
 		# NOTE this is where the title updating is failing. 
 		# root cause is the bad modeling of context and tracks.
-		observe_kvo self, 'context.current_history_item.title' do |k, c, ctx|
+		observe_kvo self, 'stack.current_history_item.title' do |k, c, ctx|
 			self.title = c.kvo_new
 		end
-		observe_kvo self, 'context.current_history_item.url' do |k, c, ctx|
+		observe_kvo self, 'stack.current_history_item.url' do |k, c, ctx|
 			self.url = c.kvo_new
 		end
 
@@ -255,7 +259,7 @@ class BrowserWindowController < NSWindowController
 		unless @page_details_vc_setup
 			@page_details_vc.setup
 
-			@page_details_vc.page_collection_vc.representedObject = @context
+			@page_details_vc.page_collection_vc.representedObject = self.context
 
 			@page_details_vc_setup = true
 		end
@@ -418,8 +422,8 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def load_url(url_string, details = {})
-		# update the track
-		self.track_id = details[:track_id]
+		# update the stack
+		self.stack = details[:stack]
 
 		@browser_vc.load_location url_string, -> {
 			# set window.objc_interface_obj to be invoked from web layer  RENAME
@@ -435,7 +439,7 @@ class BrowserWindowController < NSWindowController
 		self.search_details = details
 
 		search_url = details[:url]
-		self.load_url search_url, track_id: details[:query]
+		self.load_url search_url, stack: @data_manager.stack_for(details[:query])
 	end
 	
 
@@ -458,14 +462,17 @@ class BrowserWindowController < NSWindowController
 	def handle_Load_request_notification( notification )
 		new_url = notification.userInfo
 
-		# debug [ self.track_id, notification ]
+		# debug [ self.stack_id, notification ]
 
 		## zoom to page
 		# self.overlay_enabled = false
 		# self.zoom_to_page new_url
 
-		# MOTION-MIGRATION
-		@context.add_to_track new_url, self.track_id if self.track_id
+		if self.stack
+			self.stack.add new_url 
+		else
+			pe_log "#{self} has no stack. not adding"
+		end
 
 		# TACTICAL
 		# self.hide_gallery_view self
@@ -513,32 +520,32 @@ class BrowserWindowController < NSWindowController
 
 
 #== site configuration sheet
+	## disabled until relationship between stacks and sites are made clearer.
+	# def handle_add_site(sender)
+	# 	site = @context.new_site
+	# 	handle_configure_site site
+	# end
 
-	def handle_add_site(sender)
-		site = @context.new_site
-		handle_configure_site site
-	end
+	# def handle_configure_site(site)	# RENAME not a handle_ method 
+	# 	@site_conf_controller ||= SiteConfigurationWindowController.alloc.init
 
-	def handle_configure_site(site)	# RENAME not a handle_ method 
-		@site_conf_controller ||= SiteConfigurationWindowController.alloc.init
+	# 	@site_conf_controller.site = site
 
-		@site_conf_controller.site = site
+	# 	# present as sheet
+	# 	self.show_sheet @site_conf_controller do
+	# 		# when finished,
 
-		# present as sheet
-		self.show_sheet @site_conf_controller do
-			# when finished,
-
-			@site_conf_controller.update_model
-			@bar_vc.refresh
-		end
-	end
+	# 		@site_conf_controller.update_model
+	# 		@bar_vc.refresh
+	# 	end
+	# end
 	
-	def delete_site(site)
-		# as a quick impl, just delete. sheet-based workflow depends on better modularisation of the platform-specific sheet handling.
+	# def delete_site(site)
+	# 	# as a quick impl, just delete. sheet-based workflow depends on better modularisation of the platform-specific sheet handling.
 
-		@context.remove_site site
-		@bar_vc.refresh
-	end
+	# 	@context.remove_site site
+	# 	@bar_vc.refresh
+	# end
 
 #= sidebar
 	
@@ -722,11 +729,11 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def last_url
-		unless self.context.history_items.last
+		unless self.stack.history_items.last
 			raise 'history_empty'
 		end
 
-	  self.context.history_items.last.url
+	  self.stack.history_items.last.url
 	rescue Exception => e
 		# case: first-time launch
 		# case: etc etc

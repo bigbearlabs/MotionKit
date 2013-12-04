@@ -28,7 +28,7 @@ class Context
 
     @history_items = []
 
-    @tracks_by_id = {}
+    @stacks_by_id = {}
 
     @sites ||= {}
   end
@@ -154,6 +154,7 @@ class Context
   def history_count
     self.history_items.size
   end
+
 
   def add_item( history_item )
     if ! history_item
@@ -303,80 +304,18 @@ class Context
 
   end
   
-
-#= tracks
-
-  attr_reader :tracks
-
-  def track_for( track_id )
-    track = @tracks_by_id[track_id]
-    if ! track
-      kvo_change_bindable :tracks do
-        track = Track.new(track_id)
-        @tracks_by_id[track_id] = track
-
-        pe_log "new track '#{track_id}' created"
-      end
+  def add( url )
+    item = self.item_for_url url
+    if ! item
+      pe_log "nil item for #{url}, creating a provisional item"
+      self.add_access url, provisional: true
+      item = self.item_for_url url
     end
 
-    track
+    add_item item
   end
 
-  def add_to_track( url, track_id )
-    # debug( {url: url, track_id: track_id } )
 
-    if track_id
-      track = self.track_for track_id
-      if track
-
-        item = self.item_for_url url
-        if ! item
-          pe_log "nil item for #{url}, creating a provisional item"
-          self.add_access url, provisional: true
-          item = self.item_for_url url
-        end
-  
-        track.add item
-      else
-        pe_log "nil track for #{url}, not adding to track." 
-      end
-    else
-      pe_log "nil track id for #{url}, not adding to track."
-    end
-
-
-  end
-
-  def tracks
-    @tracks_by_id.values
-  end
-
-  def tracks_data
-    tracks.map(&:to_hash)
-  end
-
-  
-  def load_tracks( tracks_data )
-    return unless tracks_data
-    
-    tracks_data.each do |track_data|
-      id = track_data['id']
-      new_track = track_for id  # will add to the map.
-      
-      track_data['items'].each do |item_ref|
-        new_track.add item_for_url(item_ref)
-      end
-    end
-  end
-
-  def tokens
-    tokens = self.tracks.map{|e| e.name}.join(' ').split.uniq
-
-    # get rid of short ones.
-    tokens.select do |token|
-      token.size > 2
-    end
-  end
 #==
     
   def name_suffix_sequence
@@ -578,7 +517,6 @@ class ItemContainer
     end
   end
 end
-
 
 class Site
   attr_accessor :name

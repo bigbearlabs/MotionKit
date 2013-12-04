@@ -15,7 +15,7 @@
 class ContextStore
 	include DefaultsAccess
 	
-	attr_accessor :contexts
+	attr_accessor :contexts  # REDUNDANT
 	attr_accessor :current_context
 
 	default :plist_name  # RENAME yaml_name.  # REFACTOR abstract into a uri
@@ -31,10 +31,11 @@ class ContextStore
 		
 		@contexts = [ Context.new("History") ]
 		@items_by_id = {}
-
+		@stacks_by_id = {}
+		
 		self.current_context = @contexts.first
 	end
-		
+
 	def to_hash
 		contexts_data = @contexts.map do |context|
 			case context.name
@@ -65,6 +66,61 @@ class ContextStore
 			'items' => history_context.history_data
 		}
 	end
+
+#= stacks
+
+  attr_reader :stacks
+
+  def stack_for( stack_expr )
+    # stack_expr is query, but can be extensible.
+    stack_id = stack_expr
+
+    stack = @stacks_by_id[stack_id]
+    if ! stack
+      kvo_change_bindable :stacks do
+        stack = Context.new(stack_id)
+        @stacks_by_id[stack_id] = stack
+
+        pe_log "new stack '#{stack_id}' created"
+      end
+    end
+
+    stack
+  end
+
+
+  def stacks
+    @stacks_by_id.values
+  end
+
+  def stacks_data
+    stacks.map(&:to_hash)
+  end
+
+  
+  def load_stacks( stacks_data )
+    return unless stacks_data
+    
+    stacks_data.each do |stack_data|
+      id = stack_data['id']
+      new_stack = stack_for id  # will add to the map.
+      
+      stack_data['items'].each do |item_ref|
+        new_stack.add item_for_url(item_ref)
+      end
+    end
+  end
+
+  def tokens
+    tokens = self.stacks.map{|e| e.name}.join(' ').split.uniq
+
+    # get rid of short ones.
+    tokens.select do |token|
+      token.size > 2
+    end
+  end
+
+#=
 
 	def thumbnail_path
 		"#{NSApp.app_support_dir}/cache/" + thumbnail_dir
@@ -141,7 +197,7 @@ class ContextStore
 		pe_log "loaded #{items_data.count} items in history context."
 
 		history_context.load_sites history_data['sites']
-		history_context.load_tracks history_data['tracks']
+		# history_context.load_tracks history_data['tracks']
 
 
 		# initialise or populate the other contexts.
@@ -182,6 +238,7 @@ class ContextStore
     item
 	end
 	
+#= persistence to disk
 
 	def save
 		@io_queue.async do
@@ -220,9 +277,8 @@ class ContextStore
 		pe_report e, "error saving #{plist_name}"
 	end
 
-#=
+	# HACKY
 
-	# TACTICAL
 	def save_thumbnails
 		FileUtils.mkdir_p thumbnail_path unless Dir.exists? thumbnail_path
 		
@@ -264,4 +320,6 @@ class ContextStore
 			end
 		end
 	end
+
+
 end
