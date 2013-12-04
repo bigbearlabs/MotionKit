@@ -17,12 +17,12 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :track_id
 	attr_accessor :search_details
 
-	# bindable stuff
+	# bindable data
 	attr_accessor :title
 	attr_accessor :url
 	attr_accessor :window_title_mode
 
-	# view-layer
+	# view-layer references
 	attr_accessor :top_portion_frame
 
 	attr_accessor :split_view
@@ -455,7 +455,7 @@ class BrowserWindowController < NSWindowController
 	
 	#= browsing lifecycle
 
-	def on_Load_request_notification( notification )
+	def handle_Load_request_notification( notification )
 		new_url = notification.userInfo
 
 		# debug [ self.track_id, notification ]
@@ -464,6 +464,7 @@ class BrowserWindowController < NSWindowController
 		# self.overlay_enabled = false
 		# self.zoom_to_page new_url
 
+		# MOTION-MIGRATION
 		@context.add_to_track new_url, self.track_id if self.track_id
 
 		# TACTICAL
