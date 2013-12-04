@@ -8,7 +8,7 @@ class WebBuddyPlugin < BBLComponent
     end
   end
 
-  def load_view(&load_handler = -> {})
+  def load_view(&load_handler)
     # self.write_data
 
     client.wc.load_location self.view_url, -> {
