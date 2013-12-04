@@ -446,7 +446,7 @@ class BrowserWindowController < NSWindowController
 	#= browsing workflow
 
 	def handle_Item_selected_notification( notification )
-		NSApp.delegate.user.perform_track_navigation( notification.userInfo )
+		NSApp.delegate.user.perform_stack_navigation( notification.userInfo )
 	end
 	
 	def handle_Bf_navigation_notification( notification )

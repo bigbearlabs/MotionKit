@@ -87,7 +87,6 @@ class InputFieldViewController < PEViewController
 
 			self.setup_kvo_display_mode
 			self.setup_kvo_display_strings
-			self.setup_kvo_tracks
 
 			watch_notification :Activation_notification
 			watch_notification :Site_search_notification
@@ -593,16 +592,6 @@ class InputFieldViewController < PEViewController
 		# NSApp.delegate.user.context.tokens
 
 		[]
-	end
-
-#= tracks
-
-	def setup_kvo_tracks
-		observe_kvo NSApp.delegate.user, :tracks do |obj, change, ctx|
-			pe_log "!! track change. last track: #{NSApp.delegate.user.tracks.last}"
-
-			@input_field_menu.update_recent_items( change.kvo_new )
-		end
 	end
 
 end

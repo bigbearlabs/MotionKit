@@ -20,18 +20,10 @@ class FilterSpec
   end
 end
 
-class HistoryTrackSpec < FilterSpec
-  def initialize
-    # super(:recent_last, '')
-    super(:recent_first, '')
-  end
-end
-
 
 ## integration
 module Filtering
   def filter filter_spec
-    puts "filtering..."
     @filter_spec = filter_spec
     self.load_filtering filter_spec.predicate_input_string
     # DEV FIXME replace with load_module
@@ -39,17 +31,20 @@ module Filtering
 
   def filtering_data
     # REFACTOR
-    context_store = $appd.instance_variable_get(:@context_store)
+    context_store = NSApp.delegate.instance_variable_get(:@context_store)
     return {} if context_store.nil?
+
+    # quickly hack out a union of all items
+    all_items = context_store.stacks.map{|e| e.history_items}.flatten.uniq
 
     {
       input: @filter_spec.predicate_input_string,
       searches: 
-        self.context.tracks.sort_by {|e| e.last_accessed_timestamp}.reverse.map do |track|
-          pages = track.history_items.sort_by {|e| e.last_accessed_timestamp}.reverse
+        context_store.stacks.sort_by {|e| e.last_accessed_timestamp}.reverse.map do |stack|
+          pages = stack.history_items.sort_by {|e| e.last_accessed_timestamp}.reverse
 
           {
-            name: track.name,
+            name: stack.name,
             # thumbnail_url: 'stub-thumbnail-url',
             url: pages.first.url,
             pages: 
@@ -63,7 +58,7 @@ module Filtering
           }
         end,
       pages: 
-        self.context.history_items.sort_by {|e| e.last_accessed_timestamp}.reverse.map do |item|
+        all_items.sort_by {|e| e.last_accessed_timestamp}.reverse.map do |item|
           {
             name: item.title,
             url: item.url,
@@ -86,13 +81,13 @@ module Filtering
   def load_filtering( input )
     pe_log "filtering for #{input}"
 
-    if module_loaded? :filtering
-      self.update_input input
-    else
-      self.load_module :filtering do
-        self.update_input input
-      end
-    end
+    # if module_loaded? :filtering
+    #   self.update_input input
+    # else
+    #   self.load_module :filtering do
+    #     self.update_input input
+    #   end
+    # end
 
   end
 
@@ -120,6 +115,7 @@ module Filtering
   end
   
   def load_module module_name
+    pe_log "loading module #{module_name}"
 
     # self.write_data
 
@@ -130,7 +126,9 @@ module Filtering
     }, ignore_history: true
   end
 
+  # FIXME sometimes this can get clobbered by the stub if it doesn't attach quickly enough.
   def attach_hosting_interface
+    pe_log "attaching hosting interface to #{self.module_url}"
     # IMPROVE load from a module file.
     eval_js %(
       // if (!window.webbuddy)
@@ -159,10 +157,10 @@ module Filtering
         }
       };
 
-      return webbuddy;
+      return window.webbuddy;
     )
 
-    # debug eval_js 'return webbuddy.env.name'
+    pe_log "eval webbudy.env: #{eval_js 'return webbuddy.env.name'}"
   end
 
   #= module
@@ -185,12 +183,11 @@ module Filtering
   end
 
   def module_url
-    # @module_url ||= 
-      # 'http://localhost:9000/#/filtering'  # DEV
+    @module_url = 'http://localhost:9000/#/filtering'  # DEV
 
-    module_dir = "modules/output"
-    module_index_path = NSBundle.mainBundle.url("#{module_dir}/index.html").path
-    @module_url ||= module_index_path + '#/filtering'  # DEPLOY
+    # module_dir = "modules/output"
+    # module_index_path = NSBundle.mainBundle.url("#{module_dir}/index.html").path
+    # @module_url = module_index_path + '#/filtering'  # DEPLOY
   end
   
 end

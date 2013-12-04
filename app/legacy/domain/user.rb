@@ -13,7 +13,8 @@ class User
     @filters = [] # probably redundant with the intro of tracks.
   end
     
-# quick access to current state.
+#= quick access to current state.
+# REFACTOR this is a redundant aspect - just rely on the data facade for this stuff.
 
   def page
     @context.current_history_item
@@ -27,22 +28,10 @@ class User
     @context.site_for('http://www.google.com')
   end
   
-  # depends on the user's view of the context.
-  def track
-    # TODO
-  end
-
 #= user's inputs.
   
   def filter
     @filters.last
-  end
-
-  def tracks
-    tracks = self.actions.select { |action| (action.is_a? SearchAction) }
-
-    # TODO further filter stuff with no hits
-    # e.g. typos like 'macupdate.om'
   end
 
 #= methods representing user actions to app
@@ -64,7 +53,7 @@ class User
     self.add_action action
 
     filter_spec = FilterSpec.new(:recent_first, action.filter_string, self.page)
-    self.update_filter_spec filter_spec
+    # self.update_filter_spec filter_spec
   end
   
   def perform_unfilter
@@ -76,10 +65,11 @@ class User
     self.update_filter_spec filter_spec
   end
 
-  def perform_track_navigation(info)
+  # represents a click on a stack item.
+  def perform_stack_navigation(info)
     url = info[:destination].to_url_string
-    track_id = info[:track_id]
-    action = Revisit.new(url, track_id)
+    stack_id = info[:stack_id]
+    action = Revisit.new(url, stack_id)
     self.add_action action
 
     # we want to checkpoint the current filter.
@@ -147,10 +137,7 @@ class User
   end
 
   def add_action( action )
-    # trigger kvo on tracks when this changes.
-    kvo_change :tracks do 
-      @actions << action
-    end
+    @actions << action
   end
   
   def add_filter( filter_spec )
