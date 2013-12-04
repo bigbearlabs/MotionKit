@@ -46,9 +46,7 @@ class FilteringPlugin < WebBuddyPlugin
 
     on_main_async do
       if view_loaded?
-        on_main_async do
-          self.update_input input
-        end
+        self.update_input input
       else
         self.load_view do
           self.update_data

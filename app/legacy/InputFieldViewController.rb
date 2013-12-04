@@ -213,9 +213,12 @@ class InputFieldViewController < PEViewController
 	def handle_field_submit(sender)
 		new_input_string = self.input_text
 
-		NSApp.delegate.process_input new_input_string
+		# avoid racing with filtering tasks by queuing on main.
+		on_main_async do 
+			NSApp.delegate.process_input new_input_string
 		
-		self.refresh_input_field
+			self.refresh_input_field
+		end
 	end
 
 
@@ -240,9 +243,10 @@ class InputFieldViewController < PEViewController
 				# 	NSApp.delegate.user.perform_unfilter
 			# else
 				concurrently -> {
-				pe_trace "perform filter #{input_string}"
-				NSApp.delegate.user.perform_filter(input_string)
+					pe_trace "perform filter #{input_string}"
+					NSApp.delegate.user.perform_filter(input_string)
 				}
+				# TODO confirm this doesn't race with #..field_submit.
 			# end
 	end
 	
