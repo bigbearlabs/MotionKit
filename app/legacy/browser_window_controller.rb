@@ -95,7 +95,7 @@ class BrowserWindowController < NSWindowController
 
 			watch_notification :Load_request_notification, @browser_vc.web_view_delegate
 			watch_notification :Title_received_notification, @browser_vc.web_view_delegate
-			watch_notification :Link_navigation_notification, @browser_vc.web_view_delegate
+			# watch_notification :Link_navigation_notification, @browser_vc.web_view_delegate
 
 			# user
 			watch_notification :Bf_navigation_notification
