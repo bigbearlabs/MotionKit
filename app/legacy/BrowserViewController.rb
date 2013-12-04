@@ -133,24 +133,24 @@ class BrowserViewController < PEViewController
 	
 #=
 
-	def load_module( module_name, on_load = proc {})
-		modules_src = "#{NSApp.resource_dir}/modules/"
-		modules_tgt = "#{NSApp.app_support_dir}/modules"
+	# def load_module( module_name, on_load = proc {})
+	# 	modules_src = "#{NSApp.resource_dir}/modules/"
+	# 	modules_tgt = "#{NSApp.app_support_dir}/modules"
 
-		# HACK copy modules to app support dir.
-		system "rsync -av '#{modules_src}' '#{modules_tgt}'"
+	# 	# HACK copy modules to app support dir.
+	# 	system "rsync -av '#{modules_src}' '#{modules_tgt}'"
 
-		url_str = "#{modules_tgt}/#{module_name}/index.html"
+	# 	url_str = "#{modules_tgt}/#{module_name}/index.html"
 
-		self.load_location url_str, on_load
+	# 	self.load_location url_str, on_load
 
-		# work around some weird caching behaviour by queuing a refresh.
-		delayed 0.5, proc {
-			on_main_async do
-				self.handle_refresh self
-			end
-		}
-	end
+	# 	# work around some weird caching behaviour by queuing a refresh.
+	# 	delayed 0.5, proc {
+	# 		on_main_async do
+	# 			self.handle_refresh self
+	# 		end
+	# 	}
+	# end
 			
 #=
 
@@ -255,7 +255,7 @@ class BrowserViewController < PEViewController
 	def handle_Url_load_finished_notification(notif)
 		handle_load_success notif.userInfo
 	end
-
+	
 	def handle_load_success( url )
 		if url.is_a? NSString
 			url = url.to_url
