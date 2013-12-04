@@ -3,7 +3,9 @@
 module InputHandler
   
   def process_input( input )
-    case input.pe_type
+    type = input.dup.pe_type
+    pe_log "input type: #{type}"
+    case type
     when :enquiry
       NSApp.delegate.user.perform_search input
 
@@ -17,9 +19,6 @@ module InputHandler
       # it's a url.
 
       NSApp.delegate.user.perform_url_input input
-
-      # TODO move to notification handler
-      NSApp.delegate.wc.input_field_vc.current_url = input
     end
   end
 
