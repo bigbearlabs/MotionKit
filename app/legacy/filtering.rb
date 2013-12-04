@@ -81,14 +81,15 @@ module Filtering
   def load_filtering( input )
     pe_log "filtering for #{input}"
 
-    # if module_loaded? :filtering
-    #   self.update_input input
-    # else
-    #   self.load_module :filtering do
-    #     self.update_input input
-    #   end
-    # end
-
+    on_main_async do
+      if module_loaded? :filtering
+        self.update_input input
+      else
+        self.load_module :filtering do
+          self.update_input input
+        end
+      end
+    end
   end
 
   def update_input input

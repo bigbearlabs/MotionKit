@@ -239,8 +239,10 @@ class InputFieldViewController < PEViewController
 				# # exceptionally map an empty input as an unfilter action.
 				# 	NSApp.delegate.user.perform_unfilter
 			# else
+				concurrently -> {
 				pe_trace "perform filter #{input_string}"
 				NSApp.delegate.user.perform_filter(input_string)
+				}
 			# end
 	end
 	
@@ -451,11 +453,13 @@ class InputFieldViewController < PEViewController
 	end
 		
 	def controlTextDidChange( notification )
-		pe_log "textDidChange: #{notification.description}"
+		# if $DEBUG
+		# 	pe_debug "textDidChange: #{notification.description}"
+		# end
 		
 		self.input_text = @input_field.stringValue.gsub TOPIC_DELIM, SEGMENT_DELIM
 
-		self.tokenise_input
+		# self.tokenise_input
 
 		self.handle_field_edit(self)
 	end
@@ -501,17 +505,18 @@ class InputFieldViewController < PEViewController
 	  end
 	end
 
-	def tokenField(field, styleForRepresentedObject:object)
-		pe_log "token style callback for input: '#{object}'"
+	# FIXME this method seems to get called too often.
+	# def tokenField(field, styleForRepresentedObject:object)
+	# 	pe_debug "token style callback for input: '#{object}'"
 
-		if tokens.include? object
-			NSDefaultTokenStyle  # this means it gets tokenised.
-		else
-			# object += ' ' unless object.end_with? ' '
+	# 	if tokens.include? object
+	# 		NSDefaultTokenStyle  # this means it gets tokenised.
+	# 	else
+	# 		# object += ' ' unless object.end_with? ' '
 
-			NSPlainTextTokenStyle  # this means it doesn't show as a token.
-		end
-	end
+	# 		NSPlainTextTokenStyle  # this means it doesn't show as a token.
+	# 	end
+	# end
 
 	# FIXME on enter, this makes a trailing space. remember last entered char and handle outside the field's string value.
 	# def tokenField(field, displayStringForRepresentedObject:object)
@@ -532,34 +537,34 @@ class InputFieldViewController < PEViewController
 
 	# end
 
-	def tokenField(field, shouldAddObjects:tokens, atIndex:index)
-		pe_log "#{field} ## #{tokens} ## #{index}"
+	# def tokenField(field, shouldAddObjects:tokens, atIndex:index)
+	# 	pe_log "#{field} ## #{tokens} ## #{index}"
 
-		tokens
-	end
+	# 	tokens
+	# end
 
-	def tokenField(field, completionsForSubstring:substring, indexOfToken:tokenIndex, indexOfSelectedItem:selectedIndex)
-		pe_debug "on tokenfield delegate call for completion, string: #{field.stringValue}, substr: #{substring}, tokenIndex: #{tokenIndex}"
+	# def tokenField(field, completionsForSubstring:substring, indexOfToken:tokenIndex, indexOfSelectedItem:selectedIndex)
+	# 	pe_debug "on tokenfield delegate call for completion, string: #{field.stringValue}, substr: #{substring}, tokenIndex: #{tokenIndex}"
 
-		selectedIndex[0] = -1
+	# 	selectedIndex[0] = -1
 
-		segments = substring.split(' ')
-		previous = segments[0..-2].join ' '
-		last_segment = segments.last.to_s.downcase
+	# 	segments = substring.split(' ')
+	# 	previous = segments[0..-2].join ' '
+	# 	last_segment = segments.last.to_s.downcase
 
-		matching_tokens = self.tokens.select do |token|
-			token.downcase.start_with? last_segment
-		end
+	# 	matching_tokens = self.tokens.select do |token|
+	# 		token.downcase.start_with? last_segment
+	# 	end
 
-		unless previous.to_s.strip.empty?
-			matching_tokens = matching_tokens.map do |token|
-				# work around limitation on NSTokenField completion list behaviour by adding the previous text.
-				previous + ' ' + token 
-			end
-		end
+	# 	unless previous.to_s.strip.empty?
+	# 		matching_tokens = matching_tokens.map do |token|
+	# 			# work around limitation on NSTokenField completion list behaviour by adding the previous text.
+	# 			previous + ' ' + token 
+	# 		end
+	# 	end
 
-		matching_tokens
-	end
+	# 	matching_tokens
+	# end
 
 	# SCAR experimenting with the NSTextField completion (cf NSTokenField token completion). should be triggered with NSTextView#complete
 	# def control(control, textView:textView, completions:words, forPartialWordRange:charRange, indexOfSelectedItem:selectedIndex)
@@ -670,7 +675,7 @@ class InputField < NSTokenField
 	#= field editor delegate methods
 
 	def textViewDidChangeSelection( notification )
-		pe_debug "textDidChange: #{self.stringValue}"
+		pe_debug "textDidChangeSelection: #{self.stringValue}"
 
 		# DISABLED multiple token selection is unfinished.
 		## trigger the menu for multiple token selection
