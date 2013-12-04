@@ -93,7 +93,7 @@ class InputFieldViewController < PEViewController
 			watch_notification :Site_search_notification
 			watch_notification :Visit_request_notification
 
-		 # 	watch_notification :Url_load_finished_notification
+		 	watch_notification :Url_load_finished_notification
 
 			self.refresh_input_field
 		end
@@ -158,9 +158,9 @@ class InputFieldViewController < PEViewController
 		self.display_mode = :Display_url
 	end
 
- #  def handle_Url_load_finished_notification( notif )
-	# 	self.current_url = notif.userInfo
-	# end
+  def handle_Url_load_finished_notification( notif )
+		self.current_url = notif.userInfo
+	end
 		
 #= controller -> ui
 	
