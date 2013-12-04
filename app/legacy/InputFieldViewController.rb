@@ -590,7 +590,9 @@ class InputFieldViewController < PEViewController
 	def tokens
 		# [ 'parenting', 'objc', 'coffee', 'coffee-2' ]  # STUB
 
-		NSApp.delegate.user.context.tokens
+		# NSApp.delegate.user.context.tokens
+
+		[]
 	end
 
 #= tracks
