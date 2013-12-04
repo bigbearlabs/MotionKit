@@ -310,7 +310,7 @@ if BubbleWrap::App.osx?
           if events_by_name['decidePolicyForNavigation'] =~ /#{Regexp.escape url}/
             # this is the result nav.
 
-            puts "loading #{url} as separate page"
+            pe_log "loading #{url} as separate page"
 
             return -> listener {
               @matching_nav_handler.call url

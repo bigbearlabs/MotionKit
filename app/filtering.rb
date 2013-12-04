@@ -46,10 +46,13 @@ class FilteringPlugin < WebBuddyPlugin
 
     on_main_async do
       if view_loaded?
-        self.update_input input
+        on_main_async do
+          self.update_input input
+        end
       else
         self.load_view do
-          self.update_input input
+          self.update_data
+          # self.update_input input
         end
       end
     end
@@ -58,12 +61,12 @@ class FilteringPlugin < WebBuddyPlugin
   def update_input input
     # update window.data for the web component to use.
     eval_js %(
-      // setTimeout( function() {
+      setTimeout( function() {
         webbuddy.module.data.input = #{input.to_json};
-        var scope = webbuddy.module.filter_scope;
+        var scope = webbuddy.module.scope;
         scope.refresh_data();
         scope.$apply();
-      // }, 100);
+        }, 50);
     )
 
     debug

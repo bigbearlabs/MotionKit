@@ -8,14 +8,18 @@ class WebBuddyPlugin < BBLComponent
     end
   end
 
-  def load_view
+  def load_view(&load_handler = -> {})
     # self.write_data
 
     client.wc.load_location self.view_url, -> {
       self.attach_hosting_interface
 
-      yield if block_given?
-    }, ignore_history: true
+      # on_main_async do
+        # yield if block_given?
+        load_handler.call
+      # end
+    }
+    # , ignore_history: true
   end
 
   def view_loaded?
@@ -26,46 +30,37 @@ class WebBuddyPlugin < BBLComponent
   # FIXME sometimes this can get clobbered by the stub if it doesn't attach quickly enough.
   def attach_hosting_interface
     pe_log "attaching hosting interface to #{self.view_url}"
-    # IMPROVE load from a plugin file.
-    eval_js %(
-      // if (!window.webbuddy)
-      //   //throw "window.webbuddy already set!"
-      //   window.webbuddy = {
-      //     module: {}
-      //   };
 
-      // window.webbuddy.env = {
-      //   name: 'webbuddy'
-      // };
-      // window.webbuddy.log = function() {};
-      // window.webbuddy.module.data = {
-      //   data: //{self.data.to_json}
-      // };
+    # eval_js_file 'modules/assets/js/webbuddy.attach.js'
 
-      // return webbuddy;
-
-      window.webbuddy = {
+    eval_js %q(
+      window.webbuddy || (window.webbuddy = {
         env: {
-          name: 'webbuddy'
         },
         log: function() {},
-        module: {
-          data: #{self.data.to_json}
-        }
-      };
-
-      return window.webbuddy;
+        module: {}
+      });
+      webbuddy.env.name = 'webbuddy';
+      return webbuddy
     )
-
-    pe_log "eval webbudy.env: #{eval_js 'return webbuddy.env.name'}"
+    # pe_log "eval webbuddy.env: #{self.client.wc.browser_vc.eval_expr 'window.webbuddy'}"
   end
 
-  # OBSOLETE current design suggests modules should directly set data property.
-  def update_data data
+  def update_data
     pe_log "updating data, keys: #{data.keys}"
 
+    # eval_js %(
+    #   return webbuddy.module.update_data(#{self.data.to_json});
+    # )
+
     eval_js %(
-      return webbuddy.module.update_data(#{data.to_json});
+      if (! webbuddy || ! webbuddy.module)
+        throw "webbuddy.module not available."
+
+      webbuddy.module.data = #{self.data.to_json};
+      // trigger view refresh if needed
+      if (webbuddy.module.scope)
+        webbuddy.module.scope.refresh_data();
     )
   end
 
