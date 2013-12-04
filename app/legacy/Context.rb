@@ -1,10 +1,3 @@
-#
-#  Context.rb
-#  WebBuddy
-#
-#  Created by Park Andy on 29/10/2011.
-#  Copyright 2011 TheFunHouseProject. All rights reserved.
-#
 # require 'PERubyUtil'
 # require 'KVOMixin'
 
@@ -27,8 +20,6 @@ class Context
     @name = name
 
     @history_items = []
-
-    @stacks_by_id = {}
 
     @sites ||= {}
   end
@@ -133,7 +124,7 @@ class Context
 
 
   def item_for_url( url )
-    items = self.each_history_item.select do |item|
+    items = self.history_items.select do |item|
       item.matches_url? url
     end
     
@@ -174,11 +165,6 @@ class Context
     end
   end
 
-  def each_history_item( &block )
-    # FIXME we have occasional deadlocking here when starting up!!!!
-    self.history_items.dup.each( &block )
-  end
-  
   def back_item
     current_item_index = self.index_of_item(@current_history_item)
     if current_item_index && current_item_index > 0
@@ -200,7 +186,7 @@ class Context
   ##
 
   def history_data
-    items_data = self.each_history_item.map do |item|
+    items_data = self.history_items.map do |item|
       pe_log "item is nil at index #{i} - what's going on?" unless item
 
       item.to_hash.dup
@@ -211,16 +197,12 @@ class Context
   end
 
   def history_links
-    self.each_history_item.map do |item|
+    self.history_items.map do |item|
       item.url
     end
   end
   
-  def load_items(item_ids, items_by_id )
-    items_to_load = items_by_id.select do |url, item|
-      item_ids.include? url
-    end
-
+  def load_items(items_to_load )
     items_to_load.each do |item|
       self.add_item item
     end
@@ -329,8 +311,7 @@ class Context
   def to_hash
     { 
       'name' => self.name, 
-      'items' => self.history_links, 
-      'tracks' => self.tracks_data,
+      'items' => self.history_items.map(&:to_hash), 
       'sites' => self.site_data,
     }
   end
@@ -517,6 +498,16 @@ class ItemContainer
     end
   end
 end
+
+
+class HistoryContext < Context
+  def initialize
+    super 'History'
+  end
+
+  # TODO introduce as the store of all item info, change items in Stacks to be references.
+end
+
 
 class Site
   attr_accessor :name
