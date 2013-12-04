@@ -57,7 +57,7 @@ class String
     # return true if URI::DEFAULT_PARSER.regexp[:ABS_URI].match self.to_url_string
     # false
 
-    false
+    self =~ %r{^http(s?)://}
   end
   
   def pe_type
