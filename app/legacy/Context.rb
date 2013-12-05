@@ -40,7 +40,7 @@ class Context
       'url' => url,
       'title' => url,
       'pinned' => false,
-      'timestamp' => NSDate.date,
+      'timestamp' => Time.new.to_s,
     })
     item_container.filter_tag = item_container.timestamp
 
@@ -57,7 +57,7 @@ class Context
     pe_debug "update_access: #{caller}"
 
     item = item_for_url url
-    item.last_accessed_timestamp = NSDate.date
+    item.last_accessed_timestamp = Time.new
     item.filter_tag = item.timestamp
 
     self.update_current_history_item item
@@ -444,7 +444,7 @@ class ItemContainer
     if @last_accessed_timestamp
       @last_accessed_timestamp
     else
-      @timestamp
+      @timestamp  # see, you knew this would get confusing.
     end
   end
   
@@ -478,8 +478,8 @@ class ItemContainer
   
     o2 = ItemContainer.new(o)
     o2.pinned = item_data['pinned'] # IMPROVE write some kind of serialisation spec to avoid noddy sets like this one
-    o2.timestamp = item_data['timestamp']
-    o2.last_accessed_timestamp = item_data['last_accessed_timestamp']
+    o2.timestamp = Time.new item_data['timestamp']
+    o2.last_accessed_timestamp = Time.new( item_data['last_accessed_timestamp'] || 0)
     o2.enquiry = item_data['enquiry']
     
     o2

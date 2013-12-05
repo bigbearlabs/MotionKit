@@ -82,8 +82,8 @@ class FilteringPlugin < WebBuddyPlugin
     {
       input: @filter_spec.predicate_input_string,
       searches: 
-        context_store.stacks.sort_by {|e| e.last_accessed_timestamp or Time.at(0).to_s}.reverse.map do |stack|
-          pages = stack.history_items.sort_by {|e| e.last_accessed_timestamp}.reverse
+        context_store.stacks.sort_by {|e| e.last_accessed_timestamp.to_s }.reverse.map do |stack|
+          pages = stack.history_items.sort_by {|e| e.last_accessed_timestamp.to_s}.reverse
 
           stack_url = pages.empty? ? '' : pages.first.url
           {
@@ -101,7 +101,7 @@ class FilteringPlugin < WebBuddyPlugin
           }
         end,
       pages: 
-        all_items.sort_by {|e| e.last_accessed_timestamp}.reverse.map do |item|
+        all_items.sort_by {|e| e.last_accessed_timestamp.to_s}.reverse.map do |item|
           {
             name: item.title,
             url: item.url,
