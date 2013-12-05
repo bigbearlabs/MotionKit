@@ -212,9 +212,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 		url = NSBundle.mainBundle.url 'modules/intro/index.html'
 
-		self.load_url url.absoluteString, { 
+		self.load_url url.absoluteString,
 			interface_callback_handler: self
-		}
+
 	end
 
 	def show_arrow
@@ -266,6 +266,11 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	def load_url(url_string, details = {})
 		# debug [ url_string, details ]
+
+		if details[:stack_id]
+			details[:stack] = @context_store.stack_for details[:stack_id]
+		end
+
 		wc.do_activate.load_url url_string, details
 	end
 	
@@ -293,12 +298,12 @@ class WebBuddyAppDelegate < PEAppDelegate
 	
 	def handle_Visit_request_notification( notification )
 		new_location = notification.userInfo
-		self.load_url new_location.to_url_string, track_id: 'stub-visit-track'
+		self.load_url new_location.to_url_string, stack_id: 'stub-visit-track'
 	end
 	
 	def handle_Revisit_request_notification( notification )
 		url = notification.userInfo.url
-		self.load_url url, track_id: notification.userInfo.track_id
+		self.load_url url, stack_id: notification.userInfo.stack_id
 	end
 
 	def handle_Site_search_notification(notification)
@@ -309,7 +314,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 #= tracks
 
-	def track_id_app
+	def app_stack_id
 		result = @current_app
 		if ! result || result =~ /#{NSApp.name}/
 			result = @previous_app
@@ -330,9 +335,8 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def load_ext_url_in_space_window( params )
 		url = params[:url]
 
-		self.current_viewer_wc
-			.do_activate
-			.load_url url, track_id: track_id_app
+		self.current_viewer_wc.do_activate
+		self.load_url url, stack_id:app_stack_id
 	end
 
 	# RENAME load_ext_url_in_app_viewer
@@ -507,8 +511,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 			viewer_wc.setup :data_manager => @context_store
 		end
 		trace_time 'viewer_wc set_context' do
-			# viewer_wc.context = @context_store.new_context viewer_wc.to_s
-
 			viewer_wc.context = @context_store.current_context  # REDUNDANT
 		end
 
