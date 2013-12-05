@@ -43,6 +43,12 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# {
 			# 	module: ServicesHandler,
 			# },
+			{
+				module: FilteringPlugin,
+				deps: {
+					context_store: @context_store
+				}
+			},
 		]
 	end
 
@@ -52,6 +58,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def setup
 
 		super
+
+		# the app's domain model / storage scheme.
+		self.setup_context_store
 
 		setup_components
 
@@ -86,11 +95,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		watch_notification :Visit_request_notification
 		watch_notification :Revisit_request_notification
 		watch_notification :Site_search_notification
-		watch_notification :Filter_spec_updated_notification
 		
-		# the app's domain model / storage scheme.
-		self.setup_context_store
-
 		try {
 			watch_notification NSWindowDidEndLiveResizeNotification
 			watch_notification NSWindowDidMoveNotification
@@ -175,11 +180,13 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 
 	def setup_context_store
-		@context_store = ContextStore.new
-
-		@context_store.load
-
-		self.user.context = @context_store.current_context
+		try {
+			@context_store = ContextStore.new
+	
+			@context_store.load
+	
+			self.user.context = @context_store.current_context
+		}
 	end
 
 	
@@ -300,14 +307,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		wc.do_activate.do_search search_details
 	end
 
-	# FIXME move to the wc.
-	def handle_Filter_spec_updated_notification( notification )
-		filter_spec = notification.userInfo
-
-		# @main_window_controller.filter filter_spec
-		wc.filter filter_spec
-	end
-
 #= tracks
 
 	def track_id_app
@@ -390,8 +389,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# subsystems
 		# @anchor_window_controller.load_anchor_for_space @spaces_manager.current_space_id, true
 		self.main_window_controller = MainWindowController.alloc.init
-		@main_window_controller.setup
-		@main_window_controller.context = @context_store.current_context
+		@main_window_controller.setup	:data_manager => @context_store
+
+		@main_window_controller.context = @context_store.current_context  # REDUNDANT
 
 		# @context_gallery_vc.setup
 
@@ -504,11 +504,12 @@ class WebBuddyAppDelegate < PEAppDelegate
 		end
 		
 		trace_time 'viewer_wc setup' do
-			viewer_wc.setup
+			viewer_wc.setup :data_manager => @context_store
 		end
 		trace_time 'viewer_wc set_context' do
 			# viewer_wc.context = @context_store.new_context viewer_wc.to_s
-			viewer_wc.context = @context_store.current_context
+
+			viewer_wc.context = @context_store.current_context  # REDUNDANT
 		end
 
 		viewer_wc

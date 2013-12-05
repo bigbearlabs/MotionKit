@@ -2,7 +2,6 @@
 
 # a Viewer is used for all links originating from other apps.
 class ViewerWindowController < BrowserWindowController
-	include Filtering
 
 	# bindable
 	attr_accessor :input_field_shown
@@ -18,7 +17,7 @@ class ViewerWindowController < BrowserWindowController
 		self
 	end
 
-	def setup
+	def setup(collaborators)
 		super
 
 		on_main_async do
@@ -51,7 +50,11 @@ class ViewerWindowController < BrowserWindowController
 		end
 
 		on_main_async do
-			self.load last_url
+			if self.stack
+				self.load last_url
+			else
+				"no stack, not loading."
+			end
 		end
 	end
 
@@ -113,17 +116,17 @@ class MainWindowController < BrowserWindowController
 # MOTION-MIGRATION
  #  include CollectionGallery
 
-	def setup
-		super
+	# def setup
+	# 	super
 
-		# in order to work with the main-async routine in super, these need dispatching too.
-		# on_main_async do
-		# 	if self.class.ancestors.include? CollectionGallery
-		# 		self.setup_gallery
-		# 		self.show_gallery_view self
-		# 	end
-		# end
-	end
+	# 	# in order to work with the main-async routine in super, these need dispatching too.
+	# 	# on_main_async do
+	# 	# 	if self.class.ancestors.include? CollectionGallery
+	# 	# 		self.setup_gallery
+	# 	# 		self.show_gallery_view self
+	# 	# 	end
+	# 	# end
+	# end
   
 	def filter( filter_spec )
 	  # gallery_vc.update_filter_spec filter_spec

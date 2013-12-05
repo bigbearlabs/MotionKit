@@ -26,13 +26,14 @@ def env
 end
 
 
-# HACK
+# DEPRECATED prefer FilesystemAccess
 def write_file path, content
   # make the dir if necessary.
-  unless File.exist? path
     dir = File.dirname path
+  unless File.exist? dir
     pe_log "making dir #{dir}"
-    FileUtils.mkdir_p dir
+    # FileUtils.mkdir_p dir   
+    Dir.mkdir dir  # FIXME do an mkdir -p equivalent
   end
 
   # write the file.
@@ -85,7 +86,13 @@ end
 
 class Class
 	def name
-		super ? super : self.ancestors[1].name
+		name = super ? super : self.ancestors[1].name
+    case name
+    when /^NSKVONotifying_(.*)/
+      name = $1
+    else
+      name
+    end
 	end
 end
 
@@ -297,6 +304,7 @@ class NSBundle
 
 	#=
 
+  # REDUNDANT FilesystemAccess#load
 	def content( resource_name, subdirectory = nil )
 		file_path = "#{self.path}#{subdirectory ? '/' + subdirectory : ''}/#{resource_name}"
 		begin
@@ -307,7 +315,7 @@ class NSBundle
 		end
 	end
 	
-	# FIXME get rid of subdirectory param
+	# REDUNDANT use Object#load_plist instead.
 	def dictionary_from_plist( plist_name )
 		pe_debug "plist_name: #{plist_name}"
 

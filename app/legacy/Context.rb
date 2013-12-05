@@ -1,10 +1,3 @@
-#
-#  Context.rb
-#  WebBuddy
-#
-#  Created by Park Andy on 29/10/2011.
-#  Copyright 2011 TheFunHouseProject. All rights reserved.
-#
 # require 'PERubyUtil'
 # require 'KVOMixin'
 
@@ -28,8 +21,6 @@ class Context
 
     @history_items = []
 
-    @tracks_by_id = {}
-
     @sites ||= {}
   end
 
@@ -49,7 +40,7 @@ class Context
       'url' => url,
       'title' => url,
       'pinned' => false,
-      'timestamp' => NSDate.date,
+      'timestamp' => Time.new.to_s,
     })
     item_container.filter_tag = item_container.timestamp
 
@@ -66,7 +57,7 @@ class Context
     pe_debug "update_access: #{caller}"
 
     item = item_for_url url
-    item.last_accessed_timestamp = NSDate.date
+    item.last_accessed_timestamp = Time.new
     item.filter_tag = item.timestamp
 
     self.update_current_history_item item
@@ -133,7 +124,7 @@ class Context
 
 
   def item_for_url( url )
-    items = self.each_history_item.select do |item|
+    items = self.history_items.select do |item|
       item.matches_url? url
     end
     
@@ -155,6 +146,7 @@ class Context
     self.history_items.size
   end
 
+
   def add_item( history_item )
     if ! history_item
       raise "history_item shouldn't be nil"
@@ -173,11 +165,6 @@ class Context
     end
   end
 
-  def each_history_item( &block )
-    # FIXME we have occasional deadlocking here when starting up!!!!
-    self.history_items.dup.each( &block )
-  end
-  
   def back_item
     current_item_index = self.index_of_item(@current_history_item)
     if current_item_index && current_item_index > 0
@@ -199,7 +186,7 @@ class Context
   ##
 
   def history_data
-    items_data = self.each_history_item.map do |item|
+    items_data = self.history_items.map do |item|
       pe_log "item is nil at index #{i} - what's going on?" unless item
 
       item.to_hash.dup
@@ -210,16 +197,12 @@ class Context
   end
 
   def history_links
-    self.each_history_item.map do |item|
+    self.history_items.map do |item|
       item.url
     end
   end
   
-  def load_items(item_ids, items_by_id )
-    items_to_load = items_by_id.select do |url, item|
-      item_ids.include? url
-    end
-
+  def load_items(items_to_load )
     items_to_load.each do |item|
       self.add_item item
     end
@@ -303,80 +286,18 @@ class Context
 
   end
   
-
-#= tracks
-
-  attr_reader :tracks
-
-  def track_for( track_id )
-    track = @tracks_by_id[track_id]
-    if ! track
-      kvo_change_bindable :tracks do
-        track = Track.new(track_id)
-        @tracks_by_id[track_id] = track
-
-        pe_log "new track '#{track_id}' created"
-      end
+  def add( url )
+    item = self.item_for_url url
+    if ! item
+      pe_log "nil item for #{url}, creating a provisional item"
+      self.add_access url, provisional: true
+      item = self.item_for_url url
     end
 
-    track
+    add_item item
   end
 
-  def add_to_track( url, track_id )
-    # debug( {url: url, track_id: track_id } )
 
-    if track_id
-      track = self.track_for track_id
-      if track
-
-        item = self.item_for_url url
-        if ! item
-          pe_log "nil item for #{url}, creating a provisional item"
-          self.add_access url, provisional: true
-          item = self.item_for_url url
-        end
-  
-        track.add item
-      else
-        pe_log "nil track for #{url}, not adding to track." 
-      end
-    else
-      pe_log "nil track id for #{url}, not adding to track."
-    end
-
-
-  end
-
-  def tracks
-    @tracks_by_id.values
-  end
-
-  def tracks_data
-    tracks.map(&:to_hash)
-  end
-
-  
-  def load_tracks( tracks_data )
-    return unless tracks_data
-    
-    tracks_data.each do |track_data|
-      id = track_data['id']
-      new_track = track_for id  # will add to the map.
-      
-      track_data['items'].each do |item_ref|
-        new_track.add item_for_url(item_ref)
-      end
-    end
-  end
-
-  def tokens
-    tokens = self.tracks.map{|e| e.name}.join(' ').split.uniq
-
-    # get rid of short ones.
-    tokens.select do |token|
-      token.size > 2
-    end
-  end
 #==
     
   def name_suffix_sequence
@@ -390,8 +311,7 @@ class Context
   def to_hash
     { 
       'name' => self.name, 
-      'items' => self.history_links, 
-      'tracks' => self.tracks_data,
+      'items' => self.history_items.map(&:to_hash), 
       'sites' => self.site_data,
     }
   end
@@ -524,7 +444,7 @@ class ItemContainer
     if @last_accessed_timestamp
       @last_accessed_timestamp
     else
-      @timestamp
+      @timestamp  # see, you knew this would get confusing.
     end
   end
   
@@ -558,8 +478,8 @@ class ItemContainer
   
     o2 = ItemContainer.new(o)
     o2.pinned = item_data['pinned'] # IMPROVE write some kind of serialisation spec to avoid noddy sets like this one
-    o2.timestamp = item_data['timestamp']
-    o2.last_accessed_timestamp = item_data['last_accessed_timestamp']
+    o2.timestamp = Time.new item_data['timestamp']
+    o2.last_accessed_timestamp = Time.new( item_data['last_accessed_timestamp'] || 0)
     o2.enquiry = item_data['enquiry']
     
     o2
@@ -577,6 +497,15 @@ class ItemContainer
       super
     end
   end
+end
+
+
+class HistoryContext < Context
+  def initialize
+    super 'History'
+  end
+
+  # TODO introduce as the store of all item info, change items in Stacks to be references.
 end
 
 
