@@ -14,12 +14,12 @@ class Context
 
   attr_accessor :filter_tag # for array controller filtering
 
-  def initialize( name = "Unnamed context #{self.name_suffix_sequence}" )
+  def initialize( name = "Unnamed context #{self.name_suffix_sequence}", history_items = [])
     super
 
     @name = name
 
-    @history_items = []
+    @history_items = history_items
 
     @sites ||= {}
   end
@@ -40,7 +40,7 @@ class Context
       'url' => url,
       'title' => url,
       'pinned' => false,
-      'timestamp' => Time.new.to_s,
+      'timestamp' => NSDate.date,
     })
     item_container.filter_tag = item_container.timestamp
 
@@ -57,7 +57,7 @@ class Context
     pe_debug "update_access: #{caller}"
 
     item = item_for_url url
-    item.last_accessed_timestamp = Time.new
+    item.last_accessed_timestamp = NSDate.date
     item.filter_tag = item.timestamp
 
     self.update_current_history_item item
@@ -319,7 +319,8 @@ class Context
 #==
 
   def last_accessed_timestamp
-    self.history_items.map(&:last_accessed_timestamp).max
+    ts = self.history_items.map(&:last_accessed_timestamp).max
+    ts or NilTime
   end
 
 
@@ -441,11 +442,13 @@ class ItemContainer
 #=
 
   def last_accessed_timestamp
-    if @last_accessed_timestamp
+    ts = if @last_accessed_timestamp
       @last_accessed_timestamp
     else
       @timestamp  # see, you knew this would get confusing.
     end
+
+    ts or NilTime
   end
   
   def url
@@ -478,8 +481,8 @@ class ItemContainer
   
     o2 = ItemContainer.new(o)
     o2.pinned = item_data['pinned'] # IMPROVE write some kind of serialisation spec to avoid noddy sets like this one
-    o2.timestamp = Time.new item_data['timestamp']
-    o2.last_accessed_timestamp = Time.new( item_data['last_accessed_timestamp'] || 0)
+    o2.timestamp = item_data['timestamp']
+    o2.last_accessed_timestamp = item_data['last_accessed_timestamp']
     o2.enquiry = item_data['enquiry']
     
     o2
@@ -540,3 +543,7 @@ class NSString
     self.gsub '%query%', query_text
   end
 end
+
+
+# TODO check if this is an appropriate stand-in value.
+NilTime = Time.new 0
