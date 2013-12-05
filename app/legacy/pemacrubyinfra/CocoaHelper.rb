@@ -26,13 +26,14 @@ def env
 end
 
 
-# HACK
+# DEPRECATED prefer FilesystemAccess
 def write_file path, content
   # make the dir if necessary.
-  unless File.exist? path
     dir = File.dirname path
+  unless File.exist? dir
     pe_log "making dir #{dir}"
-    FileUtils.mkdir_p dir
+    # FileUtils.mkdir_p dir   
+    Dir.mkdir dir  # FIXME do an mkdir -p equivalent
   end
 
   # write the file.

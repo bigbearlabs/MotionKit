@@ -22,6 +22,10 @@ class ContextStore
 	default :thumbnail_dir
 	default :thumbnail_extension
 	
+	def stacks
+		@stacks_by_id.values
+	end
+
 	def initialize
 		super
 
@@ -35,10 +39,6 @@ class ContextStore
 		self.current_context = self.stacks.first
 	end
 
-	def stacks
-		@stacks_by_id.values
-	end
-
 	#= serialisation
 
 	def to_hash
@@ -46,7 +46,7 @@ class ContextStore
 			# case context.name
 			# when "History"
 			# 	# hash for history is treated in a special way.
-			# 	history_items = @contexts.map(&:history_items).flatten.uniq
+			# 	history_items = self.stacks.map(&:history_items).flatten.uniq
 			# 	stack_data = {
 			# 		"name" => "History",
 			# 		"items" => history_items.map(&:to_hash),
@@ -117,7 +117,7 @@ class ContextStore
 #=
 
 	def thumbnail_path
-		"#{NSApp.app_support_dir}/cache/" + thumbnail_dir
+		"#{NSApp.app_support_dir}/" + thumbnail_dir
 	end
 
   def thumbnail_url( item )
@@ -214,7 +214,7 @@ class ContextStore
 		# history_data = context_store_data['stacks'].find do |stack_hash|
 		# 	stack_hash['name'] == 'History'
 		# end
-		# history_context = @contexts.find do |context|
+		# history_context = self.stacks.find do |context|
 		# 	context.name == 'History'
 		# end
 
@@ -235,7 +235,7 @@ class ContextStore
 			context_store_data['stacks'].to_a.each do |stack_hash|
 
 				name = stack_hash['name']
-				matching_stacks = @stacks_by_id.select { |e| e.name == name }
+				matching_stacks = self.stacks.select { |e| e.name == name }
 				case matching_stacks.size
 				when 0
 					pe_log "initializing new context #{name}"
@@ -248,7 +248,8 @@ class ContextStore
 
 				stack ||= self.stacks.last
 
-				stack.load_items stack_hash['items']
+				items = stack_hash['items'].map {|e| new_item e}
+				stack.load_items items
 
 				# context.load_sites stack_hash['sites']
 			end
@@ -261,10 +262,10 @@ class ContextStore
 	# HACKY
 
 	def save_thumbnails
-		FileUtils.mkdir_p thumbnail_path unless Dir.exists? thumbnail_path
+		Dir.mkdir thumbnail_path unless Dir.exists? thumbnail_path
 		
 		concurrently proc {
-			contexts.each do |stack|
+			self.stacks.each do |stack|
 				stack.history_items do |history_item|
 					if history_item.thumbnail_dirty
 						file_name = "#{thumbnail_path}/#{history_item.url.hash}.#{thumbnail_extension}"
