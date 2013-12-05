@@ -504,15 +504,6 @@ class ItemContainer
 end
 
 
-class HistoryContext < Context
-  def initialize
-    super 'History'
-  end
-
-  # TODO introduce as the store of all item info, change items in Stacks to be references.
-end
-
-
 class Site
   attr_accessor :name
   attr_accessor :base_url

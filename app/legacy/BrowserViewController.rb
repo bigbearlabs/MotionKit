@@ -62,7 +62,7 @@ class BrowserViewController < PEViewController
 		super()
 										
 		inject_collaborators collaborators
-										
+
 		web_history = WebHistory.alloc.init
 		WebHistory.setOptionalSharedHistory( web_history )
 		
@@ -169,7 +169,7 @@ class BrowserViewController < PEViewController
 			
 			if (! options[:ignore_history]) && self.history.item_for_url(new_url)
 					pe_log "load #{new_url} from history"
-					self.load_history_item @context.item_for_url new_url
+					self.load_history_item self.history.item_for_url new_url
 			else
 				@web_view.mainFrameURL = new_url
 			end
@@ -318,7 +318,7 @@ class BrowserViewController < PEViewController
 	def handle_pin(sender)
 		history_item = @web_view.backForwardList.currentItem
 		history_item.pinned = ! history_item.pinned
-		#		@context.handle_pinning history_item
+		#		self.history.handle_pinning history_item
 	end
 	
 #= find
@@ -389,15 +389,15 @@ class BrowserViewController < PEViewController
 	end
 	
 	def back_page_image
-		@context.back_item ? @context.back_item.thumbnail : NSImage.stub_image
+		self.history.back_item ? self.history.back_item.thumbnail : NSImage.stub_image
 	end
 
 	def current_page_image
-		@context.current_history_item ? @context.current_history_item.thumbnail : NSImage.stub_image
+		self.history.current_history_item ? self.history.current_history_item.thumbnail : NSImage.stub_image
 	end
 
 	def forward_page_image
-		@context.forward_item ? @context.forward_item.thumbnail : NSImage.stub_image
+		self.history.forward_item ? self.history.forward_item.thumbnail : NSImage.stub_image
 	end
 
 #=
@@ -593,6 +593,13 @@ class BrowserViewController < PEViewController
 	# work around the occasional respondsToSelector malfunction.
 	def respondsToSelector(sel)
 	  self.respond_to? sel
+	end
+	
+
+	protected
+
+	def history
+	  @data_manager.history
 	end
 	
 end
