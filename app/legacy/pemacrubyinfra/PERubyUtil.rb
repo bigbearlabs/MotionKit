@@ -1,10 +1,3 @@
-#
-#  PERubyUtil.rb
-#  MyMacRubyProject
-#
-#  Created by Park Andy on 20/09/2011.
-#  Copyright 2011 Park Enterprise. All rights reserved.
-#
 
 # TODO should live outside PEMacRubyInfra.
 
@@ -416,4 +409,15 @@ class ObjectWithPrototype
     super || (@prototype.respond_to? msg)
   end
 
+end
+
+
+module IvarInjection
+  def inject_collaborators collaborators
+    collaborators.map do |var_name, obj|
+      raise "nil obj for #{var_name}" unless obj
+      instance_variable_set :"@#{var_name}", obj
+      pe_log "#{self}: injected #{obj} as #{var_name}"
+    end
+  end
 end

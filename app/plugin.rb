@@ -1,11 +1,10 @@
 class WebBuddyPlugin < BBLComponent
+  include IvarInjection
   
   def initialize(client, deps = {})
     super client
 
-    deps.map do |ivar_name, obj|
-      instance_variable_set "@#{ivar_name}", obj
-    end
+    inject_collaborators deps
   end
 
   def load_view(&load_handler)

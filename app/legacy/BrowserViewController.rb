@@ -5,11 +5,12 @@
 
 # macruby_framework 'WebKit'
 
-
 class BrowserViewController < PEViewController
 	include KVOMixin
-	include DefaultsAccess
 	include Reactive
+	include IvarInjection
+
+	include DefaultsAccess
 	include JsEval
 	
 	attr_accessor :web_view
@@ -21,9 +22,6 @@ class BrowserViewController < PEViewController
 	
 	attr_accessor :input_field_vc    # used by web_view_delegate. messy but will be chunky to clean up.
 	attr_accessor :web_view_delegate
-	
-	# model
-	attr_accessor :context
 	
 	# view-model
 	attr_accessor :event  # last user-facing user agent event.
@@ -60,8 +58,10 @@ class BrowserViewController < PEViewController
 
 	end
 	
-	def setup
-		super
+	def setup( collaborators)
+		super()
+										
+		inject_collaborators collaborators
 										
 		web_history = WebHistory.alloc.init
 		WebHistory.setOptionalSharedHistory( web_history )
@@ -342,6 +342,7 @@ class BrowserViewController < PEViewController
 
 #=
 
+	# MOVE to BrowserDispatch.
 	def handle_open_url_in( params = { role: :primary_browser } )
 		role = params[:role]
 

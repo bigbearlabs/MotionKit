@@ -3,6 +3,7 @@ class BrowserWindowController < NSWindowController
 	include DefaultsAccess
 	include SheetHandling
 	include Reactive
+	include IvarInjection
 
 	# cover interface for BVC
 	extend Delegating
@@ -48,11 +49,10 @@ class BrowserWindowController < NSWindowController
 				# there must be a better way to inherit the overridden accessor..
 				@context = context
 				
-				@browser_vc.context = @context
+				@bar_vc.context = @context
 
 				# MOTION-MIGRATION
 				#@context_vc.context = @context
-				@bar_vc.context = @context
 				# @history_vc.representedObject = @context
 			end
 		end
@@ -76,20 +76,19 @@ class BrowserWindowController < NSWindowController
 	def setup(collaborators)		
 		raise "no window for #{self}" unless self.window
 				
+		inject_collaborators collaborators
+
 		# self.setup_tracking_region
 		# self.setup_nav_long_click
-
-		collaborators.map do |var_name, obj|
-			instance_variable_set :"@#{var_name}", obj
-		end
 
 		self.window_title_mode = :title
 
 		pe_log "#{self} synchronous setup complete."
 
 		on_main_async do
-			@browser_vc.setup
-			@browser_vc.web_view.make_first_responder 
+			@browser_vc.setup :data_manager => @data_manager
+
+			browser_vc.web_view.make_first_responder 
 
 			# self.setup_overlay
 
@@ -417,6 +416,10 @@ class BrowserWindowController < NSWindowController
 
 	#= interface
 
+	# params:
+	# objc_interface_obj: interface from js to webbuddy.
+	# stack: the stack to add this page to.
+	# stack_id: the id of stack if stack retrieval not suitable.
 	# FIXME migrate objc_interface_obj to webbuddy.interface, migrate webbuddy.module use cases.
 	def load_url(url_string, details = {})
 		# update the stack
