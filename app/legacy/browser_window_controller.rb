@@ -417,10 +417,7 @@ class BrowserWindowController < NSWindowController
 
 	#= interface
 
-	def load( object )
-		self.load_url object
-	end
-
+	# FIXME migrate objc_interface_obj to webbuddy.interface, migrate webbuddy.module use cases.
 	def load_url(url_string, details = {})
 		# update the stack
 		self.stack = details[:stack]
