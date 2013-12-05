@@ -29,7 +29,7 @@ end
 # DEPRECATED prefer FilesystemAccess
 def write_file path, content
   # make the dir if necessary.
-    dir = File.dirname path
+  dir = File.dirname path
   unless File.exist? dir
     pe_log "making dir #{dir}"
     # FileUtils.mkdir_p dir   
@@ -100,12 +100,14 @@ class NSObject
 	alias_method :desc, :description
 
 	def to_s
-	#   if ! self.class.name
+    debug caller if self.is_a? NSError
+
+    if ! self.class.name
 			class_name = self.class.name
-			return "#{class_name}:#{self.object_id}>"
-	#   else
-	#     super
-	#   end
+			"<#{class_name}:#{self.object_id}>"
+	  else
+	    super
+	  end
 	end
 	
 	def invoke_setter(property_name, value)
