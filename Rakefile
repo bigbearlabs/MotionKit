@@ -45,8 +45,8 @@ Motion::Project::App.setup do |app|
 
   app.delegate_class = "WebBuddyAppDelegate"
 
-  app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb',
-    'app/legacy/filtering.rb' => 'app/legacy/window_controllers.rb'
+  app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb'
+    # 'app/filtering.rb' => 'app/legacy/window_controllers.rb'
 
   # cocoapods deps
   app.pods do
