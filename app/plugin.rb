@@ -47,6 +47,7 @@ class WebBuddyPlugin < BBLComponent
   end
 
   def update_data
+    data = self.data
     pe_log "updating data, keys: #{data.keys}"
 
     # eval_js %(
@@ -57,7 +58,7 @@ class WebBuddyPlugin < BBLComponent
       if (! webbuddy || ! webbuddy.module)
         throw "webbuddy.module not available."
 
-      webbuddy.module.data = #{self.data.to_json};
+      webbuddy.module.data = #{data.to_json};
       // trigger view refresh if needed
       if (webbuddy.module.scope)
         webbuddy.module.scope.refresh_data();
