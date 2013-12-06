@@ -178,7 +178,9 @@ class BrowserViewController < PEViewController
 			load_proc.call
 		else
 			react_to :web_view do
-				load_proc.call if self.web_view
+				on_main_async do
+					load_proc.call if self.web_view
+				end
 			end
 		end
 	end
