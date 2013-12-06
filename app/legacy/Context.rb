@@ -535,7 +535,8 @@ end
 
 class NSString
   def to_query_url(query_text)
-    raise "couldn't find query template in #{self}" unless self =~ /%query%/
+    debug self, query_text
+    raise "couldn't find query template in #{self}" unless self.include? '%query%'
     query_text = query_text.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
     self.gsub '%query%', query_text
   end
