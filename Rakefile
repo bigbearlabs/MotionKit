@@ -13,8 +13,8 @@ Motion::Require.all
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
-  app.name = 'WebBuddy-motion'
-  app.identifier = "com.bigbearlabs.WebBuddy-motion"
+  app.name = 'WebBuddy'
+  app.identifier = "com.bigbearlabs.WebBuddy"
   app.icon = "icon.icns"
 
   app.version = "200"
