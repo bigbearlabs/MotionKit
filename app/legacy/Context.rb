@@ -132,10 +132,10 @@ class Context
     when 0 then return nil
     when 1 then return items[0]
     else
-      pe_warn "multiple items match #{url} - returning last item, removing the rest"
-      items[0..-2].each do |item|
-        self.remove_history_item item
-      end
+      pe_warn "multiple items match #{url} - investigate."
+      # items[0..-2].each do |item|
+      #   self.remove_history_item item
+      # end
       return items[0]
     end
   end  
