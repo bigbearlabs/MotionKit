@@ -27,11 +27,12 @@ class Context
 #==
   
   def add_access( url, details = {} )  # rename
-    raise "nil url!" unless url
+    raise "nil url!" if url.nil?
+
     
     # assert this item not loaded.
-    if self.history_contains_url url
-      raise "add requested for an already known item #{url}"
+    if self.item_for_url url
+      pe_warn "add requested for an already known item #{url}. investigate"
     end
     
     pe_log "add new history item for #{url}"
