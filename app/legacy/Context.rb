@@ -26,9 +26,9 @@ class Context
 
 #==
   
+  # @param provisional:
   def add_access( url, details = {} )  # rename
     raise "nil url!" if url.nil?
-
     
     # assert this item not loaded.
     if self.item_for_url url
