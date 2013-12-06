@@ -57,7 +57,7 @@ module JsEval
   def register_callback_handler property, handler       
     objc_interface_obj = DOMToObjcInterface.alloc.initWithCallbackHandler handler
     
-    set_window_property property, handler
+    set_window_property property, objc_interface_obj
   end
 
   def set_window_property property, obj
