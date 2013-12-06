@@ -458,7 +458,7 @@ class BrowserWindowController < NSWindowController
 	end
 	
 	#= browsing lifecycle
-
+	# TODO move out to a component.
 	def handle_Load_request_notification( notification )
 		new_url = notification.userInfo
 
@@ -469,7 +469,11 @@ class BrowserWindowController < NSWindowController
 		# self.zoom_to_page new_url
 
 		if self.stack
-			self.stack.add new_url 
+			if self.stack.item_for_url(new_url)
+				self.stack.update_access new_url
+			else
+				self.stack.add_access new_url 
+			end
 		else
 			pe_log "#{self} has no stack. not adding"
 		end
@@ -733,7 +737,7 @@ class BrowserWindowController < NSWindowController
 			raise 'history_empty'
 		end
 
-	  self.stack.history_items.last.url
+		self.stack.history_items.last.url
 	rescue Exception => e
 		# case: first-time launch
 		# case: etc etc
