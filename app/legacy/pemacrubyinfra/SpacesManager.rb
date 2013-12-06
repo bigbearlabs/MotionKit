@@ -241,8 +241,8 @@ class SpacesManager
 			
 			@current_anchor_window = anchor_windows_in_space.first
 
-			# get rid of all but the last anchor window.
-			anchor_windows_in_space[0..-2].map do |w|
+			# get rid of all but the first anchor window.
+			anchor_windows_in_space[1..-1].map do |w|
 				@anchor_window_controllers.delete w.windowController
 				w.releasedWhenClosed = true
 				w.close
