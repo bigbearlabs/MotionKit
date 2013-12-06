@@ -59,6 +59,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 		super
 
+		# important domain object
+		self.user = User.new
+
 		# the app's domain model / storage scheme.
 		self.setup_context_store
 
@@ -74,9 +77,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# @selection_grab_enabled = default :selection_grab_enabled
 		# @show_toolbar_on_hotkey = default :show_toolbar_on_hotkey
 
-
-		# important domain object
-		self.user = User.new
 
 		if $DEBUG
 			periodically do
