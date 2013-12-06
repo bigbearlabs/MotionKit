@@ -109,14 +109,14 @@
 		</dict>
 		<key>intro_enabled</key>
 		<true/>
-		<key>selection_grab_enabled</key>
-		<false/>
 		<key>load_welcome</key>
 		<true/>
 		<key>welcome_url</key>
 		<string>http://start.webbuddyapp.com</string>
 		<key>load_ext_url_policy</key>
 		<string>in_space_window</string>
+		<key>selection_grab_enabled</key>
+		<false/>
 	</dict>
 	<key>ContextStore</key>
 	<dict>
