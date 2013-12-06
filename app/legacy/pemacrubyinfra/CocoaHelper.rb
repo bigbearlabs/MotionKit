@@ -210,7 +210,7 @@ class NSDictionary
 
 	def self.dictionary_from( path_string )
 		path_string = NSApp.app_support_dir + "/" + path_string
-		if File.exist? path_string
+		if File.size? path_string
       content = File.open(path_string).read
 
       # TODO test if yaml file.
