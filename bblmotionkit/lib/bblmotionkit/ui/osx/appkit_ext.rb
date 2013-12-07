@@ -80,37 +80,5 @@ if BubbleWrap::App.osx?
 
   end
 
-  class NSView
-
-    #=
-
-    def subviews_above view
-      view_index = self.subviews.index view
-      self.subviews[view_index + 1..-1]
-    end
-
-    def subviews_below view
-      view_index = self.subviews.index view
-      self.subviews[0..view_index - 1]
-    end
-
-    def add_subview subview, params = {}
-      before_view = params[:before]
-      if before_view
-        self.addSubview(subview, positioned:NSWindowBelow, relativeTo:before_view)
-      else
-        self.addSubview(subview)
-      end
-    end
-
-    #=
-
-    # for debugging
-    def tree
-      puts self._subtreeDescription
-    end
-    
-  end
-
 end
 
