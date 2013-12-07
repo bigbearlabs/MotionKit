@@ -22,7 +22,6 @@ Motion::Project::App.setup do |app|
   app.version = "200"
   app.short_version = "1.1.9"
 
-
   app.info_plist['NSMainNibFile'] = 'MainMenu'
   
   app.info_plist['CFBundleURLTypes'] = [
@@ -60,6 +59,11 @@ Motion::Project::App.setup do |app|
     pod 'MASPreferences', '~> 1.1'
   end
 
+
+  # archive:distribution fails with i386 arch - just build for x86_64
+  app.archs['MacOSX'] = ['x86_64']
+
+  app.codesign_certificate = '3rd Party Mac Developer Application: Sang-Heum Park (58VVS9JDMX)'
 end
 
 # Track and specify files and their mutual dependencies within the :motion Bundler group
@@ -68,9 +72,22 @@ MotionBundler.setup do |app|
   # app.require 'addressable/uri'
 end
 
-
+namespace :vendor do
 desc "copy resources"
 task :cprsc => [] do
   # copy over xibs from vendor dir, following symlinks
   FileUtils.cp_r Dir.glob('vendor/**{,/*/**}/*.xib'), 'resources', verbose:true
+end
+end
+
+namespace :modules do
+  desc "build"
+  task :build => [] do
+    sh 'cd ../webbuddy-modules; ./build.sh'
+  end
+
+  desc "copy resources"
+  task :cprsc => [] do
+    FileUtils.cp_r Dir.glob('../webbuddy-modules/dist/.'), 'resources/modules', verbose:true
+  end
 end
