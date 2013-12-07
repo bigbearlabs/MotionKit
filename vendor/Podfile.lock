@@ -3,23 +3,27 @@ PODS:
   - CocoaHTTPServer (2.3):
     - CocoaAsyncSocket
     - CocoaLumberjack
-  - CocoaLumberjack (1.6.4):
+  - CocoaLumberjack (1.6.5.1):
     - CocoaLumberjack/Core
     - CocoaLumberjack/Extensions
-  - CocoaLumberjack/Core (1.6.4)
-  - CocoaLumberjack/Extensions (1.6.4):
+  - CocoaLumberjack/Core (1.6.5.1)
+  - CocoaLumberjack/Extensions (1.6.5.1):
     - CocoaLumberjack/Core
+  - MASPreferences (1.1)
   - RoutingHTTPServer (1.0.0):
     - CocoaHTTPServer (~> 2.3)
 
 DEPENDENCIES:
   - CocoaHTTPServer (~> 2.3)
+  - CocoaLumberjack
+  - MASPreferences (~> 1.1)
   - RoutingHTTPServer (~> 1.0.0)
 
 SPEC CHECKSUMS:
   CocoaAsyncSocket: 977404129ec8505fee1c3701956b769e3bb10ea7
   CocoaHTTPServer: 7c2fce6617f7fda0e3f4fc34f96e562caa7c7bd8
-  CocoaLumberjack: 006187e7e3c52f505aab43d7b5ba6af35838bf23
+  CocoaLumberjack: 17803afbade3126a377d32b8d23367264b44ced6
+  MASPreferences: 103fda1283c701dfed5503edbe24b1ab504ed6d9
   RoutingHTTPServer: 7436429cb81c560b55557a830d51367f3107d9cc
 
 COCOAPODS: 0.23.0
