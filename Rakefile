@@ -22,7 +22,6 @@ Motion::Project::App.setup do |app|
   app.version = "200"
   app.short_version = "1.1.9"
 
-
   app.info_plist['NSMainNibFile'] = 'MainMenu'
   
   app.info_plist['CFBundleURLTypes'] = [
@@ -60,6 +59,9 @@ Motion::Project::App.setup do |app|
     pod 'MASPreferences', '~> 1.1'
   end
 
+
+  # archive:distribution fails with i386 arch - just build for x86_64
+  app.archs['MacOSX'] = ['x86_64']
 end
 
 # Track and specify files and their mutual dependencies within the :motion Bundler group
