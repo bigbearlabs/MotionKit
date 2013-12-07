@@ -72,9 +72,22 @@ MotionBundler.setup do |app|
   # app.require 'addressable/uri'
 end
 
-
+namespace :vendor do
 desc "copy resources"
 task :cprsc => [] do
   # copy over xibs from vendor dir, following symlinks
   FileUtils.cp_r Dir.glob('vendor/**{,/*/**}/*.xib'), 'resources', verbose:true
+end
+end
+
+namespace :modules do
+  desc "build"
+  task :build => [] do
+    sh 'cd ../webbuddy-modules; ./build.sh'
+  end
+
+  desc "copy resources"
+  task :cprsc => [] do
+    FileUtils.cp_r Dir.glob('../webbuddy-modules/dist/.'), 'resources/modules', verbose:true
+  end
 end
