@@ -4,16 +4,12 @@ module Preferences
 
 #= app-specific
 
-  def preference_panes
-    obj = 
-      new_pref_pane :general do |pane|
-        pane.add_view new_pref_view( DefaultBrowserHandler), 
-          new_pref_view(BrowserDispatch),
-          new_pref_view(HotkeyHandler)
-
-        # TODO sizing
-      end
-    [ obj ]
+  # TODO sizing
+  def preference_pane_controllers
+    [ 
+      GeneralPrefPaneController.alloc.initWithViewFactory(self),
+      PreviewPrefPaneController.alloc.initWithViewFactory(self)
+    ]
   end
   
 #=
@@ -27,11 +23,7 @@ module Preferences
       end
 
     @prefs_window_controller ||= PreferencesWindowController.new (
-      self.preference_panes.map do |pane_view|
-        PreferencePaneViewController.new( pane_view ).tap do |vc|
-          vc.def_properties identifier:'General', toolbarItemLabel:'General'
-        end
-      end
+      self.preference_pane_controllers
     )
 
     @prefs_window_controller.showWindow(self)
@@ -39,16 +31,6 @@ module Preferences
 
     # we need this in order to avoid the window opening up but failing to catch the user's attention.
     NSApp.activate
-  end
-
-  # TODO replace with the 3rd-party prefpane framework
-  def new_pref_pane( name )
-    pane = new_view
-    pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
-    yield pane
-    pane
-
-    # TODO label the pane with the name.
   end
 
   def new_pref_view( component_class )
@@ -210,7 +192,7 @@ end
 
 # a view controller that works with a client-instantiated view.
 class GenericViewController < PEViewController
-  def initialize( view )
+  def initWithView( view )
     self.initWithNibName(nil, bundle:nil)
     self.view = view
     self
@@ -218,6 +200,15 @@ class GenericViewController < PEViewController
 end
 
 class PreferencePaneViewController < GenericViewController
+  def initWithViewFactory(factory)
+    @factory = factory
+
+    pane = new_view
+    pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
+    pane.add_view *preference_views
+
+    self.initWithView pane
+  end
 
   def toolbarItemImage
     p = Pointer.new '@'
@@ -242,6 +233,7 @@ class PreferencePaneViewController < GenericViewController
     prop_retval_map.map do |prop, retval|
       def_expr = %Q(
         def #{prop}
+          pe_trace "#{prop} called, will return #{retval}"
           '#{retval}'
         end
       )
@@ -249,4 +241,51 @@ class PreferencePaneViewController < GenericViewController
     end
   end
   
+  # re
+  def new_pref_pane_controller( name )
+    pane = new_view
+    pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
+    yield pane
+
+    pe_trace "create pref pane controller for #{name}"
+
+    PreferencePaneViewController.new( pane ).tap do |vc|
+      vc.def_properties identifier:name, toolbarItemLabel:name
+    end
+  end
+
+
+end
+
+class GeneralPrefPaneController < PreferencePaneViewController
+  # MASPreferences interface compliance
+  def identifier
+    'General'
+  end
+  def toolbarItemLabel
+    'General'
+  end
+
+  def preference_views
+    [
+      @factory.new_pref_view(DefaultBrowserHandler), 
+      @factory.new_pref_view(BrowserDispatch)
+    ]
+  end  
+end
+
+class PreviewPrefPaneController < PreferencePaneViewController
+  # MASPreferences interface compliance
+  def identifier
+    'Prerelease'
+  end
+  def toolbarItemLabel
+    'Prerelease'
+  end
+
+  def preference_views
+    [
+      @factory.new_pref_view(HotkeyHandler), 
+    ]
+  end
 end

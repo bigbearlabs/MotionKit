@@ -66,6 +66,11 @@ class NSView
 
   def arrange_single_column
     self.add_view *self.subviews
+
+    # resize anchoring top edge
+    subview_frame = self.frame_for_subviews
+    new_frame = NSRect.rect_with_center self.center,subview_frame.width, subview_frame.height
+    self.frame = new_frame
   end
 
   def rows_of_subviews
