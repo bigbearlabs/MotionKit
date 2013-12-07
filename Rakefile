@@ -62,6 +62,8 @@ Motion::Project::App.setup do |app|
 
   # archive:distribution fails with i386 arch - just build for x86_64
   app.archs['MacOSX'] = ['x86_64']
+
+  app.codesign_certificate = '3rd Party Mac Developer Application: Sang-Heum Park (58VVS9JDMX)'
 end
 
 # Track and specify files and their mutual dependencies within the :motion Bundler group
