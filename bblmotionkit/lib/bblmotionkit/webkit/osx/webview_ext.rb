@@ -365,11 +365,11 @@ if BubbleWrap::App.osx?
     end
 
     def webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)
-      pe_log [err, frame]
+      pe_log [err.description, frame]
     end
 
     def webView(webView, didFailLoadWithError:err, forFrame:frame)
-      pe_log [err, frame]
+      pe_log [err.description, frame]
     end
   
   end
