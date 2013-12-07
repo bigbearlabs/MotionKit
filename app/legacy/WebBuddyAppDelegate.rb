@@ -28,9 +28,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	def components
 		[
-			{
-				module: HotloaderComponent,
-			},
+			# dev-only
+			# {
+			# 	module: HotloaderComponent,
+			# },
 			{
 				module: DefaultBrowserHandler,
 			},
