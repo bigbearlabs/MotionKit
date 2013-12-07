@@ -15,6 +15,7 @@ PODS:
 
 DEPENDENCIES:
   - CocoaHTTPServer (~> 2.3)
+  - CocoaLumberjack
   - MASPreferences (~> 1.1)
   - RoutingHTTPServer (~> 1.0.0)
 

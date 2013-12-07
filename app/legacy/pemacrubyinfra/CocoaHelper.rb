@@ -79,9 +79,9 @@ def network_connection?( timeout = 2 )
 end
 
 
-# class NSObject
-# 	include LoggerMixin
-# end
+class NSObject
+	include LoggerMixin
+end
 
 
 class Class

@@ -54,6 +54,7 @@ Motion::Project::App.setup do |app|
   # cocoapods deps
   app.pods do
     # pod 'HockeySDK'
+    pod 'CocoaLumberjack'
     pod 'CocoaHTTPServer', '~> 2.3'
     pod 'RoutingHTTPServer', '~> 1.0.0'
     pod 'MASPreferences', '~> 1.1'

@@ -14,6 +14,7 @@ gem 'cocoapods-core'
 
 gem 'bubble-wrap'
 gem 'motion-yaml'
+gem 'motion-logger'
 
 # gem 'motion-cocoapods',  "~> 1.3.0.rc1"
 # gem 'cocoapods-core'
