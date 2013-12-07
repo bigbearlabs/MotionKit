@@ -10,6 +10,8 @@ Bundler.require
 require 'motion-require'
 Motion::Require.all
 
+# rakefiles deps
+require 'fileutils'
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
@@ -42,6 +44,7 @@ Motion::Project::App.setup do |app|
   app.vendor_project('vendor/misc', :static)
   app.vendor_project('vendor/NSFileManager_DirectoryLocations', :static)
   app.vendor_project('vendor/DDHotKeyCenter', :static)
+  # FIXME need to copy resource.
 
   app.delegate_class = "WebBuddyAppDelegate"
 
@@ -53,6 +56,7 @@ Motion::Project::App.setup do |app|
     # pod 'HockeySDK'
     pod 'CocoaHTTPServer', '~> 2.3'
     pod 'RoutingHTTPServer', '~> 1.0.0'
+    pod 'MASPreferences', '~> 1.1'
   end
 
 end
@@ -61,4 +65,11 @@ end
 MotionBundler.setup do |app|
   app.require "cgi"
   # app.require 'addressable/uri'
+end
+
+
+desc "copy resources"
+task :cprsc => [] do
+  # copy over xibs from vendor dir, following symlinks
+  FileUtils.cp_r Dir.glob('vendor/**{,/*/**}/*.xib'), 'resources', verbose:true
 end

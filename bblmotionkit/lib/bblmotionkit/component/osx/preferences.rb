@@ -26,11 +26,13 @@ module Preferences
         :standard
       end
 
-    @prefs_window_controller ||= PreferencesWindowController.alloc.init.tap do |wc|
-      self.preference_panes.map do |pane|
-        wc.add_pane pane
+    @prefs_window_controller ||= PreferencesWindowController.new (
+      self.preference_panes.map do |pane_view|
+        PreferencePaneViewController.new( pane_view ).tap do |vc|
+          vc.def_properties identifier:'General', toolbarItemLabel:'General'
+        end
       end
-    end
+    )
 
     @prefs_window_controller.showWindow(self)
     @prefs_window_controller.window.makeKeyAndOrderFront(self)
@@ -125,23 +127,11 @@ module Preferences
 end
 
 
-# tactical wc.
-class PreferencesWindowController < NSWindowController
-  def init
-    self.initWithWindow buildWindow
+class PreferencesWindowController < MASPreferencesWindowController
+  def initialize( controllers )
+    self.initWithViewControllers(controllers)
 
     self
-  end
-
-  def buildWindow
-    @mainWindow = NSWindow.alloc.initWithContentRect([[240, 180], [480, 360]],
-      styleMask: NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask,
-      backing: NSBackingStoreBuffered,
-      defer: false)
-    @mainWindow.title = NSBundle.mainBundle.infoDictionary['CFBundleName']
-    @mainWindow.orderFrontRegardless
-
-    @mainWindow
   end
 
   def add_pane pane
@@ -151,8 +141,8 @@ class PreferencesWindowController < NSWindowController
     # re-position subviews
     pane.add_view *pane.subviews
   end
-  
 end
+
 
 
 class NSBundle
@@ -215,4 +205,48 @@ class NSMenuItem
   def value
     self.representedObject
   end
+end
+
+
+# a view controller that works with a client-instantiated view.
+class GenericViewController < PEViewController
+  def initialize( view )
+    self.initWithNibName(nil, bundle:nil)
+    self.view = view
+    self
+  end
+end
+
+class PreferencePaneViewController < GenericViewController
+
+  def toolbarItemImage
+    p = Pointer.new '@'
+    p[0] = NSImage.imageNamed(NSImageNamePreferencesGeneral)
+  end
+
+  def viewWillAppear
+    self.view.arrange_single_column
+  end
+  
+
+  # def identifier
+  #   "general-preferences"
+  # end
+
+  # def toolbarItemLabel
+  #   "General"
+  # end
+
+  # a way to define properties without def_method so as to allow objc code to call in.
+  def def_properties prop_retval_map
+    prop_retval_map.map do |prop, retval|
+      def_expr = %Q(
+        def #{prop}
+          '#{retval}'
+        end
+      )
+      eval def_expr
+    end
+  end
+  
 end

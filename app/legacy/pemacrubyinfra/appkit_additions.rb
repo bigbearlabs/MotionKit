@@ -80,6 +80,20 @@ def new_view( rect_or_x = NSZeroRect, y = 0, w = 0, h = 0 )
 	NSView.alloc.initWithFrame( rect )
 end
 
+def new_button( rect_or_x = 0, y = 0, w = 60, h = 20 )
+  if rect_or_x.is_a? NSRect
+  	rect = rect_or_x
+  else
+  	rect = new_rect rect_or_x, y, w, h
+  end
+
+  NSButton.new.tap do |b|
+  	b.frame = rect
+  end
+end
+
+
+
 #= dealing with the responder chain
 class NSResponder
 

@@ -11,3 +11,4 @@ resources/modules
 vendor/**/build*
 vendor/**/*.bridgesupport
 vendor/Pods
+resources/MAS*
