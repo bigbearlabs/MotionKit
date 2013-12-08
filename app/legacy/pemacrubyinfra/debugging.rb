@@ -9,7 +9,7 @@ def break_on_call( clazz, method_name )
 	clazz.add_intercept method_name, $breakpoint_p
 end
 
-def debug(params = nil)
+def debug(*params)
 	Environment.instance.breakpoint( {
 		'receiver' => self,
 		'info' => params,
