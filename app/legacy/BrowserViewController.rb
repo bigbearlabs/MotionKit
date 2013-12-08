@@ -169,6 +169,9 @@ class BrowserViewController < PEViewController
 			# set the fail handler.
 			@web_view_delegate.fail_handler = fail_handler
 			
+			# set the fail handler.
+			@web_view_delegate.fail_handler = fail_handler
+			
 			if (! options[:ignore_history]) && self.history.item_for_url(new_url)
 					pe_log "load #{new_url} from history"
 					self.load_history_item self.history.item_for_url new_url
@@ -197,7 +200,7 @@ class BrowserViewController < PEViewController
 	  	@web_view.mainFrameURL = 'http://failed-page'
 	  }
 	end
-	
+
 #=
 	def handle_Url_load_finished_notification(notif)
 		handle_load_success notif.userInfo
@@ -238,6 +241,8 @@ class BrowserViewController < PEViewController
 
 #=
 
+	protected
+
 	def load_history_item(item_container)
 		on_main {
 			if ! @web_view.backForwardList.containsItem(item_container.history_item)
@@ -258,6 +263,8 @@ class BrowserViewController < PEViewController
 		}
 	end
 	
+	public
+
 	def handle_back_forward(sender)
 		back_forward_control = sender
 		selected_segment = back_forward_control.selectedSegment
