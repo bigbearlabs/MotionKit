@@ -31,9 +31,9 @@ module Hotloader
     content = request.body
 
     # just eval.
-    eval content
+    result = eval content
 
-    pe_log "hotloaded #{resource_name}"
+    pe_log "hotloaded #{resource_name}: #{result}"
 
     response.respondWithString('OK!')
   rescue Exception => e
