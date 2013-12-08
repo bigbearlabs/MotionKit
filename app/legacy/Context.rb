@@ -483,7 +483,7 @@ class ItemContainer
     o2 = ItemContainer.new(o)
     o2.pinned = item_data['pinned'] # IMPROVE write some kind of serialisation spec to avoid noddy sets like this one
     o2.timestamp = Time.new item_data['timestamp'].to_i
-    o2.last_accessed_timestamp = item_data['last_accessed_timestamp'].to_i
+    o2.last_accessed_timestamp = Time.new item_data['last_accessed_timestamp'].to_i
     o2.enquiry = item_data['enquiry']
     
     o2
