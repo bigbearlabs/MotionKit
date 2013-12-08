@@ -88,6 +88,6 @@ namespace :modules do
 
   desc "copy resources"
   task :cprsc => [] do
-    FileUtils.cp_r Dir.glob('../webbuddy-modules/dist/.'), 'resources/modules', verbose:true
+    FileUtils.cp_r Dir.glob('../webbuddy-modules/dist/.'), 'resources/plugin', verbose:true
   end
 end

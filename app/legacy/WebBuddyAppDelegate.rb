@@ -258,7 +258,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		
 		if ! network_connection?
 			pe_log "no network connectivity. showing local welcome page"
-			url = NSBundle.mainBundle.url( 'modules/welcome/index.html' ).absoluteString
+			url = NSBundle.mainBundle.url( 'plugin/welcome/index.html' ).absoluteString
 		end
 			
 		self.load_url url
