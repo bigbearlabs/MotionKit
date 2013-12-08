@@ -102,12 +102,18 @@ class NSObject
 	def to_s
     debug caller if self.is_a? NSError
 
-    if ! self.class.name
-			class_name = self.class.name
-			"<#{class_name}:#{self.object_id}>"
-	  else
-	    super
-	  end
+    ## this looks redundant and broken.
+    #  if ! self.class.name
+			# class_name = self.class.name
+			# "<#{class_name}:#{self.object_id}>"
+	  # else
+	  #   super
+	  # end
+
+    ## leave full view to #inpect, for better behaviour in RM repl.
+    class_name = self.class.name
+    "<#{class_name}:#{self.object_id}>"
+
 	end
 	
 	def invoke_setter(property_name, value)
