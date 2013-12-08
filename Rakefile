@@ -62,7 +62,7 @@ Motion::Project::App.setup do |app|
 
   # archive:distribution fails with i386 arch - just build for x86_64
   app.archs['MacOSX'] = ['x86_64']
-  app.deployment_target = '10.7'
+  app.deployment_target = '10.8'
 
   app.codesign_certificate = '3rd Party Mac Developer Application: Sang-Heum Park (58VVS9JDMX)'
 end
