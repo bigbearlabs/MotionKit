@@ -19,7 +19,7 @@ Motion::Project::App.setup do |app|
   app.identifier = "com.bigbearlabs.WebBuddy"
   app.icon = "icon.icns"
 
-  app.version = "200"
+  app.version = "201"
   app.short_version = "1.1.9"
 
   app.info_plist['NSMainNibFile'] = 'MainMenu'
