@@ -149,7 +149,9 @@ class BrowserViewController < PEViewController
 
 #=
 
-	def load_location(new_url, load_handler = nil, options = {})
+	def load_location(new_url, load_handler = nil, options = {
+		fail_handler: fail_handler
+		})
 		load_proc = proc {
 			pe_debug "loading location #{new_url}"
 			

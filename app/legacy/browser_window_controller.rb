@@ -422,6 +422,19 @@ class BrowserWindowController < NSWindowController
 	# stack_id: the id of stack if stack retrieval not suitable.
 	# FIXME migrate objc_interface_obj to webbuddy.interface, migrate webbuddy.module use cases.
 	def load_url(url_string, details = {})
+		options = 
+			if details[:fallback_url]
+				{
+					fail_handler: -> url {
+						fail_details = details.dup
+						fail_details.delete :fallback_url
+						self.load_url details[:fallback_url], fail_details
+					}
+				}
+			else
+				{}
+			end
+
 		# update the stack
 		self.stack = details[:stack]
 
@@ -432,7 +445,8 @@ class BrowserWindowController < NSWindowController
 				key = 'objc_interface_obj'
 				@browser_vc.register_callback_handler key, callback_handler
 			end
-		}
+		}, options
+
 	end
 
 	def do_search( details )

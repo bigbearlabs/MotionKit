@@ -260,13 +260,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	def load_welcome_page
 		url = default :welcome_url
+		# welcome_plugin_url = plugin(:welcome).url  # SKETCH plugin per static is too heavy. perhaps a statics plugin?
+		welcome_plugin_url = NSBundle.mainBundle.url "plugin/welcome/index.html"
 		
-		if ! network_connection?
-			pe_log "no network connectivity. showing local welcome page"
-			url = NSBundle.mainBundle.url( 'plugin/welcome/index.html' ).absoluteString
-		end
-			
-		self.load_url url
+		self.load_url url, fallback_url: welcome_plugin_url
 	end
 
 	def load_url(url_string, details = {})
