@@ -2,7 +2,7 @@ module JsEval
 
   # TODO generalise
   def load_js_lib
-    file_names = [ "modules/assets/js/jquery-1.7.1.min.js", "modules/assets/js/jquery.search.js" ]
+    file_names = [ "plugin/assets/js/jquery-1.7.1.min.js", "plugin/assets/js/jquery.search.js" ]
     file_names.each do |file_name| 
       eval_js_file file_name
     end

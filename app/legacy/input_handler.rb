@@ -34,7 +34,7 @@ module InputHandler
     pe_log "command result: #{self.command_output}"
 
     # HACK put output into an html and load.
-    output_file = "#{NSApp.app_support_dir}/modules/output/data/output.json"
+    output_file = "#{NSApp.app_support_dir}/plugin/output/data/output.json"
     FileUtils.mkdir_p( File.dirname output_file) unless Dir.exist? File.dirname( output_file )
     File.open output_file, 'w' do |f|
       f << %Q(

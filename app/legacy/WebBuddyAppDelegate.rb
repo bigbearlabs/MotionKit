@@ -210,7 +210,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		wc.do_activate
 		wc.window.center
 
-		url = NSBundle.mainBundle.url 'modules/intro/index.html'
+		url = NSBundle.mainBundle.url 'plugin/intro/index.html'
 
 		self.load_url url.absoluteString,
 			interface_callback_handler: self

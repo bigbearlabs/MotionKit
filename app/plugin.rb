@@ -7,6 +7,16 @@ class WebBuddyPlugin < BBLComponent
     inject_collaborators deps
   end
 
+  def view_url
+    plugin_name = self.class.name.gsub('Plugin', '').downcase
+    
+    @view_url = "http://localhost:9000/#/#{plugin_name}"  # DEV
+
+    # plugin_dir = "plugin/output"
+    # module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
+    # @view_url = module_index_path + "#/#{plugin_name}"  # DEPLOY
+  end
+  
   def load_view(&load_handler)
     # self.write_data
 
@@ -30,7 +40,7 @@ class WebBuddyPlugin < BBLComponent
   def attach_hosting_interface
     pe_log "attaching hosting interface to #{self.view_url}"
 
-    # eval_js_file 'modules/assets/js/webbuddy.attach.js'
+    # eval_js_file 'plugin/assets/js/webbuddy.attach.js'
 
     eval_js %q(
       window.webbuddy || (window.webbuddy = {
@@ -68,7 +78,7 @@ class WebBuddyPlugin < BBLComponent
   def write_data
     # # write to data/filtering.json TODO fix up prior to release.
     # data_path = NSBundle.mainBundle.path + "/#{module_dir}/data/filtering.json"  # DEPLOY
-    data_path = '/Users/ilo-robbie/dev/src/bigbearlabs/webbuddy-modules/output/app/data/filtering.json'  # DEV
+    data_path = '/Users/ilo-robbie/dev/src/bigbearlabs/webbuddy-plugin/output/app/data/filtering.json'  # DEV
     write_file data_path, self.data.to_json  # FIXME this races with the load on filtering.coffee
   end
   

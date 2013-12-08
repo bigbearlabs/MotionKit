@@ -7,7 +7,7 @@ ib.xcodeproj/Stubs.m
 
 /.motion-bundler.rb
 
-resources/modules
+resources/plugin
 vendor/**/build*
 vendor/**/*.bridgesupport
 vendor/Pods

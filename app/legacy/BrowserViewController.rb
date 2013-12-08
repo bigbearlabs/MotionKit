@@ -127,7 +127,7 @@ class BrowserViewController < PEViewController
 #=
 
 	# def load_module( module_name, on_load = proc {})
-	# 	modules_src = "#{NSApp.resource_dir}/modules/"
+	# 	modules_src = "#{NSApp.resource_dir}/plugin/"
 	# 	modules_tgt = "#{NSApp.app_support_dir}/modules"
 
 	# 	# HACK copy modules to app support dir.
@@ -163,8 +163,11 @@ class BrowserViewController < PEViewController
 				pe_log "dropping previous load handler" if @load_handler
 				@load_handler = load_handler
 			end
+
+			# set the fail handler.
+			@web_view_delegate.fail_handler = fail_handler
 			
-			if (! options[:ignore_history]) && (@context.history_contains_url new_url)
+			if (! options[:ignore_history]) && self.history.item_for_url(new_url)
 					pe_log "load #{new_url} from history"
 					self.load_history_item @context.item_for_url new_url
 			else
@@ -185,7 +188,14 @@ class BrowserViewController < PEViewController
 		end
 	end
 	
-
+	# default fail handler loads the load fail page.
+	def fail_handler
+	  proc { |url|
+	  	@web_view_delegate.fail_handler = nil  # no 2nd-order failure handling.
+	  	@web_view.mainFrameURL = 'http://failed-page'
+	  }
+	end
+	
 #=
 	def handle_Url_load_finished_notification(notif)
 		handle_load_success notif.userInfo
