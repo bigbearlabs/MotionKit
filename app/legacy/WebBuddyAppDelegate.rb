@@ -28,9 +28,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	def components
 		[
-			{
-				module: HotloaderComponent,
-			},
+			# dev-only
+			# {
+			# 	module: HotloaderComponent,
+			# },
 			{
 				module: DefaultBrowserHandler,
 			},
@@ -467,7 +468,8 @@ class WebBuddyAppDelegate < PEAppDelegate
 			self.deactivate_viewer_window
 		else
 			self.activate_viewer_window
-			self.current_viewer_wc.handle_focus_input_field self
+			## 1.1.9-feature-cut
+			# self.current_viewer_wc.handle_focus_input_field self
 		end
 	end
 	

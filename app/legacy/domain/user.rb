@@ -17,7 +17,8 @@ class User
 # REFACTOR this is a redundant aspect - just rely on the data facade for this stuff.
 
   def page
-    @context.current_history_item
+    # @context.current_history_item
+    nil
   end
   
   def site
@@ -25,7 +26,14 @@ class User
   end
   
   def default_site
-    @context.site_for('http://www.google.com')
+    # @context.site_for('http://www.google.com')
+
+    # work around badly populated context
+    site = Object.new
+    def site.search_url
+      "http://google.com/search?q=%query%"
+    end
+    site
   end
   
 #= user's inputs.
