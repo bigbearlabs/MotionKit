@@ -75,8 +75,18 @@ class NSObject
 end
 
 
-class Exception
+class NSException
+	def backtrace
+		if defined? super
+			super
+		else
+			nil
+		end
+	end
+
 	def report
-		self.backtrace ? self.backtrace.collect { |trace_elem| trace_elem.gsub(/^.*\//, '') }.join("\n") : nil
+		self.backtrace ? 
+			self.backtrace.collect { |trace_elem| trace_elem.gsub(/^.*\//, '') }.join("\n") 
+			: self.description + ", " + caller.to_s
 	end
 end
