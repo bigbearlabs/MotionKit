@@ -29,6 +29,7 @@ module Preferences
     @prefs_window_controller.showWindow(self)
     @prefs_window_controller.window.makeKeyAndOrderFront(self)
 
+    pe_log "pref window activated. frame: #{@prefs_window_controller.window.frame}"
     # we need this in order to avoid the window opening up but failing to catch the user's attention.
     NSApp.activate
   end
@@ -195,6 +196,8 @@ class GenericViewController < PEViewController
   def initWithView( view )
     self.initWithNibName(nil, bundle:nil)
     self.view = view
+
+    pe_log "set #{self}'s view: #{view.tree}"
     self
   end
 end
@@ -217,6 +220,7 @@ class PreferencePaneViewController < GenericViewController
 
   def viewWillAppear
     self.view.arrange_single_column
+    pe_log "#{self} resized view: #{self.view.tree}"
   end
   
 

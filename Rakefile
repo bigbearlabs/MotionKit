@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+
+build_path = 'build/MacOSX-10.8-Release'
+deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
+build_number = 202
+version_number = "1.1.9"
+
 $:.unshift("/Library/RubyMotion/lib")
 require 'motion/project/template/osx'
 
@@ -19,8 +25,8 @@ Motion::Project::App.setup do |app|
   app.identifier = "com.bigbearlabs.WebBuddy"
   app.icon = "icon.icns"
 
-  app.version = "201"
-  app.short_version = "1.1.9"
+  app.version = build_number
+  app.short_version = version_number
 
   app.info_plist['NSMainNibFile'] = 'MainMenu'
   
@@ -74,11 +80,11 @@ MotionBundler.setup do |app|
 end
 
 namespace :vendor do
-desc "copy resources"
-task :cprsc => [] do
-  # copy over xibs from vendor dir, following symlinks
-  FileUtils.cp_r Dir.glob('vendor/**{,/*/**}/*.xib'), 'resources', verbose:true
-end
+  desc "copy resources"
+  task :cprsc => [] do
+    # copy over xibs from vendor dir, following symlinks
+    FileUtils.cp_r Dir.glob('vendor/**{,/*/**}/*.xib'), 'resources', verbose:true
+  end
 end
 
 namespace :modules do
@@ -91,4 +97,26 @@ namespace :modules do
   task :cprsc => [] do
     FileUtils.cp_r Dir.glob('../webbuddy-modules/dist/.'), 'resources/plugin', verbose:true
   end
+end
+
+namespace :release do
+  task :zip do
+    sh %Q(
+      cd #{build_path}
+      rm build/MacOSX-10.8-Release/*.zip
+      zip -r webbuddy-#{version_number}_#{build_number}.zip WebBuddy.app
+      rsync -avvv *.zip "#{deploy_path}/"
+    )
+  end
+
+  task :version do
+    # increment number
+  end
+
+  task :commit_version do
+    # commit & push version number
+
+  end
+
+  task :all => [:clean, :'archive:distribution', :'version', :release, :commit_version]
 end
