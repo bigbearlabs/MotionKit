@@ -611,8 +611,7 @@ class BrowserWindowController < NSWindowController
 		else
 			
 			self.window.do_activate -> {
-				# 1.1.9-feature-cut
-				# @input_field_vc.focus_input_field
+				@input_field_vc.focus_input_field
 
 				completion_proc.call if completion_proc
 			}

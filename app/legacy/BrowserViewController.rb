@@ -164,14 +164,15 @@ class BrowserViewController < PEViewController
 				@load_handler = load_handler
 			end
 
-			## 1.1.9-feature-cut			
-			# if (! options[:ignore_history]) && (@context.history_contains_url new_url)
-			# 		pe_log "load #{new_url} from history"
-			# 		self.load_history_item @context.item_for_url new_url
-			# else
-			# 	@web_view.mainFrameURL = new_url
-			# end
-			@web_view.mainFrameURL = new_url
+			# set the fail handler.
+			@web_view_delegate.fail_handler = fail_handler
+			
+			if (! options[:ignore_history]) && self.history.item_for_url(new_url)
+					pe_log "load #{new_url} from history"
+					self.load_history_item @context.item_for_url new_url
+			else
+				@web_view.mainFrameURL = new_url
+			end
 
 			# TODO prioritising the cache for loads may result in undesirable behaviour for certain cases - allow callers to optionally specify a fresh load.
 		}
