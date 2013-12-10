@@ -420,12 +420,13 @@ class NSView
 		self.frame = CGRectMake(self.frame.origin.x, new_y, self.width, self.height)
 	end
 	
+	# reposition to line up with bottom of sibling view.
 	def snap_to_bottom_of( sibling_view )
 		new_y = sibling_view.frame.origin.y - self.height
 		self.frame = CGRectMake(self.frame.origin.x, new_y, self.width, self.height)
 	end
 
-	# resize me to match edge of the sibling view that's higher than me.
+	# resize to line up with bottom of sibling view.
 	def fit_to_bottom_of( sibling_view )
 		new_height = sibling_view.frame.origin.y - self.frame.origin.y
 		self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.width, new_height)

@@ -25,7 +25,7 @@ module DefaultsAccess
 		case val
 		when 'YES' then true
 		when 'NO' then false
-		when NSDictionary then Hash[val.to_a]
+		when NSDictionary then Hash[val]
 		else
 			val
 		end
@@ -34,20 +34,18 @@ module DefaultsAccess
 	def set_default(key, value)
 		key = full_key key
 
+		# for keypaths, create a merged duplicate of top-level hash, populating the generic structure accordingly 
 		if key.index '.'
-			# if e.g. keypath involves a dictionary in the middle, this will fail. so
-			# retrieve the default object for 1st segment of keypath first, then kvc set value on that first.
-			keypath_segment_1 = key.split('.').first
-			default_for_keypath_segment_1 = default keypath_segment_1
-			if ! default_for_keypath_segment_1
+
+			keypath_segment_1, *keypath_segment_rest = *(key.split('.'))
+			segment_1_val = default keypath_segment_1
+			if segment_1_val.nil?
 				raise  "default for #{keypath_segment_1} is nil, create new dict."
 			end
 
-			new_default = default_for_keypath_segment_1.deep_mutable_copy
-			if value != default(key)
-				new_default.kvc_set key.gsub( keypath_segment_1 + '.', '' ), value
-			end
-			# TODO for cleaner storage, subtract shipped defaults from new_default.
+			new_default = segment_1_val.overwritten_hash({
+				keypath_segment_rest => value
+			})
 
 			the_key = keypath_segment_1
 			the_val = new_default
@@ -57,11 +55,13 @@ module DefaultsAccess
 			the_val = value
 		end
 
+		pe_log "duplicating value hash for #{the_key}"
 		the_val = Hash.new.merge(the_val).to_stringified if the_val.is_a? NSDictionary
 
+		pe_log "setting user default #{the_key} to #{the_val}"
 		NSUserDefaults.standardUserDefaults.setValue(the_val, forKeyPath:the_key)
 
-		pe_log "set user default #{the_key} to #{the_val}"
+		pe_log "set default #{the_key} successfully."
 
 	end
 
@@ -96,7 +96,7 @@ module DefaultsAccess
 
 		current_defaults = NSUserDefaults.standardUserDefaults.dictionaryRepresentation
 		
-		new_defaults = shipped_defaults.overwritten_hash( current_defaults.copy )
+		new_defaults = Hash[shipped_defaults].overwritten_hash( current_defaults.copy )
 		
 		pe_debug "defaults to register: #{new_defaults}"
 
@@ -193,10 +193,6 @@ module DefaultsAccess
 		pe_log "injected defaults for #{self}"
 	end
 
-	def update_default( property, val = self.kvc_get(property) )
-		key = [ defaults_root_key, property ].join(".")
-		set_default key, val
-	end
 
 	def defaults_root_key
 		self.class.name.to_s

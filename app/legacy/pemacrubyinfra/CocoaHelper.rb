@@ -351,38 +351,13 @@ end
 # methods which really should be under Hash, but here to work around class anomaly when NSDictionary made from url.
 class NSDictionary
 
-	def overwritten_hash( priority_hash = {} )
-		hash = {}
-		
-		self.each do |k, v|
-			# do we have a competing entry?
-			if priority_hash.key? k
-				val = priority_hash[k]
-
-				# should we recursively process?
-				if v.is_a? NSDictionary
-					val = v.overwritten_hash val
-				end
-				
-			else
-				val = v
-			end
-
-			# insert the entry.
-			hash[k] = val
-		end
-		
-		hash
-	end
-
-
 	def deep_mutable_copy
 		instance = NSMutableDictionary.new
 		
 		self.each do |k,v|
 			case v
 			when NSDictionary
-				new_v = v.deep_mutable_copy
+				new_v = v.deep_mutable_copy.dup
 			when Array
 				new_v = NSMutableArray.arrayWithArray(v)
 			else

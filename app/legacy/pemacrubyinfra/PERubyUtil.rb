@@ -23,13 +23,24 @@ end
 
 #==  idioms
 
-def try( &stuff )
-  begin
-    yield
-  rescue Exception => e
-    pe_report e, "while trying #{stuff}"
-    e
+def try( attempts = 1, &stuff )
+  result = nil
+  attempts.times do |i|
+    begin
+      result = yield
+
+      break
+    rescue Exception => e
+      if i < attempts
+        pe_report e, "attempt #{i+1} failed for #{stuff}; retrying"
+      else
+        pe_report e, "#{stuff} failed #{attempts} attempts"
+        result = e
+      end
+    end
   end
+
+  result
 end
 
 class Class
@@ -232,11 +243,13 @@ class Hash
   # @return a new hash with values defined in priority_hash replaced.
   # for an entry that is itself a hash, assume keys in original entry but not in priority entry are new entries rather than deletions.
   def overwritten_hash( priority_hash )
+    priority_hash ||= {}
+    
     overwritten_hash = {}
     
     self.each_pair do |k, v|
       if v.is_a? Hash
-        new_val = v.overwritten_hash( priority_hash[k] )
+        new_val = Hash[v].overwritten_hash( priority_hash[k] )
       else
         if priority_hash.has_key?(k)
           pe_log "overwriting #{k} with value from priority hash"

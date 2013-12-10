@@ -29,7 +29,7 @@ module Preferences
     @prefs_window_controller.showWindow(self)
     @prefs_window_controller.window.makeKeyAndOrderFront(self)
 
-    pe_log "pref window activated. frame: #{@prefs_window_controller.window.frame}"
+    pe_log "pref window activated. frame: #{@prefs_window_controller.window.frame.inspect}"
     # we need this in order to avoid the window opening up but failing to catch the user's attention.
     NSApp.activate
   end
@@ -84,7 +84,7 @@ module Preferences
       # set items
       popup_button.menu = component.send pref_spec[:list_items_accessor]
       # set selected item
-      popup_button.select_value(component.default default)
+      popup_button.select_value component.default(default), -> a,b { a.downcase == b.downcase }
       # set handler
       popup_button.on_select do |selected_item|
         # set the default.
@@ -115,14 +115,6 @@ class PreferencesWindowController < MASPreferencesWindowController
     self.initWithViewControllers(controllers)
 
     self
-  end
-
-  def add_pane pane
-    self.window.view.add_view pane
-    pane.fit_to_superview
-
-    # re-position subviews
-    pane.add_view *pane.subviews
   end
 end
 
@@ -178,8 +170,21 @@ class NSPopUpButton
     self.itemArray = items
   end
   
-  def select_value value
-    item = self.items.select { |e| e.value == value } [0]
+  def select_value value, comparator = nil
+
+    comparator ||= -> a, b {
+      # default to simple comparison.
+      a == b
+    }
+    items = self.items.map do |item|
+      if comparator.call item.value, value
+        item
+      else
+        nil
+      end
+    end
+
+    item = items.compact.first
     self.selectItem(item)
   end
 end
@@ -197,7 +202,7 @@ class GenericViewController < PEViewController
     self.initWithNibName(nil, bundle:nil)
     self.view = view
 
-    pe_log "set #{self}'s view: #{view.tree}"
+    pe_log "set #{self}'s view #{view}: #{view.tree}"
     self
   end
 end
@@ -208,8 +213,10 @@ class PreferencePaneViewController < GenericViewController
 
     pane = new_view
     pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
-    pane.add_view *preference_views
-
+    pane.add_view *self.preference_views
+    pane.arrange_single_column
+    pane.size_to_fit
+    
     self.initWithView pane
   end
 
@@ -218,6 +225,7 @@ class PreferencePaneViewController < GenericViewController
     p[0] = NSImage.imageNamed(NSImageNamePreferencesGeneral)
   end
 
+  # need this to get the views to show up.
   def viewWillAppear
     self.view.arrange_single_column
     pe_log "#{self} resized view: #{self.view.tree}"
