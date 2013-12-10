@@ -84,7 +84,7 @@ module Preferences
       # set items
       popup_button.menu = component.send pref_spec[:list_items_accessor]
       # set selected item
-      popup_button.select_value(component.default default)
+      popup_button.select_value component.default(default), -> a,b { a.downcase == b.downcase }
       # set handler
       popup_button.on_select do |selected_item|
         # set the default.
@@ -170,8 +170,21 @@ class NSPopUpButton
     self.itemArray = items
   end
   
-  def select_value value
-    item = self.items.select { |e| e.value == value } [0]
+  def select_value value, comparator = nil
+
+    comparator ||= -> a, b {
+      # default to simple comparison.
+      a == b
+    }
+    items = self.items.map do |item|
+      if comparator.call item.value, value
+        item
+      else
+        nil
+      end
+    end
+
+    item = items.compact.first
     self.selectItem(item)
   end
 end
