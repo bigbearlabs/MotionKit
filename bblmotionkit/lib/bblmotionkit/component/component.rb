@@ -4,12 +4,14 @@ module ComponentClient
   # should add component's event handlers to the handler chains, initialising if necessary.
   def setup_components( component_defs = self.components )
     component_defs.map do |component_def|
-      try do
+      begin
         component_class = component_def[:module]
 
         register component_class, component_def[:deps]
 
         pe_log "assembled component #{component_class} into #{self}"
+      rescue Exception => e
+        pe_report e, "registering #{component_def}"
       end
     end
   end
