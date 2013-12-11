@@ -40,12 +40,12 @@ module DefaultsAccess
 			keypath_segment_1, *keypath_segment_rest = *(key.split('.'))
 			segment_1_val = default keypath_segment_1
 			if segment_1_val.nil?
-				raise  "default for #{keypath_segment_1} is nil, create new dict."
+				raise  "can't set #{key}: default for #{keypath_segment_1} is nil, create new dict."
 			end
 
 			new_default = segment_1_val.overwritten_hash({
 				keypath_segment_rest.join('.') => value
-			})
+			}.unflattened_hash)
 
 			the_key = keypath_segment_1
 			the_val = new_default
@@ -61,7 +61,7 @@ module DefaultsAccess
 		pe_log "setting user default #{the_key} to #{the_val}"
 		NSUserDefaults.standardUserDefaults.setValue(the_val, forKeyPath:the_key)
 
-		pe_log "set default #{the_key} successfully."
+		pe_log "set default #{key} successfully."
 
 	end
 
@@ -102,10 +102,10 @@ module DefaultsAccess
 
 		NSUserDefaults.standardUserDefaults.registerDefaults(new_defaults)
 
-		# WORKAROUND we still get a lossy situation wrt the keyset. so explicitly set the top-level keys.
-		new_defaults.each do |top_level_key, top_level_value|
-			set_default top_level_key, top_level_value
-		end
+		# # WORKAROUND we still get a lossy situation wrt the keyset. so explicitly set the top-level keys.
+		# new_defaults.each do |top_level_key, top_level_value|
+		# 	set_default top_level_key, top_level_value
+		# end
 	end
 
 	def update_default_style( current_defaults, shipped_defaults )

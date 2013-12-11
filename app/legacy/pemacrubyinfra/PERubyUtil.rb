@@ -240,8 +240,8 @@ end
 
 # ?? can't get this work with the defaults loaded from the cocoa api. clobbering in CocoaHelper.
 class Hash
-  # @return a new hash with values defined in priority_hash replaced.
-  # for an entry that is itself a hash, assume keys in original entry but not in priority entry are new entries rather than deletions.
+  # @return a new hash with values in priority_hash overwriting existing values.
+  # note that entries in original hash which are mssing in priority do not mean they should be removed, i.e. changes will never 'narrow' the keyset.
   def overwritten_hash( priority_hash )
     priority_hash ||= {}
     
@@ -260,6 +260,13 @@ class Hash
       end
       
       overwritten_hash[k] = new_val
+    end
+    
+    # insert new keys
+    new_keys = priority_hash.keys - self.keys
+    new_keys.map do |key|
+      val = priority_hash[key]
+      overwritten_hash[key] = val
     end
     
     overwritten_hash
@@ -281,14 +288,14 @@ class Hash
   end
 
   # http://www.ruby-forum.com/topic/205691
-  def flattened_keys(options = {})
+  def flattened_hash(options = {})
     output = {}
 
     self.each do |key, value|
       key = options[:prefix].nil? ? "#{key}" :
         "#{options[:prefix]}#{options[:delimiter]||"_"}#{key}"
       if value.is_a? Hash
-        value = Hash[value.to_a].flattened_keys(:prefix => key, :delimiter => ".")
+        value = Hash[value.to_a].flattened_hash(:prefix => key, :delimiter => ".")
         value.each do |inner_k, inner_v|
           output[inner_k] = inner_v
         end
@@ -300,6 +307,27 @@ class Hash
     output
   end
 
+  # note: symbol keys will be coerced to strings.
+  def unflattened_hash( delim = '.' )
+    new_hash = {}
+
+    self.each do |key, val|
+      if key.include? delim
+        segments = key.split delim
+        # create a generic structure
+        last_hash = new_hash
+        segments[0..-2].each do |segment|
+          last_hash[segment] = {}
+          last_hash = last_hash[segment]
+        end
+        # set the leaf value
+        last_hash[segments.last] = val
+      end
+    end
+    
+    new_hash
+  end
+  
 end
 
 
