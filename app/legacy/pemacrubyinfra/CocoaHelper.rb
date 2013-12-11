@@ -84,7 +84,7 @@ class NSObject
 end
 
 
-class Class
+class Module
 	def clean_name
     find_clean_name = -> ancestors {
       if ancestors[0].name =~ /^(NSKVONotifying_|RBAnonymous)/
