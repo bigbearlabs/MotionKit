@@ -451,6 +451,7 @@ class NSRect
 #= resizing
 
 	# e.g. modified_frame(current_length - 10, :Top) will shorten the rect by 10 from the bottom.
+	# TODO implement the horizontal cases - consult #modified_frame_horizontal
 	def modified_frame(target_length, anchored_edge)
 		# vertical cases
 		case anchored_edge
