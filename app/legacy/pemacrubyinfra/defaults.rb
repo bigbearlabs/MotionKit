@@ -196,7 +196,7 @@ module DefaultsAccess
 
 
 	def defaults_root_key
-		self.class.name.to_s
+		self.class.clean_name
 	end
 
 

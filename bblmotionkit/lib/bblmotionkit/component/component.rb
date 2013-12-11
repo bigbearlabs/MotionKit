@@ -113,7 +113,7 @@ class BBLComponent
   end
 
   def full_key key
-    :"#{self.class.name}.#{key}"
+    :"#{self.class.clean_name}.#{key}"
   end
 end
 
