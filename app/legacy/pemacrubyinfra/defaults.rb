@@ -44,7 +44,7 @@ module DefaultsAccess
 			end
 
 			new_default = segment_1_val.overwritten_hash({
-				keypath_segment_rest => value
+				keypath_segment_rest.join('.') => value
 			})
 
 			the_key = keypath_segment_1
@@ -149,7 +149,8 @@ module DefaultsAccess
 		end
 	end
 
-	def restore_shipped_default( key )
+	# doesn't work.
+	def reset_default( key )
 	  NSUserDefaults.standardUserDefaults.removeObjectForKey(key)
 	end
 	
