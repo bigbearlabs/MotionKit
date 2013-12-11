@@ -335,30 +335,6 @@ def do_animate( animation_proc, completion_proc = nil )
 end
 
 
-class NSButton
-	def on_click(&handler)
-		@click_handler = handler
-
-		self.target = self
-		self.action = 'handle_click:'
-	end
-
-	# 
-	def handle_click(sender)
-		@click_handler.call sender
-	end
-
-	def on_r_click(&handler)
-		class << self
-			attr_accessor :r_click_handler
-			def rightMouseDown(event)
-				r_click_handler.call(self, event)
-			end
-		end
-		self.r_click_handler = handler
-	end
-end
-
 class NSImage
 	def self.stub_image
 		self.imageNamed NSImageNameMobileMe
