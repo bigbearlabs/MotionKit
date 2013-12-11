@@ -268,7 +268,7 @@ class Hash
       val = priority_hash[key]
       overwritten_hash[key] = val
     end
-    
+
     overwritten_hash
   end
   
@@ -312,17 +312,17 @@ class Hash
     new_hash = {}
 
     self.each do |key, val|
-      if key.include? delim
-        segments = key.split delim
-        # create a generic structure
-        last_hash = new_hash
-        segments[0..-2].each do |segment|
-          last_hash[segment] = {}
-          last_hash = last_hash[segment]
-        end
-        # set the leaf value
-        last_hash[segments.last] = val
+      segments = key.split delim
+
+      # create a generic structure
+      last_hash = new_hash
+      segments[0..-2].each do |segment|
+        last_hash[segment] = {}
+        last_hash = last_hash[segment]
       end
+
+      # set the leaf value
+      last_hash[segments.last] = val
     end
     
     new_hash

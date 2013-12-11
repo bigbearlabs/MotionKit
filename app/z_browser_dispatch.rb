@@ -15,6 +15,7 @@ class BrowserDispatch < BBLComponent
   def defaults_spec
     {
       click_handler: {
+        depends_on: :'DefaultBrowserHandler.make_default_browser',
         postflight: -> new_specs {
           # TODO does there need to be anything?
         },
@@ -26,8 +27,8 @@ class BrowserDispatch < BBLComponent
         # MAYBE initial val
       },
       opt_click_handler: {
+        depends_on: :'DefaultBrowserHandler.make_default_browser',
         postflight: -> new_specs {
-          # TODO does there need to be anything?
         },
         preference_spec: {
           view_type: :list,
@@ -36,8 +37,8 @@ class BrowserDispatch < BBLComponent
         }
       },
       shift_opt_click_handler: {
+        depends_on: :'DefaultBrowserHandler.make_default_browser',
         postflight: -> new_specs {
-          # TODO does there need to be anything?
         },
         preference_spec: {
           view_type: :list,
