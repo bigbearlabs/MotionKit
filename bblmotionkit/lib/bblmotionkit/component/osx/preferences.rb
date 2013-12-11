@@ -5,25 +5,28 @@ module Preferences
 #= app-specific
 
   # TODO sizing
-  def preference_pane_controllers
+  def preference_pane_controllers flavour
     [ 
       GeneralPrefPaneController.alloc.initWithViewFactory(self),
-      PreviewPrefPaneController.alloc.initWithViewFactory(self)
-    ]
+    ].tap do |a|
+      if flavour == :dev
+        a << PreviewPrefPaneController.alloc.initWithViewFactory(self)
+      end      
+    end
   end
   
 #=
 
   def new_pref_window(sender)
-    flavour = case sender.tag
-      when @tags_by_description['menu_item_prefs_DEV']
+    flavour =  
+      if (sender.respond_to?(:tag) and sender.tag == @tags_by_description['menu_item_prefs_DEV']) or (default :show_preview_prefs)
         :dev
       else
         :standard
       end
 
-    @prefs_window_controller ||= PreferencesWindowController.new (
-      self.preference_pane_controllers
+    @prefs_window_controller = PreferencesWindowController.new (
+      self.preference_pane_controllers flavour
     )
 
     @prefs_window_controller.showWindow(self)
@@ -35,28 +38,28 @@ module Preferences
   end
 
   def new_pref_view( component_class )
-      component = self.component component_class
+    component = self.component component_class
 
-      defaults_spec = component.defaults_spec
+    defaults_spec = component.defaults_spec
 
-      views = defaults_spec.map do |default, val|
-        pref_spec = val[:preference_spec]
-        if pref_spec
-          view = 
-            case pref_spec[:view_type]
-            when :boolean
-              new_boolean_preference_view default, pref_spec, component
-            when :list
-              new_list_preference_view default, pref_spec, component
-            end
-        end
+    views = defaults_spec.map do |default, val|
+      pref_spec = val[:preference_spec]
+      if pref_spec
+        view = 
+          case pref_spec[:view_type]
+          when :boolean
+            new_boolean_preference_view default, pref_spec, component
+          when :list
+            new_list_preference_view default, pref_spec, component
+          end
       end
+    end
 
     pref_view = new_preference_section.add_view *views
-      pref_view.size_to_fit
-      # reposition the subviews after the resize.
-      pref_view.add_view *views
-    end
+    pref_view.size_to_fit
+    # reposition the subviews after the resize.
+    pref_view.add_view *views
+  end
 
   def new_preference_section
     view = NSBundle.load_nib 'PreferenceSection'
@@ -121,7 +124,13 @@ class PreferencesWindowController < MASPreferencesWindowController
 end
 
 
+class NSBox
+  def size_to_fit
+    self.sizeToFit
+  end
+end
 
+  
 class NSBundle
 
   def self.load_nib nib_name, tag_defs = nil
@@ -147,7 +156,7 @@ class NSView
       tag = tag_symbol_or_number
     else
       tag_symbol = tag_symbol_or_number
-    tag = tag_defs[tag_symbol]
+      tag = tag_defs[tag_symbol]
     end
 
     raise "no tag defined for #{tag_symbol}" if tag.nil?
@@ -281,7 +290,7 @@ class GeneralPrefPaneController < PreferencePaneViewController
       @factory.new_pref_view(DefaultBrowserHandler), 
       @factory.new_pref_view(BrowserDispatch)
     ]
-  end  
+  end
 
   def initWithViewFactory(factory)
     # load with nib
