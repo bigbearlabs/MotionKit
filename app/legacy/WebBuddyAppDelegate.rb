@@ -27,10 +27,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 	attr_accessor :active_status  # RENAME main window status
 
 	def components
-		[
-			{
-				module: HotloaderComponent,
-			},
+		components = [
 			{
 				module: DefaultBrowserHandler,
 			},
@@ -49,7 +46,15 @@ class WebBuddyAppDelegate < PEAppDelegate
 					context_store: @context_store
 				}
 			},
-		]
+		].tap do | cs|
+			# dev-only
+			if RUBYMOTION_ENV == 'development'
+				cs <<
+					{
+						module: HotloaderComponent,
+					}
+			end
+		end
 	end
 
 

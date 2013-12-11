@@ -84,15 +84,17 @@ class NSObject
 end
 
 
-class Class
-	def name
-		name = super ? super : self.ancestors[1].name
-    case name
-    when /^NSKVONotifying_(.*)/
-      name = $1
-    else
-      name
-    end
+class Module
+	def clean_name
+    find_clean_name = -> ancestors {
+      if ancestors[0].name =~ /^(NSKVONotifying_|RBAnonymous)/
+        find_clean_name.call ancestors[1..-1]
+      else
+        ancestors[0].name
+      end
+    }
+
+    find_clean_name.call self.ancestors
 	end
 end
 

@@ -3,20 +3,8 @@
 module DefaultsAccess
 	include KVC
 
-	# call with a symbol in order to access using the object's defaults_root_key.
-	def full_key key
-		raise "invalid key: #{key}" if key.to_s.empty?
-
-		key = 
-			if key.is_a? Symbol
-				self.defaults_root_key + "." + key.to_s
-			else
-				key.to_s
-			end
-	end
-	
 	def default( key )
-		key = full_key key
+		key = defaults_qualified_key key
 		val = NSUserDefaults.standardUserDefaults.kvc_get(key)
 
 		pe_warn "nil value for default '#{key}'" if val.nil?
@@ -32,7 +20,7 @@ module DefaultsAccess
 	end
 
 	def set_default(key, value)
-		key = full_key key
+		key = defaults_qualified_key key
 
 		# for keypaths, create a merged duplicate of top-level hash, populating the generic structure accordingly 
 		if key.index '.'
@@ -40,12 +28,12 @@ module DefaultsAccess
 			keypath_segment_1, *keypath_segment_rest = *(key.split('.'))
 			segment_1_val = default keypath_segment_1
 			if segment_1_val.nil?
-				raise  "default for #{keypath_segment_1} is nil, create new dict."
+				raise  "can't set #{key}: default for #{keypath_segment_1} is nil, create new dict."
 			end
 
 			new_default = segment_1_val.overwritten_hash({
-				keypath_segment_rest => value
-			})
+				keypath_segment_rest.join('.') => value
+			}.unflattened_hash)
 
 			the_key = keypath_segment_1
 			the_val = new_default
@@ -61,7 +49,7 @@ module DefaultsAccess
 		pe_log "setting user default #{the_key} to #{the_val}"
 		NSUserDefaults.standardUserDefaults.setValue(the_val, forKeyPath:the_key)
 
-		pe_log "set default #{the_key} successfully."
+		pe_log "set default #{key} successfully."
 
 	end
 
@@ -102,10 +90,10 @@ module DefaultsAccess
 
 		NSUserDefaults.standardUserDefaults.registerDefaults(new_defaults)
 
-		# WORKAROUND we still get a lossy situation wrt the keyset. so explicitly set the top-level keys.
-		new_defaults.each do |top_level_key, top_level_value|
-			set_default top_level_key, top_level_value
-		end
+		# # WORKAROUND we still get a lossy situation wrt the keyset. so explicitly set the top-level keys.
+		# new_defaults.each do |top_level_key, top_level_value|
+		# 	set_default top_level_key, top_level_value
+		# end
 	end
 
 	def update_default_style( current_defaults, shipped_defaults )
@@ -149,7 +137,8 @@ module DefaultsAccess
 		end
 	end
 
-	def restore_shipped_default( key )
+	# doesn't work.
+	def reset_default( key )
 	  NSUserDefaults.standardUserDefaults.removeObjectForKey(key)
 	end
 	
@@ -195,10 +184,21 @@ module DefaultsAccess
 
 
 	def defaults_root_key
-		self.class.name.to_s
+		self.class.clean_name
 	end
 
+	# call with a symbol in order to access using the object's defaults_root_key.
+	def defaults_qualified_key key
+		raise "invalid key: #{key}" if key.to_s.empty?
 
+		key = 
+			if key.is_a? Symbol
+				self.defaults_root_key + "." + key.to_s
+			else
+				key.to_s
+			end
+	end
+	
 	# defining the attr on inclusion due to sporadic crashes when using kvo in conjunction. #define_method looks dangerous.
 	def self.included(base)
 	  base.extend(ClassMethods)

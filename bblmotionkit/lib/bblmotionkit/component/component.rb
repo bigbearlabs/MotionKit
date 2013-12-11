@@ -93,7 +93,7 @@ class BBLComponent
   #= defaults-related
 
   def defaults
-    self.client.default :"#{self.class.name}"
+    self.client.default :"#{self.class.clean_name}"
   end
 
   def default key
@@ -113,7 +113,7 @@ class BBLComponent
   end
 
   def full_key key
-    :"#{self.class.name}.#{key}"
+    :"#{self.class.clean_name}.#{key}"
   end
 end
 
