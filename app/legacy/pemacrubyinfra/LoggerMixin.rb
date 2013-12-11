@@ -23,7 +23,7 @@ module LoggerMixin
 			NSLog( "DEBUG: " + pe_escape_format_specifiers(msg) )
 		else
 			if $DEBUG
-				Log.debug msg.to_s
+				Log.info msg.to_s
 			end
 		end
 	end
