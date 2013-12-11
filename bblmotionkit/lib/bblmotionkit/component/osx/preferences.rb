@@ -35,7 +35,6 @@ module Preferences
   end
 
   def new_pref_view( component_class )
-    try do
       component = self.component component_class
 
       defaults_spec = component.defaults_spec
@@ -53,11 +52,14 @@ module Preferences
         end
       end
 
-      pref_view = new_view.add_view *views      
+    pref_view = new_preference_section.add_view *views
       pref_view.size_to_fit
       # reposition the subviews after the resize.
       pref_view.add_view *views
     end
+
+  def new_preference_section
+    view = NSBundle.load_nib 'PreferenceSection'
   end
 
   def new_boolean_preference_view default, pref_spec, component
@@ -140,8 +142,14 @@ end
 class NSView
   attr_accessor :tag_defs
 
-  def subview( tag_symbol )
+  def subview( tag_symbol_or_number )
+    if tag_symbol_or_number.is_a? Numeric
+      tag = tag_symbol_or_number
+    else
+      tag_symbol = tag_symbol_or_number
     tag = tag_defs[tag_symbol]
+    end
+
     raise "no tag defined for #{tag_symbol}" if tag.nil?
     view = self.viewWithTag(tag)
     raise "no subview tagged #{tag_symbol}" if view.nil?
@@ -212,6 +220,7 @@ class PreferencePaneViewController < GenericViewController
     @factory = factory
 
     pane = new_view
+    pane.translatesAutoresizingMaskIntoConstraints = false
     pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
     pane.add_view *self.preference_views
     pane.arrange_single_column
@@ -228,6 +237,7 @@ class PreferencePaneViewController < GenericViewController
   # need this to get the views to show up.
   def viewWillAppear
     self.view.arrange_single_column
+    self.view.size_to_fit
     pe_log "#{self} resized view: #{self.view.tree}"
   end
   
@@ -253,22 +263,10 @@ class PreferencePaneViewController < GenericViewController
     end
   end
   
-  # re
-  def new_pref_pane_controller( name )
-    pane = new_view
-    pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
-    yield pane
-
-    pe_trace "create pref pane controller for #{name}"
-
-    PreferencePaneViewController.new( pane ).tap do |vc|
-      vc.def_properties identifier:name, toolbarItemLabel:name
-    end
-  end
-
 
 end
 
+# work around annoying layout anomaly
 class GeneralPrefPaneController < PreferencePaneViewController
   # MASPreferences interface compliance
   def identifier
@@ -284,6 +282,24 @@ class GeneralPrefPaneController < PreferencePaneViewController
       @factory.new_pref_view(BrowserDispatch)
     ]
   end  
+
+  def initWithViewFactory(factory)
+    # load with nib
+    self.init
+
+    @factory = factory
+
+    self.preference_views.each_with_index do |pref_view, i|
+      self.view.subviews[i].add_view pref_view
+      pref_view.centre_horizontal
+    end
+
+    self
+  end
+
+  def viewWillAppear
+  end
+  
 end
 
 class PreviewPrefPaneController < PreferencePaneViewController

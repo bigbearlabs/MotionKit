@@ -64,13 +64,22 @@ class NSView
     end 
   end
 
-  def arrange_single_column
-    self.add_view *self.subviews
+  def arrange_single_column( opts = {})
+    subviews = self.subviews.dup
+    self.clear_subviews
+    subviews.map do |subview|
+      self.add_tiled_vertical subview
+      if opts[:centre_horizontal]
+        subview.centre_horizontal
+      end
+    end
 
-    # resize anchoring top edge
-    subview_frame = self.frame_for_subviews
-    new_frame = NSRect.rect_with_center self.center,subview_frame.width, subview_frame.height
-    self.frame = new_frame
+    self
+  end
+
+  # MOVE
+  def centre_horizontal
+    self.x = superview.center.x - self.width / 2
   end
 
   def rows_of_subviews
@@ -100,8 +109,6 @@ class NSView
     self.addSubview(view)   
     view.snap_to_top
 
-    # y = view.y
-    prev_view = view
     views.map do |view|
       if view.nil?
         view = NSTextField.new
@@ -109,31 +116,24 @@ class NSView
         view.stringValue = "nil view!"
       end
 
-      self.addSubview( view )
-      
-      # # stack down.
-      # y -= view.height
-      # view.frame = NSMakeRect(view.x, y, view.width, view.height)
-
-      view.snap_to_bottom_of prev_view
-      prev_view = view
+      self.add_tiled_vertical view
     end
     
     self
   end
 
+  # equivalent to adding then snap_to_sibling of last subview.
   def add_tiled_vertical( subview )
-    last_subview = self.subviews ? self.subviews.last : nil
-    if last_subview == subview
-      pe_log "view #{subview} is already a subview. ignoring"
-      return
-    end
+    # ensure we don't accidentally use the subview as a parameter to the geometry ops.
+    subview.removeFromSuperview if self.subviews.include? subview
+
+    last_subview = self.subviews.last
 
     self.addSubview(subview)
     if last_subview
       subview.snap_to_bottom_of last_subview
     else
-      subview.snap_to_top
+      subview.snap_to_top ref_view:self
     end
 
     # # enlarge vertically if necessary
@@ -221,18 +221,21 @@ class NSView
 
 #= sizing in relation to subviews
   
-  # def size_to_fit(opts = { margin: 0})
-  def size_to_fit
-    # margin = opts[:margin]
+  def size_to_fit(opts = { margin: 0 })
     subview_frame = self.frame_for_subviews
     self.frame = subview_frame
-    # self.width += margin * 2
-    # self.height += margin * 2
+
+    # margin = opts[:margin]
+    # self.add_margin margin
 
     # TODO reference point is unclear.
 
     self
   end
+
+  # def add_margin margin
+  #   self.frame = NSRect.rect_with_center self.center, self.width + margin * 2, self.height + margin * 2
+  # end
 
   def frame_for_subviews
     union = NSZeroRect
@@ -304,8 +307,8 @@ class NSView
     end
   end
   
-  def snap_to_top
-    new_y = self.superview.height - self.height
+  def snap_to_top( opts = { ref_view: self.superview } )
+    new_y = opts[:ref_view].height - self.height
     self.frame = CGRectMake(self.frame.origin.x, new_y, self.width, self.height)
   end
   
