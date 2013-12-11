@@ -56,9 +56,17 @@ module Preferences
       .tap do |view|
         # watch for default specified by :depends_on and update state.
         if super_default = val[:depends_on]
+          update_visible = -> view, enabled {
+            view.views_where {|e| e.is_a? NSControl}.flatten.map do |control|
+              control.enabled = enabled
+            end
+          }
+          
           component.client.watch_default super_default do |new_val|
-            view.visible = new_val
+            update_visible.call view, new_val
           end
+
+          update_visible.call view, component.client.default( super_default)
         end
       end
     end
