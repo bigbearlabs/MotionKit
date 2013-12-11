@@ -25,6 +25,8 @@ module Preferences
         :standard
       end
 
+    @prefs_window_controller.close if @prefs_window_controller
+
     @prefs_window_controller = PreferencesWindowController.new (
       self.preference_pane_controllers flavour
     )
@@ -44,14 +46,20 @@ module Preferences
 
     views = defaults_spec.map do |default, val|
       pref_spec = val[:preference_spec]
-      if pref_spec
-        view = 
-          case pref_spec[:view_type]
-          when :boolean
-            new_boolean_preference_view default, pref_spec, component
-          when :list
-            new_list_preference_view default, pref_spec, component
+      view = 
+        case pref_spec[:view_type]
+        when :boolean
+          new_boolean_preference_view default, pref_spec, component
+        when :list
+          new_list_preference_view default, pref_spec, component
+        end
+      .tap do |view|
+        # watch for default specified by :depends_on and update state.
+        if super_default = val[:depends_on]
+          component.client.watch_default super_default do |new_val|
+            view.visible = new_val
           end
+        end
       end
     end
 
@@ -73,8 +81,10 @@ module Preferences
     checkbox.title = pref_spec[:label]
     checkbox.state = component.default(default) ? NSOnState : NSOffState
     checkbox.on_click do
+      new_val = (checkbox.state == NSOnState)
+
       # set the default.
-      component.update_default default, (checkbox.state == NSOnState)
+      component.update_default default, new_val
     end
     view
   end
@@ -112,6 +122,22 @@ module Preferences
     self.update_toggle_menu_item
   end
   
+#=
+
+  attr_accessor :defaults
+
+  def watch_default key, &handler
+    self.defaults ||= NSUserDefaults.standardUserDefaults
+    key = defaults_qualified_key(key)
+
+    react_to "defaults.#{key}" do |val|
+      pe_log "#{key} updated to #{val}"
+      handler.call val
+    end
+    pe_log "watching #{key}"
+  end
+  
+
 end
 
 
@@ -306,6 +332,7 @@ class GeneralPrefPaneController < PreferencePaneViewController
     self
   end
 
+  # override resizing in PreferencePaneViewController
   def viewWillAppear
   end
   
