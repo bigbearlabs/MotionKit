@@ -3,20 +3,8 @@
 module DefaultsAccess
 	include KVC
 
-	# call with a symbol in order to access using the object's defaults_root_key.
-	def full_key key
-		raise "invalid key: #{key}" if key.to_s.empty?
-
-		key = 
-			if key.is_a? Symbol
-				self.defaults_root_key + "." + key.to_s
-			else
-				key.to_s
-			end
-	end
-	
 	def default( key )
-		key = full_key key
+		key = defaults_qualified_key key
 		val = NSUserDefaults.standardUserDefaults.kvc_get(key)
 
 		pe_warn "nil value for default '#{key}'" if val.nil?
@@ -32,7 +20,7 @@ module DefaultsAccess
 	end
 
 	def set_default(key, value)
-		key = full_key key
+		key = defaults_qualified_key key
 
 		# for keypaths, create a merged duplicate of top-level hash, populating the generic structure accordingly 
 		if key.index '.'
@@ -199,7 +187,18 @@ module DefaultsAccess
 		self.class.clean_name
 	end
 
+	# call with a symbol in order to access using the object's defaults_root_key.
+	def defaults_qualified_key key
+		raise "invalid key: #{key}" if key.to_s.empty?
 
+		key = 
+			if key.is_a? Symbol
+				self.defaults_root_key + "." + key.to_s
+			else
+				key.to_s
+			end
+	end
+	
 	# defining the attr on inclusion due to sporadic crashes when using kvo in conjunction. #define_method looks dangerous.
 	def self.included(base)
 	  base.extend(ClassMethods)
