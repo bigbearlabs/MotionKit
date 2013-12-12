@@ -19,13 +19,7 @@ module LoggerMixin
 	end
 
 	def pe_debug( msg )
-		if should_nslog :debug
-			NSLog( "DEBUG: " + pe_escape_format_specifiers(msg) )
-		else
-			if $DEBUG
-				Log.debug msg.to_s
-			end
-		end
+		Log.debug msg.to_s
 	end
 	
 	def pe_log( msg )
@@ -37,11 +31,11 @@ module LoggerMixin
 	end
   
 	def pe_warn( msg )
-		if should_nslog :warn
-			NSLog( "#{Environment.instance.isDebugBuild ? "##WARN## " : ""}#{pe_escape_format_specifiers(msg)}" )
-		else 
+		# if should_nslog :warn
+		# 	NSLog( "#{Environment.instance.isDebugBuild ? "##WARN## " : ""}#{pe_escape_format_specifiers(msg)}" )
+		# else 
 			Log.warn msg.to_s
-		end
+		# end
 	end
 
   def pe_trace(msg = nil)
