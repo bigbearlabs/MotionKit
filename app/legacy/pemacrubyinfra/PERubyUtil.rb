@@ -262,7 +262,7 @@ class Hash
         new_val = Hash[v].overwritten_hash( priority_hash[k] )
       else
         if priority_hash.has_key?(k)
-          pe_log "overwriting #{k} with value from priority hash"
+          pe_debug "overwriting #{k} with value from priority hash"
           new_val = priority_hash[k]
         else
           new_val = v

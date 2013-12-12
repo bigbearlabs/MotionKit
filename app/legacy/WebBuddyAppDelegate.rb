@@ -478,8 +478,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 	
 	def activate_viewer_window
-		self.current_viewer_wc.do_activate
-		self.current_viewer_wc.show_toolbar
+		self.current_viewer_wc
+			.do_activate
+			.show_toolbar
 		
 		NSApp.activate
 

@@ -43,10 +43,10 @@ module DefaultsAccess
 			the_val = value
 		end
 
-		pe_log "duplicating value hash for #{the_key}"
+		pe_debug "duplicating value hash for #{the_key}"
 		the_val = Hash.new.merge(the_val).to_stringified if the_val.is_a? NSDictionary
 
-		pe_log "setting user default #{the_key} to #{the_val}"
+		pe_debug "setting user default #{the_key} to #{the_val}"
 		NSUserDefaults.standardUserDefaults.setValue(the_val, forKeyPath:the_key)
 
 		pe_log "set default #{key} successfully."
