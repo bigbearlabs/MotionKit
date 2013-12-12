@@ -6,6 +6,8 @@
 # macruby_framework 'WebKit'
 
 class BrowserViewController < PEViewController
+	include ComponentClient
+
 	include KVOMixin
 	include Reactive
 	include IvarInjection
@@ -25,6 +27,18 @@ class BrowserViewController < PEViewController
 	
 	# view-model
 	attr_accessor :event  # last user-facing user agent event.
+
+	def components
+	  [
+	  	{
+	  		module: WebViewController,
+			  deps: {
+					web_view: @web_view
+				},
+	  	},
+	  ]
+	end
+
 
 	def defaults_root_key
 		'ViewerWindowController.browser_vc'
@@ -62,6 +76,8 @@ class BrowserViewController < PEViewController
 		super()
 										
 		inject_collaborators collaborators
+
+		setup_components
 
 		web_history = WebHistory.alloc.init
 		WebHistory.setOptionalSharedHistory( web_history )
@@ -149,37 +165,26 @@ class BrowserViewController < PEViewController
 
 #=
 
-	def load_location(new_url, load_handler = nil, options = {
-		fail_handler: fail_handler
-		})
+	def load_location(url_or_array, load_handler = nil, options = {})
 		load_proc = proc {
-			pe_debug "loading location #{new_url}"
-			
-			if new_url.is_a? NSURL
-				new_url = new_url.absoluteString
-			else
-				new_url = new_url.to_url_string
-			end
-			
+			# FIXME move to webview_controller
 			if load_handler
 				pe_log "dropping previous load handler" if @load_handler
 				@load_handler = load_handler
 			end
 
-			# set the fail handler.
-			@web_view_delegate.fail_handler = fail_handler
-			
-			# set the fail handler.
-			@web_view_delegate.fail_handler = fail_handler
-			
-			if (! options[:ignore_history]) && self.history.item_for_url(new_url)
-					pe_log "load #{new_url} from history"
-					self.load_history_item self.history.item_for_url new_url
-			else
-				@web_view.mainFrameURL = new_url
-			end
+			# MOVE
+			# if (! options[:ignore_history]) && self.history.item_for_url(new_url)
+			# 		pe_log "load #{new_url} from history"
+			# 		self.load_history_item self.history.item_for_url new_url
+			# else
+			# 	@web_view.mainFrameURL = new_url
+			# end
 
 			# TODO prioritising the cache for loads may result in undesirable behaviour for certain cases - allow callers to optionally specify a fresh load.
+
+			options = options.merge success_handler:load_handler
+			self.component(WebViewController).load_url url_or_array, options
 		}
 
 		if self.web_view

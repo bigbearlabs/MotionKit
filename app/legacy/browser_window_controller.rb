@@ -1,6 +1,6 @@
 class BrowserWindowController < NSWindowController
-	include SheetHandling
 	include ComponentClient
+	include SheetHandling
 
 	include KVOMixin
 	include DefaultsAccess
@@ -91,7 +91,7 @@ class BrowserWindowController < NSWindowController
 		inject_collaborators collaborators
 
 		setup_components
-		
+
 		# self.setup_tracking_region
 		# self.setup_nav_long_click
 
@@ -425,6 +425,11 @@ class BrowserWindowController < NSWindowController
 		# self.hide_overlay
 	end
 
+	def handle_input( input )
+		# just try loading, fall back to a search.
+	  self.load_url [input, input.to_search_url_string]
+	end
+	
 
 #= browsing
 
@@ -435,31 +440,19 @@ class BrowserWindowController < NSWindowController
 	# stack: the stack to add this page to.
 	# stack_id: the id of stack if stack retrieval not suitable.
 	# FIXME migrate objc_interface_obj to webbuddy.interface, migrate webbuddy.module use cases.
-	def load_url(url_string, details = {})
-		options = 
-			if details[:fallback_url]
-				{
-					fail_handler: -> url {
-						fail_details = details.dup
-						fail_details.delete :fallback_url
-						self.load_url details[:fallback_url], fail_details
-					}
-				}
-			else
-				{}
-			end
-
+	def load_url(urls, details = {})
 		# update the stack
 		self.stack = details[:stack]
 
-		@browser_vc.load_location url_string, -> {
-			# set window.objc_interface_obj to be invoked from web layer  RENAME
+		@browser_vc.load_location urls, -> {
+			# set window.objc_interface_obj to be invoked from web layer  
+			# RENAME, PUSH-DOWN
 			callback_handler = details[:interface_callback_handler]
 			if callback_handler
 				key = 'objc_interface_obj'
 				@browser_vc.register_callback_handler key, callback_handler
 			end
-		}, options
+		}
 
 	end
 

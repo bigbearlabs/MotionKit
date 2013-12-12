@@ -19,6 +19,11 @@ if BubbleWrap::App.osx?
       self.mainFrameURL.copy
     end
 
+    def delegate
+      # TODO ensure all delegates point to same instance
+
+      self.frameLoadDelegate
+    end
   end
 
 

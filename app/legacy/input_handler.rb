@@ -10,19 +10,16 @@ class InputHandler < BBLComponent
     type = input.dup.pe_type
     pe_log "input type: #{type}"
     case type
-    when :enquiry
-      NSApp.delegate.user.perform_search input
-
-      # TODO move to the right notification handler.
-      NSApp.delegate.wc.input_field_vc.current_enquiry = input
-
     when :cmd
       self.process_command input
 
-    else
-      # it's a url.
-
+    when :url
       NSApp.delegate.user.perform_url_input input
+    else
+      self.client.load_url [
+        input.to_url_string,
+        input.to_search_url_string
+      ]
     end
   end
 
@@ -57,26 +54,17 @@ end
 
 class String
   def valid_url?
-    # MOTION-MIGRATION temp disable due to 'uri' not being compatible
-    # return true if URI::DEFAULT_PARSER.regexp[:ABS_URI].match self
-    # return true if URI::DEFAULT_PARSER.regexp[:ABS_URI].match self.to_url_string
-    # false
-
-    self =~ %r{^http(s?)://}
+    # NOTE this is probably incomplete.
+    self =~ %r{^(\w+)://}
   end
   
   def pe_type
-=begin
-    if ! self.valid_url? || 
-      # exceptionally handle single words which aren't pingable as enquiries.
-        (self.single_word? && ! is_reachable_host?(self))
-=end
     if self =~ /^>/
       :cmd
-    elsif ! self.strip.valid_url? || self.single_word?
-      :enquiry
-    else
+    elsif self.valid_url?
       :url
+    else
+      :other
     end
   end
 end
