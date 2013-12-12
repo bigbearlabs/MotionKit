@@ -5,25 +5,30 @@ module Preferences
 #= app-specific
 
   # TODO sizing
-  def preference_pane_controllers
+  def preference_pane_controllers flavour
     [ 
       GeneralPrefPaneController.alloc.initWithViewFactory(self),
-      PreviewPrefPaneController.alloc.initWithViewFactory(self)
-    ]
+    ].tap do |a|
+      if flavour == :dev
+        a << PreviewPrefPaneController.alloc.initWithViewFactory(self)
+      end      
+    end
   end
   
 #=
 
   def new_pref_window(sender)
-    flavour = case sender.tag
-      when @tags_by_description['menu_item_prefs_DEV']
+    flavour =  
+      if (sender.respond_to?(:tag) and sender.tag == @tags_by_description['menu_item_prefs_DEV']) or (default :show_preview_prefs)
         :dev
       else
         :standard
       end
 
-    @prefs_window_controller ||= PreferencesWindowController.new (
-      self.preference_pane_controllers
+    @prefs_window_controller.close if @prefs_window_controller
+
+    @prefs_window_controller = PreferencesWindowController.new (
+      self.preference_pane_controllers flavour
     )
 
     @prefs_window_controller.showWindow(self)
@@ -34,30 +39,45 @@ module Preferences
     NSApp.activate
   end
 
-  def new_pref_view( component_class )
-    try do
-      component = self.component component_class
+  def new_pref_section( component_class )
+    component = self.component component_class
 
-      defaults_spec = component.defaults_spec
+    defaults_spec = component.defaults_spec
 
-      views = defaults_spec.map do |default, val|
-        pref_spec = val[:preference_spec]
-        if pref_spec
-          view = 
-            case pref_spec[:view_type]
-            when :boolean
-              new_boolean_preference_view default, pref_spec, component
-            when :list
-              new_list_preference_view default, pref_spec, component
+    views = defaults_spec.map do |default, val|
+      pref_spec = val[:preference_spec]
+      view = 
+        case pref_spec[:view_type]
+        when :boolean
+          new_boolean_preference_view default, pref_spec, component
+        when :list
+          new_list_preference_view default, pref_spec, component
+        end
+      .tap do |view|
+        # watch for default specified by :depends_on and update state.
+        if super_default = val[:depends_on]
+          update_visible = -> view, enabled {
+            view.views_where {|e| e.is_a? NSControl}.flatten.map do |control|
+              control.enabled = enabled
             end
+          }
+          
+          component.client.watch_default super_default do |new_val|
+            update_visible.call view, new_val
+          end
+
+          update_visible.call view, component.client.default( super_default)
         end
       end
-
-      pref_view = new_view.add_view *views      
-      pref_view.size_to_fit
-      # reposition the subviews after the resize.
-      pref_view.add_view *views
     end
+
+    pref_section = NSBundle.load_nib 'PreferenceSection'
+    pref_section.add_view *views
+    pref_section.size_to_fit
+    # reposition the subviews after the resize.
+    pref_section.add_view *views
+
+    pref_section
   end
 
   def new_boolean_preference_view default, pref_spec, component
@@ -68,8 +88,10 @@ module Preferences
     checkbox.title = pref_spec[:label]
     checkbox.state = component.default(default) ? NSOnState : NSOffState
     checkbox.on_click do
+      new_val = (checkbox.state == NSOnState)
+
       # set the default.
-      component.update_default default, (checkbox.state == NSOnState)
+      component.update_default default, new_val
     end
     view
   end
@@ -107,6 +129,22 @@ module Preferences
     self.update_toggle_menu_item
   end
   
+#=
+
+  attr_accessor :defaults
+
+  def watch_default key, &handler
+    self.defaults ||= NSUserDefaults.standardUserDefaults
+    key = defaults_qualified_key(key)
+
+    react_to "defaults.#{key}" do |val|
+      pe_log "#{key} updated to #{val}"
+      handler.call val
+    end
+    pe_log "watching #{key}"
+  end
+  
+
 end
 
 
@@ -119,7 +157,13 @@ class PreferencesWindowController < MASPreferencesWindowController
 end
 
 
+class NSBox
+  def size_to_fit
+    self.sizeToFit
+  end
+end
 
+  
 class NSBundle
 
   def self.load_nib nib_name, tag_defs = nil
@@ -140,8 +184,14 @@ end
 class NSView
   attr_accessor :tag_defs
 
-  def subview( tag_symbol )
-    tag = tag_defs[tag_symbol]
+  def subview( tag_symbol_or_number )
+    if tag_symbol_or_number.is_a? Numeric
+      tag = tag_symbol_or_number
+    else
+      tag_symbol = tag_symbol_or_number
+      tag = tag_defs[tag_symbol]
+    end
+
     raise "no tag defined for #{tag_symbol}" if tag.nil?
     view = self.viewWithTag(tag)
     raise "no subview tagged #{tag_symbol}" if view.nil?
@@ -212,6 +262,7 @@ class PreferencePaneViewController < GenericViewController
     @factory = factory
 
     pane = new_view
+    pane.translatesAutoresizingMaskIntoConstraints = false
     pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
     pane.add_view *self.preference_views
     pane.arrange_single_column
@@ -228,6 +279,7 @@ class PreferencePaneViewController < GenericViewController
   # need this to get the views to show up.
   def viewWillAppear
     self.view.arrange_single_column
+    self.view.size_to_fit
     pe_log "#{self} resized view: #{self.view.tree}"
   end
   
@@ -253,22 +305,10 @@ class PreferencePaneViewController < GenericViewController
     end
   end
   
-  # re
-  def new_pref_pane_controller( name )
-    pane = new_view
-    pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
-    yield pane
-
-    pe_trace "create pref pane controller for #{name}"
-
-    PreferencePaneViewController.new( pane ).tap do |vc|
-      vc.def_properties identifier:name, toolbarItemLabel:name
-    end
-  end
-
 
 end
 
+# work around annoying layout anomaly
 class GeneralPrefPaneController < PreferencePaneViewController
   # MASPreferences interface compliance
   def identifier
@@ -280,10 +320,29 @@ class GeneralPrefPaneController < PreferencePaneViewController
 
   def preference_views
     [
-      @factory.new_pref_view(DefaultBrowserHandler), 
-      @factory.new_pref_view(BrowserDispatch)
+      @factory.new_pref_section(DefaultBrowserHandler), 
+      @factory.new_pref_section(BrowserDispatch)
     ]
-  end  
+  end
+
+  def initWithViewFactory(factory)
+    # load with nib
+    self.init
+
+    @factory = factory
+
+    self.preference_views.each_with_index do |pref_view, i|
+      self.view.subviews[i].add_view pref_view
+      pref_view.centre_horizontal
+    end
+
+    self
+  end
+
+  # override resizing in PreferencePaneViewController
+  def viewWillAppear
+  end
+  
 end
 
 class PreviewPrefPaneController < PreferencePaneViewController
@@ -297,7 +356,7 @@ class PreviewPrefPaneController < PreferencePaneViewController
 
   def preference_views
     [
-      @factory.new_pref_view(HotkeyHandler), 
+      @factory.new_pref_section(HotkeyHandler), 
     ]
   end
 end

@@ -2,8 +2,10 @@
 
 build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
-build_number = 202
+build_number = 208
+# version_number = "1.1.9-#{build_number}"  # DEV
 version_number = "1.1.9"
+
 
 $:.unshift("/Library/RubyMotion/lib")
 require 'motion/project/template/osx'
@@ -24,7 +26,7 @@ Motion::Project::App.setup do |app|
   app.name = 'WebBuddy'
   app.identifier = "com.bigbearlabs.WebBuddy"
   app.icon = "icon.icns"
-
+  app.copyright =  "Copyright (c) 2013 Big Bear Labs. All Right Reserved."
   app.version = build_number.to_s
   app.short_version = version_number
 
@@ -71,6 +73,20 @@ Motion::Project::App.setup do |app|
   app.deployment_target = '10.8'
 
   app.codesign_certificate = '3rd Party Mac Developer Application: Sang-Heum Park (58VVS9JDMX)'
+
+  # app.release do
+  #   app.entitlements['com.apple.security.app-sandbox'] = true
+  #   app.entitlements['com.apple.security.files.downloads.read-write'] = true
+  #   app.entitlements['com.apple.security.network.client'] = true
+  #   app.entitlements['com.apple.security.print'] = true
+
+  # end
+  app.entitlements['com.apple.application-identifier'] = "58VVS9JDMX.com.bigbearlabs.WebBuddy"
+  app.entitlements['com.apple.security.app-sandbox'] = true
+  app.entitlements['com.apple.security.files.downloads.read-write'] = true
+  app.entitlements['com.apple.security.network.client'] = true
+  app.entitlements['com.apple.security.print'] = true
+
 end
 
 # Track and specify files and their mutual dependencies within the :motion Bundler group
@@ -103,8 +119,8 @@ namespace :release do
   task :zip do
     sh %Q(
       cd #{build_path}
-      rm build/MacOSX-10.8-Release/*.zip
-      zip -r webbuddy-#{version_number}_#{build_number}.zip WebBuddy.app
+      rm *.zip
+      zip -r webbuddy-#{version_number}.zip WebBuddy.app
       rsync -avvv *.zip "#{deploy_path}/"
     )
   end

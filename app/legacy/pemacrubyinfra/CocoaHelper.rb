@@ -84,15 +84,17 @@ class NSObject
 end
 
 
-class Class
-	def name
-		name = super ? super : self.ancestors[1].name
-    case name
-    when /^NSKVONotifying_(.*)/
-      name = $1
-    else
-      name
-    end
+class Module
+	def clean_name
+    find_clean_name = -> ancestors {
+      if ancestors[0].name =~ /^(NSKVONotifying_|RBAnonymous)/
+        find_clean_name.call ancestors[1..-1]
+      else
+        ancestors[0].name
+      end
+    }
+
+    find_clean_name.call self.ancestors
 	end
 end
 
@@ -351,38 +353,13 @@ end
 # methods which really should be under Hash, but here to work around class anomaly when NSDictionary made from url.
 class NSDictionary
 
-	def overwritten_hash( priority_hash = {} )
-		hash = {}
-		
-		self.each do |k, v|
-			# do we have a competing entry?
-			if priority_hash.key? k
-				val = priority_hash[k]
-
-				# should we recursively process?
-				if v.is_a? NSDictionary
-					val = v.overwritten_hash val
-				end
-				
-			else
-				val = v
-			end
-
-			# insert the entry.
-			hash[k] = val
-		end
-		
-		hash
-	end
-
-
 	def deep_mutable_copy
 		instance = NSMutableDictionary.new
 		
 		self.each do |k,v|
 			case v
 			when NSDictionary
-				new_v = v.deep_mutable_copy
+				new_v = v.deep_mutable_copy.dup
 			when Array
 				new_v = NSMutableArray.arrayWithArray(v)
 			else

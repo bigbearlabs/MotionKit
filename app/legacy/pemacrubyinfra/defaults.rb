@@ -3,20 +3,8 @@
 module DefaultsAccess
 	include KVC
 
-	# call with a symbol in order to access using the object's defaults_root_key.
-	def full_key key
-		raise "invalid key: #{key}" if key.to_s.empty?
-
-		key = 
-			if key.is_a? Symbol
-				self.defaults_root_key + "." + key.to_s
-			else
-				key.to_s
-			end
-	end
-	
 	def default( key )
-		key = full_key key
+		key = defaults_qualified_key key
 		val = NSUserDefaults.standardUserDefaults.kvc_get(key)
 
 		pe_warn "nil value for default '#{key}'" if val.nil?
@@ -25,29 +13,27 @@ module DefaultsAccess
 		case val
 		when 'YES' then true
 		when 'NO' then false
-		when NSDictionary then Hash[val.to_a]
+		when NSDictionary then Hash[val]
 		else
 			val
 		end
 	end
 
 	def set_default(key, value)
-		key = full_key key
+		key = defaults_qualified_key key
 
+		# for keypaths, create a merged duplicate of top-level hash, populating the generic structure accordingly 
 		if key.index '.'
-			# if e.g. keypath involves a dictionary in the middle, this will fail. so
-			# retrieve the default object for 1st segment of keypath first, then kvc set value on that first.
-			keypath_segment_1 = key.split('.').first
-			default_for_keypath_segment_1 = default keypath_segment_1
-			if ! default_for_keypath_segment_1
-				raise  "default for #{keypath_segment_1} is nil, create new dict."
+
+			keypath_segment_1, *keypath_segment_rest = *(key.split('.'))
+			segment_1_val = default keypath_segment_1
+			if segment_1_val.nil?
+				raise  "can't set #{key}: default for #{keypath_segment_1} is nil, create new dict."
 			end
 
-			new_default = default_for_keypath_segment_1.deep_mutable_copy
-			if value != default(key)
-				new_default.kvc_set key.gsub( keypath_segment_1 + '.', '' ), value
-			end
-			# TODO for cleaner storage, subtract shipped defaults from new_default.
+			new_default = segment_1_val.overwritten_hash({
+				keypath_segment_rest.join('.') => value
+			}.unflattened_hash)
 
 			the_key = keypath_segment_1
 			the_val = new_default
@@ -57,11 +43,13 @@ module DefaultsAccess
 			the_val = value
 		end
 
+		pe_debug "duplicating value hash for #{the_key}"
 		the_val = Hash.new.merge(the_val).to_stringified if the_val.is_a? NSDictionary
 
+		pe_debug "setting user default #{the_key} to #{the_val}"
 		NSUserDefaults.standardUserDefaults.setValue(the_val, forKeyPath:the_key)
 
-		pe_log "set user default #{the_key} to #{the_val}"
+		pe_log "set default #{key} successfully."
 
 	end
 
@@ -96,16 +84,16 @@ module DefaultsAccess
 
 		current_defaults = NSUserDefaults.standardUserDefaults.dictionaryRepresentation
 		
-		new_defaults = shipped_defaults.overwritten_hash( current_defaults.copy )
+		new_defaults = Hash[shipped_defaults].overwritten_hash( current_defaults.copy )
 		
 		pe_debug "defaults to register: #{new_defaults}"
 
 		NSUserDefaults.standardUserDefaults.registerDefaults(new_defaults)
 
-		# WORKAROUND we still get a lossy situation wrt the keyset. so explicitly set the top-level keys.
-		new_defaults.each do |top_level_key, top_level_value|
-			set_default top_level_key, top_level_value
-		end
+		# # WORKAROUND we still get a lossy situation wrt the keyset. so explicitly set the top-level keys.
+		# new_defaults.each do |top_level_key, top_level_value|
+		# 	set_default top_level_key, top_level_value
+		# end
 	end
 
 	def update_default_style( current_defaults, shipped_defaults )
@@ -149,7 +137,8 @@ module DefaultsAccess
 		end
 	end
 
-	def restore_shipped_default( key )
+	# doesn't work.
+	def reset_default( key )
 	  NSUserDefaults.standardUserDefaults.removeObjectForKey(key)
 	end
 	
@@ -193,16 +182,23 @@ module DefaultsAccess
 		pe_log "injected defaults for #{self}"
 	end
 
-	def update_default( property, val = self.kvc_get(property) )
-		key = [ defaults_root_key, property ].join(".")
-		set_default key, val
-	end
 
 	def defaults_root_key
-		self.class.name.to_s
+		self.class.clean_name
 	end
 
+	# call with a symbol in order to access using the object's defaults_root_key.
+	def defaults_qualified_key key
+		raise "invalid key: #{key}" if key.to_s.empty?
 
+		key = 
+			if key.is_a? Symbol
+				self.defaults_root_key + "." + key.to_s
+			else
+				key.to_s
+			end
+	end
+	
 	# defining the attr on inclusion due to sporadic crashes when using kvo in conjunction. #define_method looks dangerous.
 	def self.included(base)
 	  base.extend(ClassMethods)

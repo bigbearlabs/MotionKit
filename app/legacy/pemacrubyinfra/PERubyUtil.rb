@@ -23,13 +23,24 @@ end
 
 #==  idioms
 
-def try( &stuff )
-  begin
-    yield
-  rescue Exception => e
-    pe_report e, "while trying #{stuff}"
-    e
+def try( attempts = 1, &stuff )
+  result = nil
+  attempts.times do |i|
+    begin
+      result = yield
+
+      break
+    rescue Exception => e
+      if i < attempts
+        pe_report e, "attempt #{i+1} failed for #{stuff}; retrying"
+      else
+        pe_report e, "#{stuff} failed #{attempts} attempts"
+        result = e
+      end
+    end
   end
+
+  result
 end
 
 class Class
@@ -229,17 +240,29 @@ end
 
 # ?? can't get this work with the defaults loaded from the cocoa api. clobbering in CocoaHelper.
 class Hash
-  # @return a new hash with values defined in priority_hash replaced.
-  # for an entry that is itself a hash, assume keys in original entry but not in priority entry are new entries rather than deletions.
+
+  def delete_value( val )
+    self.keys.each do |key|
+      if self[key] == val
+        pe_log "deleting value #{val} from hash #{self.object_id}"
+        self.delete key
+      end
+    end
+  end
+
+  # @return a new hash with values in priority_hash overwriting existing values.
+  # note that entries in original hash which are mssing in priority do not mean they should be removed, i.e. changes will never 'narrow' the keyset.
   def overwritten_hash( priority_hash )
+    priority_hash ||= {}
+    
     overwritten_hash = {}
     
     self.each_pair do |k, v|
       if v.is_a? Hash
-        new_val = v.overwritten_hash( priority_hash[k] )
+        new_val = Hash[v].overwritten_hash( priority_hash[k] )
       else
         if priority_hash.has_key?(k)
-          pe_log "overwriting #{k} with value from priority hash"
+          pe_debug "overwriting #{k} with value from priority hash"
           new_val = priority_hash[k]
         else
           new_val = v
@@ -249,6 +272,13 @@ class Hash
       overwritten_hash[k] = new_val
     end
     
+    # insert new keys
+    new_keys = priority_hash.keys - self.keys
+    new_keys.map do |key|
+      val = priority_hash[key]
+      overwritten_hash[key] = val
+    end
+
     overwritten_hash
   end
   
@@ -268,14 +298,14 @@ class Hash
   end
 
   # http://www.ruby-forum.com/topic/205691
-  def flattened_keys(options = {})
+  def flattened_hash(options = {})
     output = {}
 
     self.each do |key, value|
       key = options[:prefix].nil? ? "#{key}" :
         "#{options[:prefix]}#{options[:delimiter]||"_"}#{key}"
       if value.is_a? Hash
-        value = Hash[value.to_a].flattened_keys(:prefix => key, :delimiter => ".")
+        value = Hash[value.to_a].flattened_hash(:prefix => key, :delimiter => ".")
         value.each do |inner_k, inner_v|
           output[inner_k] = inner_v
         end
@@ -287,6 +317,27 @@ class Hash
     output
   end
 
+  # note: symbol keys will be coerced to strings.
+  def unflattened_hash( delim = '.' )
+    new_hash = {}
+
+    self.each do |key, val|
+      segments = key.split delim
+
+      # create a generic structure
+      last_hash = new_hash
+      segments[0..-2].each do |segment|
+        last_hash[segment] = {}
+        last_hash = last_hash[segment]
+      end
+
+      # set the leaf value
+      last_hash[segments.last] = val
+    end
+    
+    new_hash
+  end
+  
 end
 
 

@@ -238,7 +238,6 @@ class ContextStore
 				matching_stacks = self.stacks.select { |e| e.name == name }
 				case matching_stacks.size
 				when 0
-					pe_log "initializing new context #{name}"
 					stack = stack_for name
 				when 1
 					# the object already exists.

@@ -1,6 +1,6 @@
 # use cooca lumberjack
 Log = Motion::Log
-Log.addLogger DDASLLogger.sharedInstance
+Log.addLogger DDASLLogger.sharedInstance, withLogLevel:LOG_LEVEL_WARN
 Log.addLogger DDTTYLogger.sharedInstance
 
 Log.level = :info
