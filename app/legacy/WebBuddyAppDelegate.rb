@@ -890,14 +890,3 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 end
 
-		
-class Hash
-	def delete_value( val )
-		self.keys.each do |key|
-			if self[key] == val
-				pe_log "deleting value #{val} from hash #{self.object_id}"
-				self.delete key
-			end
-		end
-	end
-end
