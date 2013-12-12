@@ -39,7 +39,7 @@ module Preferences
     NSApp.activate
   end
 
-  def new_pref_view( component_class )
+  def new_pref_section( component_class )
     component = self.component component_class
 
     defaults_spec = component.defaults_spec
@@ -71,14 +71,13 @@ module Preferences
       end
     end
 
-    pref_view = new_preference_section.add_view *views
-    pref_view.size_to_fit
+    pref_section = NSBundle.load_nib 'PreferenceSection'
+    pref_section.add_view *views
+    pref_section.size_to_fit
     # reposition the subviews after the resize.
-    pref_view.add_view *views
-  end
+    pref_section.add_view *views
 
-  def new_preference_section
-    view = NSBundle.load_nib 'PreferenceSection'
+    pref_section
   end
 
   def new_boolean_preference_view default, pref_spec, component
@@ -321,8 +320,8 @@ class GeneralPrefPaneController < PreferencePaneViewController
 
   def preference_views
     [
-      @factory.new_pref_view(DefaultBrowserHandler), 
-      @factory.new_pref_view(BrowserDispatch)
+      @factory.new_pref_section(DefaultBrowserHandler), 
+      @factory.new_pref_section(BrowserDispatch)
     ]
   end
 
@@ -357,7 +356,7 @@ class PreviewPrefPaneController < PreferencePaneViewController
 
   def preference_views
     [
-      @factory.new_pref_view(HotkeyHandler), 
+      @factory.new_pref_section(HotkeyHandler), 
     ]
   end
 end
