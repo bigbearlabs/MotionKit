@@ -188,7 +188,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		try {
 			@context_store = ContextStore.new
 	
-			@context_store.load
+			@context_store.load if default :load_context
 	
 			self.user.context = @context_store.current_context
 		}

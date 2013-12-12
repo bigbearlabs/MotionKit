@@ -119,6 +119,8 @@
 		<false/>
 		<key>save_context</key>
 		<false/>
+		<key>load_context</key>
+		<false/>
 	</dict>
 	<key>ContextStore</key>
 	<dict>
