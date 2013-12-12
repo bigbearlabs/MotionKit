@@ -24,7 +24,7 @@ Motion::Project::App.setup do |app|
   app.name = 'WebBuddy'
   app.identifier = "com.bigbearlabs.WebBuddy"
   app.icon = "icon.icns"
-
+  app.copyright =  "Copyright (c) 2013 Big Bear Labs. All Right Reserved."
   app.version = build_number.to_s
   app.short_version = version_number
 
