@@ -15,7 +15,7 @@ class WebViewController < BBLComponent
     urls = [ urls ] unless urls.is_a? Array
 
     success_handler = chain options[:success_handler], default_success_handler
-    fail_handler = chain options[:fail_handler], default_fail_handler( urls[1..-1])
+    fail_handler = chain options[:fail_handler], default_fail_handler( urls[1..-1] )
 
     ## prep and set webview mainFrameURL.
 
@@ -36,10 +36,14 @@ class WebViewController < BBLComponent
   end
   
   def default_fail_handler fallback_urls
-    -> url {
-      if fallback_urls.empty?
-        self.load_url 'http://load_failure'
+    load_failure_url = 'http://load_failure'
+
+    return -> url {
+      if fallback_urls.to_a.empty?
+        @web_view.delegate.fail_handler = nil
+        @web_view.mainFrameURL = load_failure_url
       else
+        # as long as there are fallback url's, keep loading.
         self.load_url fallback_urls
       end
     }
