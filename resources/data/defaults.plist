@@ -117,6 +117,8 @@
 		<string>in_space_window</string>
 		<key>selection_grab_enabled</key>
 		<false/>
+		<key>save_context</key>
+		<false/>
 	</dict>
 	<key>ContextStore</key>
 	<dict>

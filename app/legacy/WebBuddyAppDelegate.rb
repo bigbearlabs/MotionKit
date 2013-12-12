@@ -552,7 +552,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= system events
 
 	def on_terminate
-		@context_store.save
+		@context_store.save if default :save_context
 	end
 
 	def on_will_become_active
@@ -580,7 +580,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# mask window fronting is unfinished - its state must be correctly saved and restored with space changes.
 			# @main_window_controller.window.front_with_mask_window if @main_window_controller.window.shown?
 			
-			@context_store.save
+			@context_store.save if default :save_context
 		end
 
 	end
