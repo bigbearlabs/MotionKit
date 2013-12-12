@@ -15,17 +15,9 @@ class User
     
 #= quick access to current state.
 # REFACTOR this is a redundant aspect - just rely on the data facade for this stuff.
-
-  def page
-    @context.current_history_item
-  end
   
   def site
     @context.current_site
-  end
-  
-  def default_site
-    @context.site_for('http://www.google.com')
   end
   
 #= user's inputs.
@@ -52,7 +44,7 @@ class User
     action = FilterAction.new(filter_string)
     self.add_action action
 
-    filter_spec = FilterSpec.new(:recent_first, action.filter_string, self.page)
+    filter_spec = FilterSpec.new(:recent_first, action.filter_string)
     self.update_filter_spec filter_spec
   end
   
@@ -61,7 +53,7 @@ class User
     self.add_action action
 
     # filter_spec = FilterSpec.new(:recent_last, nil, self.page)
-    filter_spec = FilterSpec.new(:recent_first, nil, self.page)
+    filter_spec = FilterSpec.new(:recent_first, nil)
     self.update_filter_spec filter_spec
   end
 
@@ -98,24 +90,24 @@ class User
     # TODO replace all load_request_notifications with visit notification.
   end
   
-  def perform_search( search_input, site = self.default_site )
+  def perform_search( search_input, site = nil )
     search_action = SearchAction.new(search_input)
     self.add_action search_action
 
-    search_url = site.search_url.to_query_url search_input
+    search_url = 
+      if site
+        site.search_url.to_query_url search_input
+      else
+        search_input.to_search_url_string  # HACK
+      end
 
     send_notification :Site_search_notification, 
       query: search_input,
       url: search_url
-  end
+    end
   
   def perform_site_search( search_input )
-    if self.site && self.site.searchable?
-      perform_search search_input, self.site
-    else
-      # when current site invalid, fall back to default.
-      perform_search search_input, default_site
-    end
+    raise "site search not implemented"
   end
   
 #=
