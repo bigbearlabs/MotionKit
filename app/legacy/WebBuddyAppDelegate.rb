@@ -477,8 +477,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 	
 	def activate_viewer_window
-		self.current_viewer_wc.do_activate
-		self.current_viewer_wc.show_toolbar
+		self.current_viewer_wc
+			.do_activate
+			.show_toolbar
 		
 		NSApp.activate
 
@@ -551,7 +552,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= system events
 
 	def on_terminate
-		@context_store.save
+		@context_store.save if default :save_context
 	end
 
 	def on_will_become_active
@@ -579,7 +580,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# mask window fronting is unfinished - its state must be correctly saved and restored with space changes.
 			# @main_window_controller.window.front_with_mask_window if @main_window_controller.window.shown?
 			
-			@context_store.save
+			@context_store.save if default :save_context
 		end
 
 	end
@@ -889,14 +890,3 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 end
 
-		
-class Hash
-	def delete_value( val )
-		self.keys.each do |key|
-			if self[key] == val
-				pe_log "deleting value #{val} from hash #{self.object_id}"
-				self.delete key
-			end
-		end
-	end
-end

@@ -240,6 +240,16 @@ end
 
 # ?? can't get this work with the defaults loaded from the cocoa api. clobbering in CocoaHelper.
 class Hash
+
+  def delete_value( val )
+    self.keys.each do |key|
+      if self[key] == val
+        pe_log "deleting value #{val} from hash #{self.object_id}"
+        self.delete key
+      end
+    end
+  end
+
   # @return a new hash with values in priority_hash overwriting existing values.
   # note that entries in original hash which are mssing in priority do not mean they should be removed, i.e. changes will never 'narrow' the keyset.
   def overwritten_hash( priority_hash )
@@ -252,7 +262,7 @@ class Hash
         new_val = Hash[v].overwritten_hash( priority_hash[k] )
       else
         if priority_hash.has_key?(k)
-          pe_log "overwriting #{k} with value from priority hash"
+          pe_debug "overwriting #{k} with value from priority hash"
           new_val = priority_hash[k]
         else
           new_val = v

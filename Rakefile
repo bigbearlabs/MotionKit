@@ -2,8 +2,10 @@
 
 build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
-build_number = 203
+build_number = 208
+# version_number = "1.1.9-#{build_number}"  # DEV
 version_number = "1.1.9"
+
 
 $:.unshift("/Library/RubyMotion/lib")
 require 'motion/project/template/osx'
@@ -24,7 +26,7 @@ Motion::Project::App.setup do |app|
   app.name = 'WebBuddy'
   app.identifier = "com.bigbearlabs.WebBuddy"
   app.icon = "icon.icns"
-
+  app.copyright =  "Copyright (c) 2013 Big Bear Labs. All Right Reserved."
   app.version = build_number.to_s
   app.short_version = version_number
 
@@ -111,8 +113,8 @@ namespace :release do
   task :zip do
     sh %Q(
       cd #{build_path}
-      rm build/MacOSX-10.8-Release/*.zip
-      zip -r webbuddy-#{version_number}_#{build_number}.zip WebBuddy.app
+      rm *.zip
+      zip -r webbuddy-#{version_number}.zip WebBuddy.app
       rsync -avvv *.zip "#{deploy_path}/"
     )
   end
