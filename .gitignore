@@ -4,3 +4,11 @@ ib.xcodeproj/Stubs.h
 ib.xcodeproj/Stubs.m
 *.nib
 .repl_history
+
+/.motion-bundler.rb
+
+resources/plugin
+vendor/**/build*
+vendor/**/*.bridgesupport
+vendor/Pods
+resources/MAS*

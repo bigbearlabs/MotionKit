@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="PEAppDelegate">
+            <connections>
+                <outlet property="status_bar_menu" destination="1" id="6"/>
+                <outlet property="toggle_menu_item" destination="2" id="46"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application"/>
+        <menu id="1">
+            <items>
+                <menuItem title="Show/Hide" tag="6001" id="2">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggle_front:" target="-2" id="73"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Preferences..." keyEquivalent="," id="8">
+                    <connections>
+                        <action selector="new_pref_window:" target="-1" id="9"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Pre-release preferences..." tag="6003" id="64">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="new_pref_window:" target="-1" id="65"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Intro..." tag="6002" id="66">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="load_intro:" target="-1" id="68"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="About..." id="3">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="handle_show_about:" target="-1" id="70"/>
+                        <binding destination="51" name="enabled" keyPath="values.statusbar.menu.aboutMenuItem.enabled" id="61">
+                            <dictionary key="options">
+                                <integer key="NSNullPlaceholder" value="1"/>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </menuItem>
+                <menuItem title="Quit" keyEquivalent="q" id="7">
+                    <connections>
+                        <action selector="terminate:" target="-3" id="62"/>
+                        <binding destination="51" name="enabled" keyPath="values.statusbar.menu.quitMenuItem.enabled" id="58">
+                            <dictionary key="options">
+                                <integer key="NSNullPlaceholder" value="1"/>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </menuItem>
+            </items>
+        </menu>
+        <userDefaultsController representsSharedInstance="YES" id="51"/>
+    </objects>
+</document>

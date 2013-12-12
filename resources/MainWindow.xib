@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+    <dependencies>
+        <deployment defaultVersion="1070" identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="BrowserWindowController">
+            <connections>
+                <outlet property="bar_vc" destination="866" id="1030"/>
+                <outlet property="browser_vc" destination="600" id="1022"/>
+                <outlet property="gallery_vc" destination="763" id="1048"/>
+                <outlet property="gallery_view_frame" destination="881" id="1032"/>
+                <outlet property="input_field_vc" destination="537" id="1015"/>
+                <outlet property="overlay_frame" destination="1005" id="1028"/>
+                <outlet property="page_details_vc" destination="1056" id="1061"/>
+                <outlet property="progress_vc" destination="1037" id="1039"/>
+                <outlet property="top_portion_frame" destination="1073" id="1079"/>
+                <outlet property="window" destination="371" id="1013"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application"/>
+        <window title="WebBuddy" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="main_window" animationBehavior="default" id="371" customClass="MainWindow">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" resizable="YES" utility="YES" HUD="YES"/>
+            <windowCollectionBehavior key="collectionBehavior" canJoinAllSpaces="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="453" y="160" width="920" height="750"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
+            <value key="minSize" type="size" width="400" height="400"/>
+            <view key="contentView" id="372">
+                <rect key="frame" x="0.0" y="0.0" width="920" height="750"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <userGuides>
+                    <userLayoutGuide location="448" affinity="minY"/>
+                </userGuides>
+                <subviews>
+                    <customView id="1005" userLabel="overlay frame">
+                        <rect key="frame" x="21" y="589" width="872" height="120"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </customView>
+                    <customView id="881" userLabel="gallery frame">
+                        <rect key="frame" x="0.0" y="0.0" width="920" height="718"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </customView>
+                    <customView id="672" userLabel="browser frame">
+                        <rect key="frame" x="0.0" y="0.0" width="920" height="750"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </customView>
+                    <box autoresizesSubviews="NO" wantsLayer="YES" title="Box" boxType="custom" borderType="none" titlePosition="noTitle" id="1073">
+                        <rect key="frame" x="-9" y="719" width="938" height="33"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <view key="contentView">
+                            <rect key="frame" x="0.0" y="0.0" width="938" height="33"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <view id="1062" userLabel="bar frame">
+                                    <rect key="frame" x="0.0" y="0.0" width="913" height="32"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                </view>
+                                <view id="1000" userLabel="input field frame">
+                                    <rect key="frame" x="18" y="0.0" width="895" height="32"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                </view>
+                                <view id="1034" userLabel="progress frame">
+                                    <rect key="frame" x="909" y="5" width="21" height="23"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                </view>
+                            </subviews>
+                        </view>
+                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                        <color key="fillColor" white="0.0" alpha="0.5" colorSpace="deviceWhite"/>
+                    </box>
+                </subviews>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="-2" id="1029"/>
+                <outlet property="initialFirstResponder" destination="672" id="1055"/>
+            </connections>
+        </window>
+        <viewController nibName="BrowserView" id="600" customClass="BrowserViewController">
+            <connections>
+                <outlet property="frame_view" destination="672" id="673"/>
+                <outlet property="input_field_vc" destination="537" id="814"/>
+            </connections>
+        </viewController>
+        <viewController nibName="InputFieldView" id="537" customClass="InputFieldViewController">
+            <connections>
+                <outlet property="frame_view" destination="1000" id="1001"/>
+            </connections>
+        </viewController>
+        <viewController nibName="ProgressView" id="1037" customClass="ProgressViewController">
+            <connections>
+                <outlet property="frame_view" destination="1034" id="1038"/>
+            </connections>
+        </viewController>
+        <viewController nibName="CollectionGalleryView" id="763" customClass="CollectionGalleryViewController">
+            <connections>
+                <outlet property="frame_view" destination="881" id="882"/>
+            </connections>
+        </viewController>
+        <popover behavior="semitransient" id="753">
+            <connections>
+                <outlet property="contentViewController" destination="1056" id="1060"/>
+            </connections>
+        </popover>
+        <viewController nibName="PageDetailsView" id="1056" customClass="PageDetailsViewController">
+            <connections>
+                <outlet property="actions_bar_vc" destination="866" id="1057"/>
+                <outlet property="popover" destination="753" id="1058"/>
+            </connections>
+        </viewController>
+        <viewController nibName="BarView" id="866" customClass="BarViewController">
+            <connections>
+                <outlet property="frame_view" destination="1062" id="1066"/>
+            </connections>
+        </viewController>
+    </objects>
+</document>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>contexts</key>
+	<array>
+		<dict>
+			<key>name</key>
+			<string>History</string>
+			<key>items</key>
+			<array/>
+			<key>sites</key>
+			<array>
+				<dict>
+					<key>name</key>
+					<string>Google</string>
+					<key>base_url</key>
+					<string>http://www.google.com</string>
+					<key>search_url</key>
+					<string>http://www.google.com/search?q=%query%</string>
+				</dict>
+				<dict>
+					<key>name</key>
+					<string>Google Images</string>
+					<key>base_url</key>
+					<string>http://www.google.com/imghp</string>
+					<key>search_url</key>
+					<string>http://www.google.com/search?q=%query%&amp;hl=en&amp;safe=off&amp;prmd=imvnsa&amp;source=lnms&amp;tbm=isch&amp;sa=X&amp;ei=G96XUMPFOcbitQab4IG4CA&amp;ved=0CAoQ_AUoAQ&amp;biw=960&amp;bih=1092</string>
+				</dict>
+				<dict>
+					<key>name</key>
+					<string>Stack Overflow</string>
+					<key>base_url</key>
+					<string>http://stackoverflow.com</string>
+					<key>search_url</key>
+					<string>http://stackoverflow.com/search?q=%query%</string>
+				</dict>
+				<dict>
+					<key>name</key>
+					<string>Naver Dictionary</string>
+					<key>base_url</key>
+					<string>http://dic.naver.com</string>
+					<key>search_url</key>
+					<string>http://search.naver.com/search.naver?sm=tab_hty.top&amp;where=nexearch&amp;ie=utf8&amp;query=%query%&amp;x=0&amp;y=0</string>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
