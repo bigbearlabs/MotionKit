@@ -74,13 +74,18 @@ Motion::Project::App.setup do |app|
 
   app.codesign_certificate = '3rd Party Mac Developer Application: Sang-Heum Park (58VVS9JDMX)'
 
-  app.release do
-    app.entitlements['com.apple.security.app-sandbox'] = true
-    app.entitlements['com.apple.security.files.downloads.read-write'] = true
-    app.entitlements['com.apple.security.network.client'] = true
-    app.entitlements['com.apple.security.print'] = true
+  # app.release do
+  #   app.entitlements['com.apple.security.app-sandbox'] = true
+  #   app.entitlements['com.apple.security.files.downloads.read-write'] = true
+  #   app.entitlements['com.apple.security.network.client'] = true
+  #   app.entitlements['com.apple.security.print'] = true
 
-  end
+  # end
+  app.entitlements['com.apple.security.app-sandbox'] = true
+  app.entitlements['com.apple.security.files.downloads.read-write'] = true
+  app.entitlements['com.apple.security.network.client'] = true
+  app.entitlements['com.apple.security.print'] = true
+
 end
 
 # Track and specify files and their mutual dependencies within the :motion Bundler group
