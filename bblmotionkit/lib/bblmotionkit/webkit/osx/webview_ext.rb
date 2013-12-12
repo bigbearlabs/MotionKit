@@ -19,6 +19,11 @@ if BubbleWrap::App.osx?
       self.mainFrameURL.copy
     end
 
+    def delegate
+      # TODO ensure all delegates point to same instance
+
+      self.frameLoadDelegate
+    end
   end
 
 
@@ -31,7 +36,8 @@ if BubbleWrap::App.osx?
 
     attr_accessor :web_view
 
-    attr_accessor :matching_nav_handler
+    attr_accessor :fail_handler
+    attr_accessor :matching_nav_handler  # TODO review usage.
 
     def setup   
       @events = []
@@ -106,9 +112,18 @@ if BubbleWrap::App.osx?
           send_notification :Url_load_finished_notification, url
 
           @load_success_handler.call url
+          @fail_handler = nil
 
           if $DEBUG
             pe_warn "finished loading #{url}. events: #{@events}"
+          end
+        when 'provisionalLoadFailed', 'loadFailed'
+          pe_log event
+
+          if @fail_handler
+            @fail_handler.call url
+          else
+            pe_warn "no fail handler set for #{url}"
           end
         end
 
@@ -365,11 +380,11 @@ if BubbleWrap::App.osx?
     end
 
     def webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)
-      pe_log [err.description, frame]
+      self.push_event 'provisionalLoadFailed'
     end
 
     def webView(webView, didFailLoadWithError:err, forFrame:frame)
-      pe_log [err.description, frame]
+      self.push_event 'loadFailed'
     end
   
   end

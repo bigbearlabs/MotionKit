@@ -26,9 +26,10 @@ class Context
 
 #==
   
+  # @param provisional:
   def add_access( url, details = {} )  # rename
     raise "nil url!" if url.nil?
-
+    
     
     # assert this item not loaded.
     if self.item_for_url url
@@ -115,10 +116,6 @@ class Context
   
 #==
 
-  def history_contains_url( url )
-    ! self.item_for_url(url).nil?
-  end
-  
   def current_url_match?( url )
     self.current_history_item && self.current_history_item.matches_url?( url )
   end
@@ -149,8 +146,11 @@ class Context
 
 
   def add_item( history_item )
-    if ! history_item
-      raise "history_item shouldn't be nil"
+    raise "nil history_item" if history_item.nil?
+
+    if item_for_url history_item.url
+      pe_warn "#{history_item.url} already added to #{self}"
+      debug history_item.url, history_item, self
     end
 
     kvo_change_bindable :history_items do
@@ -287,17 +287,6 @@ class Context
 
   end
   
-  def add( url )
-    item = self.item_for_url url
-    if ! item
-      pe_log "nil item for #{url}, creating a provisional item"
-      self.add_access url, provisional: true
-      item = self.item_for_url url
-    end
-
-    add_item item
-  end
-
 
 #==
     
@@ -501,15 +490,6 @@ class ItemContainer
       super
     end
   end
-end
-
-
-class HistoryContext < Context
-  def initialize
-    super 'History'
-  end
-
-  # TODO introduce as the store of all item info, change items in Stacks to be references.
 end
 
 

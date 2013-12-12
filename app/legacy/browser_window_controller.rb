@@ -1,7 +1,10 @@
 class BrowserWindowController < NSWindowController
+	include ComponentClient
+	include SheetHandling
+
 	include KVOMixin
 	include DefaultsAccess
-	include SheetHandling
+	
 	include Reactive
 	include IvarInjection
 
@@ -38,6 +41,15 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :input_field_vc
 	attr_accessor :page_details_vc
 	attr_accessor :bar_vc
+
+	def components
+	  [
+	  	{
+	  		module: InputHandler
+	  	}
+	  ]
+	end
+	
 
 #= model
 	
@@ -77,6 +89,8 @@ class BrowserWindowController < NSWindowController
 		raise "no window for #{self}" unless self.window
 				
 		inject_collaborators collaborators
+
+		setup_components
 
 		# self.setup_tracking_region
 		# self.setup_nav_long_click
@@ -411,6 +425,11 @@ class BrowserWindowController < NSWindowController
 		# self.hide_overlay
 	end
 
+	def handle_input( input )
+		# just try loading, fall back to a search.
+	  self.load_url [input, input.to_search_url_string]
+	end
+	
 
 #= browsing
 
@@ -421,18 +440,20 @@ class BrowserWindowController < NSWindowController
 	# stack: the stack to add this page to.
 	# stack_id: the id of stack if stack retrieval not suitable.
 	# FIXME migrate objc_interface_obj to webbuddy.interface, migrate webbuddy.module use cases.
-	def load_url(url_string, details = {})
+	def load_url(urls, details = {})
 		# update the stack
 		self.stack = details[:stack]
 
-		@browser_vc.load_location url_string, -> {
-			# set window.objc_interface_obj to be invoked from web layer  RENAME
+		@browser_vc.load_location urls, -> {
+			# set window.objc_interface_obj to be invoked from web layer  
+			# RENAME, PUSH-DOWN
 			callback_handler = details[:interface_callback_handler]
 			if callback_handler
 				key = 'objc_interface_obj'
 				@browser_vc.register_callback_handler key, callback_handler
 			end
 		}
+
 	end
 
 	def do_search( details )
@@ -458,7 +479,7 @@ class BrowserWindowController < NSWindowController
 	end
 	
 	#= browsing lifecycle
-
+	# TODO move out to a component.
 	def handle_Load_request_notification( notification )
 		new_url = notification.userInfo
 
@@ -469,7 +490,11 @@ class BrowserWindowController < NSWindowController
 		# self.zoom_to_page new_url
 
 		if self.stack
-			self.stack.add new_url 
+			if self.stack.item_for_url(new_url)
+				self.stack.update_access new_url
+			else
+				self.stack.add_access new_url 
+			end
 		else
 			pe_log "#{self} has no stack. not adding"
 		end
@@ -733,7 +758,7 @@ class BrowserWindowController < NSWindowController
 			raise 'history_empty'
 		end
 
-	  self.stack.history_items.last.url
+		self.stack.history_items.last.url
 	rescue Exception => e
 		# case: first-time launch
 		# case: etc etc

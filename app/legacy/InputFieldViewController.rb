@@ -215,7 +215,8 @@ class InputFieldViewController < PEViewController
 
 		# avoid racing with filtering tasks by queuing on main.
 		on_main_async do 
-			NSApp.delegate.process_input new_input_string
+			client = self.view.window.windowController  # HACK!!
+			client.component(InputHandler).process_input new_input_string
 		
 			self.refresh_input_field
 		end

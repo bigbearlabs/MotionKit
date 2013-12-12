@@ -23,7 +23,7 @@ module ComponentClient
     defaults = default "#{self.class.name}.#{component_class.name}"
     instance = 
       if deps
-        component_class.new( self, deps)
+        component_class.new( self, deps )
       else
         component_class.new( self )
       end

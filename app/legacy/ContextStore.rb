@@ -33,10 +33,6 @@ class ContextStore
 		@save_queuer = LastOnlyQueuer.new(self.class.name + ".saving")
 		
 		@stacks_by_id = {}
-		# create a default stack.
-		stack_for 'Default Stack'
-
-		self.current_context = self.stacks.first
 	end
 
 	#= serialisation
@@ -91,19 +87,6 @@ class ContextStore
     self.stacks.map &:to_hash
   end
 
-  
-  def load_stacks( stacks_data )
-    return unless stacks_data
-    
-    stacks_data.each do |stack_data|
-      id = stack_data['id']
-      new_stack = stack_for id  # will add to the map.
-      
-      stack_data['items'].each do |item_ref|
-        new_stack.add item_for_url(item_ref)
-      end
-    end
-  end
 
   def tokens
     tokens = self.stacks.map{|e| e.name}.join(' ').split.uniq
@@ -303,5 +286,13 @@ class ContextStore
 		end
 	end
 
+	#=
 
+  # PERF
+	def history
+		item_union = NSSet.setWithArray self.stacks.map { |e| e.history_items }.flatten
+
+	  h = Context.new('History', item_union.allObjects)
+	end
+	
 end
