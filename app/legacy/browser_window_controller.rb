@@ -1,7 +1,10 @@
 class BrowserWindowController < NSWindowController
+	include SheetHandling
+	include ComponentClient
+
 	include KVOMixin
 	include DefaultsAccess
-	include SheetHandling
+	
 	include Reactive
 	include IvarInjection
 
@@ -38,6 +41,15 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :input_field_vc
 	attr_accessor :page_details_vc
 	attr_accessor :bar_vc
+
+	def components
+	  [
+	  	{
+	  		module: InputHandler
+	  	}
+	  ]
+	end
+	
 
 #= model
 	
@@ -78,6 +90,8 @@ class BrowserWindowController < NSWindowController
 				
 		inject_collaborators collaborators
 
+		setup_components
+		
 		# self.setup_tracking_region
 		# self.setup_nav_long_click
 

@@ -3,13 +3,14 @@
 # TODO finish factoring out all hotkey concerns.
 
 class WebBuddyAppDelegate < PEAppDelegate
+	include ServicesHandler
+	include Preferences
+
 	include ComponentClient
+
 	include KVOMixin
 	include Reactive
 
-	include InputHandler
-	include ServicesHandler
-	include Preferences
 
 	# collaborators
 

@@ -1,6 +1,10 @@
 # application logic for handling text input.
 # TODO resolve with repl.rb
-module InputHandler
+class InputHandler < BBLComponent
+  
+  def setup
+    
+  end
   
   def process_input( input )
     type = input.dup.pe_type
@@ -22,7 +26,8 @@ module InputHandler
     end
   end
 
-  #= REFACTOR move to the module.
+
+  #= command processing.  REFACTOR move to a plugin.
 
   attr_accessor :command_output
 
