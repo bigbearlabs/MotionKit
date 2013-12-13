@@ -24,7 +24,7 @@ module Delegating
     def method_missing(method, *args)
       if self.class.delegating_methods.include? method.intern
         # send the method to the obj returned from the accessor instead.
-        self.send(self.class.delegating_accessor).send method, *args
+        self.kvc_get(self.class.delegating_accessor).send method, *args
       else
         super
       end

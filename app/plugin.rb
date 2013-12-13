@@ -1,4 +1,8 @@
+# plugin loaded by AppD, but interacts with wc a lot -- this probably indicates a granularity mismatch.
 class WebBuddyPlugin < BBLComponent
+  extend Delegating
+  def_delegator :'client.wc.browser_vc', :eval_js, :eval_expr
+
   include IvarInjection
   
   def initialize(client, deps = {})
@@ -82,7 +86,5 @@ class WebBuddyPlugin < BBLComponent
     write_file data_path, self.data.to_json  # FIXME this races with the load on filtering.coffee
   end
   
-  def eval_js expr
-    self.client.wc.eval_js expr
   end
 end
