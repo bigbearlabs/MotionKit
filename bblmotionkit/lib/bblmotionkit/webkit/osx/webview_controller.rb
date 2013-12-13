@@ -50,6 +50,7 @@ class WebViewController < BBLComponent
     # @web_view.delegate.success_handler = options[:success_handler]  # TODO rewire success handler to webview_delegate.
 
     # simplified version:
+    @web_view.stopLoading(self)
     @web_view.mainFrameURL = url
   end
   
@@ -59,14 +60,15 @@ class WebViewController < BBLComponent
     @default_fail_handler =
       if fallback_urls.empty?
         -> url {
-        @web_view.mainFrameURL = load_failure_url
+            @web_view.stopLoading(self)
+            @web_view.mainFrameURL = load_failure_url
         }
       else
         -> url {
-        # as long as there are fallback url's, keep loading.
-        self.load_url fallback_urls
-    }
-  end
+          # as long as there are fallback url's, keep loading.
+          self.load_url fallback_urls
+        }
+      end
   end
 
   def default_success_handler
