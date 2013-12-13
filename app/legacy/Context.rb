@@ -117,13 +117,13 @@ class Context
 #==
 
   def current_url_match?( url )
-    self.current_history_item && self.current_history_item.matches_url?( url )
+    self.current_history_item && self.current_history_item.match_url?( url )
   end
 
 
   def item_for_url( url )
     items = self.history_items.select do |item|
-      item.matches_url? url
+      item.match_url? url
     end
     
     case items.count
@@ -144,6 +144,7 @@ class Context
     self.history_items.size
   end
 
+#=
 
   def add_item( history_item )
     raise "nil history_item" if history_item.nil?
@@ -162,9 +163,9 @@ class Context
   def remove_history_item( history_item )
     kvo_change_bindable :history_items do
       index = @history_items.index(history_item)
-      @history_items.delete_at index
+        @history_items.delete_at index
+      end
     end
-  end
 
   def back_item
     current_item_index = self.index_of_item(@current_history_item)
@@ -369,7 +370,7 @@ class ItemContainer
   
 #=
   
-  def matches_url?( url )
+  def match_url?( url )
     if ! self.url
       # raise "#{self} has a nil url - we must find out why"
       pe_warn "#{self} has a nil url - we must find out why"
@@ -379,7 +380,9 @@ class ItemContainer
     
     url = url.to_s
     
-    return self.url.matches_url?(url) || self.originalURLString.matches_url?(url) || ( @redirect_info && @redirect_info.compact.select{|e| e[0].matches_url?(url) }.count > 0 )
+    return self.url.match_url?(url) || 
+      self.originalURLString.match_url?(url) || 
+      @redirect_info.to_a.compact.select{|e| e[0].match_url?(url) }.count > 0
   end
 
   def add_redirect( redirect_info )

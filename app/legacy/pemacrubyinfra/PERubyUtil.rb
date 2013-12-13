@@ -142,7 +142,7 @@ class String
 #= url
 
   # deal with trailing spaces etc.
-  def matches_url?(url)
+  def match_url?(url)
     # just remove trailing slashes and compare.
     self.gsub(/\/+$/,'') == url.gsub(/\/+$/,'')
   end
