@@ -93,6 +93,8 @@ if BubbleWrap::App.osx?
           end
           
         when 'didStartProvisionalLoad'
+          pe_log "#{url} started provisional load"
+          
           send_notification :Load_request_notification, url
 
           self.update_last_url url
@@ -101,7 +103,6 @@ if BubbleWrap::App.osx?
         when 'didCommitLoad', 'didChangeLocationWithinPage'
         
         when 'didFinishLoadingResource'
-
 
         when 'didReceiveTitle'
           send_notification :Title_received_notification, { 
