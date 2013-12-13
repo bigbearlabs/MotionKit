@@ -118,9 +118,9 @@
 		<key>selection_grab_enabled</key>
 		<false/>
 		<key>save_context</key>
-		<false/>
+		<true/>
 		<key>load_context</key>
-		<false/>
+		<true/>
 	</dict>
 	<key>ContextStore</key>
 	<dict>
@@ -204,6 +204,8 @@
 				<string>~/Downloads</string>
 			</dict>
 		</dict>
+		<key>handle_hide_input_field:</key>
+		<false/>
 	</dict>
 </dict>
 </plist>

@@ -165,6 +165,10 @@ class InputFieldViewController < PEViewController
 	
 	# this was slightly back-doorish in the days when we were trying to get page find input through this class. OBSOLETE
 	def focus_input_field
+		# ensure the view is loaded first.
+		# raise "view not available" unless self.view.visible
+		debug self.view
+
 		@input_field.notification_on_next_first_responder = false
 		@input_field.make_first_responder
 	end
