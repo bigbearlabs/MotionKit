@@ -51,7 +51,9 @@ class ViewerWindowController < BrowserWindowController
 
 		on_main_async do
 			if self.stack
-				self.load_url last_url
+				try do 
+					self.load_url last_url
+				end
 			else
 				"no stack, not loading."
 			end
