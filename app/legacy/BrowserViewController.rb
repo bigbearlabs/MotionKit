@@ -201,7 +201,7 @@ class BrowserViewController < PEViewController
 	
 #=
 	def handle_Url_load_finished_notification(notif)
-		handle_load_success notif.userInfo
+		# handle_load_success notif.userInfo
 	end
 	
 	def handle_load_success( url )
