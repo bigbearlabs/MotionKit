@@ -101,23 +101,43 @@ end
 class NSObject
 	alias_method :desc, :description
 
-	def to_s
-    debug caller if self.is_a? NSError
+	# def to_s
 
-    ## this looks redundant and broken.
-    #  if ! self.class.name
-			# class_name = self.class.name
-			# "<#{class_name}:#{self.object_id}>"
-	  # else
-	  #   super
-	  # end
+ #    # bypass conditions.
+ #    case self
+ #    when NSException, TrueClass, FalseClass, String, Numeric, Array, Hash
+ #      return super
+ #    end
 
-    ## leave full view to #inpect, for better behaviour in RM repl.
-    class_name = self.class.name
-    "<#{class_name}:#{self.object_id}>"
+ #    debug caller if self.is_a? NSError
 
-	end
-	
+ #    ## this looks redundant and broken.
+ #    #  if ! self.class.name
+ #      # class_name = self.class.name
+ #      # "<#{class_name}:#{self.object_id}>"
+ #    # else
+ #    #   super
+ #    # end
+
+ #    class_name = self.class.name
+ #    "<#{class_name}:#{self.object_id}>"
+ #  end
+
+  def inspect
+
+    # bypass conditions.
+    case self
+    when NSException, TrueClass, FalseClass, String, Numeric, Array, Hash
+      return super
+    end
+
+    if (val = super).size > 80
+      val[0..77] + "..."
+    else
+      val
+    end
+  end	
+
 	def invoke_setter(property_name, value)
 		kvo_change property_name do
 			begin
