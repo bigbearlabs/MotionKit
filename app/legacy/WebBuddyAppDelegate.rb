@@ -189,7 +189,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		try {
 			@context_store = ContextStore.new
 	
-			@context_store.load if default :load_context
+			if_enabled :load_context
 	
 			self.user.context = @context_store.current_context
 		}
@@ -317,6 +317,14 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 #= tracks
 
+	def save_context
+		@context_store.save
+	end
+
+	def load_context
+		@context_store.load
+	end
+	
 	def app_stack_id
 		result = @current_app
 		if ! result || result =~ /#{NSApp.name}/
@@ -550,7 +558,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= system events
 
 	def on_terminate
-		@context_store.save if default :save_context
+		if_enabled :save_context
 	end
 
 	def on_will_become_active
@@ -578,7 +586,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# mask window fronting is unfinished - its state must be correctly saved and restored with space changes.
 			# @main_window_controller.window.front_with_mask_window if @main_window_controller.window.shown?
 			
-			@context_store.save if default :save_context
+			if_enabled :save_context
 		end
 
 	end
