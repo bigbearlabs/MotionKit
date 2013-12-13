@@ -86,5 +86,10 @@ class WebBuddyPlugin < BBLComponent
     write_file data_path, self.data.to_json  # FIXME this races with the load on filtering.coffee
   end
   
+  #=
+
+  def inspect_data
+    puts Object.from_json( eval_expr 'webbuddy.module.data').description
   end
+  
 end

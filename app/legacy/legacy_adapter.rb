@@ -4,19 +4,6 @@ class PageDetailsViewController < NSViewController
 end
 
 
-class Object
-  # wrap BW::JSON
-  def to_json
-    case self
-    when NSString
-      '"' + self + '"'
-    else
-      BW::JSON.generate self
-    end
-  end
-end
-
-
 #== some requires that got commented out, for possible future ref.
 
 ## InputFieldViewController
