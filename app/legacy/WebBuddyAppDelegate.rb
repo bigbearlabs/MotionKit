@@ -310,6 +310,8 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 
 	def handle_Site_search_notification(notification)
+		pe_trace stack.format_backtrace.report
+		
 		search_details = notification.userInfo
 
 		wc.do_activate.do_search search_details
