@@ -120,13 +120,13 @@ class Context
 #==
 
   def current_url_match?( url )
-    self.current_history_item && self.current_history_item.matches_url?( url )
+    self.current_history_item && self.current_history_item.match_url?( url )
   end
 
 
   def item_for_url( url )
     items = self.history_items.select do |item|
-      item.matches_url? url
+      item.match_url? url
     end
     
     case items.count
@@ -147,6 +147,7 @@ class Context
     self.history_items.size
   end
 
+#=
 
   def add_item( history_item )
     raise "nil history_item" if history_item.nil?
@@ -171,9 +172,9 @@ class Context
 
         raise "item #{item} not found in #{self}" if index.nil?
 
-      @history_items.delete_at index
+        @history_items.delete_at index
+      end
     end
-  end
   end
 
   # drops duplicate items as tested by #match_url?.
@@ -269,7 +270,7 @@ class Context
       url = history_item_or_url.url
     end
     
-    site = @sites[url.to_base_url]
+    @sites[url.to_base_url]
   end
  
   def site_for_base_url( base_url)
@@ -393,7 +394,7 @@ class ItemContainer
   
 #=
   
-  def matches_url?( url )
+  def match_url?( url )
     if ! self.url
       # raise "#{self} has a nil url - we must find out why"
       pe_warn "#{self} has a nil url - we must find out why"
@@ -403,7 +404,9 @@ class ItemContainer
     
     url = url.to_s
     
-    return self.url.matches_url?(url) || self.originalURLString.matches_url?(url) || ( @redirect_info && @redirect_info.compact.select{|e| e[0].matches_url?(url) }.count > 0 )
+    return self.url.match_url?(url) || 
+      self.originalURLString.match_url?(url) || 
+      @redirect_info.to_a.compact.select{|e| e[0].match_url?(url) }.count > 0
   end
 
   def add_redirect( redirect_info )

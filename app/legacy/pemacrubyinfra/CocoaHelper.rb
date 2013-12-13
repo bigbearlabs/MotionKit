@@ -176,8 +176,8 @@ class NSString
 		String.new(self).to_search_url_string
 	end
 
-	def matches_url?(url)
-		String.new(self).matches_url?(url)
+	def match_url?(url)
+		String.new(self).match_url?(url)
 	end
 
 	def starts_with?( str )

@@ -46,15 +46,14 @@ def on_main_async( &block )
   #   queuer = e.backtrace
   # end
 
-  #queuer = caller  # empty in RM
-  queuer = NSThread.callStackSymbols  # no RM symboles
+  queuer = NSThread.callStackSymbols  # badly formatted RM symbols
+  queuer = caller  # empty in RM (sometimes?)
 
   Dispatch::Queue.main.async do
     begin
       block.call
     rescue Exception => e
-      pe_warn "#{block} threw #{e}"
-      pe_warn queuer
+      pe_report e, "executing #{block} , trace on dispatch: #{queuer}"
     end
   end
 end
