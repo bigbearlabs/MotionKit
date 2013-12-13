@@ -9,11 +9,14 @@ class Context
 
   attr_accessor :name
   
-  attr_reader :history_items
   attr_reader :current_history_item
 
   attr_accessor :filter_tag # for array controller filtering
 
+  def history_items
+    @history_items.dup.freeze
+  end
+  
   def initialize( name = "Unnamed context #{self.name_suffix_sequence}", history_items = [])
     super
 

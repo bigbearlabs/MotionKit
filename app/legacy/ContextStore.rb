@@ -1,11 +1,3 @@
-#
-#  ContextStore.rb
-#  WebBuddy
-#
-#  Created by Park Andy on 12/12/2011.
-#  Copyright 2011 TheFunHouseProject. All rights reserved.
-#
-
 # stores and retrieves all contexts, passes them to the context-related vc's
 # require 'CocoaHelper'
 # require 'defaults'
@@ -23,7 +15,7 @@ class ContextStore
 	default :thumbnail_extension
 	
 	def stacks
-		@stacks_by_id.values
+		@stacks_by_id.values.dup.freeze
 	end
 
 	def initialize
@@ -38,7 +30,7 @@ class ContextStore
 	#= serialisation
 
 	def to_hash
-		stacks_data = @stacks_by_id.map do |stack_id, stack|
+		stacks_data = @stacks_by_id.dup.map do |stack_id, stack|
 			# case context.name
 			# when "History"
 			# 	# hash for history is treated in a special way.
