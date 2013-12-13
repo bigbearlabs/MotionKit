@@ -199,6 +199,16 @@ module DefaultsAccess
 			end
 	end
 	
+#=
+	
+	def if_enabled method, *params
+	  if default method
+	  	self.send method, *params
+	  end
+	end
+	
+#=
+
 	# defining the attr on inclusion due to sporadic crashes when using kvo in conjunction. #define_method looks dangerous.
 	def self.included(base)
 	  base.extend(ClassMethods)

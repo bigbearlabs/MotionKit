@@ -129,8 +129,7 @@ class BrowserWindowController < NSWindowController
 			# self.setup_reactive_detail_input
 			# self.setup_popover
 
-			# MOTION-MIGRATION hack for 1.1.8 feature parity
-			handle_hide_input_field self
+			if_enabled :'handle_hide_input_field:', self
 		end
 	end
 
