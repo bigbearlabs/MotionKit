@@ -2,7 +2,7 @@
 
 build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
-build_number = 209
+build_number = 211
 # version_number = "1.1.9-#{build_number}"  # DEV
 version_number = "1.1.9"
 
@@ -116,6 +116,7 @@ namespace :modules do
 end
 
 namespace :release do
+  desc "zip up the .app and rsync to #{deploy_path}"
   task :zip do
     sh %Q(
       cd #{build_path}
@@ -134,5 +135,6 @@ namespace :release do
 
   end
 
-  task :all => [:clean, :'archive:distribution', :'version', :release, :commit_version]
+  desc "archive, zip, rsync, version, release"
+  task :all => [:'archive:distribution', :'version', :zip, :commit_version]
 end
