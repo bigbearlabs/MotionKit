@@ -7,8 +7,9 @@ class InputHandler < BBLComponent
   end
   
   def process_input( input )
-    type = input.dup.pe_type
-    pe_log "input type: #{type}"
+    input = input.dup
+    type = input.pe_type
+    pe_log "input type for '#{input}': #{type}"
     case type
     when :cmd
       self.process_command input
