@@ -1,6 +1,3 @@
-if BubbleWrap::App.osx?
-
-
 module AppBehaviour
 
   def setup_wc window_controller_class, ivar_name = nil
@@ -25,12 +22,7 @@ class NSWindowController
 #= lifecycle
 
   def init
-    # platform-specific init
-    if BubbleWrap::App.osx?
-      self.initWithWindowNibName(self.class.name.gsub('Controller', ''))
-    else
-      raise "undefined for this platform #{BubbleWrap::App}"
-    end
+    self.initWithWindowNibName(self.class.name.gsub('Controller', ''))
 
     self
 
@@ -82,6 +74,4 @@ class NSWindowController
 
 end
 
-
-end
 
