@@ -27,6 +27,8 @@ class WebViewController < BBLComponent
         default_fail_handler(urls[1..-1]).call url
       }
     end
+    @web_view.delegate.fail_handler = fail_handler
+
 
     @h2 = default_success_handler
     success_handler = -> url {
@@ -34,7 +36,20 @@ class WebViewController < BBLComponent
       h1.call url if h1
       @h2.call url
     }
+    @web_view.delegate.success_handler = success_handler
 
+    attach_callback_handler = -> {
+      # set window.objc_interface_obj to be invoked from web layer  
+      # RENAME, PUSH-DOWN
+      callback_handler = details[:interface_callback_handler]
+      if callback_handler
+        key = 'objc_interface_obj'
+        @browser_vc.register_callback_handler key, callback_handler
+      end
+    }
+    # TODO integrate
+
+    
     ## prep and set webview mainFrameURL.
 
     url = urls[0]
@@ -46,9 +61,6 @@ class WebViewController < BBLComponent
         url.to_url_string
       end
     
-    @web_view.delegate.fail_handler = fail_handler
-    # @web_view.delegate.success_handler = options[:success_handler]  # TODO rewire success handler to webview_delegate.
-
     # simplified version:
     @web_view.stopLoading(self)
     @web_view.mainFrameURL = url

@@ -36,14 +36,13 @@ if BubbleWrap::App.osx?
 
     attr_accessor :web_view
 
+    attr_accessor :success_handler
     attr_accessor :fail_handler
+
     attr_accessor :matching_nav_handler  # TODO review usage.
 
     def setup   
       @events = []
-
-      @load_success_handler = -> url {
-      }
 
       @policy_error_handler = -> url {
       }
@@ -112,12 +111,14 @@ if BubbleWrap::App.osx?
         when 'didFinishLoadMainFrame'
           send_notification :Url_load_finished_notification, url
 
-          @load_success_handler.call url
-          @fail_handler = nil
+          @success_handler.call url if @success_handler
+          @success_handler = nil
+          @fail_handler = nil  # FIXME this seems to cause thread-unsafe conditions.
 
           if $DEBUG
             pe_warn "finished loading #{url}. events: #{@events}"
           end
+          
         when 'provisionalLoadFailed', 'loadFailed'
           pe_log event
 
@@ -126,6 +127,10 @@ if BubbleWrap::App.osx?
           else
             pe_warn "no fail handler set for #{url}"
           end
+
+          @success_handler = nil
+          @fail_handler = nil
+
         end
 
       rescue Exception => e

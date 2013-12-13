@@ -151,7 +151,7 @@ class BrowserViewController < PEViewController
 
 	# 	url_str = "#{modules_tgt}/#{module_name}/index.html"
 
-	# 	self.load_location url_str, on_load
+	# 	self.load_url url_str, success_handler: on_load
 
 	# 	# work around some weird caching behaviour by queuing a refresh.
 	# 	delayed 0.5, proc {
@@ -165,7 +165,8 @@ class BrowserViewController < PEViewController
 
 #=
 
-	def load_location(url_or_array, load_handler = nil, options = {})
+	def load_url(url_or_array, options = {})
+		load_handler = options[:success_handler]
 		load_proc = proc {
 			# FIXME move to webview_controller
 			if load_handler
@@ -183,10 +184,10 @@ class BrowserViewController < PEViewController
 
 			# TODO prioritising the cache for loads may result in undesirable behaviour for certain cases - allow callers to optionally specify a fresh load.
 
-			options = options.merge success_handler:load_handler
 			self.component(WebViewController).load_url url_or_array, options
 		}
 
+		# invoke proc in the appropriate fashion depending on whether wiring has finished.
 		if self.web_view
 			load_proc.call
 		else

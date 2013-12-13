@@ -20,7 +20,7 @@ class WebBuddyPlugin < BBLComponent
   def load_view(&load_handler)
     # self.write_data
 
-    client.wc.load_location self.view_url, -> {
+    client.wc.load_url self.view_url, success_handler: -> url {
       self.attach_hosting_interface
 
       # on_main_async do
