@@ -18,7 +18,13 @@ module JsEval
   end
   
   def eval_expr single_line_expr
-    eval_js "return JSON.stringify(#{single_line_expr});"
+    eval_js "
+      return JSON.stringify(
+        JSON.decycle(
+          #{single_line_expr}
+        )
+      );
+    "
   end
   
   # call with a return statement at the end of the js to ensure a value back.
