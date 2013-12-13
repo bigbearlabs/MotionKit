@@ -198,14 +198,6 @@ class BrowserViewController < PEViewController
 		end
 	end
 	
-	# default fail handler loads the load fail page.
-	def fail_handler
-	  proc { |url|
-	  	@web_view_delegate.fail_handler = nil  # no 2nd-order failure handling.
-	  	@web_view.mainFrameURL = 'http://failed-page'
-	  }
-	end
-
 #=
 	def handle_Url_load_finished_notification(notif)
 		handle_load_success notif.userInfo
