@@ -75,6 +75,7 @@ class WebBuddyPlugin < BBLComponent
       // trigger view refresh if needed
       if (webbuddy.module.scope)
         webbuddy.module.scope.refresh_data();
+        webbuddy.module.scope.filter(); # LEAKY
     )
   end
 
