@@ -29,7 +29,7 @@ module ExceptionHandling
     # log.
     pe_warn exception.symbolised_stack_trace
 
-    true
+    false
   end
 
 end
