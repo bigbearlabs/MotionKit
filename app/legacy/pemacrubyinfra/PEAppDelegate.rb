@@ -11,7 +11,8 @@
 class PEAppDelegate
 	include DefaultsAccess
 
-	include InteractiveApplication if ENV['INTERACTIVE']
+	# MOTION-MIGRATION
+	# include InteractiveApplication if ENV['INTERACTIVE']
 
 
 	attr_accessor :defaults_hash

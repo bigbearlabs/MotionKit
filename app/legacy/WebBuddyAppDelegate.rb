@@ -28,7 +28,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 	attr_accessor :active_status  # RENAME main window status
 
 	def components
-		components = [
+		[
 			{
 				module: DefaultBrowserHandler,
 			},
