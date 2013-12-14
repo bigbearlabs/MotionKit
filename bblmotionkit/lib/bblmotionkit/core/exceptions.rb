@@ -35,6 +35,20 @@ module ExceptionHandling
 end
 
 class NSException
+  def backtrace
+    if defined? super
+      super
+    else
+      self.symbolised_stack_trace
+    end
+  end
+
+  def report
+    self.backtrace ? 
+      self.backtrace.collect { |trace_elem| trace_elem.gsub(/^.*\//, '') }.join("\n") 
+      : self.description + ", " + caller.to_s
+  end
+
   def symbolised_stack_trace
     addresses = self.callStackReturnAddresses
     addresses = addresses.map{|e| e.to_s(16)}  # convert to hex
