@@ -6,9 +6,13 @@ class WebViewController < BBLComponent
 
     inject_collaborators deps
   end
+
   def on_setup
+    init_bridge @web_view
   end
   
+#=
+
   def load_url( urls, options = {})
     pe_debug "loading urls #{urls}, options #{options}"
 
@@ -88,7 +92,22 @@ class WebViewController < BBLComponent
       pe_log "success loading #{url}"
     }
   end
-  
+
+#=
+
+  def init_bridge( web_view = NSApp.delegate.wc.browser_vc.web_view )
+    original_delegate = web_view.delegate
+    @bridge = WebViewJavascriptBridge.bridgeForWebView(web_view, 
+      webViewDelegate: original_delegate,
+      handler: -> data,responseCallback {
+        pe_log "Received message from javascript: #{data}"
+        responseCallback.call("Right back atcha") if responseCallback
+    })
+    @bridge.web_view_delegate = original_delegate  # to ensure calls to delegate from other collaborators are handled sensibly.
+  end
+
+#=
+
   # UNUSED SCAR this results in occasional PM's.
   def chain(*procs)
     @procs_holder ||= []
@@ -104,3 +123,32 @@ class WebViewController < BBLComponent
   end
   
 end
+
+
+# extensions to WebViewJavascriptBridge
+class WebViewJavascriptBridge
+  extend Delegating
+  def_delegator :web_view_delegate
+
+  def web_view_delegate
+    @web_view_delegate
+  end
+
+  def web_view_delegate=(new_obj)
+    @web_view_delegate = new_obj
+  end
+
+
+  #= implement missing delegate methods 
+
+  def webView(webView, didStartProvisionalLoadForFrame:frame)
+    @web_view_delegate.webView(webView, didStartProvisionalLoadForFrame:frame)
+  end
+  
+  def webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)
+    @web_view_delegate.webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)
+  end
+  
+end
+
+

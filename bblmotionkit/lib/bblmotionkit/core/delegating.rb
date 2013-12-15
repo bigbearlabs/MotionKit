@@ -28,24 +28,74 @@ module Delegating
   module InstanceMethods
 
     def method_missing(method, *args)      
-      # when delegating methods are specified
-      if self.class.respond_to? :delegating_methods and self.class.delegating_methods.include?( method.intern)
-          # send the method to the obj returned from the accessor instead.
-          self.delegate.send method, *args
-      else
-        if delegate.respond_to? method
-          delegate.send method, *args
-        else
-          super
-        end
-      end
+      # # when delegating methods are specified
+      # if self.class.respond_to? :delegating_methods and self.class.delegating_methods.include?( method.intern)
+      #     # send the method to the obj returned from the accessor instead.
+      #     self.delegate.send method, *args
+      # else
+      #   if delegate.respond_to? method
+      #     delegate.send method, *args
+      #   else
+      #     super
+      #   end
+      # end
+
+      # if we came this far, we can just delegate.
+      pe_log "delegating call #{method}"
+      self.delegate.send method, *args
     rescue Exception => e
       pe_report e, "delegating method '#{method}' to #{self.class.delegate_accessor}"
     end
 
-    def respond_to?(method)
-      super || (self.class.delegating_methods.include? method.intern)
+    def respond_to_missing?(method, include_private = false)
+      super || 
+        if self.class.respond_to? :delegating_methods
+          self.class.delegating_methods.include? method.intern
+        else
+          self.delegate.respond_to? method
+        end
     end
+
+    def respond_to?(method, include_private = false)
+      super || self.respond_to_missing?( method, include_private)
+    end
+
+    # NOTE when mixed into an objc object, it will handle calls from ruby code but will miss calls from objc.
+
+    # def respondsToSelector(selector)
+    #   super || 
+    #     if self.class.respond_to? :delegating_methods
+    #       self.class.delegating_methods.include? selector.intern
+    #     else
+    #       # self.delegate.respondsToSelector(selector)
+    #       # switch over to the ruby version to avoid manual conversions.
+    #       self.respond_to? selector
+    #     end
+    # end
+
+    # def methodSignatureForSelector(selector)
+    #   super ||
+    #     if self.class.respond_to? :delegating_methods
+    #       self.delegate.methodSignatureForSelector selector
+    #     else
+    #       self.delegate.methodSignatureForSelector selector
+    #     end
+    # end
+
+    # def forwardInvocation(invocation)
+    #   pe_log "invoking #{self}##{invocation.selector} in forwardInvocation"
+    #   if self.delegate.respondsToSelector(invocation.selector)
+    #     invocation.invokeWithTarget(self.delegate)
+    #   else
+    #     super
+    #   end
+    #   # args = []
+    #   # invocation.methodSignature.numberOfArguments.times do |i|
+    #   #   args << 
+    #   # end
+    #   # self.delegate.send invocation.selector, *args
+    # end
+    
 
     def delegate
       self.kvc_get(self.class.delegate_accessor)
