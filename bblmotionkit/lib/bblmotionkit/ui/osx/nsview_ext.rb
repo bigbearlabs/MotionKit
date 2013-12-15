@@ -1,5 +1,3 @@
-if BubbleWrap::App.osx?
-
 class NSView
 
 #= inspection
@@ -468,9 +466,6 @@ class NSView
       self.addTrackingArea(new_area)
     end
   end
-
-
-end
 
 end
 
