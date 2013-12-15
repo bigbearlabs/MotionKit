@@ -73,9 +73,10 @@ class WebBuddyPlugin < BBLComponent
 
       webbuddy.module.data = #{data.to_json};
       // trigger view refresh if needed
-      if (webbuddy.module.scope)
+      // if (webbuddy.module.scope)
         webbuddy.module.scope.refresh_data();
-        webbuddy.module.scope.filter(); # LEAKY
+        webbuddy.module.scope.$apply();
+        // webbuddy.module.scope.filter(); # LEAKY
     )
   end
 
