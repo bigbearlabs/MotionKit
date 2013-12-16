@@ -138,10 +138,11 @@ class NSObject
     end
   end	
 
+  # looks redundant.
 	def invoke_setter(property_name, value)
 		kvo_change property_name do
 			begin
-				self.send "#{property_name}=", value
+				self.kvc_set property_name, value
 			rescue Exception => e
 				pe_report e, "failed to set #{property_name} to #{value} on #{self}"
 			end
