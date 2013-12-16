@@ -17,10 +17,11 @@ class InputHandler < BBLComponent
     when :url
       NSApp.delegate.user.perform_url_input input
     else
-      self.client.load_url [
-        input.to_url_string,
+      # self.client.load_url [
+      NSApp.delegate.load_url [
+        input,
         input.to_search_url_string
-      ]
+      ], stack_id: input
     end
   end
 

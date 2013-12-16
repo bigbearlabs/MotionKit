@@ -269,14 +269,14 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	def load_url(urls, details = {})
 		# debug [ urls, details ]
+		wc = current_viewer_wc
 
-		if details[:stack_id]
-			details[:stack] = @context_store.stack_for details[:stack_id]
-		end
+		sid = details[:stack_id]  # can be nil.
+		wc.stack = @context_store.stack_for( sid ) if sid
 
 		wc.do_activate.load_url urls, details
 	end
-	
+
 #= activation / deactivation
 
 	def deactivate_if_needed
