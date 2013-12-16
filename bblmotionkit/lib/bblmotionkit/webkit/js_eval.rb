@@ -14,7 +14,8 @@ module JsEval
   
   def eval_js_file file_name
     js_src = NSBundle.mainBundle.content( file_name )
-    self.eval_js js_src, file_name
+    self.eval_js js_src, "contents of #{file_name}"
+    pe_log "#{file_name} loaded."
   end
   
   def eval_expr single_line_expr
@@ -28,7 +29,7 @@ module JsEval
   end
   
   # call with a return statement at the end of the js to ensure a value back.
-  def eval_js( script_string, script_description = "#{script_string[0..60]}..." )
+  def eval_js( script_string, script_description = "'#{script_string[0..60]}...'" )
 
     # wrap script in a try block to get the error back if any.
     script_string = %(
@@ -51,10 +52,10 @@ module JsEval
       dom_window = @web_view.windowScriptObject
       result = dom_window.evaluateWebScript(script_string)
     
-      pe_debug "completed eval_js: '#{script_description}'"
+      pe_debug "completed eval_js: #{script_description}"
       pe_debug "eval_results: #{result.description}"
     
-      raise result.description if result.description.starts_with? 'JS Exception: '
+      raise result.description + " for #{script_description}" if result.description.starts_with? 'JS Exception: '
       result
     end
   end

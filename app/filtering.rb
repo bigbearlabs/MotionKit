@@ -123,12 +123,4 @@ class FilteringPlugin < WebBuddyPlugin
     }
   end
 
-  def view_url
-    @view_url = 'http://localhost:9000/#/filtering'  # DEV
-
-    # plugin_dir = "plugin/output"
-    # module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-    # @view_url = module_index_path + '#/filtering'  # DEPLOY
-  end
-  
 end

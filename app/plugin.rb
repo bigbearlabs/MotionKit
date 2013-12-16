@@ -1,7 +1,7 @@
 # plugin loaded by AppD, but interacts with wc a lot -- this probably indicates a granularity mismatch.
 class WebBuddyPlugin < BBLComponent
   extend Delegating
-  def_delegator :'client.wc.browser_vc', :eval_js, :eval_expr
+  def_delegator :'client.wc.browser_vc', :eval_js, :eval_expr, :eval_js_file
 
   include IvarInjection
   
@@ -44,19 +44,7 @@ class WebBuddyPlugin < BBLComponent
   def attach_hosting_interface
     pe_log "attaching hosting interface to #{self.view_url}"
 
-    # eval_js_file 'plugin/assets/js/webbuddy.attach.js'
-
-    eval_js %q(
-      window.webbuddy || (window.webbuddy = {
-        env: {
-        },
-        log: function() {},
-        module: {}
-      });
-      webbuddy.env.name = 'webbuddy';
-      return webbuddy
-    )
-    # pe_log "eval webbuddy.env: #{self.client.wc.browser_vc.eval_expr 'window.webbuddy'}"
+    eval_js_file 'plugin/assets/js/webbuddy.attach.js'
   end
 
   def update_data
@@ -68,8 +56,11 @@ class WebBuddyPlugin < BBLComponent
     # )
 
     eval_js %(
+      console.log("webbuddy: " + webbuddy + ");
+      console.log("webbuddy.module: " + webbuddy.module);
+      console.log("webbuddy.module.scope: " + webbuddy.module.scope);
       if (! webbuddy || ! webbuddy.module)
-        throw "webbuddy.module not available."
+        throw "webbuddy.module not available.";
 
       webbuddy.module.data = #{data.to_json};
       // trigger view refresh if needed
@@ -79,6 +70,7 @@ class WebBuddyPlugin < BBLComponent
         // webbuddy.module.scope.filter(); # LEAKY
     )
   end
+
 
   # OBSOLETE
   def write_data
