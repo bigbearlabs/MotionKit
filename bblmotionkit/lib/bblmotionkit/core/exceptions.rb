@@ -39,7 +39,7 @@ class NSException
     if defined? super
       super
     else
-      self.symbolised_stack_trace
+      self.symbolised_stack_trace.split '\n'
     end
   end
 
@@ -51,7 +51,7 @@ class NSException
 
   def symbolised_stack_trace
     addresses = self.callStackReturnAddresses
-    addresses = addresses.map{|e| e.to_s(16)}  # convert to hex
+    addresses = addresses.to_a.map{|e| e.to_s(16)}  # convert to hex
     `atos -p #{NSApp.pid} #{addresses.join ' '}`
   end
 end
