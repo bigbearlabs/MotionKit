@@ -38,7 +38,6 @@ class FilteringPlugin < WebBuddyPlugin
   def filter( filter_spec )
     @filter_spec = filter_spec
     self.load_filtering filter_spec.predicate_input_string
-    # DEV FIXME replace with load_view
   end
 
   def load_filtering( input )
@@ -57,7 +56,10 @@ class FilteringPlugin < WebBuddyPlugin
   end
 
   def update_input input
-    NSApp.delegate.wc.browser_vc.web_view.delegate.send "webbuddy.module.update_property('input', #{input.to_json});"
+    NSApp.delegate.wc.browser_vc.web_view.delegate.send %(
+      window.webbuddy_data.input = #{input.to_json};
+      window.webbuddy_data_updated();  // will throw if callback 
+    )
   end
 
   #=

@@ -25,12 +25,10 @@ class WebBuddyPlugin < BBLComponent
     # self.write_data
 
     client.wc.load_url self.view_url, success_handler: -> url {
-      self.attach_hosting_interface
+      ## this is made obsolete by wb-integration.coffee.
+      # self.attach_hosting_interface
 
-      # on_main_async do
-        # yield if block_given?
-        load_handler.call
-      # end
+      load_handler.call
     }
     # , ignore_history: true
   end
@@ -39,8 +37,6 @@ class WebBuddyPlugin < BBLComponent
     self.client.wc.browser_vc.url.to_s.include? self.view_url
   end
 
-  # creates the window.webbuddy property.
-  # FIXME sometimes this can get clobbered by the stub if it doesn't attach quickly enough.
   def attach_hosting_interface
     pe_log "attaching hosting interface to #{self.view_url}"
 
@@ -51,7 +47,10 @@ class WebBuddyPlugin < BBLComponent
     data = self.data
     pe_log "updating data, keys: #{data.keys}"
 
-    NSApp.delegate.wc.browser_vc.web_view.delegate.send "webbuddy.module.update_data(#{self.data.to_json});"
+    NSApp.delegate.wc.browser_vc.web_view.delegate.send %(
+      window.webbuddy_data = #{self.data.to_json};
+      window.webbuddy_data_updated();  // will throw if callback 
+    )
   end
 
 
@@ -66,7 +65,7 @@ class WebBuddyPlugin < BBLComponent
   #=
 
   def inspect_data
-    puts Object.from_json( eval_expr 'webbuddy.module.data').description
+    pe_log Object.from_json( eval_expr 'webbuddy.module.data').description
   end
   
 end
