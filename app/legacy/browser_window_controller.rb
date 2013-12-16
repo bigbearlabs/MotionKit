@@ -18,7 +18,6 @@ class BrowserWindowController < NSWindowController
 
 	# all the data. LEAKY
 	attr_accessor :stack	
-	attr_accessor :context  # TODO clean up usage and remove.
 	attr_accessor :search_details
 
 	# bindable data
@@ -51,25 +50,6 @@ class BrowserWindowController < NSWindowController
 	end
 	
 
-#= model
-	
-	def context=( context )
-		on_main do
-			kvo_change :context do
-				pe_warn "#{self} setting #{context}."
-
-				# there must be a better way to inherit the overridden accessor..
-				@context = context
-				
-				@bar_vc.context = @context
-
-				# MOTION-MIGRATION
-				#@context_vc.context = @context
-				# @history_vc.representedObject = @context
-			end
-		end
-	end
-	
 #= lifecycle
 
 	def init
@@ -272,7 +252,7 @@ class BrowserWindowController < NSWindowController
 		unless @page_details_vc_setup
 			@page_details_vc.setup
 
-			@page_details_vc.page_collection_vc.representedObject = self.context
+			@page_details_vc.page_collection_vc.representedObject = self.stack
 
 			@page_details_vc_setup = true
 		end

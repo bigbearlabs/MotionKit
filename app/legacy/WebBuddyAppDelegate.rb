@@ -408,7 +408,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		self.main_window_controller = MainWindowController.alloc.init
 		@main_window_controller.setup	:data_manager => @context_store
 
-		@main_window_controller.context = @context_store.current_context  # REDUNDANT
+		@main_window_controller.stack = @context_store.current_context  # REDUNDANT
 
 		# @context_gallery_vc.setup
 
@@ -524,9 +524,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		trace_time 'viewer_wc setup' do
 			viewer_wc.setup :data_manager => @context_store
 		end
-		trace_time 'viewer_wc set_context' do
-			viewer_wc.context = @context_store.current_context  # REDUNDANT
-		end
 
 		viewer_wc
 	end
@@ -541,7 +538,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		pe_log "retrieved #{viewer_wc} for space #{@spaces_manager.current_space_id}"
 
 		# update the current context.
-		@context_store.current_context = viewer_wc.context
+		@context_store.current_context = viewer_wc.stack
 
 		# HACK update main wc's context.
 		# @main_window_controller.context = @context_store.current_context #TEMP
