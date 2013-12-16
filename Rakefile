@@ -122,11 +122,12 @@ end
 namespace :modules do
   desc "build"
   task :build => [] do
-    sh 'cd ../webbuddy-modules; ./build.sh'
+    sh 'cd ../webbuddy-modules; rake'
   end
 
   desc "copy resources"
   task :cprsc => [] do
+    FileUtils.mkdir_p 'resources/plugin'
     FileUtils.cp_r Dir.glob('../webbuddy-modules/dist/.'), 'resources/plugin', verbose:true
   end
 end
