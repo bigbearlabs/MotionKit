@@ -239,23 +239,21 @@ class ContextStore
 		Dir.mkdir thumbnail_path unless Dir.exists? thumbnail_path
 		
 		concurrently proc {
-			self.stacks.each do |stack|
-				stack.history_items do |history_item|
-					if history_item.thumbnail_dirty
-						file_name = "#{thumbnail_path}/#{history_item.url.hash}.#{thumbnail_extension}"
-						thumbnail = history_item.thumbnail
-						image_rep = thumbnail.representations[0]
-						data = image_rep.representationUsingType(NSPNGFileType, properties:nil)
-						result = data.writeToFile("#{file_name}", atomically:false)   # OPTIMISE change to do this lazily
-						if result
-							pe_log "saved #{file_name}"
-							history_item.thumbnail_dirty = false
-						else
-							pe_log "failed saving #{file_name}"
-						end
+			self.stacks.map(&:history_items).flatten
+				.select(&:thumbnail_dirty).map do |history_item|
+					file_name = "#{thumbnail_path}/#{history_item.url.hash}.#{thumbnail_extension}"
+					thumbnail = history_item.thumbnail
+					image_rep = thumbnail.representations[0]
+					data = image_rep.representationUsingType(NSPNGFileType, properties:nil)
+
+					result = data.writeToFile("#{file_name}", atomically:false)   # OPTIMISE change to do this lazily
+					if result
+						pe_log "saved #{file_name}"
+						history_item.thumbnail_dirty = false
+					else
+						pe_log "failed saving #{file_name}"
 					end
 				end
-			end
 		}
 	end
 

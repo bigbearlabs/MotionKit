@@ -108,6 +108,7 @@ class BrowserWindowController < NSWindowController
 
 			watch_notification :Load_request_notification, @browser_vc.web_view_delegate
 			watch_notification :Title_received_notification, @browser_vc.web_view_delegate
+			watch_notification :Url_load_finished_notification, @browser_vc.web_view_delegate
 			# watch_notification :Link_navigation_notification, @browser_vc.web_view_delegate
 
 			# user
@@ -499,6 +500,14 @@ class BrowserWindowController < NSWindowController
 		}
 	end
 
+	def handle_Url_load_finished_notification( notification )
+		if self.stack
+		  self.stack.update_detail @browser_vc.url, thumbnail: @browser_vc.view.image
+		else
+			pe_log "nil stack"
+		end
+	end
+	
 #= bar
 
 	def handle_Bar_item_selected_notification( notification )
