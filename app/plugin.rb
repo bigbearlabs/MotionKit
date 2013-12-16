@@ -51,24 +51,7 @@ class WebBuddyPlugin < BBLComponent
     data = self.data
     pe_log "updating data, keys: #{data.keys}"
 
-    # eval_js %(
-    #   return webbuddy.module.update_data(#{self.data.to_json});
-    # )
-
-    eval_js %(
-      console.log("webbuddy: " + webbuddy + ");
-      console.log("webbuddy.module: " + webbuddy.module);
-      console.log("webbuddy.module.scope: " + webbuddy.module.scope);
-      if (! webbuddy || ! webbuddy.module)
-        throw "webbuddy.module not available.";
-
-      webbuddy.module.data = #{data.to_json};
-      // trigger view refresh if needed
-      // if (webbuddy.module.scope)
-        webbuddy.module.scope.refresh_data();
-        webbuddy.module.scope.$apply();
-        // webbuddy.module.scope.filter(); # LEAKY
-    )
+    NSApp.delegate.wc.browser_vc.web_view.delegate.send "webbuddy.module.update_data(#{self.data.to_json});"
   end
 
 

@@ -57,19 +57,7 @@ class FilteringPlugin < WebBuddyPlugin
   end
 
   def update_input input
-    # update window.data for the web component to use.
-    eval_js %(
-      // run in the next runloop to ensure hosting interface is attached.
-      setTimeout( function() {
-        webbuddy.module.data.input = #{input.to_json};
-        var scope = webbuddy.module.scope;
-        scope.refresh_data();
-        scope.$apply();
-        }, 50);
-      // TEST this should report any exceptions to the hosting env!!!
-    )
-
-    debug
+    NSApp.delegate.wc.browser_vc.web_view.delegate.send "webbuddy.module.update_property('input', #{input.to_json});"
   end
 
   #=
