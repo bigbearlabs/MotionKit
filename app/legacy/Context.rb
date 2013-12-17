@@ -461,11 +461,12 @@ class ItemContainer
 #=
 
   def last_accessed_timestamp
-    ts = if @last_accessed_timestamp
-      @last_accessed_timestamp
-    else
-      @timestamp  # see, you knew this would get confusing.
-    end
+    ts = 
+      unless @last_accessed_timestamp.to_s.empty?
+        @last_accessed_timestamp
+      else
+        @timestamp  # see, you knew this would get confusing.
+      end
 
     ts or NilTime
   end
