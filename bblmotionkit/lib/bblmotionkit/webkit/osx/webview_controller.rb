@@ -80,7 +80,9 @@ class WebViewController < BBLComponent
       else
         -> url {
           # as long as there are fallback url's, keep loading.
-          self.load_url fallback_urls
+          on_main_async do
+            self.load_url fallback_urls
+          end
         }
       end
   end
