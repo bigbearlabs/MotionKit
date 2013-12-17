@@ -33,4 +33,5 @@ end
 group :development do
   gem 'guard'
   gem 'guard-shell'
+  gem 'compass'  # work around grunt:compass freaking out on webbuddy-modules.
 end
