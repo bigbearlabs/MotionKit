@@ -168,11 +168,6 @@ class BrowserViewController < PEViewController
 	def load_url(url_or_array, options = {})
 		load_handler = options[:success_handler]
 		load_proc = proc {
-			# FIXME move to webview_controller
-			if load_handler
-				pe_log "dropping previous load handler" if @load_handler
-				@load_handler = load_handler
-			end
 
 			# MOVE
 			# if (! options[:ignore_history]) && self.history.item_for_url(new_url)
@@ -204,29 +199,6 @@ class BrowserViewController < PEViewController
 		# handle_load_success notif.userInfo
 	end
 	
-	def handle_load_success( url )
-		if url.is_a? NSString
-			url = url.to_url
-		end
-
-		# invoke load handler.
-		if @load_handler
-			pe_log "calling success handler #{@load_handler} for #{url.absoluteString}"
-			@load_handler.call
-
-			# remove the handler.
-			@load_handler = nil
-		else
-			pe_debug "no load handler for #{url.absoluteString}"
-		end
-	end
-
-	# TODO wire up
-	def handle_load_failure( url )
-		# remove the handler.
-		@load_handler = nil
-	end
-
 #=
 
 	def handle_refresh( sender )
