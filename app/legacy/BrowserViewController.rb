@@ -22,7 +22,6 @@ class BrowserViewController < PEViewController
 	attr_accessor :find_bar_container
 	attr_accessor :swipe_handler
 	
-	attr_accessor :input_field_vc    # used by web_view_delegate. messy but will be chunky to clean up.
 	attr_accessor :web_view_delegate
 	
 	# view-model

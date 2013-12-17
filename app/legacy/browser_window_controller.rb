@@ -41,11 +41,19 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :page_details_vc
 	attr_accessor :bar_vc
 
+	attr_accessor :plugin_vc
+
 	def components
 		[
 			{
 				module: InputHandler
-			}
+			},
+			{
+				module: FilteringPlugin,
+				deps: {
+					context_store: @context_store
+				}
+			},
 		]
 	end
 	
@@ -88,7 +96,9 @@ class BrowserWindowController < NSWindowController
 		on_main_async do
 			@browser_vc.setup context_store: @context_store
 
-			browser_vc.web_view.make_first_responder 
+			@browser_vc.web_view.make_first_responder 
+
+			@plugin_vc.setup( {} )
 
 			# self.setup_overlay
 
@@ -427,8 +437,10 @@ class BrowserWindowController < NSWindowController
 	# stack_id: the id of stack if stack retrieval not suitable.
 	# FIXME migrate objc_interface_obj to webbuddy.interface, migrate webbuddy.module use cases.
 	def load_url(urls, details = {})
-
 		@browser_vc.load_url urls, details
+
+		@browser_vc.frame_view.visible = true
+		@plugin_vc.frame_view.visible = false
 	end
 
 	#= browsing workflow

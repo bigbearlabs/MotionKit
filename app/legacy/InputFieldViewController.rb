@@ -38,6 +38,7 @@ class InputFieldViewController < PEViewController
 	attr_accessor :current_url
 	attr_accessor :current_filter
 	attr_accessor :input_text
+	attr_accessor :submitted_text
 	
 	# for view bindings
 	attr_accessor :display_string
@@ -215,15 +216,9 @@ class InputFieldViewController < PEViewController
 	#= text input
 
 	def handle_field_submit(sender)
-		new_input_string = self.input_text
+		self.submitted_text = self.input_text
 
-		# avoid racing with filtering tasks by queuing on main.
-		on_main_async do 
-			client = self.view.window.windowController  # HACK!!
-			client.component(InputHandler).process_input new_input_string
-		
-			self.refresh_input_field
-		end
+		self.refresh_input_field
 	end
 
 
@@ -239,20 +234,6 @@ class InputFieldViewController < PEViewController
 		end
 		
 		self.current_filter = input_string
-		
-		# queue notification
-		# SCAR this resulted some bizzare detatchment between input field and delegate
-			# case input_string
-			# when nil || ''
-				# # exceptionally map an empty input as an unfilter action.
-				# 	NSApp.delegate.user.perform_unfilter
-			# else
-				concurrently -> {
-					pe_trace "perform filter #{input_string}"
-					NSApp.delegate.user.perform_filter(input_string)
-				}
-				# TODO confirm this doesn't race with #..field_submit.
-			# end
 	end
 	
 #= managing the menu
@@ -427,7 +408,6 @@ class InputFieldViewController < PEViewController
 		pe_debug "handle newline."
 		
 		self.handle_field_submit(self)
-		# self.refresh_input_field
 
 		return true
 	end

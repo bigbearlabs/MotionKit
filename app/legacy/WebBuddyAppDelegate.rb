@@ -41,12 +41,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# {
 			# 	module: ServicesHandler,
 			# },
-			{
-				module: FilteringPlugin,
-				deps: {
-					context_store: @context_store
-				}
-			},
 		].tap do | cs|
 			# dev-only
 			if RUBYMOTION_ENV == 'development'

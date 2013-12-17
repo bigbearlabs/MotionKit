@@ -1,67 +1,34 @@
-# a spec for filtering.
-class FilterSpec
-  attr_reader :sort # RENAME sorting
-  attr_accessor :predicate_input_string  # RENAME query
-  attr_reader :selected_object  # RENAME selected_item
-  attr_reader :limit_direction
-  
-  def initialize(sort, predicate_input_string, selected_object = nil)
-    # @sort = sort  # disable unstable reordering behaviour.
-    @sort = :recent_first
-    @predicate_input_string = predicate_input_string
-    @selected_object = selected_object
-    @limit_direction = 
-      case sort
-      when :recent_last then :tail
-      when :recent_first then :head
-      else
-        raise "unknown sorting #{sort}"
-      end
-  end
-end
-
-
-## integration
 class FilteringPlugin < WebBuddyPlugin
+  include Reactive
 
-  def setup
-    watch_notification :Filter_spec_updated_notification
-  end
+  def on_setup
+    react_to 'client.input_field_vc.current_filter' do |input|
+      self.show_plugin
 
-  def handle_Filter_spec_updated_notification( notification )
-    filter_spec = notification.userInfo
+      self.update_data  # TACTICAL need to react to changes to context_store.
 
-    filter filter_spec
-  end
-
-  # TODO fix leaky abstraction with filter_spec.
-  def filter( filter_spec )
-    @filter_spec = filter_spec
-    self.load_filtering filter_spec.predicate_input_string
-  end
-
-  def load_filtering( input )
-    pe_log "filtering for #{input}"
-
-    on_main_async do
-      if view_loaded?
-        self.update_input input
-      else
-        self.load_view do
-          self.update_data
-          # self.update_input input
-        end
-      end
+      self.update_input input
     end
+
+    self.load_view
   end
+
 
   def update_input input
-    NSApp.delegate.wc.browser_vc.web_view.delegate.send %(
+    @input = input
+    self.client.plugin_vc.web_view.delegate.send %(
       window.webbuddy_data.input = #{input.to_json};
       window.webbuddy_data_updated();  // will throw if callback 
     )
   end
 
+  # pull up
+  def show_plugin
+    self.client.browser_vc.frame_view.visible = false
+
+    self.client.plugin_vc.frame_view.visible = true
+  end
+  
   #=
 
   def data
@@ -72,7 +39,7 @@ class FilteringPlugin < WebBuddyPlugin
     all_items = context_store.stacks.map{|e| e.history_items}.flatten.uniq
 
     {
-      input: @filter_spec.predicate_input_string,
+      input: @input,
       searches: 
         context_store.stacks.sort_by {|e| e.last_accessed_timestamp }.reverse.map do |stack|
           pages = stack.history_items.sort_by {|e| e.last_accessed_timestamp}.reverse

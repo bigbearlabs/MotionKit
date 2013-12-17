@@ -1,9 +1,14 @@
 # application logic for handling text input.
+# NOTE filtering input not handled here.
 # TODO resolve with repl.rb
 class InputHandler < BBLComponent
-  
+  include Reactive
+
   def setup
-    
+    # watch for submitted text.
+    react_to 'client.input_field_vc.submitted_text' do |val|
+      self.process_input val
+    end
   end
   
   def process_input( input )
@@ -15,10 +20,11 @@ class InputHandler < BBLComponent
       self.process_command input
 
     when :url
-      NSApp.delegate.user.perform_url_input input
+      self.client.load_url [
+        input
+      ]
     else
-      # self.client.load_url [
-      NSApp.delegate.load_url [
+      self.client.load_url [
         input,
         input.to_search_url_string
       ], stack_id: input
