@@ -271,9 +271,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# debug [ urls, details ]
 		wc = current_viewer_wc
 
-		sid = details[:stack_id]  # can be nil.
-		wc.stack = @context_store.stack_for( sid ) if sid
-
 		wc.do_activate.load_url urls, details
 	end
 
