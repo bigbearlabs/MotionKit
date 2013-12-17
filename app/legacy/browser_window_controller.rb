@@ -490,6 +490,7 @@ class BrowserWindowController < NSWindowController
 
 	def handle_Url_load_finished_notification( notification )
 		if self.stack
+			pe_log "updating thumbnail"
 			self.stack.update_detail @browser_vc.url, thumbnail: @browser_vc.view.image
 		else
 			pe_log "nil stack"
