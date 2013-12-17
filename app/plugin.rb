@@ -11,14 +11,17 @@ class WebBuddyPlugin < BBLComponent
     inject_collaborators deps
   end
 
-  def view_url
-    plugin_name = self.class.name.gsub('Plugin', '').downcase
-    
-    @view_url = "http://localhost:9000/#/#{plugin_name}"  # DEV
+  def view_url(env = nil)
+    plugin_name = self.class.clean_name.gsub('Plugin', '').downcase
 
-    # plugin_dir = "plugin/output"
-    # module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-    # @view_url = module_index_path + "#/#{plugin_name}"  # DEPLOY
+    case env
+    when :DEV
+      return "http://localhost:9000/#/#{plugin_name}"  # DEV works with grunt server in webbuddy-modules
+    else
+      plugin_dir = "plugin"
+      module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
+      return "#{module_index_path}#/#{plugin_name}"  # DEPLOY
+    end
   end
   
   def load_view(&load_handler)
