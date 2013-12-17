@@ -34,17 +34,16 @@ class WebViewDelegate
 
   attr_accessor :web_view
 
-  attr_accessor :fail_handler
-  attr_accessor :matching_nav_handler  # TODO review usage.
+    attr_accessor :success_handler
+    attr_accessor :fail_handler
+
+    attr_accessor :matching_nav_handler  # TODO review usage.
 
   def setup   
     @events = []
 
-    @load_success_handler = -> url {
-    }
-
-    @policy_error_handler = -> url {
-    }
+      @policy_error_handler = -> url {
+      }
 
     # watch_notification WebHistoryItemChangedNotification
   end
@@ -86,44 +85,51 @@ class WebViewDelegate
           pe_debug "link nav."
           debug( {msg: "link nav", data: event_data})
 
-          send_notification :Link_navigation_notification, event_data[:url]
-          # FIXME this doesn't cover all link navs - e.g. google search result links emit WebNavigationTypeOther, probably due to ajax-based loading.
-        end
+            send_notification :Link_navigation_notification, event_data[:url]
+            # FIXME this doesn't cover all link navs - e.g. google search result links emit WebNavigationTypeOther, probably due to ajax-based loading.
+          end
+          
+        when 'didStartProvisionalLoad'
+          pe_log "#{url} started provisional load"
+          
+          send_notification :Load_request_notification, url
+
+          self.update_last_url url
+          # TODO integrate with cancels.
+
+        when 'didCommitLoad', 'didChangeLocationWithinPage'
         
-      when 'didStartProvisionalLoad'
-        send_notification :Load_request_notification, url
+        when 'didFinishLoadingResource'
 
-        self.update_last_url url
-        # TODO integrate with cancels.
+        when 'didReceiveTitle'
+          send_notification :Title_received_notification, { 
+            url: url, title: event_data[:title] 
+          }
 
-      when 'didCommitLoad', 'didChangeLocationWithinPage'
-      
-      when 'didFinishLoadingResource'
+        when 'didFinishLoadMainFrame'
+          send_notification :Url_load_finished_notification, url
 
+          @success_handler.call url if @success_handler
+          @success_handler = nil
+          @fail_handler = nil  # FIXME this seems to cause thread-unsafe conditions.
 
-      when 'didReceiveTitle'
-        send_notification :Title_received_notification, { 
-          url: url, title: event_data[:title] 
-        }
+          if $DEBUG
+            pe_warn "finished loading #{url}. events: #{@events}"
+          end
+          
+        when 'provisionalLoadFailed', 'loadFailed'
+          pe_log event
 
-      when 'didFinishLoadMainFrame'
-        send_notification :Url_load_finished_notification, url
+          if @fail_handler
+            @fail_handler.call url
+          else
+            pe_warn "no fail handler set for #{url}"
+          end
 
-        @load_success_handler.call url
-        @fail_handler = nil
+          @success_handler = nil
+          @fail_handler = nil
 
-        if $DEBUG
-          pe_warn "finished loading #{url}. events: #{@events}"
         end
-      when 'provisionalLoadFailed', 'loadFailed'
-        pe_log event
-
-        if @fail_handler
-          @fail_handler.call url
-        else
-          pe_warn "no fail handler set for #{url}"
-        end
-      end
 
     rescue Exception => e
       pe_report e, "while handling WebView events."

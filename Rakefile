@@ -3,7 +3,6 @@
 build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
 build_number = 208
-# version_number = "1.1.9-#{build_number}"  # DEV
 version_number = "1.1.9"
 
 
@@ -18,10 +17,40 @@ Bundler.require
 require 'motion-require'
 Motion::Require.all
 
-# rakefiles deps
+# rakefile's deps
 require 'fileutils'
 
 Motion::Project::App.setup do |app|
+
+  # cocoapods deps
+  app.pods do
+    # pod 'HockeySDK'
+    pod 'CocoaLumberjack'
+    pod 'CocoaHTTPServer', '~> 2.3'
+    pod 'RoutingHTTPServer', '~> 1.0.0'
+    pod 'MASPreferences', '~> 1.1'
+    pod 'WebViewJavascriptBridge', '~> 4.1.0'
+  end
+
+  # frameworks
+  app.frameworks += %w( WebKit Carbon ExceptionHandling )
+
+
+  # dev-only
+  app.development do
+    version_number = "1.1.9-#{build_number}"
+    app.files += Dir.glob('sketch/**/*.rb') 
+  end
+
+
+  # vendor projects
+  # app.vendor_project('vendor/PEFramework', :xcode)
+  app.vendor_project('vendor/misc', :static)
+  app.vendor_project('vendor/NSFileManager-DirectoryLocations', :static)
+  app.vendor_project('vendor/DDHotKeyCenter', :static)
+  # FIXME need to copy resource.
+
+
   # Use `rake config' to see complete project settings.
   app.name = 'WebBuddy'
   app.identifier = "com.bigbearlabs.WebBuddy"
@@ -44,28 +73,12 @@ Motion::Project::App.setup do |app|
   app.info_plist['LSUIElement'] = true
 
 
-  app.frameworks += %w( WebKit Carbon ExceptionHandling )
-
-
-  # app.vendor_project('vendor/PEFramework', :xcode)
-  app.vendor_project('vendor/misc', :static)
-  app.vendor_project('vendor/NSFileManager-DirectoryLocations', :static)
-  app.vendor_project('vendor/DDHotKeyCenter', :static)
-  # FIXME need to copy resource.
+  ## files
 
   app.delegate_class = "WebBuddyAppDelegate"
 
   app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb'
     # 'app/filtering.rb' => 'app/legacy/window_controllers.rb'
-
-  # cocoapods deps
-  app.pods do
-    # pod 'HockeySDK'
-    pod 'CocoaLumberjack'
-    pod 'CocoaHTTPServer', '~> 2.3'
-    pod 'RoutingHTTPServer', '~> 1.0.0'
-    pod 'MASPreferences', '~> 1.1'
-  end
 
 
   # archive:distribution fails with i386 arch - just build for x86_64
@@ -89,11 +102,13 @@ Motion::Project::App.setup do |app|
 
 end
 
+
 # Track and specify files and their mutual dependencies within the :motion Bundler group
 MotionBundler.setup do |app|
   app.require "cgi"
   # app.require 'addressable/uri'
 end
+
 
 namespace :vendor do
   desc "copy resources"
@@ -102,6 +117,7 @@ namespace :vendor do
     FileUtils.cp_r Dir.glob('vendor/**{,/*/**}/*.xib'), 'resources', verbose:true
   end
 end
+
 
 namespace :modules do
   desc "build"
@@ -114,6 +130,7 @@ namespace :modules do
     FileUtils.cp_r Dir.glob('../webbuddy-modules/dist/.'), 'resources/plugin', verbose:true
   end
 end
+
 
 namespace :release do
   task :zip do

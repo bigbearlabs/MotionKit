@@ -1,7 +1,7 @@
 # plugin loaded by AppD, but interacts with wc a lot -- this probably indicates a granularity mismatch.
 class WebBuddyPlugin < BBLComponent
   extend Delegating
-  def_delegator :'client.wc.browser_vc', :eval_js, :eval_expr
+  def_delegator :'client.wc.browser_vc', :eval_js, :eval_expr, :eval_js_file
 
   include IvarInjection
   
@@ -24,13 +24,11 @@ class WebBuddyPlugin < BBLComponent
   def load_view(&load_handler)
     # self.write_data
 
-    client.wc.load_location self.view_url, -> {
-      self.attach_hosting_interface
+    client.wc.load_url self.view_url, success_handler: -> url {
+      ## this is made obsolete by wb-integration.coffee.
+      # self.attach_hosting_interface
 
-      # on_main_async do
-        # yield if block_given?
-        load_handler.call
-      # end
+      load_handler.call
     }
     # , ignore_history: true
   end
@@ -39,44 +37,22 @@ class WebBuddyPlugin < BBLComponent
     self.client.wc.browser_vc.url.to_s.include? self.view_url
   end
 
-  # creates the window.webbuddy property.
-  # FIXME sometimes this can get clobbered by the stub if it doesn't attach quickly enough.
   def attach_hosting_interface
     pe_log "attaching hosting interface to #{self.view_url}"
 
-    # eval_js_file 'plugin/assets/js/webbuddy.attach.js'
-
-    eval_js %q(
-      window.webbuddy || (window.webbuddy = {
-        env: {
-        },
-        log: function() {},
-        module: {}
-      });
-      webbuddy.env.name = 'webbuddy';
-      return webbuddy
-    )
-    # pe_log "eval webbuddy.env: #{self.client.wc.browser_vc.eval_expr 'window.webbuddy'}"
+    eval_js_file 'plugin/assets/js/webbuddy.attach.js'
   end
 
   def update_data
     data = self.data
     pe_log "updating data, keys: #{data.keys}"
 
-    # eval_js %(
-    #   return webbuddy.module.update_data(#{self.data.to_json});
-    # )
-
-    eval_js %(
-      if (! webbuddy || ! webbuddy.module)
-        throw "webbuddy.module not available."
-
-      webbuddy.module.data = #{data.to_json};
-      // trigger view refresh if needed
-      if (webbuddy.module.scope)
-        webbuddy.module.scope.refresh_data();
+    NSApp.delegate.wc.browser_vc.web_view.delegate.send %(
+      window.webbuddy_data = #{self.data.to_json};
+      window.webbuddy_data_updated();  // will throw if callback 
     )
   end
+
 
   # OBSOLETE
   def write_data
@@ -89,7 +65,7 @@ class WebBuddyPlugin < BBLComponent
   #=
 
   def inspect_data
-    puts Object.from_json( eval_expr 'webbuddy.module.data').description
+    pe_log Object.from_json( eval_expr 'webbuddy.module.data').description
   end
   
 end

@@ -9,11 +9,14 @@ class Context
 
   attr_accessor :name
   
-  attr_reader :history_items
   attr_reader :current_history_item
 
   attr_accessor :filter_tag # for array controller filtering
 
+  def history_items
+    @history_items.dup.freeze
+  end
+  
   def initialize( name = "Unnamed context #{self.name_suffix_sequence}", history_items = [])
     super
 
@@ -160,12 +163,33 @@ class Context
     end
   end
   
-  def remove_history_item( history_item )
+  def remove_history_item( history_item_or_a )
+    history_item_or_a = [ history_item_or_a ] unless history_item_or_a.is_a? Array
+
     kvo_change_bindable :history_items do
-      index = @history_items.index(history_item)
+      history_item_or_a.map do |item|
+        index = @history_items.index(item)
+
+        raise "item #{item} not found in #{self}" if index.nil?
+
         @history_items.delete_at index
       end
     end
+  end
+
+  # drops duplicate items as tested by #match_url?.
+  def compact
+    items = self.history_items
+    item_a = items.dup
+    items.map do |item|
+      dups = item_a.select{|e| e.match_url? item}[1..-1].to_a
+      dups.map do |dup|
+        self.remove_history_item matching[1..-1].to_a
+      end
+    end      
+  end
+  
+#=
 
   def back_item
     current_item_index = self.index_of_item(@current_history_item)
@@ -246,7 +270,7 @@ class Context
       url = history_item_or_url.url
     end
     
-    site = @sites[url.to_base_url]
+    @sites[url.to_base_url]
   end
  
   def site_for_base_url( base_url)

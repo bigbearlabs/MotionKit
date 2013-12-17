@@ -38,7 +38,6 @@ class FilteringPlugin < WebBuddyPlugin
   def filter( filter_spec )
     @filter_spec = filter_spec
     self.load_filtering filter_spec.predicate_input_string
-    # DEV FIXME replace with load_view
   end
 
   def load_filtering( input )
@@ -57,17 +56,10 @@ class FilteringPlugin < WebBuddyPlugin
   end
 
   def update_input input
-    # update window.data for the web component to use.
-    eval_js %(
-      setTimeout( function() {
-        webbuddy.module.data.input = #{input.to_json};
-        var scope = webbuddy.module.scope;
-        scope.refresh_data();
-        scope.$apply();
-        }, 50);
+    NSApp.delegate.wc.browser_vc.web_view.delegate.send %(
+      window.webbuddy_data.input = #{input.to_json};
+      window.webbuddy_data_updated();  // will throw if callback 
     )
-
-    debug
   end
 
   #=
@@ -121,12 +113,4 @@ class FilteringPlugin < WebBuddyPlugin
     }
   end
 
-  def view_url
-    @view_url = 'http://localhost:9000/#/filtering'  # DEV
-
-    plugin_dir = "plugin/output"
-    module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-    @view_url = module_index_path + '#/filtering'  # DEPLOY
-  end
-  
 end

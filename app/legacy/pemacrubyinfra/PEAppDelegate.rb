@@ -10,8 +10,10 @@
 
 class PEAppDelegate
 	include DefaultsAccess
+	include ExceptionHandling
 
-	include InteractiveApplication if ENV['INTERACTIVE']
+	# MOTION-MIGRATION
+	# include InteractiveApplication if ENV['INTERACTIVE']
 
 
 	attr_accessor :defaults_hash
@@ -264,46 +266,7 @@ class PEAppDelegate
 		on_screen_change( notification )
 	end
 
-
-#= exception handling
-
-	def handle_exceptions( &handler )
-		handler ||= -> exception, mask {
-			pe_warn "#{exception} occurred."
-		}
-
-		# MOTION-MIGRATION
-		# NSExceptionHandler.defaultExceptionHandler.setExceptionHandlingMask(
-		# 	NSLogUncaughtExceptionMask | NSHandleUncaughtExceptionMask |
-		# 	NSLogUncaughtSystemExceptionMask | NSHandleUncaughtSystemExceptionMask |
-		# 	NSLogUncaughtRuntimeErrorMask | NSHandleUncaughtRuntimeErrorMask |
-		# 	NSLogTopLevelExceptionMask | NSHandleTopLevelExceptionMask |
-		# 	NSLogOtherExceptionMask | NSHandleOtherExceptionMask
-		# 	)
-
-		# FIXME this results in duplicate logging.
-
-		NSExceptionHandler.defaultExceptionHandler.delegate = self
-
-		# installing on NSApp looks unnecessary
-		# @exception_handler = handler
-		# NSApp.exceptionHandler(@exception_handler, shouldHandleException)
-
-		# salvaged from InputFieldViewController CLEANUP
-		# NSExceptionHandler.defaultExceptionHandler.exceptionHandlingMask = NSExceptionHandler.defaultExceptionHandler.exceptionHandlingMask |NSHandleTopLevelExceptionMask
-
-	end
 end
-
-=begin
-class NSApplication
-	def exceptionHandler(handler, shouldHandleException:exception, mask:mask)
-		@exception_handler.call exception, mask
-
-		super if defined?(super)
-	end
-end
-=end
 
 ## in order to get activation right, we need to comply to the system's general rules on windowing.
 # this is challenging because:

@@ -10,7 +10,7 @@ class BrowserWindowController < NSWindowController
 
 	# cover interface for BVC
 	extend Delegating
-	def_delegator :browser_vc, :load_location, :eval_js
+	def_delegator :browser_vc, :eval_js
 	
 
 	# influenceables.
@@ -424,9 +424,9 @@ class BrowserWindowController < NSWindowController
 		# self.hide_overlay
 	end
 
-	def handle_input( input )
+	def handle_input( input, details = {})
 		# just try loading, fall back to a search.
-	  self.load_url [input, input.to_search_url_string]
+	  self.load_url [input, input.to_search_url_string], details
 	end
 	
 
@@ -442,26 +442,10 @@ class BrowserWindowController < NSWindowController
 	def load_url(urls, details = {})
 		# update the stack
 		self.stack = details[:stack]
+		self.stack ||= @data_manager.stack_for urls[0]
 
-		@browser_vc.load_location urls, -> {
-			# set window.objc_interface_obj to be invoked from web layer  
-			# RENAME, PUSH-DOWN
-			callback_handler = details[:interface_callback_handler]
-			if callback_handler
-				key = 'objc_interface_obj'
-				@browser_vc.register_callback_handler key, callback_handler
+		@browser_vc.load_url urls, details
 			end
-		}
-
-	end
-
-	def do_search( details )
-		self.search_details = details
-
-		search_url = details[:url]
-		self.load_url search_url, stack: @data_manager.stack_for(details[:query])
-	end
-	
 
 	#= browsing workflow
 
