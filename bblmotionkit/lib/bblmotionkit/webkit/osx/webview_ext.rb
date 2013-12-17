@@ -127,7 +127,7 @@ class WebViewDelegate
         if @fail_handler
           @fail_handler.call @url
         else
-          pe_warn "no fail handler set for #{url}"
+          pe_warn "no fail handler set for #{@url}"
         end
 
         @success_handler = nil
