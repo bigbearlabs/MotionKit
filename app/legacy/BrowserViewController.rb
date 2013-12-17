@@ -572,13 +572,13 @@ class BrowserViewController < PEViewController
 	# work around the occasional respondsToSelector malfunction.
 	def respondsToSelector(sel)
 	  self.respond_to? sel
-	end
-	
+	end	
+
 
 	protected
 
 	def history
-	  @data_manager.history
+	  @context_store.history
 	end
 	
 end

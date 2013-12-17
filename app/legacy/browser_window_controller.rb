@@ -86,7 +86,7 @@ class BrowserWindowController < NSWindowController
 		end
 
 		on_main_async do
-			@browser_vc.setup :data_manager => @data_manager
+			@browser_vc.setup context_store: @context_store
 
 			browser_vc.web_view.make_first_responder 
 
