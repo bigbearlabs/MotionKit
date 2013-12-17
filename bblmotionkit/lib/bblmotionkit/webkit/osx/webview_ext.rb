@@ -31,35 +31,32 @@ class WebViewDelegate
 
   # a running history 
   attr_reader :events
+  attr_reader :redirections
 
-  attr_accessor :web_view
+  attr_accessor :web_view  
 
-    attr_accessor :success_handler
-    attr_accessor :fail_handler
+  attr_accessor :success_handler
+  attr_accessor :fail_handler
 
-    attr_accessor :matching_nav_handler  # TODO review usage.
+  attr_accessor :matching_nav_handler  # TODO review usage.
 
   def setup   
     @events = []
 
-      @policy_error_handler = -> url {
-      }
+    @policy_error_handler = -> url {
+    }
 
     # watch_notification WebHistoryItemChangedNotification
   end
 
 #= event logging
 
-  def clear_event_buffer
-    @events.clear unless $DEBUG
-  end
-  
   def push_event( event_name, event_data = {} )
-    url = @web_view.url
+    @url = @web_view.url
     
     # keep track of the events.
     event = {
-      url: url,
+      url: @url,
       name: event_name,
       data: event_data
     }
@@ -85,51 +82,58 @@ class WebViewDelegate
           pe_debug "link nav."
           debug( {msg: "link nav", data: event_data})
 
-            send_notification :Link_navigation_notification, event_data[:url]
-            # FIXME this doesn't cover all link navs - e.g. google search result links emit WebNavigationTypeOther, probably due to ajax-based loading.
-          end
-          
-        when 'didStartProvisionalLoad'
-          pe_log "#{url} started provisional load"
-          
-          send_notification :Load_request_notification, url
-
-          self.update_last_url url
-          # TODO integrate with cancels.
-
-        when 'didCommitLoad', 'didChangeLocationWithinPage'
-        
-        when 'didFinishLoadingResource'
-
-        when 'didReceiveTitle'
-          send_notification :Title_received_notification, { 
-            url: url, title: event_data[:title] 
-          }
-
-        when 'didFinishLoadMainFrame'
-          send_notification :Url_load_finished_notification, url
-
-          @success_handler.call url if @success_handler
-          @success_handler = nil
-          @fail_handler = nil  # FIXME this seems to cause thread-unsafe conditions.
-
-          if $DEBUG
-            pe_warn "finished loading #{url}. events: #{@events}"
-          end
-          
-        when 'provisionalLoadFailed', 'loadFailed'
-          pe_log event
-
-          if @fail_handler
-            @fail_handler.call url
-          else
-            pe_warn "no fail handler set for #{url}"
-          end
-
-          @success_handler = nil
-          @fail_handler = nil
-
+          send_notification :Link_navigation_notification, event_data[:url]
+          # FIXME this doesn't cover all link navs - e.g. google search result links emit WebNavigationTypeOther, probably due to ajax-based loading.
         end
+      
+      when 'willSendRequestForRedirectResponse'
+        # page redirects have response_url equal to url and a different new_url.
+        if event_data[:response_url] == @url && event_data[:new_url] != @url
+          self.add_redirect event_data[:new_url]
+        end
+
+      when 'didStartProvisionalLoad'
+        pe_log "#{@url} started provisional load"
+        
+        self.prep_load @url
+
+        send_notification :Load_request_notification, @url
+
+        # TODO integrate with cancels.
+
+      when 'didCommitLoad', 'didChangeLocationWithinPage'
+      
+      when 'didFinishLoadingResource'
+
+      when 'didReceiveTitle'
+        send_notification :Title_received_notification, { 
+          url: @url, title: event_data[:title] 
+        }
+
+      when 'didFinishLoadMainFrame'
+        send_notification :Url_load_finished_notification, @url
+
+        @success_handler.call @url if @success_handler
+        @success_handler = nil
+        @fail_handler = nil  # FIXME this seems to cause thread-unsafe conditions.
+
+        if $DEBUG
+          pe_warn "finished loading #{@url}. events: #{@events}"
+        end
+        
+      when 'provisionalLoadFailed', 'loadFailed'
+        pe_log event
+
+        if @fail_handler
+          @fail_handler.call @url
+        else
+          pe_warn "no fail handler set for #{@url}"
+        end
+
+        @success_handler = nil
+        @fail_handler = nil
+
+      end
 
     rescue Exception => e
       pe_report e, "while handling WebView events."
@@ -141,22 +145,28 @@ class WebViewDelegate
   
 #=
 
-def update_last_url url
-  @last_url = url
-end
+  def prep_load url
+    @events.clear unless $DEBUG
 
-def is_redirect_from_last_url
-  # TODO
-  true
-end
+    @redirections = []
+  end
+
+  def add_redirect new_url
+    kvo_change :redirections do
+      @redirections << new_url
+    end
+  end
+
+  def redirect_info
+    "#{@url}: #{@redirections}"
+  end
 
 #= http lifecycle
 
   def webView(webView, didStartProvisionalLoadForFrame:frame)
     if frame == webView.mainFrame
-      self.clear_event_buffer
-      self.push_event 'didStartProvisionalLoad'
-
+      self.push_event 'didStartProvisionalLoad',
+        new_url: webView.url
     end
   end
   
@@ -169,11 +179,14 @@ end
   end
   
   def webView(webView, resource:identifier, willSendRequest:request, redirectResponse:redirectResponse, fromDataSource:dataSource)
-    redirectResponse = redirectResponse.copy
-    if is_redirect_from_last_url
-      
-      self.push_event 'willSendRequestForRedirectResponse', { new_url: request.URL.absoluteString }
-    end
+    response_url = 
+      unless redirectResponse.nil?
+        redirectResponse.URL.absoluteString
+      else
+        nil
+      end
+
+    self.push_event 'willSendRequestForRedirectResponse', { new_url: request.URL.absoluteString, response_url: response_url }
     
     request
   end
@@ -214,6 +227,7 @@ end
     # for ajax requests that update the bflist, i.e. semantically a 'next page'.
     # if back history item matches with current item container, must push another item container.
     # FIXME just pushing won't do, it needs to look for a matching item first.
+    # RELOCATE
     # if self.back_forward_list_moved
     #   context.add_access webView.backForwardList.currentItem.URLString, :enquiry => input_field_vc.current_enquiry
     #       context.update_detail webView.url, :thumbnail => webView.image

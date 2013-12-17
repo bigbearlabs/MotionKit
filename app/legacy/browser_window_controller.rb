@@ -17,8 +17,7 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :should_close
 
 	# all the data. LEAKY
-	attr_accessor :stack	
-	attr_accessor :context  # TODO clean up usage and remove.
+	attr_accessor :stack  
 	attr_accessor :search_details
 
 	# bindable data
@@ -43,33 +42,14 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :bar_vc
 
 	def components
-	  [
-	  	{
-	  		module: InputHandler
-	  	}
-	  ]
+		[
+			{
+				module: InputHandler
+			}
+		]
 	end
 	
 
-#= model
-	
-	def context=( context )
-		on_main do
-			kvo_change :context do
-				pe_warn "#{self} setting #{context}."
-
-				# there must be a better way to inherit the overridden accessor..
-				@context = context
-				
-				@bar_vc.context = @context
-
-				# MOTION-MIGRATION
-				#@context_vc.context = @context
-				# @history_vc.representedObject = @context
-			end
-		end
-	end
-	
 #= lifecycle
 
 	def init
@@ -85,7 +65,7 @@ class BrowserWindowController < NSWindowController
 		super
 	end
 	
-	def setup(collaborators)		
+	def setup(collaborators)    
 		raise "no window for #{self}" unless self.window
 				
 		inject_collaborators collaborators
@@ -99,6 +79,12 @@ class BrowserWindowController < NSWindowController
 
 		pe_log "#{self} synchronous setup complete."
 
+		# populate model's redirections 
+		@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |args|
+		# observe_kvo self, 'browser_vc.web_view_delegate.redirections' do
+			self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections if self.stack
+		end
+
 		on_main_async do
 			@browser_vc.setup :data_manager => @data_manager
 
@@ -108,6 +94,7 @@ class BrowserWindowController < NSWindowController
 
 			watch_notification :Load_request_notification, @browser_vc.web_view_delegate
 			watch_notification :Title_received_notification, @browser_vc.web_view_delegate
+			watch_notification :Url_load_finished_notification, @browser_vc.web_view_delegate
 			# watch_notification :Link_navigation_notification, @browser_vc.web_view_delegate
 
 			# user
@@ -156,7 +143,7 @@ class BrowserWindowController < NSWindowController
 	def setup_reactive_first_responder
 		# when detail popover hidden, make webview first responder
 		@reaction_first_responder = react_to 'page_details_vc.popover.shown' do
-			on_main_async	do
+			on_main_async do
 				if ! @page_details_vc.shown?
 					self.browser_vc.web_view.make_first_responder
 				end
@@ -188,24 +175,24 @@ class BrowserWindowController < NSWindowController
 
 		observe_kvo self, :title do |k,c, ctx|
 			new_title = self.title
-			new_title ||= '<no title>'	# guard against transient nil situations
+			new_title ||= '<no title>'  # guard against transient nil situations
 			window.title = new_title if self.window_title_mode == :title
 		end
 
 		observe_kvo self, :url do |k, c, ctx|
-			window.title = self.url if self.window_title_mode == :url			
+			window.title = self.url if self.window_title_mode == :url     
 		end
 
 		# # MOTION-MIGRATION
 		# # add a click handler in the region of the title,
 		# # invoke page popover.
 		# window.frame_view.track_mouse_down do |event, hit_view|
-		# 	# if event.locationInWindow.in_rect( window.frame_view._titleControlRect )  # MOTION-MIGRATION
-		# 	if NSPointInRect(event.locationInWindow, window.frame_view._titleControlRect )
-		# 		# handle_carousel_title self
+		#   # if event.locationInWindow.in_rect( window.frame_view._titleControlRect )  # MOTION-MIGRATION
+		#   if NSPointInRect(event.locationInWindow, window.frame_view._titleControlRect )
+		#     # handle_carousel_title self
 
-		# 		handle_toggle_page_detail self
-		# 	end
+		#     handle_toggle_page_detail self
+		#   end
 		# end
 	end
 
@@ -231,7 +218,7 @@ class BrowserWindowController < NSWindowController
 
 	def handle_show_search(sender)
 		# self.page_details_vc.display_mode = :query
-		# self.handle_show_page_detail self		
+		# self.handle_show_page_detail self   
 
 		@input_field_vc.display_mode = :Display_enquiry
 		@input_field_vc.focus_input_field
@@ -271,7 +258,7 @@ class BrowserWindowController < NSWindowController
 		unless @page_details_vc_setup
 			@page_details_vc.setup
 
-			@page_details_vc.page_collection_vc.representedObject = self.context
+			@page_details_vc.page_collection_vc.representedObject = self.stack
 
 			@page_details_vc_setup = true
 		end
@@ -404,7 +391,7 @@ class BrowserWindowController < NSWindowController
 	
 		self.show_toolbar
 
-		# disable the overlay for now.		
+		# disable the overlay for now.    
 =begin
 		case @input_field_vc.mode 
 		when :Filter
@@ -426,7 +413,7 @@ class BrowserWindowController < NSWindowController
 
 	def handle_input( input, details = {})
 		# just try loading, fall back to a search.
-	  self.load_url [input, input.to_search_url_string], details
+		self.load_url [input, input.to_search_url_string], details
 	end
 	
 
@@ -440,12 +427,9 @@ class BrowserWindowController < NSWindowController
 	# stack_id: the id of stack if stack retrieval not suitable.
 	# FIXME migrate objc_interface_obj to webbuddy.interface, migrate webbuddy.module use cases.
 	def load_url(urls, details = {})
-		# update the stack
-		self.stack = details[:stack]
-		self.stack ||= @data_manager.stack_for urls[0]
 
 		@browser_vc.load_url urls, details
-			end
+	end
 
 	#= browsing workflow
 
@@ -502,6 +486,14 @@ class BrowserWindowController < NSWindowController
 		}
 	end
 
+	def handle_Url_load_finished_notification( notification )
+		if self.stack
+			self.stack.update_detail @browser_vc.url, thumbnail: @browser_vc.view.image
+		else
+			pe_log "nil stack"
+		end
+	end
+	
 #= bar
 
 	def handle_Bar_item_selected_notification( notification )
@@ -530,29 +522,29 @@ class BrowserWindowController < NSWindowController
 #== site configuration sheet
 	## disabled until relationship between stacks and sites are made clearer.
 	# def handle_add_site(sender)
-	# 	site = @context.new_site
-	# 	handle_configure_site site
+	#   site = @context.new_site
+	#   handle_configure_site site
 	# end
 
-	# def handle_configure_site(site)	# RENAME not a handle_ method 
-	# 	@site_conf_controller ||= SiteConfigurationWindowController.alloc.init
+	# def handle_configure_site(site) # RENAME not a handle_ method 
+	#   @site_conf_controller ||= SiteConfigurationWindowController.alloc.init
 
-	# 	@site_conf_controller.site = site
+	#   @site_conf_controller.site = site
 
-	# 	# present as sheet
-	# 	self.show_sheet @site_conf_controller do
-	# 		# when finished,
+	#   # present as sheet
+	#   self.show_sheet @site_conf_controller do
+	#     # when finished,
 
-	# 		@site_conf_controller.update_model
-	# 		@bar_vc.refresh
-	# 	end
+	#     @site_conf_controller.update_model
+	#     @bar_vc.refresh
+	#   end
 	# end
 	
 	# def delete_site(site)
-	# 	# as a quick impl, just delete. sheet-based workflow depends on better modularisation of the platform-specific sheet handling.
+	#   # as a quick impl, just delete. sheet-based workflow depends on better modularisation of the platform-specific sheet handling.
 
-	# 	@context.remove_site site
-	# 	@bar_vc.refresh
+	#   @context.remove_site site
+	#   @bar_vc.refresh
 	# end
 
 #= sidebar
@@ -840,24 +832,24 @@ end
 
 # MOTION-MIGRATION
 # class OverlayWindow < MAAttachedWindow
-# 	attr_accessor :close_when_mouse_exits
+#   attr_accessor :close_when_mouse_exits
 			
-# 	def canBecomeKeyWindow
-# 		false
-# 	end
+#   def canBecomeKeyWindow
+#     false
+#   end
 	
-# 	def resize_to_parent_frame
-# 		if self.parentWindow
-# 			top_and_middle = self.parentWindow.delegate.overlay_top_middle
-# 			# overlay_center = NSMakePoint( top_and_middle.x, top_and_middle.y - (self.frame.height / 2 ) )
-# 			self.setPoint(top_and_middle, side:NSMinYEdge)
+#   def resize_to_parent_frame
+#     if self.parentWindow
+#       top_and_middle = self.parentWindow.delegate.overlay_top_middle
+#       # overlay_center = NSMakePoint( top_and_middle.x, top_and_middle.y - (self.frame.height / 2 ) )
+#       self.setPoint(top_and_middle, side:NSMinYEdge)
 
-# 			width_adjusted_frame = self.frame.modified_frame_horizontal(self.parentWindow.delegate.overlay_frame.bounds.width)
-# 			self.frame = width_adjusted_frame
+#       width_adjusted_frame = self.frame.modified_frame_horizontal(self.parentWindow.delegate.overlay_frame.bounds.width)
+#       self.frame = width_adjusted_frame
 						
-# 			self.contentView.update_tracking_areas
-# 		end
-# 	end
+#       self.contentView.update_tracking_areas
+#     end
+#   end
 
 # end
 

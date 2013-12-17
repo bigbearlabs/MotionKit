@@ -14,21 +14,19 @@ class WebViewController < BBLComponent
 #=
 
   def load_url( urls, options = {})
-    pe_debug "loading urls #{urls}, options #{options}"
+    pe_log "loading urls #{urls}, options #{options}"
 
     urls = [ urls ] unless urls.is_a? Array
 
     case urls.compact.size
     when 0
       raise "no urls available in #{urls}"
-    when 1
-      # no fallback - add update the failure handler
-      fail_handler = options[:fail_handler] or default_fail_handler
     else
       fail_handler = -> url {
         # first call the one that's passed in.
         options[:fail_handler].call url if options[:fail_handler]
-        default_fail_handler(urls[1..-1]).call url
+
+        default_fail_handler(urls[1..-1].to_a).call url
       }
     end
     @web_view.delegate.fail_handler = fail_handler

@@ -9,14 +9,17 @@ class Context
 
   attr_accessor :name
   
-  attr_reader :current_history_item
-
   attr_accessor :filter_tag # for array controller filtering
 
   def history_items
     @history_items.dup.freeze
   end
   
+  # work around RM attr_reader - objc incompatibility.
+  def current_history_item
+    @current_history_item
+  end
+
   def initialize( name = "Unnamed context #{self.name_suffix_sequence}", history_items = [])
     super
 
@@ -33,7 +36,6 @@ class Context
   def add_access( url, details = {} )  # rename
     raise "nil url!" if url.nil?
     
-    
     # assert this item not loaded.
     if self.item_for_url url
       pe_warn "add requested for an already known item #{url}. investigate"
@@ -45,7 +47,7 @@ class Context
       'url' => url,
       'title' => url,
       'pinned' => false,
-      'timestamp' => NSDate.date,
+      'timestamp' => NSDate.date.to_s,
     })
     item_container.filter_tag = item_container.timestamp
 
@@ -62,7 +64,7 @@ class Context
     pe_debug "update_access: #{caller}"
 
     item = item_for_url url
-    item.last_accessed_timestamp = NSDate.date
+    item.last_accessed_timestamp = NSDate.date.to_s
     item.filter_tag = item.timestamp
 
     self.update_current_history_item item
@@ -406,13 +408,13 @@ class ItemContainer
     
     return self.url.match_url?(url) || 
       self.originalURLString.match_url?(url) || 
-      @redirect_info.to_a.compact.select{|e| e[0].match_url?(url) }.count > 0
+      @redirect_info.to_a.include?( url)
   end
 
   def add_redirect( redirect_info )
     kvo_change :redirect_info do
       @redirect_info ||= []
-      @redirect_info << redirect_info
+      @redirect_info.concat redirect_info
       
       pe_log "added #{redirect_info} to #{self}"
     end
@@ -498,8 +500,8 @@ class ItemContainer
   
     o2 = ItemContainer.new(o)
     o2.pinned = item_data['pinned'] # IMPROVE write some kind of serialisation spec to avoid noddy sets like this one
-    o2.timestamp = Time.new item_data['timestamp'].to_i
-    o2.last_accessed_timestamp = Time.new item_data['last_accessed_timestamp'].to_i
+    o2.timestamp = item_data['timestamp'].to_s
+    o2.last_accessed_timestamp = item_data['last_accessed_timestamp'].to_s
     o2.enquiry = item_data['enquiry']
     
     o2
@@ -554,4 +556,4 @@ end
 
 
 # TODO check if this is an appropriate stand-in value.
-NilTime = Time.new 0
+NilTime = Time.new(0).to_s
