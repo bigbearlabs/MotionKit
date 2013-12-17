@@ -45,10 +45,12 @@ class FilteringPlugin < WebBuddyPlugin
           pages = stack.history_items.sort_by {|e| e.last_accessed_timestamp}.reverse
 
           stack_url = pages.empty? ? '' : pages.first.url
+
           {
             name: stack.name,
             # thumbnail_url: 'stub-thumbnail-url',
             url: stack_url,
+            last_accessed_timestamp: stack.last_accessed_timestamp,
             pages: 
               pages.map do |page|
                 {
