@@ -1,7 +1,7 @@
 # plugin loaded by AppD, but interacts with wc a lot -- this probably indicates a granularity mismatch.
 class WebBuddyPlugin < BBLComponent
   extend Delegating
-  def_delegator :'client.wc.browser_vc', :eval_js, :eval_expr, :eval_js_file
+  def_delegator :'client.plugin_vc', :eval_js, :eval_expr, :eval_js_file
 
   include IvarInjection
   
@@ -24,20 +24,20 @@ class WebBuddyPlugin < BBLComponent
     end
   end
   
-  def load_view(&load_handler)
+  def load_view
     # self.write_data
 
-    client.wc.load_url self.view_url, success_handler: -> url {
+    self.client.plugin_vc.load_url self.view_url, success_handler: -> url {
       ## this is made obsolete by wb-integration.coffee.
       # self.attach_hosting_interface
 
-      load_handler.call
+      yield if block_given?
     }
     # , ignore_history: true
   end
 
   def view_loaded?
-    self.client.wc.browser_vc.url.to_s.include? self.view_url
+    self.client.plugin_vc.url.to_s.include? self.view_url
   end
 
   def attach_hosting_interface
@@ -50,7 +50,7 @@ class WebBuddyPlugin < BBLComponent
     data = self.data
     pe_log "updating data, keys: #{data.keys}"
 
-    NSApp.delegate.wc.browser_vc.web_view.delegate.send %(
+    self.client.plugin_vc.web_view.delegate.send %(
       window.webbuddy_data = #{self.data.to_json};
       window.webbuddy_data_updated();  // will throw if callback 
     )

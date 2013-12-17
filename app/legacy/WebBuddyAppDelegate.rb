@@ -41,12 +41,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# {
 			# 	module: ServicesHandler,
 			# },
-			{
-				module: FilteringPlugin,
-				deps: {
-					context_store: @context_store
-				}
-			},
 		].tap do | cs|
 			# dev-only
 			if RUBYMOTION_ENV == 'development'
@@ -403,7 +397,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# subsystems
 		# @anchor_window_controller.load_anchor_for_space @spaces_manager.current_space_id, true
 		self.main_window_controller = MainWindowController.alloc.init
-		@main_window_controller.setup	:data_manager => @context_store
+		@main_window_controller.setup	context_store: @context_store
 
 		@main_window_controller.stack = @context_store.current_context  # REDUNDANT
 
@@ -519,7 +513,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		end
 		
 		trace_time 'viewer_wc setup' do
-			viewer_wc.setup :data_manager => @context_store
+			viewer_wc.setup context_store: @context_store
 		end
 
 		viewer_wc

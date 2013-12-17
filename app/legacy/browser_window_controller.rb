@@ -41,11 +41,19 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :page_details_vc
 	attr_accessor :bar_vc
 
+	attr_accessor :plugin_vc
+
 	def components
 		[
 			{
 				module: InputHandler
-			}
+			},
+			{
+				module: FilteringPlugin,
+				deps: {
+					context_store: @context_store
+				}
+			},
 		]
 	end
 	
@@ -86,9 +94,11 @@ class BrowserWindowController < NSWindowController
 		end
 
 		on_main_async do
-			@browser_vc.setup :data_manager => @data_manager
+			@browser_vc.setup context_store: @context_store
 
-			browser_vc.web_view.make_first_responder 
+			@browser_vc.web_view.make_first_responder 
+
+			@plugin_vc.setup( {} )
 
 			# self.setup_overlay
 
@@ -431,6 +441,9 @@ class BrowserWindowController < NSWindowController
 		self.stack = @context_store.stack_for( sid ) if sid
 
 		@browser_vc.load_url urls, details
+
+		@browser_vc.frame_view.visible = true
+		@plugin_vc.frame_view.visible = false
 	end
 
 	#= browsing workflow

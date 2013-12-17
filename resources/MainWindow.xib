@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment defaultVersion="1070" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
     </dependencies>
     <objects>
@@ -14,6 +13,7 @@
                 <outlet property="input_field_vc" destination="537" id="1015"/>
                 <outlet property="overlay_frame" destination="1005" id="1028"/>
                 <outlet property="page_details_vc" destination="1056" id="1061"/>
+                <outlet property="plugin_vc" destination="MWc-vU-FnU" id="FjG-0K-Vmd"/>
                 <outlet property="progress_vc" destination="1037" id="1039"/>
                 <outlet property="top_portion_frame" destination="1073" id="1079"/>
                 <outlet property="window" destination="371" id="1013"/>
@@ -81,7 +81,6 @@
         <viewController nibName="BrowserView" id="600" customClass="BrowserViewController">
             <connections>
                 <outlet property="frame_view" destination="672" id="673"/>
-                <outlet property="input_field_vc" destination="537" id="814"/>
             </connections>
         </viewController>
         <viewController nibName="InputFieldView" id="537" customClass="InputFieldViewController">
@@ -113,6 +112,11 @@
         <viewController nibName="BarView" id="866" customClass="BarViewController">
             <connections>
                 <outlet property="frame_view" destination="1062" id="1066"/>
+            </connections>
+        </viewController>
+        <viewController nibName="BrowserView" id="MWc-vU-FnU" customClass="BrowserViewController">
+            <connections>
+                <outlet property="frame_view" destination="881" id="nlW-co-WPK"/>
             </connections>
         </viewController>
     </objects>
