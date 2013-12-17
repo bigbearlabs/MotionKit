@@ -60,8 +60,10 @@ class SpacesManager
 	# sample output:
 	# {"kCGWindowLayer"=>2147483629, "kCGWindowName"=>"Focus", "kCGWindowMemoryUsage"=>58652, "kCGWindowIsOnscreen"=>true, "kCGWindowSharingState"=>1, "kCGWindowOwnerPID"=>999, "kCGWindowNumber"=>215, "kCGWindowOwnerName"=>"Focusbar", "kCGWindowStoreType"=>2, "kCGWindowBounds"=>{"Height"=>38.0, "X"=>813.0, "Width"=>294.0, "Y"=>1200.0}, "kCGWindowAlpha"=>1.0}
 	def space_window_data
-		window_list = CGWindowListCopyWindowInfo(KCGWindowListOptionOnScreenOnly|KCGWindowListExcludeDesktopElements, KCGNullWindowID) 
+		window_list = CGWindowListCopyWindowInfo(KCGWindowListOptionOnScreenOnly|KCGWindowListExcludeDesktopElements, KCGNullWindowID)
 		# this list is ordered top-bottom according to window stack
+
+		window_list.copy
 	end
 
 	def window_info( app_name )
@@ -85,20 +87,14 @@ class SpacesManager
 
 	# FIXME this won't work with pid other than this app's.
 	def windows_in_space( criteria = { :pid => NSApp.pid } )
-		window_list = [].concat self.space_window_data
+		window_list = self.space_window_data.dup
 		if criteria
-			window_list.keep_if do |window_info|
-				window_info["kCGWindowOwnerPID"] == criteria[:pid]
-			end
+			window_list = window_list.select {|info| info["kCGWindowOwnerPID"] == criteria[:pid] }
 		end
 
-		window_numbers = window_list.collect do |window_info|
-			window_info["kCGWindowNumber"]
-		end
+		window_numbers = window_list.map { |info| info["kCGWindowNumber"] }
 
-		windows = NSApp.windows.select do |window|
-			window_numbers.include? window.windowNumber
-		end
+		windows = NSApp.windows.select { |window| window_numbers.include? window.windowNumber }
 
 		windows
 	end
