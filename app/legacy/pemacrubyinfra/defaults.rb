@@ -122,7 +122,8 @@ module DefaultsAccess
   end
 
   def defaults_saved
-    NSUserDefaults.standardUserDefaults.persistentDomainForName(NSApp.bundle_id)  
+    results = NSUserDefaults.standardUserDefaults.persistentDomainForName(NSApp.bundle_id)
+    results or {}
   end
   
   def defaults_set_delta delta, key_qualifier = nil
