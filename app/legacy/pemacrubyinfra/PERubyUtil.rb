@@ -239,7 +239,7 @@ class Array
 end
 
 # ?? can't get this work with the defaults loaded from the cocoa api. clobbering in CocoaHelper.
-class Hash
+module HashUtil
 
   def delete_value( val )
     self.keys.each do |key|
@@ -253,22 +253,26 @@ class Hash
   # @return a new hash with values in priority_hash overwriting existing values.
   # note that entries in original hash which are mssing in priority do not mean they should be removed, i.e. changes will never 'narrow' the keyset.
   def overwritten_hash( priority_hash )
-    priority_hash ||= {}
-    
+    raise "nil priority hash" if priority_hash.nil?
+
     overwritten_hash = {}
     
-    self.each_pair do |k, v|
-      if v.is_a? Hash
-        new_val = Hash[v].overwritten_hash( priority_hash[k] )
+    self.map do |k, v|
+      priority_val = priority_hash[k]
+      case priority_val
+      when nil
+        new_val = v
+      when Hash
+        new_val = v.overwritten_hash priority_val
       else
-        if priority_hash.has_key?(k)
-          pe_debug "overwriting #{k} with value from priority hash"
-          new_val = priority_hash[k]
-        else
-          new_val = v
-        end
+        new_val = priority_val
       end
       
+      case new_val
+      when Array, Hash, String
+        new_val = new_val.dup
+      end
+
       overwritten_hash[k] = new_val
     end
     
@@ -282,6 +286,38 @@ class Hash
     overwritten_hash
   end
   
+  # create a hash representing the delta between self and hash2.
+  # ignores keys in self and absent in hash2. (narrowing hash change)
+  # if new_keys:true, includes keys absent in self and present in hash2. (widening hash change)
+  # array values are deemed different unless equal; i.e. doesn't look inside arrays.
+  def diff_hash(hash2, options = {})
+    hash1 = self.dup
+    diff = hash1.keys.inject({}) do |acc, key|
+      val1 = hash1[key]
+      val2 = hash2[key]
+
+      if val1.is_a? Hash
+        val2 = Hash[val1].diff_hash Hash[val2.to_a], options
+      end
+
+      unless val2.nil? or val2 == val1 or (val2.is_a? Hash and val2.empty?)
+        acc[key] = val2
+      end
+
+      acc
+    end
+
+    if options[:new_keys]
+      new_keys = hash2.keys - hash1.keys
+      new_keys.map do |new_key|
+        diff[new_key] = hash2[new_key]
+      end
+    end
+
+    diff
+  end
+  
+
   # returns a new hash with the keys stringified.
   def to_stringified
     self.inject({}) do |acc, e|
@@ -324,10 +360,10 @@ class Hash
     self.each do |key, val|
       segments = key.split delim
 
-      # create a generic structure
+      # create a generic structure as necessary
       last_hash = new_hash
       segments[0..-2].each do |segment|
-        last_hash[segment] = {}
+        last_hash[segment] ||= {}
         last_hash = last_hash[segment]
       end
 
