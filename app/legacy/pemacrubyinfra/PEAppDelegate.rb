@@ -14,6 +14,8 @@ class PEAppDelegate
 	include InteractiveApplication if ENV['INTERACTIVE']
 
 
+	attr_accessor :factory_defaults
+
 	# outlets	
 	attr_accessor :status_bar_menu
 
@@ -89,7 +91,7 @@ class PEAppDelegate
 #==
 	
 	def setup_defaults
-		factory_defaults = NSBundle.mainBundle.dictionary_from_plist 'data/defaults'
+		self.factory_defaults = NSBundle.mainBundle.dictionary_from_plist 'data/defaults'
 		defaults_register factory_defaults
 	end
 	
