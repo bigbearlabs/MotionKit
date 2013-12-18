@@ -135,6 +135,7 @@ namespace :release do
     puts "build_number incremented to #{build_number}"
   end
 
+  desc "commit all version files"
   task :commit_version do
     sh %( git commit '*.VERSION' -m "version to #{version_number} / #{build_number}"; git push )
   end
