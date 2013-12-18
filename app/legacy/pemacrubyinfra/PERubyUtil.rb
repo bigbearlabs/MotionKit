@@ -128,7 +128,7 @@ end
 
 #=
 
-class String
+module StringUtil
 
   def starts_with?(prefix)
     prefix = prefix.to_s
@@ -149,11 +149,12 @@ class String
   
   def to_url_string # PROTO
     if self[0] == '/'
-      "file://#{self}"
+      "file://#{self.escape}"
     elsif self =~ %r{(http|https|file)://}
+      # FIXME probably has some edge cases
       self
     else
-      "http://#{self}"
+      "http://#{self.escape}"
     end
   end
   
@@ -170,6 +171,8 @@ class String
   end
   
 end
+
+class String; include StringUtil; end
 
 
 class Array

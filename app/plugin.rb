@@ -20,7 +20,7 @@ class WebBuddyPlugin < BBLComponent
     else
       plugin_dir = "plugin"
       module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-      return "#{module_index_path}#/#{plugin_name}"  # DEPLOY
+      return "file://#{module_index_path}#/#{plugin_name}"  # DEPLOY
     end
   end
   
