@@ -13,11 +13,20 @@ class BrowserDispatch < BBLComponent
   #=
 
   def defaults_spec
+    # TACTICAL seriously hack routine to refresh all bars. should reduce coupling to BarVC.
+    @refresh_bar_p ||= -> {
+      NSApp.windows.map(&:windowController).select {|e| e.is_a? BrowserWindowController}
+        .map do |wc|
+          wc.bar_vc.setup_browsers
+          wc.bar_vc.refresh
+        end
+    }
+
     {
       click_handler: {
         depends_on: :'DefaultBrowserHandler.make_default_browser',
         postflight: -> new_specs {
-          # TODO does there need to be anything?
+          @refresh_bar_p.call
         },
         preference_spec: {
           view_type: :list,
@@ -29,6 +38,7 @@ class BrowserDispatch < BBLComponent
       opt_click_handler: {
         depends_on: :'DefaultBrowserHandler.make_default_browser',
         postflight: -> new_specs {
+          @refresh_bar_p.call
         },
         preference_spec: {
           view_type: :list,
@@ -39,6 +49,7 @@ class BrowserDispatch < BBLComponent
       shift_opt_click_handler: {
         depends_on: :'DefaultBrowserHandler.make_default_browser',
         postflight: -> new_specs {
+          @refresh_bar_p.call
         },
         preference_spec: {
           view_type: :list,

@@ -11,6 +11,7 @@ GEM
     activesupport (3.2.16)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
+    blockenspiel (0.4.5)
     bubble-wrap (1.4.0)
     celluloid (0.15.2)
       timers (~> 1.1.0)
@@ -88,6 +89,8 @@ GEM
     thor (0.18.1)
     tilt (2.0.0)
     timers (1.1.0)
+    versionomy (0.4.4)
+      blockenspiel (>= 0.4.5)
     xcodeproj (0.14.1)
       activesupport (~> 3.0)
       colored (~> 1.2)
@@ -110,3 +113,4 @@ DEPENDENCIES
   motion-require
   motion-yaml
   rake
+  versionomy

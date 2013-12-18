@@ -235,6 +235,10 @@ class NSArray
 	end
 end
 	
+
+class NSDictionary; include HashUtil; end
+
+
 class NSDictionary
 
 	def self.dictionary_from( path_string )

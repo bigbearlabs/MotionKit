@@ -16,7 +16,7 @@ class PEAppDelegate
 	# include InteractiveApplication if ENV['INTERACTIVE']
 
 
-	attr_accessor :defaults_hash
+	attr_accessor :factory_defaults
 
 	# outlets	
 	attr_accessor :status_bar_menu
@@ -30,12 +30,12 @@ class PEAppDelegate
 
 		trace_time __callee__.to_s, true do
 
+			# defaults
+			self.setup_defaults
+
 			# collaborators
 			@spaces_manager ||= SpacesManager.new
 			@screens_manager ||= ScreensManager.instance
-
-			# defaults
-			self.setup_defaults
 			
 			@tags_by_description = default(:tags_by_description)
 
@@ -93,8 +93,8 @@ class PEAppDelegate
 #==
 	
 	def setup_defaults
-		self.defaults_hash = NSBundle.mainBundle.dictionary_from_plist 'data/defaults'
-		defaults_register( self.defaults_hash )
+		self.factory_defaults = NSBundle.mainBundle.dictionary_from_plist 'data/defaults'
+		defaults_register factory_defaults
 	end
 	
 	def setup_services
