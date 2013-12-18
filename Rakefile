@@ -2,9 +2,9 @@
 
 build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
-build_number = 211
-# version_number = "1.1.9-#{build_number}"  # DEV
-version_number = "1.1.9"
+build_number = 212
+version_number = "1.1.10"
+# version_number = "#{version_number}-#{build_number}"  # DEV
 
 
 $:.unshift("/Library/RubyMotion/lib")
