@@ -204,7 +204,7 @@
 				<string>~/Downloads</string>
 			</dict>
 		</dict>
-		<key>handle_hide_input_field:</key>
+		<key>handle_focus_input_field</key>
 		<false/>
 	</dict>
 </dict>

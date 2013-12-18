@@ -38,6 +38,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 			{
 				module: HotkeyHandler,
 			},
+			{
+				module: WindowPreferenceExposer,
+			},
 			# {
 			# 	module: ServicesHandler,
 			# },
@@ -163,24 +166,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 
 #= setup
-
-	def setup_defaults
-		super
-
-		# shitty hack to up-version the defaults.
-		# using a previous version will then become wonky.
-		# there's got to be a better way to do this.
-		overwrite_user_defaults [
-			'WebBuddyAppDelegate.load_ext_url_policy',
-			'WebBuddyAppDelegate.HotkeyHandler',
-			# 'WebBuddyAppDelegate.hotkey_manager.modkey_hold_interval',
-			# 'WebBuddyAppDelegate.hotkey_manager.modkey_double_threshold',
-
-			# FIXME current nested hash structure is dangerous because when we register shipped defaults, existing nested hash structure will totally eclipse any new child entries.
-			# OPTION store this widening change as another (r/o) default.
-			# OPTION migrate to flat keys.
-		]
-	end
 
 
 	def setup_context_store
@@ -475,7 +460,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 			self.deactivate_viewer_window
 		else
 			self.activate_viewer_window
-			self.current_viewer_wc.handle_focus_input_field self
 		end
 	end
 	

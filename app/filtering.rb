@@ -3,7 +3,7 @@ class FilteringPlugin < WebBuddyPlugin
   include Reactive
 
   def on_setup
-    react_to 'client.input_field_vc.current_filter' do |input|
+    @filter_reaction = react_to 'client.input_field_vc.current_filter' do |input|
       self.show_plugin
 
       self.load_view unless view_loaded? # HACK work around lack of navigability constraint.
