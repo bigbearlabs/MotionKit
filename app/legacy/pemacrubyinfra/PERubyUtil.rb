@@ -258,16 +258,25 @@ module HashUtil
     overwritten_hash = {}
     
     self.map do |k, v|
-      priority_val = priority_hash[k]
-      case priority_val
-      when nil
-        new_val = v
-      when Hash
-        new_val = v.overwritten_hash priority_val
+      if priority_hash.has_key? k
+        priority_val = priority_hash[k]
+        case priority_val
+        when Hash
+          if v.is_a? Hash
+            new_val = v.overwritten_hash priority_val
+          else
+            # for some reason v is not a hash. assume priority hash has corrupted value.
+            new_val = v
+          end
+        else
+          new_val = priority_val
+        end
       else
-        new_val = priority_val
+        # key not found in priority val: just use old val.
+        new_val = v
       end
-      
+
+      # put in a decent effort to isolate.
       case new_val
       when Array, Hash, String
         new_val = new_val.dup

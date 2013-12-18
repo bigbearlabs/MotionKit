@@ -7,23 +7,22 @@ module DefaultsAccess
   def watch_default key, &handler
     @default_handlers_by_key ||= {}
 
-    handlers = @default_handlers_by_key[defaults_qualified_key(key)] ||= []
-    handlers << handler
+    (@default_handlers_by_key[defaults_qualified_key(key)] ||= []) << handler
   end
   
 
   def default( key )
-    raise "factory defaults not set!" unless factory_defaults
+    raise "factory defaults not set!" if self.factory_defaults.nil?
 
     key = defaults_qualified_key key
     val = NSUserDefaults.standardUserDefaults.kvc_get(key)
 
     # retrieve from merged defaults.
     merged_defaults = 
-      if val
-        factory_defaults.overwritten_hash key => val
+      if val.nil?
+        factory_defaults.dup
       else
-        factory_defaults
+        factory_defaults.overwritten_hash({ key => val }.unflattened_hash)
       end
 
     # guard against flattened dupe key.
@@ -50,14 +49,14 @@ module DefaultsAccess
     tl_hash = default(tl_key)
 
     unflattened_hash = { key => val }.unflattened_hash
-    pe_log "unflattened: #{unflattened_hash}"
+    pe_log "unflattened: #{unflattened_hash.description}"
     
     merged_hash = tl_hash.overwritten_hash unflattened_hash[tl_key]
-    pe_log "merged_hash: #{merged_hash}"
+    pe_log "merged_hash: #{merged_hash.description}"
 
     new_hash = factory_defaults[tl_key].diff_hash merged_hash, new_keys: true
 
-    pe_log "update new hash #{new_hash} for key #{tl_key}"
+    pe_log "update new hash #{new_hash.description} for key #{tl_key}"
 
     NSUserDefaults.standardUserDefaults.setValue(new_hash, forKeyPath:tl_key)
 
@@ -95,14 +94,16 @@ module DefaultsAccess
 =end
 
   def factory_defaults
-    NSApp.delegate.ivar(:factory_defaults)
+    if self == NSApp.delegate
+      super
+    else
+      NSApp.delegate.factory_defaults
+    end
   end
 
   # reserved to top-level module client (i.e. appd)
   def defaults_register( factory_defaults )
     pe_debug "defaults_hash: #{factory_defaults}"
-
-    @factory_defaults = factory_defaults
 
     # previously we used to save redundant entries - make it lean.
     current_defaults = defaults_saved
