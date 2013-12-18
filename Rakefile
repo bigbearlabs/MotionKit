@@ -2,8 +2,8 @@
 
 build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
-build_number = 212
 version_number = "1.1.10"
+build_number = `cat build.VERSION`.strip
 # version_number = "#{version_number}-#{build_number}"  # DEV
 
 
@@ -27,7 +27,7 @@ Motion::Project::App.setup do |app|
   app.identifier = "com.bigbearlabs.WebBuddy"
   app.icon = "icon.icns"
   app.copyright =  "Copyright (c) 2013 Big Bear Labs. All Right Reserved."
-  app.version = build_number.to_s
+  app.version = build_number
   app.short_version = version_number
 
   app.info_plist['NSMainNibFile'] = 'MainMenu'
@@ -126,15 +126,21 @@ namespace :release do
     )
   end
 
-  task :version do
-    # increment number
+  desc "increment build number"
+  task :increment do
+    v = Versionomy.parse build_number
+    new_version = v.bump(:major).to_s
+    build_number = new_version
+    `echo #{build_number} > build.VERSION`
+    puts "build_number incremented to #{build_number}"
   end
 
   task :commit_version do
-    # commit & push version number
-
+    sh %( git commit '*.VERSION' -m "version to #{version_number} / #{build_number}"; git push )
   end
 
+  # TODO revert version
+
   desc "archive, zip, rsync, version, release"
-  task :all => [:'archive:distribution', :'version', :zip, :commit_version]
+  task :all => [ :increment, :'archive:distribution', :zip, :commit_version ]
 end
