@@ -172,9 +172,15 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# there's got to be a better way to do this.
 		overwrite_user_defaults [
 			'WebBuddyAppDelegate.load_ext_url_policy',
+			'WebBuddyAppDelegate.HotkeyHandler',
+			'WebBuddyAppDelegate.DefaultBrowserHandler',
+			'WebBuddyAppDelegate.BrowserDispatch',
 			# 'WebBuddyAppDelegate.hotkey_manager.modkey_hold_interval',
 			# 'WebBuddyAppDelegate.hotkey_manager.modkey_double_threshold',
-			# FIXME why do nested properties not work properly?
+
+			# FIXME current nested hash structure is dangerous because when we register shipped defaults, existing nested hash structure will totally eclipse any new child entries.
+			# OPTION store this widening change as another (r/o) default.
+			# OPTION migrate to flat keys.
 		], defaults_hash
 	end
 
