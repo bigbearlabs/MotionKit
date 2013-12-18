@@ -22,13 +22,6 @@ class FilteringPlugin < WebBuddyPlugin
     )
   end
 
-  # pull up
-  def show_plugin
-    self.client.browser_vc.frame_view.visible = false
-
-    self.client.plugin_vc.frame_view.visible = true
-  end
-  
   #=
 
   def data

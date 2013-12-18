@@ -442,7 +442,6 @@ class BrowserWindowController < NSWindowController
 
 		@browser_vc.load_url urls, details
 
-		@browser_vc.frame_view.visible = true
 		@plugin_vc.frame_view.visible = false
 	end
 

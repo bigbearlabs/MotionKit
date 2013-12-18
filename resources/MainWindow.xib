@@ -39,12 +39,12 @@
                         <rect key="frame" x="21" y="589" width="872" height="120"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </customView>
-                    <customView id="881" userLabel="gallery frame">
-                        <rect key="frame" x="0.0" y="0.0" width="920" height="718"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                    </customView>
                     <customView id="672" userLabel="browser frame">
                         <rect key="frame" x="0.0" y="0.0" width="920" height="750"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </customView>
+                    <customView id="881" userLabel="gallery frame">
+                        <rect key="frame" x="0.0" y="0.0" width="920" height="718"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </customView>
                     <box autoresizesSubviews="NO" wantsLayer="YES" title="Box" boxType="custom" borderType="none" titlePosition="noTitle" id="1073">
