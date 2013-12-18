@@ -62,7 +62,7 @@ module Preferences
             end
           }
           
-          component.client.watch_default super_default do |new_val|
+          component.client.watch_default super_default do |key, new_val|
             update_visible.call view, new_val
           end
 
@@ -129,22 +129,6 @@ module Preferences
     self.update_toggle_menu_item
   end
   
-#=
-
-  attr_accessor :defaults
-
-  def watch_default key, &handler
-    self.defaults ||= NSUserDefaults.standardUserDefaults
-    key = defaults_qualified_key(key)
-
-    react_to "defaults.#{key}" do |val|
-      pe_log "#{key} updated to #{val}"
-      handler.call val
-    end
-    pe_log "watching #{key}"
-  end
-  
-
 end
 
 
