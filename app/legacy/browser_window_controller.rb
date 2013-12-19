@@ -611,6 +611,8 @@ class BrowserWindowController < NSWindowController
 		else
 			
 			self.window.do_activate -> {
+				NSApp.activate
+
 				# 1.1.9-feature-cut
 				# @input_field_vc.focus_input_field
 
