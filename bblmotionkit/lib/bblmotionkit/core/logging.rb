@@ -8,34 +8,18 @@ Log.level = :info
 
 # set the LOGGING envvar to a csv of log levels to send to NSLog.
 # TODO change envvar value to a csv of log module - level pairs.
-module LoggerMixin
+module Logging
 	
-	logging_str = ENV['LOGGING']
-	NSLog_levels = case logging_str
-	when nil
-		[ :warn ]
-	else
-		logging_str.split(',').collect { |s| s.intern }
-	end
-
 	def pe_debug( msg )
 		Log.debug msg.to_s
 	end
 	
 	def pe_log( msg )
-		if should_nslog :info
-			NSLog( pe_escape_format_specifiers(msg) )
-		else
-			Log.info msg.to_s
-		end
+		Log.info msg.to_s
 	end
   
 	def pe_warn( msg )
-		# if should_nslog :warn
-		# 	NSLog( "#{Environment.instance.isDebugBuild ? "##WARN## " : ""}#{pe_escape_format_specifiers(msg)}" )
-		# else 
 			Log.warn msg.to_s
-		# end
 	end
 
   def pe_trace(msg = nil)
@@ -56,14 +40,9 @@ module LoggerMixin
     msg
 	end
   
-
-	def should_nslog( level )
-		NSLog_levels.include? level
-	end
-  
 end
 
 
 class NSObject
-	include LoggerMixin
+	include Logging
 end

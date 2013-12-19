@@ -79,11 +79,6 @@ def network_connection?( timeout = 2 )
 end
 
 
-class NSObject
-	include LoggerMixin
-end
-
-
 class Module
 	def clean_name
     find_clean_name = -> ancestors {
