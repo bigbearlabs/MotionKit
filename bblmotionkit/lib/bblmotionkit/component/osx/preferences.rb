@@ -341,6 +341,43 @@ class PreviewPrefPaneController < PreferencePaneViewController
   def preference_views
     [
       @factory.new_pref_section(HotkeyHandler), 
+      @factory.new_pref_section(WindowPreferenceExposer), 
     ]
   end
+end
+
+
+# expose defaults on BrowserWindowController as preferences and bridge changes.
+class WindowPreferenceExposer < BBLComponent
+  def on_setup
+    
+  end
+  
+  def defaults_spec
+    {
+      handle_focus_input_field: {
+        postflight: -> val {
+          if val
+            self.client.wc.handle_focus_input_field self
+          else
+            self.client.wc.handle_hide_input_field self
+          end
+        },
+        preference_spec: {
+          view_type: :boolean,
+          label: "Input field",
+        }
+        # MAYBE post_register to specify actions after defaults registered.
+        # MAYBE initial val
+      }
+    }
+  end
+
+  # override and insert the segment that maps to wc.
+  def full_key key = nil
+    full_key = "ViewerWindowController"
+    full_key += ".#{key}" if key
+    full_key
+  end
+
 end

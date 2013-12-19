@@ -242,6 +242,28 @@ module DefaultsAccess
       end
   end
   
+	
+#=
+	
+  # pass in a block as an otherwise proc
+	def if_enabled method, *params
+	  if default method
+	  	# see if selector needs working out
+	  	if self.methods.include? "#{method}:".intern
+	  		method = "#{method}:"
+	  	end
+
+      pe_log "invoking method #{method} based on default val."
+	  	self.send method, *params
+      return
+    end
+
+    # otherwise.
+    yield if block_given?
+	end
+	
+#=
+
   # defining the attr on inclusion due to sporadic crashes when using kvo in conjunction. #define_method looks dangerous.
   def self.included(base)
     base.extend(ClassMethods)

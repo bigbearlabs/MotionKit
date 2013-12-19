@@ -89,7 +89,6 @@ class BrowserWindowController < NSWindowController
 
 		# populate model's redirections 
 		@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |args|
-		# observe_kvo self, 'browser_vc.web_view_delegate.redirections' do
 			self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections if self.stack
 		end
 
@@ -110,8 +109,6 @@ class BrowserWindowController < NSWindowController
 			# user
 			watch_notification :Bf_navigation_notification
 
-			# @progress_vc.setup
-
 			# input field
 			self.setup_input_field
 
@@ -121,20 +118,24 @@ class BrowserWindowController < NSWindowController
 			self.setup_title_bar
 			self.setup_responder_chain
 
-			# MOTION-MIGRATION
 			self.setup_actions_bar
+
+			
+			# MOTION-MIGRATION
+			# @progress_vc.setup
 			# self.setup_reactive_detail_input
 			# self.setup_popover
 
-			if_enabled :'handle_hide_input_field:', self
 		end
 	end
 
 	def setup_input_field
 		@input_field_vc.setup
+
 		watch_notification :Input_field_focused_notification, @input_field_vc
 		watch_notification :Input_field_unfocused_notification, @input_field_vc
 		watch_notification :Input_field_cancelled_notification, @input_field_vc
+
 	end
 
 	def setup_popover
@@ -356,6 +357,8 @@ class BrowserWindowController < NSWindowController
 	
 	def handle_hide_input_field(sender)
 		@input_field_vc.view.visible = false
+
+		# self.hide_toolbar
 	end
 	
 	def handle_focus_input_field(sender)
@@ -626,7 +629,10 @@ class BrowserWindowController < NSWindowController
 		else
 			
 			self.window.do_activate -> {
-				@input_field_vc.focus_input_field
+				# TODO migrate into a reaction.
+				if_enabled :handle_focus_input_field, self do
+					self.handle_hide_input_field self
+			  end
 
 				completion_proc.call if completion_proc
 			}

@@ -20,13 +20,14 @@
                         <action selector="toggle_front:" target="-2" id="73"/>
                     </connections>
                 </menuItem>
+                <menuItem isSeparatorItem="YES" id="6DD-0c-1hp"/>
                 <menuItem title="Preferences..." keyEquivalent="," id="8">
                     <connections>
                         <action selector="new_pref_window:" target="-1" id="9"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Pre-release preferences..." tag="6003" id="64">
-                    <modifierMask key="keyEquivalentModifierMask"/>
+                <menuItem title="Pre-release Preferences..." tag="6003" alternate="YES" keyEquivalent="," id="64">
+                    <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                     <connections>
                         <action selector="new_pref_window:" target="-1" id="65"/>
                     </connections>
@@ -37,7 +38,7 @@
                         <action selector="load_intro:" target="-1" id="68"/>
                     </connections>
                 </menuItem>
-                <menuItem title="About..." id="3">
+                <menuItem title="About WebBuddy" id="3">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="handle_show_about:" target="-1" id="70"/>
@@ -48,6 +49,7 @@
                         </binding>
                     </connections>
                 </menuItem>
+                <menuItem isSeparatorItem="YES" id="Zgd-J0-y4b"/>
                 <menuItem title="Quit" keyEquivalent="q" id="7">
                     <connections>
                         <action selector="terminate:" target="-3" id="62"/>
