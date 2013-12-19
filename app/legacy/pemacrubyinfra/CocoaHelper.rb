@@ -157,12 +157,15 @@ end
 
 
 class NSString
-	
+	include StringUtil
+
+  def escape
+    self.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
+  end
+  
 	def to_url
 		# NOTE we need to first check if string needs encoding. if string alrady percent-escape encoded, we shouldn't encode again.
-		# test with non-en languages and sites to determine whether redundant.
-		# encoded_str = self.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
-		encoded_str = self
+		encoded_str = self.escape
 		url = (
 			if encoded_str.starts_with? '~'
 				NSURL.fileURLWithPath( self.stringByExpandingTildeInPath )
@@ -180,31 +183,11 @@ class NSString
 
 	#= wrappers
 
-	def to_url_string
-		String.new(self).to_url_string
-	end
-
 	def to_base_url
 		url = NSURL.URLWithString(self)
     "#{url.scheme}://#{url.host}"
 	end
 
-	def valid_url?
-		String.new(self).valid_url?
-	end
-
-	def to_search_url_string
-		String.new(self).to_search_url_string
-	end
-
-	def match_url?(url)
-		String.new(self).match_url?(url)
-	end
-
-	def starts_with?( str )
-		String.new(self).starts_with? str
-	end
-	
 end
 
 

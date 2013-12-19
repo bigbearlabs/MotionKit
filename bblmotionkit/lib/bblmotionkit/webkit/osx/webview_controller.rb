@@ -60,7 +60,7 @@ class WebViewController < BBLComponent
       if url.is_a? NSURL
         url.absoluteString
       else
-        url.to_url_string
+        String.new(url).to_url_string
       end
     
     # simplified version:
