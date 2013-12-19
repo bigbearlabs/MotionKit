@@ -73,14 +73,35 @@ Motion::Project::App.setup do |app|
 
   app.info_plist['LSUIElement'] = true
 
+  app.info_plist['NSServices'] = [
+    {
+      'NSKeyEquivalent' =>  {
+          'default' =>  ">"
+      },
+      'NSMenuItem' =>  {
+          'default' =>  "Send to WebBuddy"
+      },
+      'NSMessage' =>  "handle_service",
+      'NSPortName' =>  "${PRODUCT_NAME}",
+      'NSRequiredContext' =>  {
+          'NSServiceCategory' =>  'Browsing'
+      },
+      'NSSendTypes' =>  [
+          "public.utf8-plain-text"
+          # TODO elaborate use case for non-text and add types, funnel into marketing.
+      ],
+    },
+  ]
+
 
   ## files
 
   app.delegate_class = "WebBuddyAppDelegate"
 
   app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb'
-    # 'app/filtering.rb' => 'app/legacy/window_controllers.rb'
-
+    # 'app/legacy/WebBuddyAppDelegate.rb' => 'app/filtering.rb',
+    # 'app/filtering.rb' => 'app/plugin.rb',
+    # 'app/aa_plugin.rb' => "#{`pwd`.strip}/bblmotionkit/lib/bblmotionkit/core/delegating.rb"
 
   # archive:distribution fails with i386 arch - just build for x86_64
   app.archs['MacOSX'] = ['x86_64']
