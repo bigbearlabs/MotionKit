@@ -1,9 +1,12 @@
+# TODO need to ensure the view doesn't load another url. how to best facilitate?
 class FilteringPlugin < WebBuddyPlugin
   include Reactive
 
   def on_setup
     react_to 'client.input_field_vc.current_filter' do |input|
       self.show_plugin
+
+      self.load_view unless view_loaded? # HACK work around lack of navigability constraint.
 
       self.update_data  # TACTICAL need to react to changes to context_store.
 
@@ -22,13 +25,6 @@ class FilteringPlugin < WebBuddyPlugin
     )
   end
 
-  # pull up
-  def show_plugin
-    self.client.browser_vc.frame_view.visible = false
-
-    self.client.plugin_vc.frame_view.visible = true
-  end
-  
   #=
 
   def data

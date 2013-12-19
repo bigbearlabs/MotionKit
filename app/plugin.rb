@@ -40,6 +40,10 @@ class WebBuddyPlugin < BBLComponent
     self.client.plugin_vc.url.to_s.include? self.view_url
   end
 
+  def show_plugin
+    self.client.plugin_vc.frame_view.visible = true
+  end
+  
   def attach_hosting_interface
     pe_log "attaching hosting interface to #{self.view_url}"
 
