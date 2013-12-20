@@ -467,21 +467,13 @@ class BrowserWindowController < NSWindowController
 	def handle_Load_request_notification( notification )
 		new_url = notification.userInfo
 
+		if_enabled :touch_stack, new_url, provisional: true
+
 		# debug [ self.stack_id, notification ]
 
 		## zoom to page
 		# self.overlay_enabled = false
 		# self.zoom_to_page new_url
-
-		if self.stack
-			if self.stack.item_for_url(new_url)
-				self.stack.update_access new_url
-			else
-				self.stack.add_access new_url 
-			end
-		else
-			pe_log "#{self} has no stack. not adding"
-		end
 
 		# TACTICAL
 		# self.hide_gallery_view self
@@ -504,12 +496,11 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def handle_Url_load_finished_notification( notification )
-		if self.stack
-			pe_log "updating thumbnail"
-			self.stack.update_detail @browser_vc.url, thumbnail: @browser_vc.view.image
-		else
-			pe_log "nil stack"
-		end
+		new_url = notification.userInfo
+
+		if_enabled :touch_stack, new_url, 
+			provisional: false,
+			thumbnail: @browser_vc.view.image
 	end
 	
 #= bar
@@ -536,6 +527,17 @@ class BrowserWindowController < NSWindowController
 		self.delete_site notification.userInfo
 	end
 
+#= data management
+
+	def touch_stack( url, details )
+		if self.stack
+			self.stack.touch url, details
+
+			self.stack.update_detail @browser_vc.url, details
+		else
+      pe_log "#{self} has no stack. not adding"
+		end
+	end
 
 #== site configuration sheet
 	## disabled until relationship between stacks and sites are made clearer.

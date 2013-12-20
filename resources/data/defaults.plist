@@ -205,7 +205,9 @@
 			</dict>
 		</dict>
 		<key>handle_focus_input_field</key>
-		<false/>
+		<true/>
+		<key>touch_stack</key>
+		<true/>
 	</dict>
 </dict>
 </plist>
