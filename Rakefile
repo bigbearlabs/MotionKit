@@ -4,7 +4,6 @@ build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
 version_number = "1.2.0"
 build_number = `cat build.VERSION`.strip
-# version_number = "#{version_number}-#{build_number}"  # DEV
 
 
 $:.unshift("/Library/RubyMotion/lib")
@@ -39,7 +38,7 @@ Motion::Project::App.setup do |app|
 
   # dev-only
   app.development do
-    version_number = "1.1.9-#{build_number}"
+    version_number = "#{version_number}-#{build_number}"
     app.files += Dir.glob('sketch/**/*.rb') 
   end
 
