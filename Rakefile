@@ -144,6 +144,9 @@ namespace :modules do
     FileUtils.mkdir_p 'resources/plugin'
     FileUtils.cp_r Dir.glob('../webbuddy-modules/dist/.'), 'resources/plugin', verbose:true
   end
+
+  desc "build and copy modules"
+  task :all => [ :build, :cprsc ]
 end
 
 
@@ -175,5 +178,5 @@ namespace :release do
   # TODO revert version
 
   desc "archive, zip, rsync, version, release"
-  task :all => [ :increment, :'archive:distribution', :zip, :commit_version ]
+  task :all => [ :'modules:all', :increment, :'archive:distribution', :zip, :commit_version ]
 end
