@@ -12,6 +12,8 @@ class WebBuddyPlugin < BBLComponent
   end
 
   def view_url(env = nil)
+    env ||= :DEV if RUBYMOTION_ENV == 'development'
+
     plugin_name = self.class.clean_name.gsub('Plugin', '').downcase
 
     case env
