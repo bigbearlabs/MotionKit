@@ -506,10 +506,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 
 	def current_viewer_wc
-		puts caller
-
-		# viewer_wc = @spaces_manager.windows_in_space.map(&:windowController).select {|wc| wc.is_a? ViewerWindowController }.last
-		# NOTE #windows_in_space doesn't return hidden windows, so we can't use it to work out the wc.
 		viewer_wc = @viewer_controllers_by_space[@spaces_manager.current_space_id] if @viewer_controllers_by_space
 
 		if viewer_wc.nil?
