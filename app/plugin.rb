@@ -44,6 +44,10 @@ class WebBuddyPlugin < BBLComponent
     self.client.plugin_vc.frame_view.visible = true
   end
   
+  def hide_plugin
+    self.client.plugin_vc.frame_view.visible = false
+  end
+  
   def attach_hosting_interface
     pe_log "attaching hosting interface to #{self.view_url}"
 

@@ -445,7 +445,7 @@ class BrowserWindowController < NSWindowController
 
 		@browser_vc.load_url urls, details
 
-		@plugin_vc.frame_view.visible = false
+		component(FilteringPlugin).hide_plugin
 	end
 
 	#= browsing workflow

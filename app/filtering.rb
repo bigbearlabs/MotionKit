@@ -4,18 +4,27 @@ class FilteringPlugin < WebBuddyPlugin
 
   def on_setup
     @filter_reaction = react_to 'client.input_field_vc.current_filter' do |input|
-      self.show_plugin
-
-      self.load_view unless view_loaded? # HACK work around lack of navigability constraint.
-
-      self.update_data  # TACTICAL need to react to changes to context_store.
-
-      self.update_input input
+      on_input input
     end
 
     self.load_view
   end
 
+  def on_input input
+    self.show_plugin
+
+    # HACK work around lack of navigability constraint.
+    unless view_loaded? 
+      self.load_view 
+    end
+  
+    ( @update_throttle ||= Object.new ).delayed_cancelling_previous 0.5, -> { 
+      self.update_data  # TACTICAL need to react to changes to context_store.
+      @context_store.save_thumbnails  # TACTICAL find a better way to save the thumbnails.
+    }
+
+    self.update_input input
+  end
 
   def update_input input
     @input = input
