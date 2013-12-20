@@ -99,6 +99,10 @@ module DefaultsAccess
   rescue Exception => e
     pe_report e, "registering defaults - fall back to factory defaults."
 
+    factory_defaults.keys.map do |key|
+      NSUserDefaults.standardUserDefaults.removeObjectForKey(key)
+    end
+    
     NSUserDefaults.standardUserDefaults.registerDefaults(factory_defaults)
   end
 
