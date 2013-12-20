@@ -27,7 +27,7 @@ module ExceptionHandling
     # return false
 
     # log.
-    pe_warn exception.symbolised_stack_trace
+    pe_warn exception.report
 
     false
   end
@@ -51,7 +51,11 @@ class NSException
 
   def symbolised_stack_trace
     addresses = self.callStackReturnAddresses
-    addresses = addresses.to_a.map{|e| e.to_s(16)}  # convert to hex
-    `atos -p #{NSApp.pid} #{addresses.join ' '}`
+    if RUBYMOTION_ENV == 'development'
+      addresses = addresses.to_a.map{|e| e.to_s(16)}  # convert to hex
+      `atos -p #{NSApp.pid} #{addresses.join ' '}`
+    else
+      addresses
+    end
   end
 end
