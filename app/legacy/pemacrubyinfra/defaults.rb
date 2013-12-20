@@ -48,6 +48,9 @@ module DefaultsAccess
     tl_key = key.split('.').first
     tl_hash = default(tl_key)
 
+    # guard against corrupted tl entries.
+    raise "default for #{tl_key} is not a dictionary" if ! tl_hash.is_a? Hash
+
     unflattened_hash = { key => val }.unflattened_hash
     pe_log "unflattened: #{unflattened_hash.description}"
     
@@ -66,32 +69,6 @@ module DefaultsAccess
       handlers.map {|e| e.call key, val }
     end
   end
-
-  # this leads to a SIGKILL.
-=begin
-  def defaults_register( factory_defaults )
-    pe_debug "defaults_hash: #{factory_defaults}"
-    # debug [ factory_defaults, {}, NSMutableDictionary.dictionary ]
-
-    current_defaults = NSUserDefaults.standardUserDefaults.dictionaryRepresentation
-    
-    # dictionary loaded using the cocoa api is not a true hash - work around by using reduce.
-    remake_hash = lambda { |h|
-      h.reduce({}) do |memo, k,v|
-        memo[k] = v
-        memo
-      end
-    }
-
-    shipped_defaults_dup = remake_hash.call factory_defaults
-
-    new_defaults = shipped_defaults_dup.overwritten_hash( remake_hash.call current_defaults )
-    
-    pe_debug "defaults to register: #{new_defaults}"
-
-    NSUserDefaults.standardUserDefaults.registerDefaults( remake_hash.call new_defaults)  
-  end
-=end
 
   def factory_defaults
     if self == NSApp.delegate
@@ -119,6 +96,14 @@ module DefaultsAccess
     #  register merged hash in the volatile domain.
     merged_defaults = factory_defaults.overwritten_hash saved_delta
     NSUserDefaults.standardUserDefaults.registerDefaults(merged_defaults)
+  rescue Exception => e
+    pe_report e, "registering defaults - fall back to factory defaults."
+
+    factory_defaults.keys.map do |key|
+      NSUserDefaults.standardUserDefaults.removeObjectForKey(key)
+    end
+    
+    NSUserDefaults.standardUserDefaults.registerDefaults(factory_defaults)
   end
 
   def defaults_saved

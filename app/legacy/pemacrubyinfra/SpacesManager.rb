@@ -17,14 +17,9 @@ class SpacesManager
 		self.anchor_delay = 0.5
 
 		@states = {}
-
-		self.init_anchor_window
-		self.update_space_id
 	end
 	
-	def update_space_id
-		@current_space_id = self.current_space_id
-	end
+	#= unused state storage api.
 
 	def save_space_state( state_hash )
 		if @current_space_id
@@ -44,10 +39,15 @@ class SpacesManager
 		# since mountain lion we can't reliably obtain space id's from the window list's kCGWindowWorkspace property.
 		# a possible way to work around is to drop an anchor window on every new space, and let the anchor window id stand in for the space id.
 
-		# hacky pre-condition: drop 1 anchor window if none found.
-		if self.windows_in_space.select { |w| w.is_a? AnchorWindow }.empty?
-			self.space_changed  # will drop the anchor.
+		# case: dashboard.
+		if ! self.space_window_data.select{ |e| e["kCGWindowOwnerName"] == "Dock" && e["kCGWindowName"] =~ /\.wdgt\/+$/ }.empty?
+			pe_log "space appears to be dashboard. no anchor operations."
+			return nil
 		end
+
+		# TEMP show all windows to confirm if perpertual new window bug is due to hidden status.
+		
+		update_current_anchor_window
 
 		@current_anchor_window.window_id
 	end
@@ -55,7 +55,7 @@ class SpacesManager
 	#==
 
 	# the window list returned by the Window Services function holds a bunch of untitled windows, things like the menu bar, and windows visible on this space.
-	# eg m.report.collect {|w| [ w[:kCGWindowName], w[:kCGWindowOwnerName] ]}
+	# eg m.report.map {|w| [ w[:kCGWindowName], w[:kCGWindowOwnerName] ]}
 	#
 	# sample output:
 	# {"kCGWindowLayer"=>2147483629, "kCGWindowName"=>"Focus", "kCGWindowMemoryUsage"=>58652, "kCGWindowIsOnscreen"=>true, "kCGWindowSharingState"=>1, "kCGWindowOwnerPID"=>999, "kCGWindowNumber"=>215, "kCGWindowOwnerName"=>"Focusbar", "kCGWindowStoreType"=>2, "kCGWindowBounds"=>{"Height"=>38.0, "X"=>813.0, "Width"=>294.0, "Y"=>1200.0}, "kCGWindowAlpha"=>1.0}
@@ -87,174 +87,85 @@ class SpacesManager
 
 	# FIXME this won't work with pid other than this app's.
 	def windows_in_space( criteria = { :pid => NSApp.pid } )
-		window_list = self.space_window_data.dup
-		if criteria
-			window_list = window_list.select {|info| info["kCGWindowOwnerPID"] == criteria[:pid] }
+		window_numbers = self.space_window_data
+			.select {|e| e["kCGWindowOwnerPID"] == criteria[:pid]}
+			.map {|e| e["kCGWindowNumber"]}
+
+		windows = NSApp.windows.select do |window|
+			window_numbers.include? window.windowNumber
 		end
 
-		window_numbers = window_list.map { |info| info["kCGWindowNumber"] }
-
-		windows = NSApp.windows.select { |window| window_numbers.include? window.windowNumber }
-
+		pe_log "windows for space: #{windows}"
 		windows
 	end
 
 	# FIXME space changes in mission control report multiple anchors - find out the best way to detect mission control activation.
 	# TODO clean up anchors and viewer windows if multiple reported.
 	def space_changed
-		# poor-man's transaction
-		@should_drop_anchor = false
-
-		window_data = self.space_window_data
-		if $DEBUG
-			@debug_window_data ||= []
-			@debug_window_data << window_data
-		end
-
-		window_report = window_data.collect{ |e| [ e["kCGWindowOwnerName"], e["kCGWindowName"] ] }
-		pe_log "all windows: #{ window_report.to_s}"
-
-		delayed_cancelling_previous 0.05, proc {
-			on_main do
-				@should_drop_anchor = true
-
-				@current_anchor_window.show if @current_anchor_window
-
-				# work out the space case.
-
-				# case: dashboard.
-				# case: mission control.
-				if ! window_data.select{ |e| e["kCGWindowOwnerName"] == "Dock" && e["kCGWindowName"] =~ /\.wdgt\/+$/ }.empty?
-					pe_log "space appears to be dashboard / mission control. no anchor operations."
-
-				# case: a normal space.
-
-				# case: another app in full-screen mode.
-				else
-
-					if @should_drop_anchor
-
-						self.update_anchor
-
-						self.update_space_id
-
-						pe_log "space updated to #{current_space_id}"
-
-
-					else
-						pe_log "@should_drop_anchor = false"
-						debug [ @current_anchor_window, window_data ]
-					end
-
-				end
-			end
-		}
-=begin
-		pe_log "space change notification: #{notification.description}"
-		
-		# first hide the window to prevent flickering
-		visible = @main_window_controller.window.isVisible
-		@main_window_controller.window.orderOut(self)
-		
-		# grab all saveable state and store for this space.
-		@spaces_manager.save_space_state( { 'app.active' => NSApp.isActive, 'window.isVisible' => visible, 'context.id' => 'stub-context-id' } )
-		
-		@spaces_manager.update_space_id
-    
-		state_for_current_space = @spaces_manager.current_space_state
-		if ! state_for_current_space
-			pe_debug 'no state saved, nothing to restore.'
-			app_active = visible = false
-		else
-			# restore as necessary. TODO how to best implement in a generalised way?
-			pe_debug "restoring state: #{state_for_current_space}"
-			
-			app_active = state_for_current_space['app.active']
-			visible = state_for_current_space['window.isVisible']
-		end
-
-		# set up the anchor window for this space.
-		# @anchor_window_controller.load_anchor_for_space @spaces_manager.current_space_id, visible
-
-		
-		# # restore main window state.
-		# # disabled until window focus behaviour can be nailed.
-		# if visible
-		# 	if app_active
-		# 		self.activate_main_window({}})
-		# 	else
-		# 		@main_window_controller.window.show
-		# 	end
-		# else
-		# 	@main_window_controller.window.hide
-		# end
-
-		
-		if app_active
-			# various attempts to restore the app active status properly.
-			# most likely redundant. CLEANUP
-			
-			#			@main_window_controller.window.setLevel( KCGFloatingWindowLevel )
-			# NSApp.activateIgnoringOtherApps( true )
-			
-			# NSApp.performSelector( 'activateIgnoringOtherApps:', withObject:true, afterDelay:0.8 )
-			# this results in a fight with the full screen window
-			
-			# @main_window_controller.window.orderWindow( NSWindowAbove, relativeTo:0 )
-		else 
-			# @main_window_controller.window.setLevel( KCGNormalWindowLevel )
-		end
-=end
-
+		# drop_anchor
 	end
+
 
 #= anchor windows.
 
-	def init_anchor_window
-		self.update_anchor
+	def find_anchors
+		windows_in_space.select { |w| w.is_a? AnchorWindow }
 	end
+	
 
-	def update_anchor
-		windows_in_space = self.windows_in_space
-		pe_log "windows in space: #{windows_in_space}"
-		controllers = windows_in_space.map {|e| e.windowController}
-		pe_log "window controllers in space: #{controllers}"
-		anchor_windows_in_space = windows_in_space.select { |w| w.is_a? AnchorWindow }
+	protected 
 
-		case anchor_windows_in_space.size
-		when 0
-			pe_log "drop new anchor."
-			@current_anchor_window = new_anchor_window
+	def update_current_anchor_window
+		anchor_windows_in_space = find_anchors
 
-		when 1
-			@current_anchor_window = anchor_windows_in_space.first
+		if anchor_windows_in_space.empty?
+			# EDGECASE sometimes we find the anchor window doesn't show up when we click on the status bar window. 
 
-			pe_log "found old anchor #{@current_anchor_window.window_id} - updating current_anchor_window."
+			# on_main do  # crudely synchronise mutation.
+				new_anchor_c = new_anchor_wc
 
-		else
+				# check again to see if we still need an anchor.
+				if find_anchors.empty?
+					pe_log "drop new anchor."
+					pe_log caller
+					new_anchor_c.showWindow(self)
+				end
+			# end
+		end
+
+		# after this point, there should be at least one.
+		anchor_windows = find_anchors
+		raise "anchor window unavailable for space!" if anchor_windows.empty?
+
+		if anchor_windows_in_space.size > 1
 			pe_warn "multiple anchor windows found - #{anchor_windows_in_space}"
-			debug [ anchor_windows_in_space ]
 			
-			@current_anchor_window = anchor_windows_in_space.first
-
-			# get rid of all but the first anchor window.
+			# clean up all but the first.
 			anchor_windows_in_space[1..-1].map do |w|
-				@anchor_window_controllers.delete w.windowController
-				w.releasedWhenClosed = true
-				w.close
+				retire_anchor_wc w.windowController
 			end
 		end
 
+		# after this point, there should be exactly one.
+		anchor_windows = find_anchors
+		pe_warn "anchor window count for space invalid! - #{anchor_windows}" if anchor_windows.size != 1
+
+		@current_anchor_window = anchor_windows[0]
+		
+		pe_log "after #update_current_anchor_window, anchor_window: #{@current_anchor_window.window_id}"
 	end
 
-
-	def new_anchor_window
+	def new_anchor_wc
 		controller = SpaceAnchorWindowController.alloc.init
-		@anchor_window_controllers ||= []
-		@anchor_window_controllers << controller
 
-		controller.window.make_transparent
+		(@anchor_cs ||= []) << controller
 
-		controller.window
+		controller
 	end
+
+	def retire_anchor_wc wc
+		wc.close
+		@anchor_cs.delete wc
+	end
+	
 end

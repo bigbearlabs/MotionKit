@@ -29,19 +29,21 @@ class PEAppDelegate
 		self.handle_exceptions
 
 		trace_time __callee__.to_s, true do
+			begin
+				# defaults
+				self.setup_defaults
 
-			# defaults
-			self.setup_defaults
+				# collaborators
+				@spaces_manager ||= SpacesManager.new
+				@screens_manager ||= ScreensManager.instance
+				
+				@tags_by_description = default(:tags_by_description)
 
-			# collaborators
-			@spaces_manager ||= SpacesManager.new
-			@screens_manager ||= ScreensManager.instance
-			
-			@tags_by_description = default(:tags_by_description)
+				# ready to do some business now.
 
-
-			# ready to do some business now
-
+			rescue Exception => e
+				on_critical_error e
+			end
 		end
 
 		on_main_async do
@@ -90,6 +92,12 @@ class PEAppDelegate
 		end
 	end
 
+	def on_critical_error( *args )
+		# TODO issue critical warning with href, quit.
+
+		pe_warn "Sorry, startup failed due to critical exception. Please visit http://support.bigbearlabs.com for more information."
+		raise args.first
+	end
 #==
 	
 	def setup_defaults

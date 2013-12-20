@@ -468,7 +468,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 			.do_activate
 			.show_toolbar
 		
-		NSApp.activate
 
 		self.update_main_window_state
 	end
@@ -481,7 +480,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		end
 	end
 	
-	def new_viewer_window_controller initially_visible = true
+	def new_viewer_window_controller( initially_visible = false )
 		pe_log "initialising a new viewer."
 
 		current_space_id = @spaces_manager.current_space_id
@@ -491,10 +490,8 @@ class WebBuddyAppDelegate < PEAppDelegate
 			viewer_wc = ViewerWindowController.alloc.init
 		end
 
-		# abort if space changed in the meantime.
+		# only if same space.
 		if current_space_id == @spaces_manager.current_space_id
-			viewer_wc.window.visible = true
-
 			viewer_wc.window.visible = initially_visible
 		else
 			raise "space changed while creating new viewer_window_controller"
@@ -509,12 +506,16 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 
 	def current_viewer_wc
-		@viewer_controllers_by_space ||= Hash.new do |h,k|
-			h[k] = self.new_viewer_window_controller
-		end
+		puts caller
 
-		viewer_wc = @viewer_controllers_by_space[@spaces_manager.current_space_id]
-		pe_log "retrieved #{viewer_wc} for space #{@spaces_manager.current_space_id}"
+		# viewer_wc = @spaces_manager.windows_in_space.map(&:windowController).select {|wc| wc.is_a? ViewerWindowController }.last
+		# NOTE #windows_in_space doesn't return hidden windows, so we can't use it to work out the wc.
+		viewer_wc = @viewer_controllers_by_space[@spaces_manager.current_space_id] if @viewer_controllers_by_space
+
+		if viewer_wc.nil?
+			viewer_wc = new_viewer_window_controller
+			(@viewer_controllers_by_space ||= {}) [@spaces_manager.current_space_id] = viewer_wc
+		end
 
 		# update the current context.
 		@context_store.current_context = viewer_wc.stack
@@ -599,7 +600,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 			viewer_windows[1..-1].map do |redundant_window|
 				redundant_wc = redundant_window.windowController
 
-				redundant_window.close
+				redundant_wc.close
 				
 				pe_log "closed window for #{redundant_wc}, mapped to space #{@viewer_controllers_by_space.key redundant_wc}"
 				
