@@ -15,7 +15,7 @@ class SpaceAnchorWindowController < NSWindowController
 	def awakeFromNib
 		super
 
-		# self.setup_anchor_window
+		self.setup_anchor_window
 	end
 
 	# DEPRECATED after space_id went away in 10.8, this one's not going to be that useful.
@@ -44,13 +44,22 @@ class SpaceAnchorWindowController < NSWindowController
 		@window_for_space.orderOut(self) if ! anchor_visible
 	end
 	
-	def setup_anchor_window( anchor_window )
+	def setup_anchor_window
+		anchor_window = self.window
+
 		anchor_window.make_transparent
+
+		# TEST make view errors obvious
+		anchor_window.frame = new_rect( 0,0,600,600)
 		
 		# make key status pass onto main window
 		anchor_window.did_become_key {
-			@main_window.makeKeyAndOrderFront(self)
+			pe_log "#{self} became key!"
+			# @main_window.makeKeyAndOrderFront(self)
 		}
+
+		# once created, the anchor window should always stay in order to serve as an anchor for the space.
+		anchor_window.canHide = false
 	end
 
 end
@@ -62,7 +71,6 @@ class AnchorWindow < NSWindow
 	def canBecomeMainWindow
 		true
 	end
-
 	def canBecomeKeyWindow
 		true
 	end

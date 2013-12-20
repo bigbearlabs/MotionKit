@@ -2,7 +2,7 @@
 
 build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
-version_number = "1.1.10"
+version_number = "1.1.11"
 build_number = `cat build.VERSION`.strip
 # version_number = "#{version_number}-#{build_number}"  # DEV
 
