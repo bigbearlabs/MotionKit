@@ -85,19 +85,19 @@ class BrowserWindowController < NSWindowController
 
 		self.window_title_mode = :title
 
+		@browser_vc.setup context_store: @context_store
+
+		@plugin_vc.setup( {} )			
+
 		pe_log "#{self} synchronous setup complete."
 
-		# populate model's redirections 
-		@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |args|
-			self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections if self.stack
-		end
-
 		on_main_async do
-			@browser_vc.setup context_store: @context_store
+			# populate model's redirections 
+			@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |args|
+				self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections if self.stack
+			end
 
 			@browser_vc.web_view.make_first_responder 
-
-			@plugin_vc.setup( {} )
 
 			# self.setup_overlay
 
@@ -120,7 +120,6 @@ class BrowserWindowController < NSWindowController
 
 			self.setup_actions_bar
 
-			
 			# MOTION-MIGRATION
 			# @progress_vc.setup
 			# self.setup_reactive_detail_input
