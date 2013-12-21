@@ -182,11 +182,17 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= IBActions for menu
 
 	def handle_show_gallery( sender )
-		self.main_window_shown = true
+		## MAIN-WINDOW
+		# self.main_window_shown = true
+		
+		wc.component(FilteringPlugin).show_plugin
 	end
 
 	def handle_hide_gallery( sender )
-		self.main_window_shown = false
+		## MAIN-WINDOW
+		# self.main_window_shown = false
+
+		wc.component(FilteringPlugin).hide_plugin
 	end
 
 	def toggle_front( sender )
