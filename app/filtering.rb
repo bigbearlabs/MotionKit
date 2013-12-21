@@ -18,11 +18,6 @@ class FilteringPlugin < WebBuddyPlugin
       self.load_view 
     end
   
-    ( @update_throttle ||= Object.new ).delayed_cancelling_previous 0.5, -> { 
-      self.update_data  # TACTICAL need to react to changes to context_store.
-      @context_store.save_thumbnails  # TACTICAL find a better way to save the thumbnails.
-    }
-
     self.update_input input
   end
 

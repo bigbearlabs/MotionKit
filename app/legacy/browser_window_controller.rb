@@ -500,6 +500,12 @@ class BrowserWindowController < NSWindowController
 		if_enabled :touch_stack, new_url, 
 			provisional: false,
 			thumbnail: @browser_vc.view.image
+
+    # PERF?
+    ( @update_throttle ||= Object.new ).delayed_cancelling_previous 0.5, -> { 
+      component(FilteringPlugin).update_data
+      @context_store.save_thumbnails
+    }
 	end
 	
 #= bar
