@@ -4,7 +4,7 @@ class FilteringPlugin < WebBuddyPlugin
 
   def on_setup
     @filter_reaction = react_to 'client.input_field_vc.current_filter' do |input|
-      on_input input
+      on_input input if input
     end
 
     self.load_view
