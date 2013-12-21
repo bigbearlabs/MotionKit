@@ -1,7 +1,10 @@
 # plugin loaded by AppD, but interacts with wc a lot -- this probably indicates a granularity mismatch.
 class WebBuddyPlugin < BBLComponent
   extend Delegating
+  include Reactive
+
   def_delegator :'client.plugin_vc', :eval_js, :eval_expr, :eval_js_file
+
 
   include IvarInjection
   
@@ -9,25 +12,42 @@ class WebBuddyPlugin < BBLComponent
     super client
 
     inject_collaborators deps
+
+    # set up a policy on the web view delegate to prevent href navigation.
+    react_to 'client.plugin_vc.web_view_delegate' do |web_view_delegate|
+      web_view_delegate.policies_by_pattern = {
+        /(localhost|#{NSBundle.mainBundle.path})/ => :load,
+        /.+/ => -> url, listener {
+          # load url. 
+          # TODO restore the stack
+          self.client.load_url url
+
+          # don't load on plugin_vc.
+          listener.ignore
+        },
+      }
+    end
   end
 
   def view_url(env = nil)
     env ||= :DEV if RUBYMOTION_ENV == 'development'
 
-    plugin_name = self.class.clean_name.gsub('Plugin', '').downcase
+    @plugin_name ||= self.class.clean_name.gsub('Plugin', '').downcase
 
     case env
     when :DEV
-      return "http://localhost:9000/#/#{plugin_name}"  # DEV works with grunt server in webbuddy-modules
+      return "http://localhost:9000/#/#{@plugin_name}"  # DEV works with grunt server in webbuddy-modules
     else
       plugin_dir = "plugin"
       module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-      return "file://#{module_index_path}#/#{plugin_name}"  # DEPLOY
+      return "file://#{module_index_path}#/#{@plugin_name}"  # DEPLOY
     end
   end
   
   def load_view
     # self.write_data
+
+    pe_log "loading plugin #{self}"
 
     self.client.plugin_vc.load_url self.view_url, success_handler: -> url {
       ## this is made obsolete by wb-integration.coffee.

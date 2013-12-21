@@ -38,7 +38,7 @@ class WebViewDelegate
   attr_accessor :success_handler
   attr_accessor :fail_handler
 
-  attr_accessor :matching_nav_handler  # TODO review usage.
+  attr_accessor :policies_by_pattern
 
   def setup   
     @events = []
@@ -318,44 +318,35 @@ class WebViewDelegate
    
     # listener.use
 
-    self.matching_nav_policy.call listener
+    apply_policy request.URL.absoluteString, listener
   end
 
   #= nav policy
 
-    Default_nav_policy_handler = -> listener {
-      listener.use
-    }
+  def apply_policy( url, decision_listener )
+    if @policies_by_pattern
+      @policies_by_pattern.keys.map do |pattern|
+        if url =~ pattern
+          matching_policy = @policies_by_pattern[pattern]
+          case matching_policy
+          when Proc
+            matching_policy.call url, decision_listener
+          when :load
+            decision_listener.use
+          when :ignore
+            pe_log "policy for #{url}: ignore"
+            decision_listener.ignore
+          end
 
-    Google_url_pattern = 'http://www.google.com/url?'
-
-    def matching_nav_policy
-      # default
-      ## pattern for search result link nav:
-      # didStartProvisionalLoad, http://www.google.com/url?q=#{url}.*
-      # decidePolicyForNavigation, #{the_url}
-      events_by_name = Hash[ @events.map { |h| [ h[:name], h[:url] ] } ]
-
-      if events_by_name['didStartProvisionalLoad'] =~ /#{Regexp.escape Google_url_pattern}(.*)/
-        params = CGI::parse $1
-        url = params['q'].first
-
-        if events_by_name['decidePolicyForNavigation'] =~ /#{Regexp.escape url}/
-          # this is the result nav.
-
-          pe_log "loading #{url} as separate page"
-
-          return -> listener {
-            @matching_nav_handler.call url
-
-            listener.ignore
-          }
+          return
         end
       end
-
-      Default_nav_policy_handler
     end
 
+    pe_log "no matching policy for #{url}, using default policy"
+    decision_listener.use
+  end
+  
 #=
 
   # prevents js resizing of window hosting webview 
