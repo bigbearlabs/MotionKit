@@ -20,7 +20,6 @@ module ComponentClient
     @registered_components ||= []
 
     # TACTICAL naive implementation keeps instantiating new instances..
-    defaults = default "#{self.class.name}.#{component_class.name}"
     instance = 
       if deps
         component_class.new( self, deps )
