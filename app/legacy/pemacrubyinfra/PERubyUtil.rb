@@ -149,12 +149,12 @@ module StringUtil
   
   def to_url_string # PROTO
     if self[0] == '/'
-      "file://#{self.escape}"
-    elsif self =~ %r{(http|https|file)://}
+      "file://#{self.escaped}"
+    elsif self =~ %r{^(http|https|file)://}
       # FIXME probably has some edge cases
       self
     else
-      "http://#{self.escape}"
+      "http://#{self.escaped}"
     end
   end
   
@@ -167,9 +167,17 @@ module StringUtil
 #= hacks
 
   def to_search_url_string
-    "http://google.com/search?q=#{CGI.escape(self)}"
+    "http://google.com/search?q=#{self.escaped}"
   end
   
+  def escaped( escape_style = :all )
+    case escape_style
+    when :simple
+      self.gsub ' ', '+'
+    else
+      CGI.escape self
+    end
+  end
 end
 
 class String; include StringUtil; end

@@ -108,7 +108,7 @@ class PEAppDelegate
 	def setup_services
 		NSApp.setServicesProvider(self)
 		# doc: 'It is only necessary to call this function if your program adds dynamic services to the system.''
-		# NSUpdateDynamicServices()	# PERF potentially expensive?
+		NSUpdateDynamicServices()	# PERF potentially expensive?
 	end
 
 #==
@@ -225,7 +225,7 @@ class PEAppDelegate
 		}
 
 		# reject the irb windows too
-		[].concat(visible_windows).reject do |w|
+		visible_windows.dup.reject do |w|
 			Module.const_defined?(:IRBWindowController) && w.windowController.is_a?(IRBWindowController)
 		end
 	end

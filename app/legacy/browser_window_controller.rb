@@ -85,19 +85,19 @@ class BrowserWindowController < NSWindowController
 
 		self.window_title_mode = :title
 
+		@browser_vc.setup context_store: @context_store
+
+		@plugin_vc.setup( {} )			
+
 		pe_log "#{self} synchronous setup complete."
 
-		# populate model's redirections 
-		@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |args|
-			self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections if self.stack
-		end
-
 		on_main_async do
-			@browser_vc.setup context_store: @context_store
+			# populate model's redirections 
+			@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |args|
+				self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections if self.stack
+			end
 
 			@browser_vc.web_view.make_first_responder 
-
-			@plugin_vc.setup( {} )
 
 			# self.setup_overlay
 
@@ -120,7 +120,6 @@ class BrowserWindowController < NSWindowController
 
 			self.setup_actions_bar
 
-			
 			# MOTION-MIGRATION
 			# @progress_vc.setup
 			# self.setup_reactive_detail_input
@@ -445,7 +444,7 @@ class BrowserWindowController < NSWindowController
 
 		@browser_vc.load_url urls, details
 
-		@plugin_vc.frame_view.visible = false
+		component(FilteringPlugin).hide_plugin
 	end
 
 	#= browsing workflow
@@ -467,21 +466,13 @@ class BrowserWindowController < NSWindowController
 	def handle_Load_request_notification( notification )
 		new_url = notification.userInfo
 
+		if_enabled :touch_stack, new_url, provisional: true
+
 		# debug [ self.stack_id, notification ]
 
 		## zoom to page
 		# self.overlay_enabled = false
 		# self.zoom_to_page new_url
-
-		if self.stack
-			if self.stack.item_for_url(new_url)
-				self.stack.update_access new_url
-			else
-				self.stack.add_access new_url 
-			end
-		else
-			pe_log "#{self} has no stack. not adding"
-		end
 
 		# TACTICAL
 		# self.hide_gallery_view self
@@ -504,12 +495,17 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def handle_Url_load_finished_notification( notification )
-		if self.stack
-			pe_log "updating thumbnail"
-			self.stack.update_detail @browser_vc.url, thumbnail: @browser_vc.view.image
-		else
-			pe_log "nil stack"
-		end
+		new_url = notification.userInfo
+
+		if_enabled :touch_stack, new_url, 
+			provisional: false,
+			thumbnail: @browser_vc.view.image
+
+    # PERF?
+    ( @update_throttle ||= Object.new ).delayed_cancelling_previous 0.5, -> { 
+      component(FilteringPlugin).update_data
+      @context_store.save_thumbnails
+    }
 	end
 	
 #= bar
@@ -536,6 +532,17 @@ class BrowserWindowController < NSWindowController
 		self.delete_site notification.userInfo
 	end
 
+#= data management
+
+	def touch_stack( url, details )
+		if self.stack
+			self.stack.touch url, details
+
+			self.stack.update_detail @browser_vc.url, details
+		else
+      pe_log "#{self} has no stack. not adding"
+		end
+	end
 
 #== site configuration sheet
 	## disabled until relationship between stacks and sites are made clearer.

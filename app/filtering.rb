@@ -4,18 +4,22 @@ class FilteringPlugin < WebBuddyPlugin
 
   def on_setup
     @filter_reaction = react_to 'client.input_field_vc.current_filter' do |input|
-      self.show_plugin
-
-      self.load_view unless view_loaded? # HACK work around lack of navigability constraint.
-
-      self.update_data  # TACTICAL need to react to changes to context_store.
-
-      self.update_input input
+      on_input input if input
     end
 
     self.load_view
   end
 
+  def on_input input
+    self.show_plugin
+
+    # HACK work around lack of navigability constraint.
+    unless view_loaded? 
+      self.load_view 
+    end
+  
+    self.update_input input
+  end
 
   def update_input input
     @input = input
@@ -37,8 +41,12 @@ class FilteringPlugin < WebBuddyPlugin
     {
       input: @input,
       searches: 
-        context_store.stacks.sort_by {|e| e.last_accessed_timestamp }.reverse.map do |stack|
-          pages = stack.history_items.sort_by {|e| e.last_accessed_timestamp}.reverse
+        context_store.stacks
+          .sort_by {|e| e.last_accessed_timestamp }.reverse.map do |stack|
+
+          pages = stack.history_items
+            .select { |e| ! e.provisional }
+            .sort_by {|e| e.last_accessed_timestamp}.reverse
 
           stack_url = pages.empty? ? '' : pages.first.url
 

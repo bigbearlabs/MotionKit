@@ -214,13 +214,13 @@ end
 
 def stub_menu
 	new_menu [
-		{ title: 'item1', proc: -> { puts 'item1 clicked' } },
+		{ title: 'item1', proc: -> { pe_log 'item1 clicked' } },
 		{ 
 			title: 'submenu1', 
 			children: [
 				{
 					title: 'item1.1',
-					proc: -> { puts 'item1.1 clicked' }
+					proc: -> { pe_log 'item1.1 clicked' }
 				}
 			]
 		}

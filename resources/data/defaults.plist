@@ -104,6 +104,8 @@
 			<integer>6002</integer>
 			<key>menu_item_prefs_DEV</key>
 			<integer>6003</integer>
+			<key>menu_item_deactivate_on_resign</key>
+			<integer>6004</integer>
 			<key>action_add_site</key>
 			<real>8</real>
 		</dict>
@@ -121,6 +123,8 @@
 		<true/>
 		<key>load_context</key>
 		<true/>
+		<key>deactivate_on_resign</key>
+		<false/>
 	</dict>
 	<key>ContextStore</key>
 	<dict>
@@ -205,7 +209,9 @@
 			</dict>
 		</dict>
 		<key>handle_focus_input_field</key>
-		<false/>
+		<true/>
+		<key>touch_stack</key>
+		<true/>
 	</dict>
 </dict>
 </plist>

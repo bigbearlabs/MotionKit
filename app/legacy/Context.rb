@@ -32,44 +32,7 @@ class Context
 
 #==
   
-  # @param provisional:
-  def add_access( url, details = {} )  # rename
-    raise "nil url!" if url.nil?
-    
-    # assert this item not loaded.
-    if self.item_for_url url
-      pe_warn "add requested for an already known item #{url}. investigate"
-    end
-    
-    pe_log "add new history item for #{url}"
-    
-    item_container = ItemContainer.from_hash( { 
-      'url' => url,
-      'title' => url,
-      'pinned' => false,
-      'timestamp' => NSDate.date.to_s,
-    })
-    item_container.filter_tag = item_container.timestamp
-
-    self.add_item item_container
-
-    self.update_detail url, details
-
-    # self.handle_pinning item_container
-    
-    pe_debug "context.current_item: #{self.current_history_item.description}"
-  end
-  
-  def update_access( url )
-    pe_debug "update_access: #{caller}"
-
-    item = item_for_url url
-    item.last_accessed_timestamp = NSDate.date.to_s
-    item.filter_tag = item.timestamp
-
-    self.update_current_history_item item
-  end
-  
+  # @param provisional(boolean): item is 'in-flight.'
   def update_detail( url, details )
     pe_debug "detail update requested for #{url}"
     
@@ -77,7 +40,7 @@ class Context
     history_item = self.item_for_url url
     
     # NOTE this seems to happen with shortened url's involving client redirects.
-    # https://www.evernote.com/shard/s5/sh/aa05b207-8c98-4b9a-9a7d-9fd5d1d121fe/94d032b0b430fe228820e7347be974a8
+    # CASE https://www.evernote.com/shard/s5/sh/aa05b207-8c98-4b9a-9a7d-9fd5d1d121fe/94d032b0b430fe228820e7347be974a8
     # for now, be a bit generous and watch what happens.
     if history_item.nil?
       pe_warn "#{url} not found on #update_detail."
@@ -97,6 +60,8 @@ class Context
       if k == :thumbnail
         # mark for saving
         history_item.thumbnail_dirty = true
+
+        pe_log "marked #{history_item} as thumbnail_dirty"
       end
     end
   end
@@ -142,6 +107,14 @@ class Context
       return items[0]
     end
   end  
+
+  def touch( url, details = {} )
+    if self.item_for_url url
+      self.update_access url, details
+    else
+      self.add_access url, details
+    end
+  end
 
   ##
 
@@ -341,7 +314,7 @@ class Context
   end
 
 
-  protected
+protected
 
     attr_writer :current_history_item
 
@@ -351,6 +324,45 @@ class Context
       end
     end
     
+    def add_access( url, details = {} )  # rename
+      raise "nil url!" if url.nil?
+      
+      # assert this item not loaded.
+      if self.item_for_url url
+        pe_warn "add requested for an already known item #{url}. investigate"
+      end
+      
+      pe_log "add new history item for #{url}"
+      
+      item_container = ItemContainer.from_hash( { 
+        'url' => url,
+        'title' => url,
+        'pinned' => false,
+        'timestamp' => NSDate.date.to_s,
+      })
+      item_container.filter_tag = item_container.timestamp
+
+      self.add_item item_container
+
+      self.update_detail url, details
+
+      # self.handle_pinning item_container
+      
+      pe_debug "context.current_item: #{self.current_history_item.description}"
+    end
+    
+    def update_access( url, details = {} )
+      pe_debug "update_access: #{caller}"
+
+      item = item_for_url url
+      item.last_accessed_timestamp = NSDate.date.to_s
+      item.filter_tag = item.timestamp
+
+      self.update_current_history_item item
+
+      self.update_detail url, details
+    end
+  
 end
 
 # FIXME attrs such as url, title aren't kvo-compliant when decorated like this!

@@ -124,13 +124,6 @@ class MainWindow < NSPanel
 			# hide all child windows to avoid kCGErrorIllegalArgument
 			self.childWindows.each {|w| w.orderOut(self) } if self.childWindows # FIXME restore later
 
-			completion_handler = -> {
-				# return focus to previous app
-				NSApp.delegate.deactivate_if_needed
-				
-				completion_proc.call if completion_proc
-			}
-
 			animation_style = default :animation_style
 			case animation_style
 			when 'slide'
@@ -139,14 +132,14 @@ class MainWindow < NSPanel
 				# grab the window image
 				@window_image = self.image_view
 				# instruct masking window to animate to a 0-width frame
-				@mask_window.animate_grow @window_image, self.deactivated_frame, completion_handler
+				@mask_window.animate_grow @window_image, self.deactivated_frame, completion_proc
 
 				self.hide
 			when 'fade'
 				NSAnimationContext.currentContext.duration = 0.2
 				self.animate_fade :out, -> {
 					self.hide
-					completion_handler.call
+					completion_proc.call
 				}
 			else
 				raise "unsupported animation style #{animation_style}"

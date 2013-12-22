@@ -4,7 +4,6 @@ build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
 version_number = "1.2.0"
 build_number = `cat build.VERSION`.strip
-# version_number = "#{version_number}-#{build_number}"  # DEV
 
 
 $:.unshift("/Library/RubyMotion/lib")
@@ -39,7 +38,7 @@ Motion::Project::App.setup do |app|
 
   # dev-only
   app.development do
-    version_number = "1.1.9-#{build_number}"
+    version_number = "#{version_number}-#{build_number}"
     app.files += Dir.glob('sketch/**/*.rb') 
   end
 
@@ -73,14 +72,35 @@ Motion::Project::App.setup do |app|
 
   app.info_plist['LSUIElement'] = true
 
+  app.info_plist['NSServices'] = [
+    {
+      'NSKeyEquivalent' =>  {
+          'default' =>  "Z"
+      },
+      'NSMenuItem' =>  {
+          'default' =>  "Send to WebBuddy"
+      },
+      'NSMessage' =>  "handle_service",
+      'NSPortName' =>  "${PRODUCT_NAME}",
+      'NSRequiredContext' =>  {
+          'NSServiceCategory' =>  'Browsing'
+      },
+      'NSSendTypes' =>  [
+          "public.utf8-plain-text"
+          # TODO elaborate use case for non-text and add types, funnel into marketing.
+      ],
+    },
+  ]
+
 
   ## files
 
   app.delegate_class = "WebBuddyAppDelegate"
 
   app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb'
-    # 'app/filtering.rb' => 'app/legacy/window_controllers.rb'
-
+    # 'app/legacy/WebBuddyAppDelegate.rb' => 'app/filtering.rb',
+    # 'app/filtering.rb' => 'app/plugin.rb',
+    # 'app/aa_plugin.rb' => "#{`pwd`.strip}/bblmotionkit/lib/bblmotionkit/core/delegating.rb"
 
   # archive:distribution fails with i386 arch - just build for x86_64
   app.archs['MacOSX'] = ['x86_64']
@@ -123,6 +143,9 @@ namespace :modules do
     FileUtils.mkdir_p 'resources/plugin'
     FileUtils.cp_r Dir.glob('../webbuddy-modules/dist/.'), 'resources/plugin', verbose:true
   end
+
+  desc "build and copy modules"
+  task :all => [ :build, :cprsc ]
 end
 
 
@@ -154,5 +177,5 @@ namespace :release do
   # TODO revert version
 
   desc "archive, zip, rsync, version, release"
-  task :all => [ :increment, :'archive:distribution', :zip, :commit_version ]
+  task :all => [ :'modules:all', :increment, :'archive:distribution', :zip, :commit_version ]
 end

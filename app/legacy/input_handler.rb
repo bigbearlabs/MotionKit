@@ -20,9 +20,11 @@ class InputHandler < BBLComponent
       self.process_command input
 
     when :url
-      self.client.load_url [
-        input
-      ]
+      self.client.load_url input
+
+    when :search
+      self.client.load_url input.to_search_url_string, stack_id: input
+
     else
       self.client.load_url [
         input,
@@ -69,8 +71,14 @@ class String
   def pe_type
     if self =~ /^>/
       :cmd
+    
     elsif self.valid_url?
       :url
+
+    # catch some obvious hints for an enquiry
+    elsif self.include? ' '
+      :search
+
     else
       :other
     end

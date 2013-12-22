@@ -154,20 +154,16 @@ end
 class NSString
 	include StringUtil
 
-  def escape
-    self.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
-  end
-  
 	def to_url
 		# NOTE we need to first check if string needs encoding. if string alrady percent-escape encoded, we shouldn't encode again.
-		encoded_str = self.escape
+		# self = self.escaped
 		url = (
-			if encoded_str.starts_with? '~'
+			if self.starts_with? '~'
 				NSURL.fileURLWithPath( self.stringByExpandingTildeInPath )
-			elsif encoded_str.starts_with? '/'
-				NSURL.fileURLWithPath encoded_str
+			elsif self.starts_with? '/'
+				NSURL.fileURLWithPath self
 			else
-				NSURL.URLWithString encoded_str
+				NSURL.URLWithString self
 			end
 		)
 
@@ -197,7 +193,7 @@ class NSArray
 	end
 	
 	def for_range( range )
-		puts "range: #{range.description}"
+		pe_log "range: #{range.description}"
 		range ?
 			self.subarrayWithRange( range ) :
 			self
@@ -439,7 +435,7 @@ class NSPredicate
 
   # returns a predicate that matches the first n sorted elements of the array controller.
   def self.limit_predicate array_controller, limit, another_predicate = nil
-  	puts "creating predicate with limit #{limit}"
+  	pe_log "creating predicate with limit #{limit}"
     NSPredicate.predicateWithBlock(
       -> evaluatedObject, bindings {
         unfiltered_objects = array_controller.unfiltered_objects
@@ -449,7 +445,7 @@ class NSPredicate
 
         index = unfiltered_objects.index(evaluatedObject)
 
-        puts "#{self} limit: #{limit}, index: #{index}"
+        pe_log "#{self} limit: #{limit}, index: #{index}"
         index.to_i < limit
       }
     )

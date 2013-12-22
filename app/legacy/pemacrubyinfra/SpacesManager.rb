@@ -87,16 +87,7 @@ class SpacesManager
 
 	# FIXME this won't work with pid other than this app's.
 	def windows_in_space( criteria = { :pid => NSApp.pid } )
-		window_numbers = self.space_window_data
-			.select {|e| e["kCGWindowOwnerPID"] == criteria[:pid]}
-			.map {|e| e["kCGWindowNumber"]}
-
-		windows = NSApp.windows.select do |window|
-			window_numbers.include? window.windowNumber
-		end
-
-		pe_log "windows for space: #{windows}"
-		windows
+		NSApp.windows.select &:isOnActiveSpace
 	end
 
 	# FIXME space changes in mission control report multiple anchors - find out the best way to detect mission control activation.

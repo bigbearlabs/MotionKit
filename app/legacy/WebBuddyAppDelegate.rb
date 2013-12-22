@@ -182,11 +182,17 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= IBActions for menu
 
 	def handle_show_gallery( sender )
-		self.main_window_shown = true
+		## MAIN-WINDOW
+		# self.main_window_shown = true
+		
+		wc.component(FilteringPlugin).show_plugin
 	end
 
 	def handle_hide_gallery( sender )
-		self.main_window_shown = false
+		## MAIN-WINDOW
+		# self.main_window_shown = false
+
+		wc.component(FilteringPlugin).hide_plugin
 	end
 
 	def toggle_front( sender )
@@ -262,14 +268,18 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def deactivate_if_needed
 		#		main_window.orderOut(self)
 
-		visible_windows = self.visible_windows.select do |w|
-			w.isOnActiveSpace
-		end
-		pe_debug "visible windows on space: #{visible_windows}"
-		if visible_windows.empty?
+		visible_windows_in_space = self.visible_windows.select &:isOnActiveSpace
+		pe_debug "visible windows on space: #{visible_windows_in_space}"
+
+		if visible_windows_in_space.empty?
 			NSApp.hide(self)
 		end
 	end
+
+	def deactivate_on_resign
+	  deactivate_viewer_window
+	end
+	
 
 	# TODO delay until space state stabilises.
 	def handle_Activation_notification( notification )
@@ -473,7 +483,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 
 	def deactivate_viewer_window
-		current_viewer_wc.do_deactivate
+		current_viewer_wc.do_deactivate -> {
+			# return focus to previous app
+			self.deactivate_if_needed
+		}
 
 		on_main_async do
 			self.update_main_window_state
@@ -506,15 +519,28 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 
 	def current_viewer_wc
-		puts caller
-
-		# viewer_wc = @spaces_manager.windows_in_space.map(&:windowController).select {|wc| wc.is_a? ViewerWindowController }.last
-		# NOTE #windows_in_space doesn't return hidden windows, so we can't use it to work out the wc.
-		viewer_wc = @viewer_controllers_by_space[@spaces_manager.current_space_id] if @viewer_controllers_by_space
+		current_space_id = @spaces_manager.current_space_id
+		viewer_wc = @viewer_controllers_by_space[current_space_id] if @viewer_controllers_by_space
 
 		if viewer_wc.nil?
-			viewer_wc = new_viewer_window_controller
-			(@viewer_controllers_by_space ||= {}) [@spaces_manager.current_space_id] = viewer_wc
+			# EDGECASE sometimes we end up not picking up the viewer_wc for the space - check for this case and rectify.
+			viewer_wcs = @spaces_manager.windows_in_space
+				.map(&:windowController)
+				.select {|e| e.is_a? ViewerWindowController}
+
+			unless viewer_wcs.empty?
+				viewer_wc = viewer_wcs[0]
+
+				viewer_wcs[1..-1].map do |redundant_wc|
+					pe_warn "closing redundant wc #{reduncant_wc} for space #{current_space_id}"
+					reduncant_wc.should_close = true
+					redundant_wc.close
+				end
+			else
+				viewer_wc = new_viewer_window_controller
+			end
+
+			( @viewer_controllers_by_space ||= {} )[current_space_id] = viewer_wc
 		end
 
 		# update the current context.
@@ -566,10 +592,11 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# @main_window_controller.window.front_with_mask_window if @main_window_controller.window.shown?
 			
 			if_enabled :save_context
-		end
 
+			if_enabled :deactivate_on_resign
+		end
 	end
-	
+
 	def on_screen_change( notification )
 		@screens_manager.handle_display_set_changed
 
@@ -659,12 +686,26 @@ class WebBuddyAppDelegate < PEAppDelegate
 				end
 
 			return true
+
+		when @tags_by_description['menu_item_deactivate_on_resign']
+			item.state = default(:deactivate_on_resign) ? NSOnState : NSOffState
 		end
 
 		# by default, enable items.
 		true
 	end
 	
+	# the generic menu item handler.
+	def handle_menu_item_select(sender)
+		case sender.tag
+		when @tags_by_description['menu_item_deactivate_on_resign']
+			current_state = (sender.state == NSOnState)
+			set_default :deactivate_on_resign, ! current_state
+		else
+			raise "nothing implemented for #{sender}, tag #{sender.tag}"
+		end
+	end
+
 #= status item
 
 	def handle_status_menu_click( sender )
