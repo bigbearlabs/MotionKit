@@ -20,6 +20,12 @@
                         <action selector="toggle_front:" target="-2" id="73"/>
                     </connections>
                 </menuItem>
+                <menuItem title="Dismiss on Focus Change" tag="6004" id="nPd-7L-vhz">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="handle_menu_item_select:" target="-1" id="nY9-bL-VFB"/>
+                    </connections>
+                </menuItem>
                 <menuItem isSeparatorItem="YES" id="6DD-0c-1hp"/>
                 <menuItem title="Preferences..." keyEquivalent="," id="8">
                     <connections>

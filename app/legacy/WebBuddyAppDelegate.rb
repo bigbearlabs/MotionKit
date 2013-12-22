@@ -530,6 +530,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 			unless viewer_wcs.empty?
 				viewer_wc = viewer_wcs[0]
+
 				viewer_wcs[1..-1].map do |redundant_wc|
 					pe_warn "closing redundant wc #{reduncant_wc} for space #{current_space_id}"
 					reduncant_wc.should_close = true
@@ -685,12 +686,26 @@ class WebBuddyAppDelegate < PEAppDelegate
 				end
 
 			return true
+
+		when @tags_by_description['menu_item_deactivate_on_resign']
+			item.state = default(:deactivate_on_resign) ? NSOnState : NSOffState
 		end
 
 		# by default, enable items.
 		true
 	end
 	
+	# the generic menu item handler.
+	def handle_menu_item_select(sender)
+		case sender.tag
+		when @tags_by_description['menu_item_deactivate_on_resign']
+			current_state = (sender.state == NSOnState)
+			set_default :deactivate_on_resign, ! current_state
+		else
+			raise "nothing implemented for #{sender}, tag #{sender.tag}"
+		end
+	end
+
 #= status item
 
 	def handle_status_menu_click( sender )

@@ -104,6 +104,8 @@
 			<integer>6002</integer>
 			<key>menu_item_prefs_DEV</key>
 			<integer>6003</integer>
+			<key>menu_item_deactivate_on_resign</key>
+			<integer>6004</integer>
 			<key>action_add_site</key>
 			<real>8</real>
 		</dict>
