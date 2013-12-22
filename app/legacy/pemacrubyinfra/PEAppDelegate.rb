@@ -225,7 +225,7 @@ class PEAppDelegate
 		}
 
 		# reject the irb windows too
-		[].concat(visible_windows).reject do |w|
+		visible_windows.dup.reject do |w|
 			Module.const_defined?(:IRBWindowController) && w.windowController.is_a?(IRBWindowController)
 		end
 	end

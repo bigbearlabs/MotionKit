@@ -268,11 +268,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def deactivate_if_needed
 		#		main_window.orderOut(self)
 
-		visible_windows = self.visible_windows.select do |w|
-			w.isOnActiveSpace
-		end
-		pe_debug "visible windows on space: #{visible_windows}"
-		if visible_windows.empty?
+		visible_windows_in_space = self.visible_windows.select &:isOnActiveSpace
+		pe_debug "visible windows on space: #{visible_windows_in_space}"
+
+		if visible_windows_in_space.empty?
 			NSApp.hide(self)
 		end
 	end
@@ -512,11 +511,27 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 
 	def current_viewer_wc
-		viewer_wc = @viewer_controllers_by_space[@spaces_manager.current_space_id] if @viewer_controllers_by_space
+		current_space_id = @spaces_manager.current_space_id
+		viewer_wc = @viewer_controllers_by_space[current_space_id] if @viewer_controllers_by_space
 
 		if viewer_wc.nil?
-			viewer_wc = new_viewer_window_controller
-			(@viewer_controllers_by_space ||= {}) [@spaces_manager.current_space_id] = viewer_wc
+			# EDGECASE sometimes we end up not picking up the viewer_wc for the space - check for this case and rectify.
+			viewer_wcs = @spaces_manager.windows_in_space
+				.map(&:windowController)
+				.select {|e| e.is_a? ViewerWindowController}
+
+			unless viewer_wcs.empty?
+				viewer_wc = viewer_wcs[0]
+				viewer_wcs[1..-1].map do |redundant_wc|
+					pe_warn "closing redundant wc #{reduncant_wc} for space #{current_space_id}"
+					reduncant_wc.should_close = true
+					redundant_wc.close
+				end
+			else
+				viewer_wc = new_viewer_window_controller
+			end
+
+			( @viewer_controllers_by_space ||= {} )[current_space_id] = viewer_wc
 		end
 
 		# update the current context.
