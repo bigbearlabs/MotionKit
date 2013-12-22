@@ -276,6 +276,11 @@ class WebBuddyAppDelegate < PEAppDelegate
 		end
 	end
 
+	def deactivate_on_resign
+	  deactivate_viewer_window
+	end
+	
+
 	# TODO delay until space state stabilises.
 	def handle_Activation_notification( notification )
 		NSApp.activate
@@ -478,7 +483,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 
 	def deactivate_viewer_window
-		current_viewer_wc.do_deactivate
+		current_viewer_wc.do_deactivate -> {
+			# return focus to previous app
+			self.deactivate_if_needed
+		}
 
 		on_main_async do
 			self.update_main_window_state
@@ -583,10 +591,11 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# @main_window_controller.window.front_with_mask_window if @main_window_controller.window.shown?
 			
 			if_enabled :save_context
-		end
 
+			if_enabled :deactivate_on_resign
+		end
 	end
-	
+
 	def on_screen_change( notification )
 		@screens_manager.handle_display_set_changed
 

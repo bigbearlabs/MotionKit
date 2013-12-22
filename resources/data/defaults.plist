@@ -121,6 +121,8 @@
 		<true/>
 		<key>load_context</key>
 		<true/>
+		<key>deactivate_on_resign</key>
+		<false/>
 	</dict>
 	<key>ContextStore</key>
 	<dict>
