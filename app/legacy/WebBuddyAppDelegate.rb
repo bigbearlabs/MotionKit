@@ -74,12 +74,11 @@ class WebBuddyAppDelegate < PEAppDelegate
 		@intro_enabled = default :intro_enabled
 		@load_welcome = default :load_welcome
 
-		@load_ext_url_policy = default :load_ext_url_policy
-
 		# deprecated / unused defaults
-		# @selection_grab_enabled = default :selection_grab_enabled
 		# @show_toolbar_on_hotkey = default :show_toolbar_on_hotkey
 
+		# experimental default-driven behaviour #REFACTOR
+		@load_ext_url_policy = default :load_ext_url_policy
 
 		if $DEBUG
 			periodically do
