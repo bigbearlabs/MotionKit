@@ -141,7 +141,7 @@ namespace :modules do
   desc "copy resources"
   task :cprsc => [] do
     FileUtils.mkdir_p 'resources/plugin'
-    FileUtils.cp_r Dir.glob('../webbuddy-modules/dist/.'), 'resources/plugin', verbose:true
+    FileUtils.cp_r Dir.glob("ENV['HOME']/Google Drive/bigbearlabs/webbuddy-preview/modules"), 'resources/plugin', verbose:true
   end
 
   desc "build and copy modules"
