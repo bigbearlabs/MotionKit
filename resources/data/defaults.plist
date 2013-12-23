@@ -122,7 +122,7 @@
 		<key>save_context</key>
 		<true/>
 		<key>load_context</key>
-		<true/>
+		<false/>
 		<key>deactivate_on_resign</key>
 		<false/>
 	</dict>
@@ -135,7 +135,7 @@
 		<key>thumbnail_extension</key>
 		<string>png</string>
 		<key>plist_name</key>
-		<string>context_store.yaml</string>
+		<string>stacks.plist</string>
 	</dict>
 	<key>MainWindowController</key>
 	<dict>

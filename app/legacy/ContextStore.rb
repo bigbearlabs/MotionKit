@@ -157,12 +157,8 @@ class ContextStore
 			"#{stack['name']}: #{stack['items'].count} history items"
 		end
 
-		save_result = hash.save_to plist_name
-		if ! save_result
-			raise "error while saving. save_result: #{save_result}"
-		else
-			pe_log "saved #{self} - #{save_report}"
-		end
+		hash.save_plist plist_name
+		pe_log "saved #{self} - #{save_report}"
 	rescue Exception => e
 		pe_report e, "error saving #{plist_name}"
 	end
@@ -170,7 +166,7 @@ class ContextStore
 	def load_stacks
 		begin
 			pe_log "loading contexts from #{plist_name}"
-			context_store_data  = NSDictionary.dictionary_from plist_name
+			context_store_data  = load_plist plist_name
 		rescue Exception => e
 			pe_report e
 			pe_warn "TODO trigger backup restoration workflow"  # IMPL
