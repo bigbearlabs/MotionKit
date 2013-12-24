@@ -28,9 +28,7 @@ class NSApplication
 	end
 	
 	def app_support_dir
-		dir = NSFileManager.defaultManager.applicationSupportDirectory
-		FileUtils.mkdir_p dir unless Dir.exists? dir
-		dir
+		NSFileManager.defaultManager.privateDataPath
 	end
 
 	def resource_dir
