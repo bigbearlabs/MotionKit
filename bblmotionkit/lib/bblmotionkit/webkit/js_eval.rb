@@ -14,8 +14,9 @@ module JsEval
   
   def eval_js_file file_name
     js_src = NSBundle.mainBundle.content( file_name )
-    self.eval_js js_src, "contents of #{file_name}"
+    result = self.eval_js js_src, "contents of #{file_name}"
     pe_log "#{file_name} loaded."
+    result
   end
   
   def eval_expr single_line_expr
@@ -52,6 +53,11 @@ module JsEval
       dom_window = @web_view.windowScriptObject
       result = dom_window.evaluateWebScript(script_string)
     
+      if result.is_a? WebUndefined
+        pe_log "find js returned undefined. no match?"
+        result = result.to_s
+      end
+
       pe_debug "completed eval_js: #{script_description}"
       pe_debug "eval_results: #{result.description}"
     

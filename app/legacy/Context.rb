@@ -157,8 +157,14 @@ class Context
     items = self.history_items
     item_a = items.dup
     items.map do |item|
+      if item.url.nil?
+        pe_log "remove item with nil url: #{item}"
+        self.remove_history_item item
+      end
+      
       dups = item_a.select{|e| e.match_url? item}[1..-1].to_a
       dups.map do |dup|
+        pe_log "remove dup history items: #{dups.map &:url}"
         self.remove_history_item matching[1..-1].to_a
       end
     end      
@@ -371,7 +377,7 @@ end
 class ItemContainer
   include KVOMixin
   
-  attr_accessor :history_item
+  attr_reader :history_item
   
   # other properties
   attr_accessor :thumbnail
@@ -403,15 +409,17 @@ class ItemContainer
   #       self.url = new_url
     # end
     
-    self.history_item = history_item
+    @history_item = history_item
+    
+    raise "invalid url for history item #{history_item}" unless self.url
   end
   
 #=
   
   def match_url?( url )
     if ! self.url
-      # raise "#{self} has a nil url - we must find out why"
-      pe_warn "#{self} has a nil url - we must find out why"
+      raise "#{self} has a nil url - we must find out why"
+      # pe_warn "#{self} has a nil url - we must find out why"
       
       return false
     end

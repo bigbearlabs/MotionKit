@@ -30,6 +30,7 @@ Motion::Project::App.setup do |app|
     pod 'RoutingHTTPServer', '~> 1.0.0'
     pod 'MASPreferences', '~> 1.1'
     pod 'WebViewJavascriptBridge', '~> 4.1.0'
+    pod 'StandardPaths'
   end
 
   # frameworks
@@ -46,7 +47,6 @@ Motion::Project::App.setup do |app|
   # vendor projects
   # app.vendor_project('vendor/PEFramework', :xcode)
   app.vendor_project('vendor/misc', :static)
-  app.vendor_project('vendor/NSFileManager-DirectoryLocations', :static)
   app.vendor_project('vendor/DDHotKeyCenter', :static)
   # FIXME need to copy resource.
 

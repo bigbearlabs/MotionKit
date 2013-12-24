@@ -149,7 +149,7 @@ module StringUtil
   
   def to_url_string # PROTO
     if self[0] == '/'
-      "file://#{self.escaped}"
+      "file://#{self.escaped(:simple)}"
     elsif self =~ %r{^(http|https|file)://}
       # FIXME probably has some edge cases
       self
@@ -173,7 +173,7 @@ module StringUtil
   def escaped( escape_style = :all )
     case escape_style
     when :simple
-      self.gsub ' ', '+'
+      self.gsub ' ', '%20'
     else
       CGI.escape self
     end
