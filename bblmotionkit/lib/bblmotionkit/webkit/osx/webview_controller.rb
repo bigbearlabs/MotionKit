@@ -149,6 +149,9 @@ class WebViewJavascriptBridge
     @web_view_delegate.webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)
   end
   
+  def webView( webView, didReceiveTitle:title, forFrame:frame )
+    @web_view_delegate.webView(webView, didReceiveTitle:title, forFrame:frame)    
+  end
 end
 
 
