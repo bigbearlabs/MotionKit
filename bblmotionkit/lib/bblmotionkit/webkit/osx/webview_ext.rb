@@ -17,6 +17,10 @@ class WebView
     self.mainFrameURL.copy
   end
 
+  def current_history_item
+    self.backForwardList.currentItem
+  end
+  
   def delegate
     # TODO ensure all delegates point to same instance
 
@@ -32,6 +36,10 @@ class WebViewDelegate
   # a running history 
   attr_reader :events
   attr_reader :redirections
+
+  attr_reader :state
+  attr_reader :url
+  attr_reader :title
 
   attr_accessor :web_view  
 
@@ -69,6 +77,7 @@ class WebViewDelegate
     begin
       case event_name
       when 'decidePolicyForNavigation'
+
         #         WebNavigationTypeFormSubmitted,
         #         WebNavigationTypeBackForward,
         #         WebNavigationTypeReload,
@@ -89,12 +98,23 @@ class WebViewDelegate
       when 'willSendRequestForRedirectResponse'
         # page redirects have response_url equal to url and a different new_url.
         if event_data[:response_url] == @url && event_data[:new_url] != @url
+          kvo_change :url do
+            @url = @url
+          end
+
           self.add_redirect event_data[:new_url]
         end
 
       when 'didStartProvisionalLoad'
         pe_log "#{@url} started provisional load"
-        
+ 
+        kvo_change :state do
+          @state = :loading
+        end
+        kvo_change :url do
+          @url = @url
+        end
+       
         self.prep_load @url
 
         send_notification :Load_request_notification, @url
@@ -106,11 +126,19 @@ class WebViewDelegate
       when 'didFinishLoadingResource'
 
       when 'didReceiveTitle'
+        kvo_change :title do
+          @title = event_data[:title]
+        end
+
         send_notification :Title_received_notification, { 
           url: @url, title: event_data[:title] 
         }
 
       when 'didFinishLoadMainFrame'
+        kvo_change :state do
+          @state = :loaded
+        end
+
         send_notification :Url_load_finished_notification, @url
 
         @success_handler.call @url if @success_handler
@@ -122,6 +150,10 @@ class WebViewDelegate
         end
         
       when 'provisionalLoadFailed', 'loadFailed'
+        kvo_change :state do
+          @state = :failed
+        end
+
         pe_log event
 
         if @fail_handler
