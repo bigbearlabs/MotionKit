@@ -234,6 +234,14 @@ class NSDictionary
     write_file path_string, content
   end
 
+  def save_plist( path_string )
+    path_string = NSApp.app_support_dir + "/" + path_string
+    
+    written = writeToFile("#{path_string}", atomically:false)
+
+    raise "save error" if ! written
+  end
+  
 end
 
 #=

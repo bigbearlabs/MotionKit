@@ -625,7 +625,7 @@ class BrowserWindowController < NSWindowController
 	
 #= window behaviour
 	
-	def do_activate( completion_proc = nil )
+	def do_activate( completion_proc = -> {} )
 		# debug
 		case default(:activation_style)
 		when :popover
@@ -643,7 +643,7 @@ class BrowserWindowController < NSWindowController
 					self.handle_hide_input_field self
 			  end
 
-				completion_proc.call if completion_proc
+				completion_proc.call
 			}
 
 		end
@@ -651,7 +651,7 @@ class BrowserWindowController < NSWindowController
 		self
 	end
 
-	def do_deactivate( completion_proc = nil )
+	def do_deactivate( completion_proc = -> {} )
 		case default(:activation_style)
 		when :popover
 			@window_page_details_vc.hide_popover
