@@ -115,7 +115,8 @@ class BrowserWindowController < NSWindowController
 			# history views
 			watch_notification :Item_selected_notification
 
-			self.setup_title_bar
+			self.setup_reactive_title_bar
+			self.setup_reactive_history_item_sync
 			self.setup_responder_chain
 
 			self.setup_actions_bar
@@ -172,15 +173,10 @@ class BrowserWindowController < NSWindowController
 		watch_notification :Bar_item_delete_notification
 	end
 
-	def setup_title_bar
-		# just watch the context.
-		# NOTE this is where the title updating is failing. 
-		# root cause is the bad modeling of context and tracks.
-		observe_kvo self, 'stack.current_history_item.title' do |k, c, ctx|
-			self.title = c.kvo_new
-		end
-		observe_kvo self, 'stack.current_history_item.url' do |k, c, ctx|
-			self.url = c.kvo_new
+	def setup_reactive_title_bar
+		react_to 'browser_vc.web_view_delegate.state' do |new_state|
+			pe_log "state changed to #{new_state}"
+			self.title = @browser_vc.web_view_delegate.title
 		end
 
 		observe_kvo self, :title do |k,c, ctx|
@@ -206,6 +202,15 @@ class BrowserWindowController < NSWindowController
 		# end
 	end
 
+	def setup_reactive_history_item_sync
+		react_to 'browser_vc.web_view_delegate.state' do |new_state|
+			# update the WebHistoryItem
+			if new_state == :loaded
+				self.stack.update_history_item @browser_vc.web_view_delegate.url, @browser_vc.web_view.current_history_item if self.stack
+			end
+		end
+	end
+
 	def handle_carousel_title( sender )
 		self.window_title_mode = (self.window_title_mode == :title) ? :url : :title
 		window.title =
@@ -216,6 +221,38 @@ class BrowserWindowController < NSWindowController
 			end
 	end
 
+
+	def carousel_find( direction )
+		@find_carousel ||= (
+			elem1 = NamedProc.new :input_field do
+				handle_focus_input_field self
+				NSApp.delegate.handle_show_gallery self
+			end
+			elem2 = NamedProc.new :find_field do
+				pe_log "TODO focus on find field"
+				NSApp.delegate.handle_hide_gallery self
+			end
+			elem3 = NamedProc.new :page_search_field do
+				pe_log "TODO focus on search field on page."
+			end
+
+			# Carousel.new [ elem1, elem2, elem3 ]
+			# DISABLED work out exact behaviour spec
+
+			Carousel.new [elem1, elem2]
+
+			# TODO carousel state should be reset on key press, unfocus, potentially other events.
+		)
+
+
+		case direction
+		when :next
+			@find_carousel.next
+		when :previous
+			@find_carousel.previous
+		end
+	end
+	
 #= 
 
 	def handle_show_location(sender)
@@ -423,12 +460,13 @@ class BrowserWindowController < NSWindowController
 		# self.hide_overlay
 	end
 
+#= REFACTOR to on_input.
+
 	def handle_input( input, details = {})
 		# just try loading, fall back to a search.
 		self.load_url [input, input.to_search_url_string], details
 	end
 	
-
 #= browsing
 
 	#= interface
@@ -501,11 +539,13 @@ class BrowserWindowController < NSWindowController
 			provisional: false,
 			thumbnail: @browser_vc.view.image
 
-    # PERF?
-    ( @update_throttle ||= Object.new ).delayed_cancelling_previous 0.5, -> { 
-      component(FilteringPlugin).update_data
-      @context_store.save_thumbnails
-    }
+		# TODO consider invoking update_history_item here.
+
+		# PERF?
+		( @update_throttle ||= Object.new ).delayed_cancelling_previous 0.5, -> { 
+			component(FilteringPlugin).update_data
+			@context_store.save_thumbnails
+		}
 	end
 	
 #= bar
@@ -540,7 +580,7 @@ class BrowserWindowController < NSWindowController
 
 			self.stack.update_detail @browser_vc.url, details
 		else
-      pe_log "#{self} has no stack. not adding"
+			pe_log "#{self} has no stack. not adding"
 		end
 	end
 
@@ -641,7 +681,7 @@ class BrowserWindowController < NSWindowController
 				# TODO migrate into a reaction.
 				if_enabled :handle_focus_input_field, self do
 					self.handle_hide_input_field self
-			  end
+				end
 
 				completion_proc.call
 			}

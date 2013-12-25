@@ -19,7 +19,7 @@ module Preferences
 
   def new_pref_window(sender)
     flavour =  
-      if (sender.respond_to?(:tag) and sender.tag == @tags_by_description['menu_item_prefs_DEV']) or (default :show_preview_prefs)
+      if (sender.respond_to?(:tag) && to_sym(sender.tag) == :menu_item_prefs_DEV) or (default :show_preview_prefs)
         :dev
       else
         :standard

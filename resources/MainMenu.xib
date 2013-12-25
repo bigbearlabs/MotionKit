@@ -386,9 +386,15 @@
                                     <action selector="handle_hide_input_field:" target="-1" id="1024"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Show Gallery" keyEquivalent="F" id="1054">
+                            <menuItem title="Carousel Input Focus" tag="6005" keyEquivalent="F" id="1054">
                                 <connections>
-                                    <action selector="handle_show_gallery:" target="-1" id="1058"/>
+                                    <action selector="handle_menu_item_select:" target="-1" id="UFX-GA-Pzi"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Show Gallery" id="g2n-iZ-hcY">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="handle_show_gallery:" target="-1" id="grY-Dm-3fs"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Hide Gallery" alternate="YES" keyEquivalent="F" id="1056">
