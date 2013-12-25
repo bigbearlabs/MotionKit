@@ -97,7 +97,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# user actions
 		watch_notification :Visit_request_notification
 		watch_notification :Revisit_request_notification
-		watch_notification :Site_search_notification
 		
 		try {
 			watch_notification NSWindowDidEndLiveResizeNotification
@@ -297,14 +296,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def handle_Revisit_request_notification( notification )
 		url = notification.userInfo.url
 		self.load_url url, stack_id: notification.userInfo.stack_id
-	end
-
-	def handle_Site_search_notification(notification)
-		pe_trace stack.format_backtrace.report
-		
-		search_details = notification.userInfo
-
-		wc.do_activate.do_search search_details
 	end
 
 #= tracks
