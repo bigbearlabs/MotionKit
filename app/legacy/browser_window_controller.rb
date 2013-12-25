@@ -221,6 +221,38 @@ class BrowserWindowController < NSWindowController
 			end
 	end
 
+
+	def carousel_find( direction )
+		@find_carousel ||= (
+			elem1 = NamedProc.new :input_field do
+				handle_focus_input_field self
+				NSApp.delegate.handle_show_gallery self
+			end
+			elem2 = NamedProc.new :find_field do
+				pe_log "TODO focus on find field"
+				NSApp.delegate.handle_hide_gallery self
+			end
+			elem3 = NamedProc.new :page_search_field do
+				pe_log "TODO focus on search field on page."
+			end
+
+			# Carousel.new [ elem1, elem2, elem3 ]
+			# DISABLED work out exact behaviour spec
+
+			Carousel.new [elem1, elem2]
+
+			# TODO carousel state should be reset on key press, unfocus, potentially other events.
+		)
+
+
+		case direction
+		when :next
+			@find_carousel.next
+		when :previous
+			@find_carousel.previous
+		end
+	end
+	
 #= 
 
 	def handle_show_location(sender)

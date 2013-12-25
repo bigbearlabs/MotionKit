@@ -423,8 +423,8 @@ end
 class NamedProc < Proc
   attr_accessor :name
   
-  def initialize(name, &proc)
-    super(&proc)
+  def initialize(name, &p)
+    super(&p)
     self.name = name.to_s
   end
   

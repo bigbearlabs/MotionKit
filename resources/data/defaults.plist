@@ -106,6 +106,8 @@
 			<integer>6003</integer>
 			<key>menu_item_deactivate_on_resign</key>
 			<integer>6004</integer>
+			<key>menu_item_handle_carousel_find</key>
+			<integer>6005</integer>
 			<key>action_add_site</key>
 			<real>8</real>
 		</dict>

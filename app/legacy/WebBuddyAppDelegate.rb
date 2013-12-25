@@ -701,6 +701,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 		when :menu_item_deactivate_on_resign
 			current_state = (sender.state == NSOnState)
 			set_default :deactivate_on_resign, ! current_state
+		when :menu_item_handle_carousel_find
+			# TODO generalise based on the default key.
+			wc.carousel_find :next
 		else
 			raise "nothing implemented for #{sender}, tag #{sender.tag}"
 		end
@@ -780,92 +783,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		end
 	end
 	
-#= carouselling
-
-	def setup_kvo_carousel_state
-		# watch active status to set the carouselling.
-		observe_kvo self, :active_status do |k,c,ctx|
-			pe_log "active_status #{active_status}"
-			case active_status
-			when :activating, :activated
-				# carouselling if mod key down.
-				if ! activation_modifier_released?
-					start_carouselling
-				else
-					# turn carouselling off.
-					stop_carouselling
-				end
-			else
-				stop_carouselling
-			end
-		end
-
-		# watch carouselling status to load selected tool.
-		# observe_kvo self, :carouselling do |k,c,ctx|
-		# 	if self.carouselling
-		# 		show_switcher
-		# 	else
-		# 		load_selected_tool
-		# 	end
-		# end
-	end
-
-	attr_accessor :carouselling
-
-	def start_carouselling
-		self.carouselling = true
-
-		self.show_switcher
-	end
-
-	def stop_carouselling
-		self.carouselling = false
-
-		load_selected_tool
-	end
-
-#= switcher integration point
-
-	def hotkey_action_switcher( params )
-		event = params[:event]
-		pe_debug "handling hotkey event. #{event.description} active app: #{NSWorkspace.sharedWorkspace.activeApplication}"
-		
-		if ! carouselling
-			# this is the initial invocation
-			self.toggle_main_window({ activation_type: :hotkey })
-			else
-			# this is a subsequent invocation
-			self.select_next_tool
-		end
-		
-		if activation_modifier_released?
-			stop_carouselling
-		end
-	end
-
-	def show_switcher
-		@main_window_controller.browser_vc.load_switcher
-
-		if activation_modifier_released?
-			stop_carouselling
-		end
-	end
-	
-	def select_next_tool
-		pe_log "select next tool"
-		
-		# tactical impl
-		@main_window_controller.browser_vc.select_next_tool
-		# NOTE strategic would be:
-		# @switcher.select_next_tool
-	end
-
-	def load_selected_tool
-		pe_log "load selected tool"
-		
-		@main_window_controller.browser_vc.load_selected_tool
-	end
-
 #= misc actions
 
 	# work around situations where about panel is obscured by window.
