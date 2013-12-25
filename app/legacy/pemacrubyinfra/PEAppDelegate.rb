@@ -37,8 +37,6 @@ class PEAppDelegate
 				@spaces_manager ||= SpacesManager.new
 				@screens_manager ||= ScreensManager.instance
 				
-				@tags_by_description = default(:tags_by_description)
-
 				# ready to do some business now.
 
 			rescue Exception => e
@@ -98,6 +96,7 @@ class PEAppDelegate
 		pe_warn "Sorry, startup failed due to critical exception. Please visit http://support.bigbearlabs.com for more information."
 		raise args.first
 	end
+
 #==
 	
 	def setup_defaults
@@ -109,6 +108,15 @@ class PEAppDelegate
 		NSApp.setServicesProvider(self)
 		# doc: 'It is only necessary to call this function if your program adds dynamic services to the system.''
 		NSUpdateDynamicServices()	# PERF potentially expensive?
+	end
+
+#= tag translation
+
+	def to_sym( tag_integer )
+	  val = default(:tags_by_description).key tag_integer
+	  # raise "no symbol defined for tag #{tag_integer}" if val.nil?
+
+	  val.to_s.intern
 	end
 
 #==
@@ -145,17 +153,10 @@ class PEAppDelegate
 	
 	def dev_menu_items
 		@status_bar_menu.itemArray.select do |item|
-			@tags_by_description.select{|k,v| k =~ /_DEV/}.values.include? item.tag
+			to_sym(item.tag) =~ /DEV/
 		end
 	end
 
-#= services
-	
-	def handle_service_invocation(pboard, userData:userData, error:error)
-		pe_log "service invoked."
-		self.toggle_main_window self
-	end
-	
 #=
 
 	def handle_new_debug_window(sender)

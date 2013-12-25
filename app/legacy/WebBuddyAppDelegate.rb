@@ -14,6 +14,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	# collaborators
 
+	attr_reader :context_store
 
 	# we modelled the domain a bit inaccurately with regards to things like 'page'.
 	attr_accessor :user
@@ -669,13 +670,13 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# precondition to implementation: main_window_controller should have been initialised.
 		# return false unless @main_window_controller && @main_window_controller.window
 
-		case item.tag
-		when @tags_by_description['menu_item_debug_console']
+		case to_sym item.tag
+		when :menu_item_debug_console
 			# REFACTOR pull up
 			# disable the debug console menu item unless build conf == debug.
 			return Environment.instance.isDebugBuild
 
-		when @tags_by_description['menu_item_toggle_main_window']
+		when :menu_item_toggle_main_window
 			# update the menu item text.
 			@toggle_menu_item.title = 
 				if wc.window.visible
@@ -686,7 +687,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 			return true
 
-		when @tags_by_description['menu_item_deactivate_on_resign']
+		when :menu_item_deactivate_on_resign
 			item.state = default(:deactivate_on_resign) ? NSOnState : NSOffState
 		end
 
@@ -696,8 +697,8 @@ class WebBuddyAppDelegate < PEAppDelegate
 	
 	# the generic menu item handler.
 	def handle_menu_item_select(sender)
-		case sender.tag
-		when @tags_by_description['menu_item_deactivate_on_resign']
+		case to_sym sender.tag
+		when :menu_item_deactivate_on_resign
 			current_state = (sender.state == NSOnState)
 			set_default :deactivate_on_resign, ! current_state
 		else
