@@ -245,6 +245,9 @@ class NSDictionary
 
   def self.from_plist( path_string )
     load_plist( NSApp.app_support_dir + "/" + path_string )
+  rescue Exception => e
+    pe_report e
+    return {}
   end
 end
 
