@@ -166,7 +166,7 @@ class ContextStore
 	def load_stacks
 		begin
 			pe_log "loading contexts from #{plist_name}"
-			context_store_data  = load_plist plist_name
+			context_store_data  = NSDictionary.from_plist( plist_name).dup
 		rescue Exception => e
 			pe_report e
 			pe_warn "TODO trigger backup restoration workflow"  # IMPL
@@ -235,14 +235,16 @@ class ContextStore
 		Dir.mkdir thumbnail_path unless Dir.exists? thumbnail_path
 		
 		concurrently proc {
-			self.stacks.map(&:history_items).flatten
-				.select(&:thumbnail_dirty).map do |history_item|
+			self.stacks
+				.map(&:history_items)
+				.flatten.select(&:thumbnail_dirty).map do |history_item|
 					file_name = "#{thumbnail_path}/#{history_item.url.hash}.#{thumbnail_extension}"
 					thumbnail = history_item.thumbnail
 					image_rep = thumbnail.representations[0]
 					data = image_rep.representationUsingType(NSPNGFileType, properties:nil)
 
-					result = data.writeToFile("#{file_name}", atomically:false)   # OPTIMISE change to do this lazily
+					result = data.writeToFile("#{file_name}", atomically:false)
+					
 					if result
 						pe_log "saved #{file_name}"
 						history_item.thumbnail_dirty = false
