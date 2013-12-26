@@ -106,6 +106,8 @@
 			<integer>6003</integer>
 			<key>menu_item_deactivate_on_resign</key>
 			<integer>6004</integer>
+			<key>menu_item_handle_carousel_find</key>
+			<integer>6005</integer>
 			<key>action_add_site</key>
 			<real>8</real>
 		</dict>
@@ -117,13 +119,15 @@
 		<string>http://start.webbuddyapp.com</string>
 		<key>load_ext_url_policy</key>
 		<string>in_space_window</string>
-		<key>selection_grab_enabled</key>
-		<false/>
 		<key>save_context</key>
+		<true/>
+		<key>enable_hotkey_dtap</key>
 		<true/>
 		<key>load_context</key>
 		<false/>
 		<key>deactivate_on_resign</key>
+		<false/>
+		<key>enable_selection_grab</key>
 		<false/>
 	</dict>
 	<key>ContextStore</key>

@@ -377,7 +377,7 @@ end
 class ItemContainer
   include KVOMixin
   
-  attr_reader :history_item
+  attr_accessor :history_item
   
   # other properties
   attr_accessor :thumbnail

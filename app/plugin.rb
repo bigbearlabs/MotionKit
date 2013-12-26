@@ -18,11 +18,10 @@ class WebBuddyPlugin < BBLComponent
       web_view_delegate.policies_by_pattern = {
         /(localhost|#{NSBundle.mainBundle.path})/ => :load,
         /.+/ => -> url, listener {
-          # load url. 
-          # TODO restore the stack
-          self.client.load_url url
+          pe_log "policy will send #{url} to client."
+          
+          on_web_view_nav url
 
-          # don't load on plugin_vc.
           listener.ignore
         },
       }
@@ -30,17 +29,16 @@ class WebBuddyPlugin < BBLComponent
   end
 
   def view_url(env = nil)
-    env ||= :DEV if RUBYMOTION_ENV == 'development'
-
     @plugin_name ||= self.class.clean_name.gsub('Plugin', '').downcase
+
 
     case env
     when :DEV
-      return "http://localhost:9000/#/#{@plugin_name}"  # DEV works with grunt server in webbuddy-modules
+      "http://localhost:9000/#/#{@plugin_name}"  # DEV works with grunt server in webbuddy-modules
     else
       plugin_dir = "plugin"
       module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-      return "file://#{module_index_path}#/#{@plugin_name}"  # DEPLOY
+      "file://#{module_index_path}#/#{@plugin_name}"  # DEPLOY
     end
   end
   
@@ -49,7 +47,14 @@ class WebBuddyPlugin < BBLComponent
 
     pe_log "loading plugin #{self}"
 
-    self.client.plugin_vc.load_url self.view_url, success_handler: -> url {
+    urls = 
+      if RUBYMOTION_ENV == 'development'
+        [ self.view_url(:DEV), self.view_url ]
+      else
+        [ self.view_url]
+      end
+
+    self.client.plugin_vc.load_url urls, success_handler: -> url {
       ## this is made obsolete by wb-integration.coffee.
       # self.attach_hosting_interface
 
@@ -59,7 +64,9 @@ class WebBuddyPlugin < BBLComponent
   end
 
   def view_loaded?
-    self.client.plugin_vc.url.to_s.include? self.view_url
+    [self.view_url(:DEV), self.view_url].map do |url|
+      self.client.plugin_vc.url.to_s.include? url
+    end
   end
 
   def show_plugin
@@ -86,6 +93,13 @@ class WebBuddyPlugin < BBLComponent
     )
   end
 
+  def on_web_view_nav( url )
+    # load url. 
+    self.client.load_url url
+
+    # TODO restore the stack
+  end
+  
 
   # OBSOLETE
   def write_data
