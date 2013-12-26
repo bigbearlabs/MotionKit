@@ -1,0 +1,41 @@
+class RubyEvalPlugin < WebBuddyPlugin
+  attr_accessor :input
+
+  def on_setup
+    @eval_reaction = react_to :input do |input|
+      self.load_view unless view_loaded?
+      self.show_plugin
+      
+      on_input input if input
+    end
+  end
+
+  def on_input( input )
+     puts "RubyEvalPlugin: #{input}"
+
+     @input = input
+     @output = do_eval input
+
+     update_data
+  end 
+
+  def do_eval( expr )
+    eval input
+  rescue Exception => e
+    e
+  end
+  
+  #=
+
+  def name
+    'eval'
+  end
+
+  def data
+    {
+      input: @input.to_s,
+      output: @output.to_s
+    }
+  end
+  
+end

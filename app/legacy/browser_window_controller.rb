@@ -49,6 +49,9 @@ class BrowserWindowController < NSWindowController
 				module: InputHandler
 			},
 			{
+				module: RubyEvalPlugin
+			},
+			{
 				module: FilteringPlugin,
 				deps: {
 					context_store: @context_store

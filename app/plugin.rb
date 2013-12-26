@@ -28,17 +28,18 @@ class WebBuddyPlugin < BBLComponent
     end
   end
 
-  def view_url(env = nil)
+  def name
     @plugin_name ||= self.class.clean_name.gsub('Plugin', '').downcase
-
-
+  end
+  
+  def view_url(env = nil)
     case env
     when :DEV
-      "http://localhost:9000/#/#{@plugin_name}"  # DEV works with grunt server in webbuddy-modules
+      "http://localhost:9000/#/#{name}"  # DEV works with grunt server in webbuddy-modules
     else
       plugin_dir = "plugin"
       module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-      "file://#{module_index_path}#/#{@plugin_name}"  # DEPLOY
+      "file://#{module_index_path}#/#{name}"  # DEPLOY
     end
   end
   
@@ -64,9 +65,10 @@ class WebBuddyPlugin < BBLComponent
   end
 
   def view_loaded?
-    [self.view_url(:DEV), self.view_url].map do |url|
+    [self.view_url(:DEV), self.view_url].select do |url|
       self.client.plugin_vc.url.to_s.include? url
     end
+    .size != 0
   end
 
   def show_plugin
