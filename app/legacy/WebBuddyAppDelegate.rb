@@ -256,7 +256,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# welcome_plugin_url = plugin(:welcome).url  # SKETCH plugin per static is too heavy. perhaps a statics plugin?
 		welcome_plugin_url = NSBundle.mainBundle.url "plugin/welcome/index.html"
 		
-		self.load_url [ url, welcome_plugin_url ]
+		self.load_url [ url, welcome_plugin_url.absoluteString ]
 	end
 
 	def load_url(urls, details = {})
