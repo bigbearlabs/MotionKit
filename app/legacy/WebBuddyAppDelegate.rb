@@ -146,8 +146,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 	# the bit that happens after the intro.
 	def load_start
 
-		@ready_to_load = true
-
 		if @pending_handlers && (! @pending_handlers.empty?)
 			@pending_handlers.each do |handler|
 				handler.call
@@ -156,6 +154,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		elsif self.requested_url   # HACK
 			# skip loading welcome page.
 		else
+
 			if @load_welcome
 				on_main {
 					self.load_welcome_page
@@ -573,21 +572,19 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def on_will_resign
 		pe_debug "resign active"
 		
-		if @ready_to_load
-			main_window = NSApp.mainWindow
-			if main_window.is_a? MainWindow
-				pe_log "window.shown:#{main_window.shown?}, window.active:#{main_window.active?}, fronting needed:#{main_window.shown?}"
-			else
-				pe_log "mainWindow: #{main_window}"
-			end
-			
-			# mask window fronting is unfinished - its state must be correctly saved and restored with space changes.
-			# @main_window_controller.window.front_with_mask_window if @main_window_controller.window.shown?
-			
-			if_enabled :save_context
-
-			if_enabled :deactivate_on_resign
+		main_window = NSApp.mainWindow
+		if main_window.is_a? MainWindow
+			pe_log "window.shown:#{main_window.shown?}, window.active:#{main_window.active?}, fronting needed:#{main_window.shown?}"
+		else
+			pe_log "mainWindow: #{main_window}"
 		end
+		
+		# mask window fronting is unfinished - its state must be correctly saved and restored with space changes.
+		# @main_window_controller.window.front_with_mask_window if @main_window_controller.window.shown?
+		
+		if_enabled :save_context
+
+		if_enabled :deactivate_on_resign
 	end
 
 	def on_screen_change( notification )
@@ -789,8 +786,8 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def on_load_error( e )
 		debug e
 
-			self.load_welcome_page
-		end
+		self.load_welcome_page
+	end
 
 	#= TODO split all url-handling specific to url-handling.rb
 
