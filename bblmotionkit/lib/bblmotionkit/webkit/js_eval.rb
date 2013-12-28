@@ -30,7 +30,7 @@ module JsEval
   end
   
   # call with a return statement at the end of the js to ensure a value back.
-  def eval_js( script_string, script_description = "'#{script_string[0..60]}...'" )
+  def eval_js( script_string, script_description = "'#{script_string[0..80]}...'" )
 
     # wrap script in a try block to get the error back if any.
     script_string = %(

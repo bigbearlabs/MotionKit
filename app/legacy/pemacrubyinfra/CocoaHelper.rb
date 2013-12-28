@@ -243,8 +243,10 @@ class NSDictionary
     raise "save error" if ! written
   end
 
-  def self.from_plist( path_string )
-    load_plist( NSApp.app_support_dir + "/" + path_string )
+  def self.from_plist( app_support_subpath )
+    full_path = NSApp.app_support_dir + "/" + app_support_subpath 
+    pe_log "loading Hash from #{full_path}"
+    load_plist( full_path )
   rescue Exception => e
     pe_report e
     return {}

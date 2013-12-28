@@ -23,7 +23,8 @@ module Logging
 	end
 
   def pe_trace(msg = nil)
-  	if Environment.instance.isDebugBuild
+  	# if Environment.instance.isDebugBuild
+    if RUBYMOTION_ENV == "development"
 	  	stack = $DEBUG ? caller : caller[0..2]
 	    pe_log "** TRACE #{msg.to_s} ** #{stack.format_backtrace.join(" - ")}"
     end

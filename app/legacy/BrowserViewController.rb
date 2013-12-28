@@ -142,6 +142,8 @@ class BrowserViewController < PEViewController
 #=
 
 	def load_url(url_or_array, options = {})
+    pe_trace
+
 		load_handler = options[:success_handler]
 		load_proc = proc {
 
