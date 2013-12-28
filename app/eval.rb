@@ -3,16 +3,18 @@ class RubyEvalPlugin < WebBuddyPlugin
 
   def on_setup
     @eval_reaction = react_to :input do |input|
-      self.load_view unless view_loaded?
-      self.show_plugin
-      
       on_input input if input
     end
   end
 
   def on_input( input )
-     puts "RubyEvalPlugin: #{input}"
+    self.load_view unless view_loaded?
+    self.show_plugin
 
+    self.update_input input
+  end
+
+  def update_input input
      @input = input
      @output = do_eval input
 

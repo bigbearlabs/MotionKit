@@ -4,7 +4,6 @@ class FilteringPlugin < WebBuddyPlugin
 
   def on_setup
     @filter_reaction = react_to 'client.input_field_vc.current_filter' do |input|
-      self.show_plugin
       on_input input if input
     end
 
@@ -13,10 +12,10 @@ class FilteringPlugin < WebBuddyPlugin
 
   def on_input input
     # HACK work around lack of navigability constraint.
-    unless view_loaded? 
-      self.load_view 
-    end
+    self.load_view unless view_loaded? 
   
+    self.show_plugin
+
     self.update_input input
   end
 
