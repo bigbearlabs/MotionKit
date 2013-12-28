@@ -61,10 +61,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= major lifecycle
 
 	def setup
-
-		# this must be done early in order to catch gurl events on launch.
-		register_url_handling
-
 		super
 
 		# important domain object
@@ -157,6 +153,8 @@ class WebBuddyAppDelegate < PEAppDelegate
 				handler.call
 			end
 			@pending_handlers.clear
+		elsif self.requested_url   # HACK
+			# skip loading welcome page.
 		else
 			if @load_welcome
 				on_main {

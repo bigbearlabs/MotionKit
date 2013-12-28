@@ -18,6 +18,10 @@ class WebViewController < BBLComponent
 #=
 
   def load_url( urls, options = {})
+    unless urls.is_a? String or urls.is_a? NSURL or urls.is_a? Array
+      raise "urls #{urls} is a bad type"
+    end
+    
     pe_log "loading urls #{urls}, options #{options}"
 
     urls = [ urls ] unless urls.is_a? Array

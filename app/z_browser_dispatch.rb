@@ -1,4 +1,6 @@
 class BrowserDispatch < BBLComponent
+  include Reactive
+
 
   Keycodes = {
     shift: NSShiftKeyMask,
@@ -7,6 +9,17 @@ class BrowserDispatch < BBLComponent
 
   def on_setup
     # register_url_handling    # FIXME IMPORTANT not early enough.
+
+    # react_to 'client.requested_url' do |url|
+    #   on_get_url url: url
+    # end
+    # DISABLED kvo swizzling causing nil members.    
+    # WORKAROUND load any requested url. 
+    url = self.client.requested_url
+    if url
+      pe_warn "picking up url #{url}"
+      on_get_url url: url
+    end
   end
   
   #=
@@ -79,7 +92,6 @@ class BrowserDispatch < BBLComponent
   
   # the handler for url invocations from the outside world.
   def on_get_url( details )
-    url_event = details[:url_event]
     url = details[:url]
 
     # based on modifiers, dispatch to corresponding browser.
@@ -93,17 +105,8 @@ class BrowserDispatch < BBLComponent
       bundle_id = default :click_handler
     end
 
-    load_url_proc = -> {
-      pe_debug "open #{url} with #{bundle_id}"
-      self.open_browser bundle_id, url
-    }
-
-    # if @main_window_controller
-    load_url_proc.call
-    # else
-    #   @pending_handlers ||= []
-    #   @pending_handlers << load_url_proc
-    # end
+    pe_log "open #{url} with #{bundle_id}"
+    self.open_browser bundle_id, url
   end
 
   # OBSOLETE salvage any difference and remove.
