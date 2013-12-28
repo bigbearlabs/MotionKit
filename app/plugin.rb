@@ -17,6 +17,7 @@ class WebBuddyPlugin < BBLComponent
     react_to 'client.plugin_vc.web_view_delegate' do |web_view_delegate|
       web_view_delegate.policies_by_pattern = {
         /(localhost|#{NSBundle.mainBundle.path})/ => :load,
+        %r{(http://)?about:} => :load,
         /.+/ => -> url, listener {
           pe_log "policy will send #{url} to client."
           
