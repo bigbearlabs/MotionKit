@@ -1,5 +1,4 @@
 class BrowserDispatch < BBLComponent
-  include GetUrlHandler
 
   Keycodes = {
     shift: NSShiftKeyMask,
@@ -7,7 +6,7 @@ class BrowserDispatch < BBLComponent
   }
 
   def on_setup
-    register_url_handling    
+    # register_url_handling    # FIXME IMPORTANT not early enough.
   end
   
   #=

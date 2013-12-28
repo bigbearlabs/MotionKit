@@ -4,6 +4,7 @@
 
 class WebBuddyAppDelegate < PEAppDelegate
 	include ServicesHandler
+	include GetUrlHandler
 	include Preferences
 
 	include ComponentClient
@@ -60,6 +61,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= major lifecycle
 
 	def setup
+
+		# this must be done early in order to catch gurl events on launch.
+		register_url_handling
 
 		super
 

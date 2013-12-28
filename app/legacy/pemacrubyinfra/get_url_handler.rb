@@ -13,7 +13,7 @@ module GetUrlHandler
 		details = { url_event: url_event, url:url_event.url_string, reply_event:reply_event }
 		pe_warn "getUrl: #{details}"
 
-		self.on_get_url( details )
+		self.component(BrowserDispatch).on_get_url( details )
 		# TODO replace with user.perform_url_invocation
 	end
 
