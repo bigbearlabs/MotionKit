@@ -480,6 +480,10 @@ class BrowserWindowController < NSWindowController
 	# stack_id: the id of stack if stack retrieval not suitable.
 	# FIXME migrate objc_interface_obj to webbuddy.interface, migrate webbuddy.module use cases.
 	def load_url(urls, details = {})
+		unless urls.is_a? String or urls.is_a? Array
+			raise "urls #{urls} is a bad type"
+		end
+		
 		sid = details[:stack_id]  # can be nil.
 		self.stack = @context_store.stack_for( sid ) if sid
 
