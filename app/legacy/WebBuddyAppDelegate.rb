@@ -788,11 +788,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	def on_load_error( e )
 		debug e
-		case e.message
-		when 'history_empty'
+
 			self.load_welcome_page
 		end
-	end
 
 	#= TODO split all url-handling specific to url-handling.rb
 
