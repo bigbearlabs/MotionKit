@@ -36,7 +36,8 @@ class WebBuddyPlugin < BBLComponent
   def view_url(env = nil)
     case env
     when :DEV
-      "http://localhost:9000/#/#{name}"  # DEV works with grunt server in webbuddy-modules
+      
+      default(:plugin_view_template).gsub /#\{.*?\}/, name  # DEV works with grunt server in webbuddy-modules
     else
       plugin_dir = "plugin"
       module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path

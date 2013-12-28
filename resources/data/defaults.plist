@@ -182,6 +182,11 @@
 	</dict>
 	<key>ViewerWindowController</key>
 	<dict>
+		<key>FilteringPlugin</key>
+		<dict>
+			<key>plugin_view_template</key>
+			<string>http://localhost:9000/#/#{name}</string>
+		</dict>
 		<key>overlay_dismissal_delay</key>
 		<integer>2</integer>
 		<key>activation_style</key>
