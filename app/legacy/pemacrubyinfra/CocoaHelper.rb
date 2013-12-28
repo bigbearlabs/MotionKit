@@ -246,7 +246,8 @@ class NSDictionary
   def self.from_plist( app_support_subpath )
     full_path = NSApp.app_support_dir + "/" + app_support_subpath 
     pe_log "loading Hash from #{full_path}"
-    load_plist( full_path )
+
+    NSDictionary.dictionaryWithContentsOfFile(full_path)
   rescue Exception => e
     pe_report e
     return {}
