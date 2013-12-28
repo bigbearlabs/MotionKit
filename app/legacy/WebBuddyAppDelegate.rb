@@ -205,9 +205,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 		wc.do_activate
 		wc.window.center
 
-		url = NSBundle.mainBundle.url 'plugin/intro/index.html'
+		url = default :intro_url
 
-		self.load_url url.absoluteString,
+		self.load_url url,
 			interface_callback_handler: self
 
 	end

@@ -113,6 +113,8 @@
 		</dict>
 		<key>intro_enabled</key>
 		<true/>
+		<key>intro_url</key>
+		<string>http://bbl-rails.herokuapp.com/webbuddy/intro</string>
 		<key>load_welcome</key>
 		<true/>
 		<key>welcome_url</key>
