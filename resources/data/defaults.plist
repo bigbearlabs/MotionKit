@@ -126,7 +126,7 @@
 		<key>enable_hotkey_dtap</key>
 		<true/>
 		<key>load_context</key>
-		<false/>
+		<true/>
 		<key>deactivate_on_resign</key>
 		<false/>
 		<key>enable_selection_grab</key>
