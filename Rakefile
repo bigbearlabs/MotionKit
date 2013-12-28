@@ -75,13 +75,13 @@ Motion::Project::App.setup do |app|
   app.info_plist['NSServices'] = [
     {
       'NSKeyEquivalent' =>  {
-          'default' =>  "Z"
+          'default' =>  "\|"
       },
       'NSMenuItem' =>  {
           'default' =>  "Send to WebBuddy"
       },
       'NSMessage' =>  "handle_service",
-      'NSPortName' =>  "${PRODUCT_NAME}",
+      'NSPortName' =>  "#{app.name}",
       'NSRequiredContext' =>  {
           'NSServiceCategory' =>  'Browsing'
       },
