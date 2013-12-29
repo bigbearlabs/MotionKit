@@ -37,7 +37,7 @@ class FilteringPlugin < WebBuddyPlugin
     all_items = context_store.stacks.map{|e| e.history_items}.flatten.uniq
 
     {
-      input: @input,
+      input: @input ? @input : '',
       searches: 
         context_store.stacks
           .sort_by {|e| e.last_accessed_timestamp }.reverse.map do |stack|
