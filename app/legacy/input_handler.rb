@@ -24,7 +24,7 @@ class InputHandler < BBLComponent
       self.client.component(RubyEvalPlugin).input = input.gsub(/^>/,'')
 
     when :url
-      self.client.load_url input
+      self.client.load_url input.to_url_string
 
     when :search
       self.client.load_url input.to_search_url_string, stack_id: input
@@ -41,9 +41,17 @@ end
 
 
 class String
+  
+  # NOTE this is probably incomplete.
   def valid_url?
-    # NOTE this is probably incomplete.
-    self =~ %r{^(\w+)://}
+    case self.to_s
+    when %r{^(\w+)://}  # with a scheme.
+      return true
+    when %r{\S+:\d+}  # address/host:port format.
+      return true
+    end
+
+    false
   end
   
   def pe_type

@@ -173,9 +173,15 @@ module StringUtil
   def escaped( escape_style = :all )
     case escape_style
     when :simple
-      self.gsub ' ', '%20'
+      return self.gsub ' ', '%20'
     else
-      CGI.escape self
+      # CGI.escape self TODO encode only the param string.
+      if self.index '?'
+        pre_params, param_str = self.split('?', 2)
+        return pre_params + "?" + CGI.escape(param_str)
+      else
+        self
+      end
     end
   end
 end
