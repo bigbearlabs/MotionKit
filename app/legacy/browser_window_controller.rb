@@ -49,6 +49,9 @@ class BrowserWindowController < NSWindowController
 				module: InputHandler
 			},
 			{
+				module: RubyEvalPlugin
+			},
+			{
 				module: FilteringPlugin,
 				deps: {
 					context_store: @context_store
@@ -804,11 +807,6 @@ class BrowserWindowController < NSWindowController
 		end
 
 		self.stack.history_items.last.url
-	rescue Exception => e
-		# case: first-time launch
-		# case: etc etc
-
-		NSApp.delegate.on_load_error e
 	end
 
 ## would like to factor shit out like this but will it cause startup performance issues?

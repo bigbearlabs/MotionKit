@@ -11,13 +11,11 @@ class FilteringPlugin < WebBuddyPlugin
   end
 
   def on_input input
+    # HACK work around lack of navigability constraint.
+    self.load_view unless view_loaded? 
+  
     self.show_plugin
 
-    # HACK work around lack of navigability constraint.
-    unless view_loaded? 
-      self.load_view 
-    end
-  
     self.update_input input
   end
 
@@ -39,7 +37,7 @@ class FilteringPlugin < WebBuddyPlugin
     all_items = context_store.stacks.map{|e| e.history_items}.flatten.uniq
 
     {
-      input: @input,
+      input: @input ? @input : '',
       searches: 
         context_store.stacks
           .sort_by {|e| e.last_accessed_timestamp }.reverse.map do |stack|

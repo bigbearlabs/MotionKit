@@ -218,6 +218,8 @@ class InputFieldViewController < PEViewController
 	def handle_field_submit(sender)
 		self.submitted_text = self.input_text
 
+		self.current_enquiry = self.submitted_text
+		
 		self.refresh_input_field
 	end
 

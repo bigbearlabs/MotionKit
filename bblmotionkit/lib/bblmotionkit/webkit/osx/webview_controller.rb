@@ -9,11 +9,19 @@ class WebViewController < BBLComponent
 
   def on_setup
     init_bridge @web_view
+
+    # setup downloads
+    @download_delegate = DownloadDelegate.new downloads_path: default(:downloads_path)
+    @web_view.downloadDelegate = @download_delegate
   end
   
 #=
 
   def load_url( urls, options = {})
+    unless urls.is_a? String or urls.is_a? NSURL or urls.is_a? Array
+      raise "urls #{urls} is a bad type"
+    end
+    
     pe_log "loading urls #{urls}, options #{options}"
 
     urls = [ urls ] unless urls.is_a? Array
@@ -152,6 +160,11 @@ class WebViewJavascriptBridge
   def webView( webView, didReceiveTitle:title, forFrame:frame )
     @web_view_delegate.webView(webView, didReceiveTitle:title, forFrame:frame)    
   end
+
+  def webView(webView, decidePolicyForMIMEType:mimeType, request:request, frame:frame, decisionListener:listener)
+    @web_view_delegate.webView(webView, decidePolicyForMIMEType:mimeType, request:request, frame:frame, decisionListener:listener)
+  end
+
 end
 
 

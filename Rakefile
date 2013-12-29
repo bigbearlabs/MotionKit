@@ -75,13 +75,13 @@ Motion::Project::App.setup do |app|
   app.info_plist['NSServices'] = [
     {
       'NSKeyEquivalent' =>  {
-          'default' =>  "Z"
+          'default' =>  "\|"
       },
       'NSMenuItem' =>  {
           'default' =>  "Send to WebBuddy"
       },
       'NSMessage' =>  "handle_service",
-      'NSPortName' =>  "${PRODUCT_NAME}",
+      'NSPortName' =>  "#{app.name}",
       'NSRequiredContext' =>  {
           'NSServiceCategory' =>  'Browsing'
       },
@@ -131,20 +131,28 @@ namespace :vendor do
   end
 end
 
+desc "loop build"
+task :loop do
+  sh %(
+    while [ 0 ]; do
+      rake
+    done
+  )
+end
 
-namespace :modules do
+namespace :plugins do
   desc "build"
   task :build => [] do
-    sh 'cd ../webbuddy-modules; rake'
+    sh 'cd ../webbuddy-plugins; rake'
   end
 
   desc "copy resources"
   task :cprsc => [] do
     FileUtils.mkdir_p 'resources/plugin'
-    FileUtils.cp_r Dir.glob("#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview/modules/*"), 'resources/plugin', verbose:true
+    FileUtils.cp_r Dir.glob("#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview/plugins/*"), 'resources/plugin', verbose:true
   end
 
-  desc "build and copy modules"
+  desc "build and copy plugins"
   task :all => [ :build, :cprsc ]
 end
 
@@ -177,5 +185,10 @@ namespace :release do
   # TODO revert version
 
   desc "archive, zip, rsync, version, release"
-  task :all => [ :'modules:all', :increment, :'archive:distribution', :zip, :commit_version ]
+  task :all => [ :'plugins:all', :increment, :'archive:distribution', :zip, :commit_version ]
+
+  desc 'increment version and upload to hockeyapp.'
+  task :'h' => [:all, :hockeyapp ]
+
+
 end

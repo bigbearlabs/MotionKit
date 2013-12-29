@@ -113,6 +113,8 @@
 		</dict>
 		<key>intro_enabled</key>
 		<true/>
+		<key>intro_url</key>
+		<string>http://bbl-rails.herokuapp.com/webbuddy/intro</string>
 		<key>load_welcome</key>
 		<true/>
 		<key>welcome_url</key>
@@ -124,7 +126,7 @@
 		<key>enable_hotkey_dtap</key>
 		<true/>
 		<key>load_context</key>
-		<false/>
+		<true/>
 		<key>deactivate_on_resign</key>
 		<false/>
 		<key>enable_selection_grab</key>
@@ -180,6 +182,11 @@
 	</dict>
 	<key>ViewerWindowController</key>
 	<dict>
+		<key>FilteringPlugin</key>
+		<dict>
+			<key>plugin_view_template</key>
+			<string>http://localhost:9000/#/#{name}</string>
+		</dict>
 		<key>overlay_dismissal_delay</key>
 		<integer>2</integer>
 		<key>activation_style</key>
@@ -202,7 +209,7 @@
 		<dict>
 			<key>user_agent_string</key>
 			<string>Version/5.1.1 Safari/534.51.22</string>
-			<key>web_view_delegate</key>
+			<key>WebViewController</key>
 			<dict>
 				<key>policy_error_url</key>
 				<string>http://webbuddyapp.com/help/policy_error</string>

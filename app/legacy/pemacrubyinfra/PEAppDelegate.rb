@@ -248,6 +248,10 @@ class PEAppDelegate
 		self.on_space_change notification
 	end
 	
+	def applicationWillFinishLaunching(notification)
+		# this must be done early in order to catch gurl events on launch.
+		register_url_handling
+	end
 	
 	def applicationDidFinishLaunching(notification)
 		self.setup

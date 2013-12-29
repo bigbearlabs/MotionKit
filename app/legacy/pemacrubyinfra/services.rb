@@ -9,7 +9,9 @@ module ServicesHandler
 		# interpret the pasteboard and act accordingly.
 		string = pasteboard_data.stringForType(NSPasteboardTypeString)  # must get the type right.
 		
-		pe_warn "service sent: '#{string}'"
-		NSApp.delegate.wc.component(InputHandler).process_input string
+		pe_log "service handler received: '#{string}'"
+		NSApp.delegate.wc
+			.do_activate
+			.component(InputHandler).process_input string
 	end
 end

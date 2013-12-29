@@ -50,12 +50,17 @@ class ViewerWindowController < BrowserWindowController
 		end
 
 		on_main_async do
-			if self.stack
-				try do 
+			begin
+				if self.stack
 					self.load_url last_url
+				else
+					"no stack, not loading."
 				end
-			else
-				"no stack, not loading."
+			rescue Exception => e
+				# case: first-time launch
+				# case: etc etc
+
+				NSApp.delegate.on_load_error e
 			end
 		end
 	end

@@ -17,6 +17,7 @@ class WebBuddyPlugin < BBLComponent
     react_to 'client.plugin_vc.web_view_delegate' do |web_view_delegate|
       web_view_delegate.policies_by_pattern = {
         /(localhost|#{NSBundle.mainBundle.path})/ => :load,
+        %r{(http://)?about:} => :load,
         /.+/ => -> url, listener {
           pe_log "policy will send #{url} to client."
           
@@ -28,17 +29,19 @@ class WebBuddyPlugin < BBLComponent
     end
   end
 
-  def view_url(env = nil)
+  def name
     @plugin_name ||= self.class.clean_name.gsub('Plugin', '').downcase
-
-
+  end
+  
+  def view_url(env = nil)
     case env
     when :DEV
-      "http://localhost:9000/#/#{@plugin_name}"  # DEV works with grunt server in webbuddy-modules
+      
+      default(:plugin_view_template).gsub /#\{.*?\}/, name  # DEV works with grunt server in webbuddy-modules
     else
       plugin_dir = "plugin"
       module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-      "file://#{module_index_path}#/#{@plugin_name}"  # DEPLOY
+      "file://#{module_index_path}#/#{name}"  # DEPLOY
     end
   end
   
@@ -64,9 +67,10 @@ class WebBuddyPlugin < BBLComponent
   end
 
   def view_loaded?
-    [self.view_url(:DEV), self.view_url].map do |url|
+    [self.view_url(:DEV), self.view_url].select do |url|
       self.client.plugin_vc.url.to_s.include? url
     end
+    .size != 0
   end
 
   def show_plugin
