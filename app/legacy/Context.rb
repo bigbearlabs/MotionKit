@@ -9,10 +9,12 @@ class Context
 
   attr_accessor :name
   
+  attr_reader :pages
+
   attr_accessor :filter_tag # for array controller filtering
 
   def history_items
-    @history_items.dup.freeze
+    @pages.dup.freeze
   end
   
   # work around RM attr_reader - objc incompatibility.
@@ -25,7 +27,7 @@ class Context
 
     @name = name
 
-    @history_items = history_items
+    @pages = history_items
 
     @sites ||= {}
   end
@@ -68,6 +70,13 @@ class Context
   
   def update_history_item( url, history_item )
     item_container = self.item_for_url url
+
+    # defensively deal with nil for now.
+    if item_container.nil?
+      pe_warn "nil item for #{url} -- investigate.", ticket: true
+      item_container = ItemContainer.from_hash({})
+    end
+
     unless item_container.history_item.object_id == history_item.object_id
       pe_warn "replacing #{item_container.history_item} with #{history_item}"
       item_container.history_item = history_item
@@ -119,7 +128,7 @@ class Context
   ##
 
   def history_count
-    self.history_items.size
+    @pages.size
   end
 
 #=
@@ -132,8 +141,8 @@ class Context
       debug history_item.url, history_item, self
     end
 
-    kvo_change_bindable :history_items do
-      @history_items << history_item
+    kvo_change_bindable :pages do
+      @pages << history_item
       self.update_current_history_item
     end
   end
@@ -143,11 +152,11 @@ class Context
 
     kvo_change_bindable :history_items do
       history_item_or_a.map do |item|
-        index = @history_items.index(item)
+        index = @pages.index(item)
 
         raise "item #{item} not found in #{self}" if index.nil?
 
-        @history_items.delete_at index
+        @pages.delete_at index
       end
     end
   end
@@ -307,8 +316,9 @@ class Context
   def to_hash
     { 
       'name' => self.name, 
-      'items' => self.history_items.map(&:to_hash), 
-      'sites' => self.site_data,
+      'pages' => @pages.map(&:to_hash), 
+      # disabling unused stuff for agile core data modeling.
+      # 'sites' => self.site_data,
     }
   end
 
@@ -381,13 +391,16 @@ class ItemContainer
   
   # other properties
   attr_accessor :thumbnail
-  attr_accessor :pinned
-  attr_accessor :enquiry
   attr_accessor :timestamp  # first encountered
-  attr_accessor :pinned_timestamp
   attr_accessor :last_accessed_timestamp
   
   attr_accessor :redirect_info
+
+  # incubating
+  attr_accessor :enquiry
+  attr_accessor :pinned
+  attr_accessor :pinned_timestamp
+  
   
   attr_accessor :filter_tag
   

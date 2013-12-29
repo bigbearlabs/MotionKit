@@ -97,7 +97,8 @@ Motion::Project::App.setup do |app|
 
   app.delegate_class = "WebBuddyAppDelegate"
 
-  app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb'
+  app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb',
+    'app/context_store_persistence.rb' => 'app/legacy/WebBuddyAppDelegate.rb'
     # 'app/legacy/WebBuddyAppDelegate.rb' => 'app/filtering.rb',
     # 'app/filtering.rb' => 'app/plugin.rb',
     # 'app/aa_plugin.rb' => "#{`pwd`.strip}/bblmotionkit/lib/bblmotionkit/core/delegating.rb"

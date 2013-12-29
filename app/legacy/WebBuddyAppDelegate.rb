@@ -9,9 +9,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	include ComponentClient
 
-	include KVOMixin
 	include Reactive
 
+  include MotionDataWrapper::Delegate
 
 	# collaborators
 
