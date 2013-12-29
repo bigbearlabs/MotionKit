@@ -3,6 +3,14 @@ class PageDetailsViewController < NSViewController
   include MsgLogging
 end
 
+# class WebInspectorWindowController
+#   def init
+#     o = self.initWithWindow(nil)
+#     return o
+#   end
+# end
+# EXPERIMENTAL duck-punch buggy webkit developer tool feature
+
 
 #== some requires that got commented out, for possible future ref.
 
