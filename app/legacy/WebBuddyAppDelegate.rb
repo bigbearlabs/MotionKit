@@ -128,7 +128,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		}
 
 		try {
-			self.setup_main_window
+			# self.setup_main_window
 
 			NSApp.activate
 
