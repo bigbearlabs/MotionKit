@@ -562,10 +562,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 
 	def on_active
-		pe_debug "became active"
-		pe_debug "windows: " + NSApp.windows_report
+		pe_log "became active"
+		pe_log "windows: " + NSApp.windows_report
 
-		window_controller = wc
+		# window_controller = wc
 		# window_controller.do_activate if window_controller
 	end
 	

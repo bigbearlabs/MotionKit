@@ -225,7 +225,7 @@ class InputFieldViewController < PEViewController
 
 
 	def handle_field_edit(sender)
-		pe_trace "sender: #{sender}, input: #{@input_field.stringValue}"
+		# pe_trace "sender: #{sender}, input: #{@input_field.stringValue}"
 
 		input_string = @input_field.stringValue
 
