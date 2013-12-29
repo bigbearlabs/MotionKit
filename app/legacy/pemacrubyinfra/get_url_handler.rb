@@ -27,4 +27,16 @@ module GetUrlHandler
 		end
 	end
 
+	#==
+
+	module InstanceMethods
+		def applicationWillFinishLaunching(notification)
+			# this must be done early in order to catch gurl events on launch.
+			register_url_handling
+		end
+	end
+	
+	def self.included(receiver)
+		receiver.send :include, InstanceMethods
+	end
 end
