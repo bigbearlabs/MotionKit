@@ -140,19 +140,19 @@ task :loop do
   )
 end
 
-namespace :modules do
+namespace :plugins do
   desc "build"
   task :build => [] do
-    sh 'cd ../webbuddy-modules; rake'
+    sh 'cd ../webbuddy-plugins; rake'
   end
 
   desc "copy resources"
   task :cprsc => [] do
     FileUtils.mkdir_p 'resources/plugin'
-    FileUtils.cp_r Dir.glob("#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview/modules/*"), 'resources/plugin', verbose:true
+    FileUtils.cp_r Dir.glob("#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview/plugins/*"), 'resources/plugin', verbose:true
   end
 
-  desc "build and copy modules"
+  desc "build and copy plugins"
   task :all => [ :build, :cprsc ]
 end
 
@@ -185,5 +185,10 @@ namespace :release do
   # TODO revert version
 
   desc "archive, zip, rsync, version, release"
-  task :all => [ :'modules:all', :increment, :'archive:distribution', :zip, :commit_version ]
+  task :all => [ :'plugins:all', :increment, :'archive:distribution', :zip, :commit_version ]
+
+  desc 'increment version and upload to hockeyapp.'
+  task :'h' => [:all, :hockeyapp ]
+
+
 end
