@@ -131,6 +131,14 @@ namespace :vendor do
   end
 end
 
+desc "loop build"
+task :loop do
+  sh %(
+    while [ 0 ]; do
+      rake
+    done
+  )
+end
 
 namespace :modules do
   desc "build"
