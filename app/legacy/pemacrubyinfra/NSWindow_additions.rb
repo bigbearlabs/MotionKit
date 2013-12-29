@@ -44,7 +44,8 @@ class NSWindow
 	end
 
 	def did_become_key
-		self.def_method_once :windowDidBecomeKey do
+		# UH? this looks off -- delegate method being defined on delegator.
+		self.def_method_once :'windowDidBecomeKey:' do
 			yield
 		end
 	end
