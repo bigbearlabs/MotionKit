@@ -31,7 +31,8 @@ class BBLWebViewDelegate
 
   def push_event( event_name, event_data = {} )
     @url = @web_view.url
-    
+    redirection = @url
+
     # keep track of the events.
     event = {
       url: @url,
@@ -71,7 +72,7 @@ class BBLWebViewDelegate
         end
 
         # collect the 'from' url.
-        self.add_redirect event_data[:response_url]
+        self.add_redirect redirection  # can this be empty?
 
       when 'didStartProvisionalLoad'
         pe_log "#{@url} started provisional load"
@@ -155,11 +156,14 @@ class BBLWebViewDelegate
   end
 
   def add_redirect new_url
-    kvo_change :redirections do
-      @redirections << new_url
+    if @redirections.last != new_url
+      kvo_change :redirections do
+        @redirections << new_url
+      end
     end
   end
 
+  # FIXME test this with many cases. what a pain
   def redirect_info
     "#{@url}: #{@redirections}"
   end
