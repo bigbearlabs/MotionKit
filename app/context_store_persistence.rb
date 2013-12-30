@@ -81,6 +81,7 @@ end
 
 
 module CoreDataPersistence
+
   def save_stacks
     # Stack -> CoreDataStack, then save.
 
@@ -129,9 +130,10 @@ module CoreDataPersistence
 
   def persistable_pages pages
     pages.map do |page|
-      p = CoreDataPage.new title:page.title, url:page.url, 
-        last_accessed:Time.new(page.last_accessed_timestamp), 
-        first_accessed:Time.new(page.timestamp)
+      p = CoreDataPage.new title:page.title, 
+        url:page.url, 
+        last_accessed:page.last_accessed_timestamp, 
+        first_accessed:page.timestamp
       
       # unfortunate boilerplating for core_data_wrapper.
       ctx = App.delegate.managedObjectContext
