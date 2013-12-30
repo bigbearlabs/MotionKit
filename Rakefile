@@ -34,7 +34,7 @@ Motion::Project::App.setup do |app|
   end
 
   # frameworks
-  app.frameworks += %w( WebKit Carbon ExceptionHandling )
+  app.frameworks += %w( WebKit Carbon ExceptionHandling CoreData )
 
 
   # dev-only
