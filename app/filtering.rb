@@ -40,11 +40,10 @@ class FilteringPlugin < WebBuddyPlugin
       input: @input ? @input : '',
       searches: 
         context_store.stacks
-          .sort_by {|e| e.last_accessed_timestamp }.reverse.map do |stack|
-
+          .sort_by {|e| e.last_accessed_timestamp.to_s}.reverse.map do |stack|
           pages = stack.pages
             .select { |e| ! e.provisional }
-            .sort_by {|e| e.last_accessed_timestamp}.reverse
+            .sort_by {|e| e.last_accessed_timestamp.to_s}.reverse
 
           stack_url = pages.empty? ? '' : pages.first.url
 
@@ -52,7 +51,7 @@ class FilteringPlugin < WebBuddyPlugin
             name: stack.name,
             # thumbnail_url: 'stub-thumbnail-url',
             url: stack_url,
-            last_accessed_timestamp: stack.last_accessed_timestamp,
+            last_accessed_timestamp: stack.last_accessed_timestamp.to_s,
             pages: 
               pages.map do |page|
                 {
@@ -64,7 +63,7 @@ class FilteringPlugin < WebBuddyPlugin
           }
         end,
       pages: 
-        all_items.sort_by {|e| e.last_accessed_timestamp}.reverse.map do |item|
+        all_items.sort_by {|e| e.last_accessed_timestamp.to_s}.reverse.map do |item|
           {
             name: item.title,
             url: item.url,
