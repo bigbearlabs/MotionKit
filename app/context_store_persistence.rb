@@ -104,7 +104,7 @@ module CoreDataPersistence
   
   def load_stacks
     # fetch CoreDataStack, then -> Stack.
-    
+
     CoreDataStack.all.map do |record|
       stack = self.stack_for record.name
 
@@ -120,6 +120,8 @@ module CoreDataPersistence
       
       pages = page_hashes.map{|e| new_item e}  # TODO rename new_item to new_page or Page.from_hash
       stack.load_items pages
+
+      stack.persistence_record = record
     end
   end
 
