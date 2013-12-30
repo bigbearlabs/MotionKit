@@ -10,7 +10,11 @@ class Context
   attr_accessor :name
   
   attr_reader :pages
-
+  # TODO
+  attr_reader :highlights
+  attr_reader :memos
+  attr_reader :suggestions
+  
   attr_accessor :filter_tag # for array controller filtering
 
   def items
