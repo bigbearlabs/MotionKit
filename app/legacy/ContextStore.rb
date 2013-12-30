@@ -36,10 +36,10 @@ class ContextStore
 			# case context.name
 			# when "History"
 			# 	# hash for history is treated in a special way.
-			# 	history_items = self.stacks.map(&:pages).flatten.uniq
+			# 	pages = self.stacks.map(&:pages).flatten.uniq
 			# 	stack_data = {
 			# 		"name" => "History",
-			# 		"items" => history_items.map(&:to_hash),
+			# 		"items" => pages.map(&:to_hash),
 			# 		"sites" => context.site_data,
 			# 		"stacks" => context.tracks_data
 			# 	}
@@ -202,7 +202,7 @@ class ContextStore
 
   # PERF
 	def history_stack
-		item_union = NSSet.setWithArray self.stacks.map { |e| e.history_items }.flatten
+		item_union = NSSet.setWithArray self.stacks.map { |e| e.pages }.flatten
 
 	  h = Context.new('History', item_union.allObjects)
 	end
