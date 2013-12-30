@@ -104,7 +104,14 @@ module CoreDataPersistence
   
   def load_stacks
     # fetch CoreDataStack, then -> Stack.
+    CoreDataStack.all.map do |record|
+      stack = self.stack_for record.name
+      pages = stack.pages.map{|e| new_item to_hash(e)}
+      stack.load_items pages
+    end
   end
+
+  #= TODO revise to commit-worthy.
 
   def persistable_pages pages
     pages.map do |page|
@@ -135,6 +142,16 @@ module CoreDataPersistence
     pe_log "new persistence record for #{stack}."
     return record
   end
+
+  def to_hash(page_record)
+    {
+      title: page_record.title,
+      url: page_record.url,
+      last_accessed_timestamp: page_record.last_accessed,
+      timestamp: page_record.timestamp
+    }.to_stringified
+  end
+  
   
 end
 
