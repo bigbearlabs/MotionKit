@@ -84,27 +84,28 @@ module CoreDataPersistence
   def save_stacks
     # Stack -> CoreDataStack, then save.
 
-    # first fetch all the page records.
-    page_urls = self.stacks.map(&:pages).map(&:url).flatten.uniq
-    page_records = CoreDataPage.where "url in #{page_urls}"  # PERF use predicate var substitution
-    pe_log "fetched #{page_records.size} pages."
+    # focus first on clean high-level impl -- there will probably be perf enhancements when data scales to large sizes.
+    records_to_save = self.stacks.map do |stack|
 
-    # insert new stack records.
-    to_create = self.stacks.select {|e| e.persistence_id.nil? }
-    to_create.map do |new_stack|
-      record = CoreDataStack.new name:new_stack.name, pages:persistable_pages(new_stack.pages)
-
-      # set the moc. TODO
+      # insert_or_update stack
+      if stack.persistence_record
+        stack.persistence_record
+        # process all relationships in this call.
+      else
+        new_persistence_record stack
+      end
     end
 
-    pe_log "inserted #{to_create.size} stacks."
+    records_to_save.map do |record|
+      record.save!
+    end
+    # FIXME unnecessary loop here - moc only needs to be saved once.
   end
   
   def load_stacks
     # fetch CoreDataStack, then -> Stack.
   end
 
-  # assume 
   def persistable_pages pages
     pages.map do |page|
       p = CoreDataPage.new title:page.title, url:page.url, 
@@ -114,14 +115,32 @@ module CoreDataPersistence
       # unfortunate boilerplating for core_data_wrapper.
       ctx = App.delegate.managedObjectContext
       ctx.insertObject(p) # inserted into context, but not yet persisted
+
       p
     end
+  end
+  
+  def new_persistence_record( stack )
+    # assume the stack's pages are mostly new.
+    record = CoreDataStack.new name:stack.name
+
+    # unfortunate boilerplating for core_data_wrapper.
+    ctx = App.delegate.managedObjectContext
+    ctx.insertObject(record) # inserted into context, but not yet persisted
+
+    record.pages = NSSet.setWithArray(persistable_pages(stack.pages)) # FIXME get rid of boilerplate
+
+    stack.persistence_record = record
+
+    pe_log "new persistence record for #{stack}."
+    return record
   end
   
 end
 
 
 module Persistable
+  # FIXME don't call - crashes RM.
   def persistence_id
     if r = self.persistence_record
       r.objectID
