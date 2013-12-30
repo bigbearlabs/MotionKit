@@ -4,6 +4,7 @@
 module DynamicServer
   def start( port = 59123 )
     @server = RoutingHTTPServer.alloc.init
+    @server.interface = 'loopback'
     @server.port = port
 
     @server.put('/*', withBlock:proc {|request, response|
