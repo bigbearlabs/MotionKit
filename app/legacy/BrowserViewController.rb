@@ -148,9 +148,9 @@ class BrowserViewController < PEViewController
 		load_proc = proc {
 
 			# MOVE
-			# if (! options[:ignore_history]) && self.history.item_for_url(new_url)
+			# if (! options[:ignore_history]) && self.history_stack.item_for_url(new_url)
 			# 		pe_log "load #{new_url} from history"
-			# 		self.load_history_item self.history.item_for_url new_url
+			# 		self.load_history_item self.history_stack.item_for_url new_url
 			# else
 			# 	@web_view.mainFrameURL = new_url
 			# end
@@ -275,7 +275,7 @@ class BrowserViewController < PEViewController
 	def handle_pin(sender)
 		history_item = @web_view.backForwardList.currentItem
 		history_item.pinned = ! history_item.pinned
-		#		self.history.handle_pinning history_item
+		#		self.history_stack.handle_pinning history_item
 	end
 	
 #=
@@ -317,15 +317,15 @@ class BrowserViewController < PEViewController
 	end
 	
 	def back_page_image
-		self.history.back_item ? self.history.back_item.thumbnail : NSImage.stub_image
+		self.history_stack.back_item ? self.history_stack.back_item.thumbnail : NSImage.stub_image
 	end
 
 	def current_page_image
-		self.history.current_history_item ? self.history.current_history_item.thumbnail : NSImage.stub_image
+		self.history_stack.current_item ? self.history_stack.current_history_item.thumbnail : NSImage.stub_image
 	end
 
 	def forward_page_image
-		self.history.forward_item ? self.history.forward_item.thumbnail : NSImage.stub_image
+		self.history_stack.forward_item ? self.history_stack.forward_item.thumbnail : NSImage.stub_image
 	end
 
 #=
@@ -395,8 +395,8 @@ class BrowserViewController < PEViewController
 
 	protected
 
-	def history
-	  @context_store.history
+	def history_stack
+	  @context_store.history_stack
 	end
 	
 end

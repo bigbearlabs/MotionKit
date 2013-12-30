@@ -17,10 +17,6 @@ class WebView
     self.mainFrameURL.copy
   end
 
-  def current_history_item
-    self.backForwardList.currentItem
-  end
-  
   def delegate
     # TODO ensure all delegates point to same instance
 

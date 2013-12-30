@@ -209,7 +209,7 @@ class BrowserWindowController < NSWindowController
 		react_to 'browser_vc.web_view_delegate.state' do |new_state|
 			# update the WebHistoryItem
 			if new_state == :loaded
-				self.stack.update_history_item @browser_vc.web_view_delegate.url, @browser_vc.web_view.current_history_item if self.stack
+				self.stack.update_item @browser_vc.web_view_delegate.url, @browser_vc.current_history_item if self.stack
 			end
 		end
 	end
@@ -542,7 +542,7 @@ class BrowserWindowController < NSWindowController
 			provisional: false,
 			thumbnail: @browser_vc.view.image
 
-		# TODO consider invoking update_history_item here.
+		# TODO consider invoking update_item here.
 
 		# PERF?
 		( @update_throttle ||= Object.new ).delayed_cancelling_previous 0.5, -> { 
@@ -802,11 +802,11 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def last_url
-		unless self.stack.history_items.last
+		unless self.stack.pages.last
 			raise 'history_empty'
 		end
 
-		self.stack.history_items.last.url
+		self.stack.pages.last.url
 	end
 
 ## would like to factor shit out like this but will it cause startup performance issues?

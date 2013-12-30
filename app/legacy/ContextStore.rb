@@ -36,7 +36,7 @@ class ContextStore
 			# case context.name
 			# when "History"
 			# 	# hash for history is treated in a special way.
-			# 	history_items = self.stacks.map(&:history_items).flatten.uniq
+			# 	history_items = self.stacks.map(&:pages).flatten.uniq
 			# 	stack_data = {
 			# 		"name" => "History",
 			# 		"items" => history_items.map(&:to_hash),
@@ -160,7 +160,7 @@ class ContextStore
 		
 		concurrently proc {
 			self.stacks
-				.map(&:history_items)
+				.map(&:pages)
 				.flatten.select(&:thumbnail_dirty).map do |history_item|
 					file_name = "#{thumbnail_path}/#{history_item.url.hash}.#{thumbnail_extension}"
 					thumbnail = history_item.thumbnail
@@ -182,7 +182,7 @@ class ContextStore
 
 	def load_thumbnails    
 		self.stacks.each do |stack|
-			stack.history_items do |history_item|
+			stack.pages do |history_item|
 				if ! history_item.thumbnail
 					file_name = thumbnail_url history_item
 					image_png_data = NSData.data_from_file file_name  # OPTIMISE change to do this lazily
@@ -201,7 +201,7 @@ class ContextStore
 	#=
 
   # PERF
-	def history
+	def history_stack
 		item_union = NSSet.setWithArray self.stacks.map { |e| e.history_items }.flatten
 
 	  h = Context.new('History', item_union.allObjects)

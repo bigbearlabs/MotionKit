@@ -34,7 +34,7 @@ class FilteringPlugin < WebBuddyPlugin
     return {} if context_store.nil?
 
     # quickly hack out a union of all items
-    all_items = context_store.stacks.map{|e| e.history_items}.flatten.uniq
+    all_items = context_store.stacks.map(&:items).flatten.uniq
 
     {
       input: @input ? @input : '',
@@ -42,7 +42,7 @@ class FilteringPlugin < WebBuddyPlugin
         context_store.stacks
           .sort_by {|e| e.last_accessed_timestamp }.reverse.map do |stack|
 
-          pages = stack.history_items
+          pages = stack.pages
             .select { |e| ! e.provisional }
             .sort_by {|e| e.last_accessed_timestamp}.reverse
 
