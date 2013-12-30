@@ -104,9 +104,21 @@ module CoreDataPersistence
   
   def load_stacks
     # fetch CoreDataStack, then -> Stack.
+    
     CoreDataStack.all.map do |record|
       stack = self.stack_for record.name
-      pages = stack.pages.map{|e| new_item to_hash(e)}
+
+      page_hashes = record.pages.to_a.map do |page_record|
+        {
+          title: page_record.title,
+          url: page_record.url,
+          last_accessed_timestamp: page_record.last_accessed,
+          timestamp: page_record.first_accessed,
+        }.to_stringified
+      end
+      # FIXME reconcile all attribute names.
+      
+      pages = page_hashes.map{|e| new_item e}  # TODO rename new_item to new_page or Page.from_hash
       stack.load_items pages
     end
   end
@@ -143,16 +155,6 @@ module CoreDataPersistence
     return record
   end
 
-  def to_hash(page_record)
-    {
-      title: page_record.title,
-      url: page_record.url,
-      last_accessed_timestamp: page_record.last_accessed,
-      timestamp: page_record.timestamp
-    }.to_stringified
-  end
-  
-  
 end
 
 
