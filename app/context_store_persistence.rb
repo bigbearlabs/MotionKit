@@ -84,29 +84,27 @@ module CoreDataPersistence
   def save_stacks
     # Stack -> CoreDataStack, then save.
 
-    persistable_stacks = self.stacks.map do |stack|
-      persistable_pages = persistable_pages stack.pages
-      persistable = CoreDataStack.new name:stack.name, pages:persistable_pages
+    # first fetch all the page records.
+    page_urls = self.stacks.map(&:pages).map(&:url).flatten.uniq
+    page_records = CoreDataPage.where "url in #{page_urls}"  # PERF use predicate var substitution
+    pe_log "fetched #{page_records.size} pages."
+
+    # insert new stack records.
+    to_create = self.stacks.select {|e| e.persistence_id.nil? }
+    to_create.map do |new_stack|
+      record = CoreDataStack.new name:new_stack.name, pages:persistable_pages(new_stack.pages)
+
+      # set the moc. TODO
     end
 
-    # PERF we should reduce this to 1 call per moc.
-    persistable_stacks.map do |persistable|
-      saved = persistable.save  # TODO implmeent if-dirty.
-      if saved
-        saved_stacks << stack
-      else
-        pe_warn "stack #{stack.name} didn't save" 
-      end
-    end
-
-    pe_log "saved #{saved_stacks.size} stacks."
+    pe_log "inserted #{to_create.size} stacks."
   end
   
   def load_stacks
     # fetch CoreDataStack, then -> Stack.
   end
 
-
+  # assume 
   def persistable_pages pages
     pages.map do |page|
       p = CoreDataPage.new title:page.title, url:page.url, 
@@ -122,6 +120,27 @@ module CoreDataPersistence
   
 end
 
+
+module Persistable
+  def persistence_id
+    if r = self.persistence_record
+      r.objectID
+    else
+      nil
+    end
+  end
+  
+  # practically private.
+  attr_accessor :persistence_record
+end
+
+class Context
+  include Persistable
+end
+
+class ItemContainer
+  include Persistable
+end
 
 class CoreDataPage < MotionDataWrapper::Model
 end
