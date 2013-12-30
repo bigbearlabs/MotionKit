@@ -202,7 +202,7 @@ class BrowserViewController < PEViewController
 				@web_view.stopLoading(self)
 				@web_view.goToBackForwardItem(item_container.history_item)
 				
-				item_container.last_accessed_timestamp = Time.new.to_s
+				item_container.last_accessed_timestamp = NSDate.date
 				
 				unless @web_view.backForwardList.containsItem(item_container.history_item)
 					pe_warn "#{item_container.description} not found in bflist - investigate."
