@@ -189,7 +189,8 @@ class BrowserWindowController < NSWindowController
 
 	def setup_reactive_title_bar
 		react_to 'browser_vc.web_view_delegate.state' do |new_state|
-			pe_log "state changed to #{new_state}"
+			url = @browser_vc.web_view.url
+			pe_log "state changed to #{new_state}. url: #{url}"
 			self.title = @browser_vc.web_view_delegate.title
 		end
 
@@ -594,7 +595,7 @@ class BrowserWindowController < NSWindowController
 
 			self.stack.update_detail @browser_vc.url, details
 		else
-			pe_log "#{self} has no stack. not adding"
+			raise "#{self} has no stack. "
 		end
 	end
 
