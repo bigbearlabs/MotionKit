@@ -97,10 +97,16 @@ module CoreDataPersistence
       end
     end
 
-    records_to_save.map do |record|
-      record.save!
-    end
-    # FIXME unnecessary loop here - moc only needs to be saved once.
+    records_to_save.map(&:save!)   # will throw errors if any
+    # FIXME potentially inefficient.
+
+    new_count = records_to_save.select( &:new_record?).size
+    persist_count = records_to_save.select( &:persisted?).size
+
+    pe_log "saved stacks. new: #{new_count}, saved: #{persist_count}"
+     
+    anomaly_count = records_to_save.size - persist_count
+    raise "out of #{records_to_save.size} records, only #{persist_count} objects persisted" if anomaly_count != 0
   end
   
   def load_stacks
