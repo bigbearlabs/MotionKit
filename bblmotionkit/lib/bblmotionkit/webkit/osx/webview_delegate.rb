@@ -31,8 +31,6 @@ class BBLWebViewDelegate
 
   def push_event( event_name, event_data = {} )
     @url = @web_view.url
-    redirection = @url
-
     # keep track of the events.
     event = {
       url: @url,
@@ -66,13 +64,13 @@ class BBLWebViewDelegate
           # FIXME this doesn't cover all link navs - e.g. google search result links emit WebNavigationTypeOther, probably due to ajax-based loading.
         end
       
-      when 'willSendRequestForRedirectResponse'
+      when 'didReceiveServerRedirect'
         kvo_change :url do
           @url = @url  # value is already updated.
         end
 
         # collect the 'from' url.
-        self.add_redirect redirection  # can this be empty?
+        self.add_redirect event_data
 
       when 'didStartProvisionalLoad'
         pe_log "#{@url} started provisional load"
@@ -146,6 +144,7 @@ class BBLWebViewDelegate
   
 #=
 
+  # TODO clearing the events like this doesn't work due to the unpredictable order between policy enquiry and provisonal load delegate methods.
   def prep_load url
     pe_trace
 
@@ -155,6 +154,7 @@ class BBLWebViewDelegate
     @redirections = []
   end
 
+  # TODO pick out url from the last policy enquiry or provisional load
   def add_redirect new_url
     if @redirections.last != new_url
       kvo_change :redirections do
@@ -184,25 +184,7 @@ class BBLWebViewDelegate
     
     request
   end
-  
-  def webView(webView, resource:identifier, willSendRequest:request, redirectResponse:redirectResponse, fromDataSource:dataSource)
-    response_url = 
-      unless redirectResponse.nil?
-        redirectResponse.URL.absoluteString
-      else
-        nil
-      end
 
-    new_url = request.URL.absoluteString
-
-    # page redirects have response_url equal to url and a different new_url.
-    if response_url
-      self.push_event 'willSendRequestForRedirectResponse', { new_url: new_url, response_url: response_url }
-    end
-
-    request
-  end
-  
   def webView( webView, didReceiveTitle:title, forFrame:frame )
     pe_debug "received title #{title}"
 
@@ -264,11 +246,30 @@ class BBLWebViewDelegate
   
 #= redirects
   
+  # EDGECASE http://start.webbuddyapp.com
+  def webView(webView, resource:identifier, willSendRequest:request, redirectResponse:redirectResponse, fromDataSource:dataSource)
+    response_url = 
+      unless redirectResponse.nil?
+        redirectResponse.URL.absoluteString
+      else
+        nil
+      end
+
+    new_url = request.URL.absoluteString
+
+    # page redirects have response_url equal to url and a different new_url.
+    if response_url
+      self.push_event 'willSendRequestForRedirectResponse', { new_url: new_url, response_url: response_url }
+    end
+
+    request
+  end
+  
   def webView(webView, willPerformClientRedirectToURL:url, delay:seconds, fireDate:date, forFrame:frame)
     # this is a good hook to deal with history cleanup issues on redirect.
-    if frame == webView.mainFrame
+    # if frame == webView.mainFrame
       self.push_event 'willPerformClientRedirect', { new_url: url.absoluteString }
-    end
+    # end
   end
   
   def webView(webView, didCancelClientRedirectForFrame:frame)

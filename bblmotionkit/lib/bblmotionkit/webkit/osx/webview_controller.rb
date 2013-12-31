@@ -17,6 +17,10 @@ class WebViewController < BBLComponent
   
 #=
 
+  def dev_extras=(enable)
+    @web_view.preferences.developerExtrasEnabled = enable
+  end
+
   def load_url( urls, options = {})
     unless urls.is_a? String or urls.is_a? NSURL or urls.is_a? Array
       raise "urls #{urls} is a bad type"
@@ -165,6 +169,30 @@ class WebViewJavascriptBridge
     @web_view_delegate.webView(webView, decidePolicyForMIMEType:mimeType, request:request, frame:frame, decisionListener:listener)
   end
 
+
+  def webView(webView, willPerformClientRedirectToURL:url, delay:seconds, fireDate:date, forFrame:frame)
+    @web_view_delegate.webView(webView, willPerformClientRedirectToURL:url, delay:seconds, fireDate:date, forFrame:frame)
+  end
+  
+  def webView(webView, didCancelClientRedirectForFrame:frame)
+    @web_view_delegate.webView(webView, didCancelClientRedirectForFrame:frame)
+  end
+  
+  def webView(webView, didReceiveServerRedirectForProvisionalLoadForFrame:frame)
+    @web_view_delegate.webView(webView, didReceiveServerRedirectForProvisionalLoadForFrame:frame)
+  end
+
+  def webView(webView, createWebViewWithRequest:request)
+    @web_view_delegate.webView(webView, createWebViewWithRequest:request)
+  end
+
+  def webViewShow(webView)
+    @web_view_delegate.webViewShow(webView)
+  end
+
+  def webView(webView, decidePolicyForNewWindowAction:actionInformation, request:request, newFrameName:frameName, decisionListener:listener)
+    @web_view_delegate.webView(webView, decidePolicyForNewWindowAction:actionInformation, request:request, newFrameName:frameName, decisionListener:listener)
+  end
 end
 
 
