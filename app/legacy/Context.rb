@@ -182,7 +182,7 @@ class Context
 #=
 
   def back_item
-    current_item_index = self.index_of_item(@current_page)
+    current_item_index = self.pages.index(@current_page)
     if current_item_index && current_item_index > 0
       self.pages[current_item_index - 1]
     else
@@ -191,7 +191,7 @@ class Context
   end
 
   def forward_item
-    current_item_index = self.index_of_item(@current_page)
+    current_item_index = self.pages.index(@current_page)
     if current_item_index && current_item_index <= self.pages.size - 1
       self.pages[current_item_index + 1]
     else

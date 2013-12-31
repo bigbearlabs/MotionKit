@@ -322,7 +322,7 @@ class BrowserViewController < PEViewController
 	end
 
 	def current_page_image
-		self.history_stack.current_item ? self.history_stack.current_history_item.thumbnail : NSImage.stub_image
+		self.history_stack.current_item ? self.history_stack.current_item.thumbnail : NSImage.stub_image
 	end
 
 	def forward_page_image
@@ -369,26 +369,6 @@ class BrowserViewController < PEViewController
 		@web_view.goToBackForwardItem( selected_cell.historyItem )
 	end
 	
-
-#= gesture handling integration. REFACTOR move to scroll_handler.rb
-
-	def setup_swipe_handler
-		@animation_overlay = NSView.alloc.initWithFrame(self.view.bounds)
-	end
-
-	def wantsForwardedScrollEventsForAxis( axis )
-		# track horizontal only.
-		axis == NSEventGestureAxisHorizontal
-	end
-
-	# only deals with forwarded scroll events.
-	def scrollWheel( event )
-		pe_debug event.description
-		
-		self.component(SwipeHandler).handle_scroll_event event
-
-		super
-	end
 
 #= scroll tracking.
 

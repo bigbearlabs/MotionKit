@@ -5,9 +5,41 @@ class SwipeHandler < BBLComponent
 	
 
 	def on_setup		
-		# @animation_overlay.layer = CALayer.layer
-		# @animation_overlay.wantsLayer = true
-		# TEMP disabled until rewiring complete.
+		add_client_methods
+
+		superview = self.client.view
+		
+		@animation_overlay = NSView.alloc.initWithFrame(superview.bounds)
+		@animation_overlay.layer = CALayer.layer
+		@animation_overlay.wantsLayer = true
+
+		superview.add_view @animation_overlay
+	end
+	
+	def add_client_methods
+		# work around crash when extending client with a module.
+
+		def client.wantsForwardedScrollEventsForAxis( axis )
+			# track horizontal only.
+			axis == NSEventGestureAxisHorizontal
+		end
+
+		# only deals with forwarded scroll events.
+		def client.scrollWheel( event )
+			pe_debug event.description
+			
+			self.component(SwipeHandler).handle_scroll_event event
+
+			super
+		end
+	end
+
+
+	def new_swipe_handler(event)
+		# new_swipe_handler_no_animation(event)
+
+		# create a handler that will receive continuous calls for the duration of the gesture (including momentum)
+		new_swipe_handler_paging(event)
 	end
 	
 	# implement horizontal swipe handling.
@@ -39,15 +71,15 @@ class SwipeHandler < BBLComponent
 		
 		if event.phase == NSEventPhaseBegan
 
-			# create a handler that will receive continuous calls for the duration of the gesture (including momentum)
-			# swipe_handler = new_swipe_handler_paging(event)
-			swipe_handler = new_swipe_handler_no_animation(event)
+			swipe_handler = new_swipe_handler(event)
 					
 			event.trackSwipeEventWithOptions(NSEventSwipeTrackingClampGestureAmount|NSEventSwipeTrackingLockDirection, dampenAmountThresholdMin:-1, max:1, usingHandler: swipe_handler)
 		end
 	end
+	# CASE consecutive swipe gesture before previous gesture finishes.
 	# CASE swipe left -> swipe right before swipe left complete, vice versa
-	
+
+
 	def new_swipe_handler_paging( event )
 		
 		# set up overlay and per-lambda state
@@ -88,6 +120,16 @@ class SwipeHandler < BBLComponent
 					
 				direction = ( gestureAmount < 0 ? :Forward : :Back )
 			
+				# perform the paging early.
+				concurrently -> {
+					case direction
+					when :Forward
+						client.handle_forward(self)
+					when :Back
+						client.handle_back(self)
+					end
+				}
+
 				ca_immediately {
 					case direction
 					when :Forward
@@ -118,7 +160,9 @@ class SwipeHandler < BBLComponent
 					
 				event_cancelled = true
 
-#				client.load_history_item( @current_history_item )
+				# TODO animate back.
+
+				# TODO page back.
 
 			when NSEventPhaseEnded
 				pe_log "event phase ended"
@@ -142,27 +186,21 @@ class SwipeHandler < BBLComponent
 				top_layer.removeFromSuperlayer
 				bottom_layer.removeFromSuperlayer
 					
-				unless event_cancelled
-					concurrently -> {
-						case direction
-						when :Forward
-							client.handle_forward(self)
-						when :Back
-							client.handle_back(self)
-						end
-					}
-				end
 			end
 		}
 		
 		swipe_handler
 	end
-	
+
+
+=begin
+	# TODO rename.
 	def new_swipe_handler_no_animation( event )
 
 		direction = nil
 
-		swipe_handler = lambda { |gestureAmount, phase, isComplete, stop|
+		# MEMOISE
+		@swipe_handler = lambda { |gestureAmount, phase, isComplete, stop|
 			pe_debug "event #{event}: swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop}, #{stop[0]}"
 
 # 			if @cancel_previous_swipes
@@ -184,30 +222,32 @@ class SwipeHandler < BBLComponent
 			when NSEventPhaseBegan
 				pe_log "gesture began."
 
-				direction = ( gestureAmount < 0 ? :Forward : :Back )
+				@direction = ( gestureAmount < 0 ? :forward : :back )
+
+				(@count ||= 0) += 1
+
+				dispatch_animation {
+					top_layer: client.view.image,
+
+				}
+				
+				page_web_view direction
 
 			when NSEventPhaseCancelled
 				# when gesture didn't exceed threshold
 				pe_log "event phase cancel detected in swipe handler"
 					
-				event_cancelled = true
+				@count--;
 
-#				client.load_history_item( @current_history_item )
+				direction = ( @direction == :forward ? :back : :forward )
+				page_web_view direction
 
 			when NSEventPhaseEnded
 				pe_log "event phase ended"
 			
-				unless event_cancelled
-					concurrently -> {
-						case direction
-						when :Forward
-							client.handle_forward(self)
-						when :Back
-							client.handle_back(self)
-						end
-					}
-				end
-				
+				# all done: tear down animation if still around.
+
+				@count--;
 			end
 				
 			if isComplete
@@ -215,6 +255,18 @@ class SwipeHandler < BBLComponent
 			end
 		}
 		
-		swipe_handler
+		@swipe_handler
 	end
+=end
+
+	def navigate_web_view
+		# this could potentially take time, requiring clients to call as early as possible.
+			case direction
+			when :Forward
+				client.handle_forward(self)
+			when :Back
+				client.handle_back(self)
+			end
+	end
+	
 end
