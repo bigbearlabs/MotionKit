@@ -1,28 +1,19 @@
-#
-#  SwipeHandler.rb
-#  WebBuddy
-#
-#  Created by Park Andy on 27/02/2012.
-#  Copyright 2012 __MyCompanyName__. All rights reserved.
-#
-
-
-class SwipeHandler
+class SwipeHandler < BBLComponent
 	
-
-	attr_accessor :browser_vc
+	# TODO replace with an appropriate interface with client.
 	attr_accessor :animation_overlay
 	
-	def awakeFromNib
-		super
-		
-		@animation_overlay.layer = CALayer.layer
-		@animation_overlay.wantsLayer = true
+
+	def on_setup		
+		# @animation_overlay.layer = CALayer.layer
+		# @animation_overlay.wantsLayer = true
+		# TEMP disabled until rewiring complete.
 	end
 	
-	# FIXME outstanding: multiple concurrent swipes are not handled properly.
+	# implement horizontal swipe handling.
 	# layers in overlay should be created on the fly, based on some count of the target offset from current.
 	# actual navigation of the webview should be done after all animations in order to avoid jittery rendering.
+	# FIXME outstanding: multiple concurrent swipes are not handled properly.
 	def handle_scroll_event( event )
 		case event.phase
 		when NSEventPhaseNone
@@ -100,13 +91,13 @@ class SwipeHandler
 				ca_immediately {
 					case direction
 					when :Forward
-						bottom_layer.contents = @browser_vc.current_page_image
-						top_layer.contents = @browser_vc.forward_page_image
+						bottom_layer.contents = client.current_page_image
+						top_layer.contents = client.forward_page_image
 						# top layer offset 1 page to the right
 						top_layer.position = NSMakePoint(@animation_overlay.center.x + @animation_overlay.bounds.size.width, @animation_overlay.center.y)
 					when :Back
-						bottom_layer.contents = @browser_vc.back_page_image
-						top_layer.contents = @browser_vc.current_page_image
+						bottom_layer.contents = client.back_page_image
+						top_layer.contents = client.current_page_image
 						top_layer.position = @animation_overlay.center
 					end
 
@@ -127,7 +118,7 @@ class SwipeHandler
 					
 				event_cancelled = true
 
-#				@browser_vc.load_history_item( @current_history_item )
+#				client.load_history_item( @current_history_item )
 
 			when NSEventPhaseEnded
 				pe_log "event phase ended"
@@ -155,9 +146,9 @@ class SwipeHandler
 					concurrently -> {
 						case direction
 						when :Forward
-							@browser_vc.handle_forward(self)
+							client.handle_forward(self)
 						when :Back
-							@browser_vc.handle_back(self)
+							client.handle_back(self)
 						end
 					}
 				end
@@ -201,7 +192,7 @@ class SwipeHandler
 					
 				event_cancelled = true
 
-#				@browser_vc.load_history_item( @current_history_item )
+#				client.load_history_item( @current_history_item )
 
 			when NSEventPhaseEnded
 				pe_log "event phase ended"
@@ -210,9 +201,9 @@ class SwipeHandler
 					concurrently -> {
 						case direction
 						when :Forward
-							@browser_vc.handle_forward(self)
+							client.handle_forward(self)
 						when :Back
-							@browser_vc.handle_back(self)
+							client.handle_back(self)
 						end
 					}
 				end

@@ -20,13 +20,9 @@ class BrowserViewController < PEViewController
 	attr_accessor :nav_buttons
 	
 	attr_accessor :find_bar_container
-	attr_accessor :swipe_handler
-	
+
 	attr_accessor :web_view_delegate
 	
-	# view-model
-	attr_accessor :event  # last user-facing user agent event.
-
 	def components
 	  [
 	  	{
@@ -35,6 +31,9 @@ class BrowserViewController < PEViewController
 					web_view: @web_view
 				},
 	  	},
+	  	{
+	  		module: SwipeHandler
+	  	}
 	  ]
 	end
 
@@ -114,6 +113,8 @@ class BrowserViewController < PEViewController
 		
 		@web_view_delegate.setup
 		
+		setup_scroll_tracking
+
 		watch_notification :Find_request_notification
 		watch_notification :Text_finder_notification
 		watch_notification :Url_load_finished_notification
@@ -368,26 +369,44 @@ class BrowserViewController < PEViewController
 		@web_view.goToBackForwardItem( selected_cell.historyItem )
 	end
 	
-#= gesture handling integration
+
+#= gesture handling integration. REFACTOR move to scroll_handler.rb
 
 	def setup_swipe_handler
 		@animation_overlay = NSView.alloc.initWithFrame(self.view.bounds)
 	end
 
-	def wantsScrollEventsForSwipeTrackingOnAxis( axis )
+	def wantsForwardedScrollEventsForAxis( axis )
+		# track horizontal only.
 		axis == NSEventGestureAxisHorizontal
 	end
 
+	# only deals with forwarded scroll events.
 	def scrollWheel( event )
-		pe_debug "#{event.description}"
+		pe_debug event.description
 		
-		@swipe_handler.handle_scroll_event event
+		self.component(SwipeHandler).handle_scroll_event event
+
 		super
 	end
 
-	#= 
+#= scroll tracking.
 
-	# work around the occasional respondsToSelector malfunction.
+	attr_reader :scroll_event
+
+	def setup_scroll_tracking
+		scroll_view = @web_view.views_where {|e| e.is_a? NSScrollView}.flatten.first
+		scroll_view.extend Reactive
+		scroll_view.extend ScrollTracking
+
+		@scroll_reaction = scroll_view.react_to :scroll_event do |event|
+			kvo_change :scroll_event, event
+		end
+	end
+
+#= 
+
+	# work around the occasional respondsToSelector malfunction. TODO log calls.
 	def respondsToSelector(sel)
 	  self.respond_to? sel
 	end	
@@ -398,6 +417,6 @@ class BrowserViewController < PEViewController
 	def history_stack
 	  @context_store.history_stack
 	end
-	
+
 end
 
