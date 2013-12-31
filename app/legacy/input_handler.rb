@@ -24,7 +24,7 @@ class InputHandler < BBLComponent
       self.client.component(RubyEvalPlugin).input = input.gsub(/^>/,'')
 
     when :url
-      self.client.load_url input.to_url_string
+      self.client.load_url input.to_url_string, stack_id: "navigation to '#{input}'"
 
     when :search
       self.client.load_url input.to_search_url_string, stack_id: input
