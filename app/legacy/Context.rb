@@ -449,7 +449,7 @@ class ItemContainer
   def add_redirect( redirect_info )
     kvo_change :redirect_info do
       @redirect_info ||= []
-      @redirect_info.concat redirect_info
+      @redirect_info << redirect_info unless @redirect_info.include? redirect_info
       
       pe_log "added #{redirect_info} to #{self}"
     end

@@ -30,7 +30,12 @@ class BBLWebViewDelegate
 #= event logging
 
   def push_event( event_name, event_data = {} )
-    @url = @web_view.url
+    if @url != @web_view.url
+      kvo_change :url do
+        @url = @web_view.url
+      end
+    end
+
     # keep track of the events.
     event = {
       url: @url,
@@ -64,26 +69,22 @@ class BBLWebViewDelegate
           # FIXME this doesn't cover all link navs - e.g. google search result links emit WebNavigationTypeOther, probably due to ajax-based loading.
         end
       
-      when 'didReceiveServerRedirect'
-        kvo_change :url do
-          @url = @url  # value is already updated.
+        if @state != :loading
+
+          kvo_change :state do
+            @state = :loading
+          end
+
+          prep_load @url
         end
 
-        # collect the 'from' url.
-        self.add_redirect event_data
+
+      when 'willSendRequestForRedirectResponse', 'willPerformClientRedirect'
+        self.add_redirect
 
       when 'didStartProvisionalLoad'
         pe_log "#{@url} started provisional load"
  
-        kvo_change :state do
-          @state = :loading
-        end
-        kvo_change :url do
-          @url = @url
-        end
-       
-        self.prep_load @url
-
         send_notification :Load_request_notification, @url
 
         # TODO integrate with cancels.
@@ -131,7 +132,6 @@ class BBLWebViewDelegate
 
         @success_handler = nil
         @fail_handler = nil
-
       end
 
     rescue Exception => e
@@ -145,27 +145,28 @@ class BBLWebViewDelegate
 #=
 
   # TODO clearing the events like this doesn't work due to the unpredictable order between policy enquiry and provisonal load delegate methods.
-  def prep_load url
+  def prep_load( new_url )
     pe_trace
 
-    # clear the events.
-    @events.slice! 1..-1 unless $DEBUG
+    @previous_events = @events
+    @previous_redirections = @redirections
 
-    @redirections = []
+    # clear log objects for the next request.
+    @events = [] unless $DEBUG
+    @redirections = [] unless $DEBUG
   end
 
-  # TODO pick out url from the last policy enquiry or provisional load
-  def add_redirect new_url
-    if @redirections.last != new_url
-      kvo_change :redirections do
-        @redirections << new_url
-      end
+  def add_redirect
+    # interpret the last event and log.
+    redirect_event = @events.last
+    kvo_change :redirections do
+      @redirections << redirect_event[:data][:from_url]
     end
   end
 
-  # FIXME test this with many cases. what a pain
+  # only for casual inspection - will not work properly when request in flight.
   def redirect_info
-    "#{@url}: #{@redirections}"
+   "#{@url}: #{@previous_redirections}"
   end
 
 #= http lifecycle
@@ -255,11 +256,14 @@ class BBLWebViewDelegate
         nil
       end
 
-    new_url = request.URL.absoluteString
+    to_url = request.URL.absoluteString
 
-    # page redirects have response_url equal to url and a different new_url.
+    # page redirects have response_url equal to url and a different to_url.
     if response_url
-      self.push_event 'willSendRequestForRedirectResponse', { new_url: new_url, response_url: response_url }
+      self.push_event 'willSendRequestForRedirectResponse', { 
+        from_url: response_url,
+        to_url: to_url, 
+      }
     end
 
     request
@@ -268,7 +272,10 @@ class BBLWebViewDelegate
   def webView(webView, willPerformClientRedirectToURL:url, delay:seconds, fireDate:date, forFrame:frame)
     # this is a good hook to deal with history cleanup issues on redirect.
     # if frame == webView.mainFrame
-      self.push_event 'willPerformClientRedirect', { new_url: url.absoluteString }
+      self.push_event 'willPerformClientRedirect', { 
+        from_url: webView.url,
+        to_url: url.absoluteString,
+      }
     # end
   end
   
@@ -285,30 +292,6 @@ class BBLWebViewDelegate
     end
   end
 
-
-#= script handling
-
-  def webView(webView, createWebViewWithRequest:request)
-    self.push_event 'createWebViewWithRequest', new_request: request
-    
-    return webView
-
-    # TEMP create a new webview.
-    # superview = @browser_vc.view
-    # new_web_view = WebView.alloc.initWithFrame(superview.bounds, frameName:"stub_new_web_view", groupName:@web_view.groupName)
-    # superview.addSubview new_web_view
-
-    # new_web_view
-    # EDGE-CASE BUG gmail creates a new tab with an empty request, that doesn't finish if we return the existing web view.
-    # suggested workaround is to load it in a new web view, then re-request the url on the old web view and pray for a cache hit.
-  end
-
-  def webViewShow(webView)
-    self.push_event "webViewShow"
-
-    # called after webView:createWebViewWithRequest:
-    # nothing to do here.
-  end
 
 #= policy
   
@@ -360,6 +343,30 @@ class BBLWebViewDelegate
     decision_listener.use
   end
   
+#= script handling
+
+  def webView(webView, createWebViewWithRequest:request)
+    self.push_event 'createWebViewWithRequest', new_request: request
+    
+    return webView
+
+    # TEMP create a new webview.
+    # superview = @browser_vc.view
+    # new_web_view = WebView.alloc.initWithFrame(superview.bounds, frameName:"stub_new_web_view", groupName:@web_view.groupName)
+    # superview.addSubview new_web_view
+
+    # new_web_view
+    # EDGE-CASE BUG gmail creates a new tab with an empty request, that doesn't finish if we return the existing web view.
+    # suggested workaround is to load it in a new web view, then re-request the url on the old web view and pray for a cache hit.
+  end
+
+  def webViewShow(webView)
+    self.push_event "webViewShow"
+
+    # called after webView:createWebViewWithRequest:
+    # nothing to do here.
+  end
+
 #=
 
   # prevents js resizing of window hosting webview 

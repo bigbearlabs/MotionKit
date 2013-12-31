@@ -99,10 +99,16 @@ class BrowserWindowController < NSWindowController
 
 		pe_log "#{self} synchronous setup complete."
 
+		# asynchronously set up the rest, for more responsive windows.
 		on_main_async do
 			# populate model's redirections 
-			@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |args|
-				self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections if self.stack
+			@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
+				# self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections  
+				from_url = redirections[0]
+				current_url = browser_vc.web_view_delegate.url
+				(redirections[1..-1] << current_url).map do |redirection|
+					self.stack.add_redirect from_url, redirection
+				end
 			end
 
 			@browser_vc.web_view.make_first_responder 
