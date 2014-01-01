@@ -230,17 +230,13 @@ class BrowserViewController < PEViewController
 	def handle_back(sender)
 		send_notification :Bf_navigation_notification
 
-		on_main {
-			@web_view.goBack(sender)
-		}
+		@web_view.goBack(sender)
 	end
 	
 	def handle_forward(sender)
 		send_notification :Bf_navigation_notification
 
-		on_main {
-			@web_view.goForward(sender)
-		}
+		@web_view.goForward(sender)
 	end
 	
 #= 
@@ -383,6 +379,13 @@ class BrowserViewController < PEViewController
 
 		@scroll_reaction = scroll_view.react_to :scroll_event do |event|
 			kvo_change :scroll_event, event
+
+			# using a small delay, attach a thumbnail for the history item for the swipe handler to use to to animate paging.
+			(@thumbnail_throttle ||= Object.new).delayed_cancelling_previous 0.1, -> {
+				pe_log "taking thumbnail after scroll event #{event}"
+				self.current_history_item.thumbnail = @web_view.image
+			}
+
 		end
 	end
 
@@ -409,6 +412,7 @@ end
 
 
 # duck punch.
+
 class WebBackForwardList
 	def current_page
 	  currentItem
@@ -422,7 +426,6 @@ class WebBackForwardList
 	  forwardItem
 	end
 end
-
 
 class WebHistoryItem
 	attr_accessor :thumbnail

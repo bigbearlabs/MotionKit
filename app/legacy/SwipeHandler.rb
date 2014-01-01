@@ -1,6 +1,11 @@
+# CASE thumbnails after window resize
+
+# CASE consecutive swipe gesture before previous gesture finishes.
+# CASE swipe left -> swipe right before swipe left complete, vice versa
+
+
 class SwipeHandler < BBLComponent
 	
-	# TODO replace with an appropriate interface with client.
 	attr_accessor :animation_overlay
 	
 
@@ -10,6 +15,7 @@ class SwipeHandler < BBLComponent
 		superview = self.client.view
 		
 		@animation_overlay = NSView.alloc.initWithFrame(superview.bounds)
+		@animation_overlay.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
 		@animation_overlay.layer = CALayer.layer
 		@animation_overlay.wantsLayer = true
 
@@ -58,15 +64,16 @@ class SwipeHandler < BBLComponent
 		# on begin event, create and install a new swipe handler.
 		if event.phase == NSEventPhaseBegan
 
-			swipe_handler = new_swipe_handler(event)
+			# @swipe_handler ||= new_swipe_handler(event)  # FIXME
+			@swipe_handler = new_swipe_handler(event)
 					
-			event.trackSwipeEventWithOptions(NSEventSwipeTrackingClampGestureAmount|NSEventSwipeTrackingLockDirection, dampenAmountThresholdMin:-1, max:1, usingHandler: swipe_handler)
+			event.trackSwipeEventWithOptions(
+				NSEventSwipeTrackingClampGestureAmount|NSEventSwipeTrackingLockDirection, 
+				dampenAmountThresholdMin:-1, max:1, 
+				usingHandler: @swipe_handler)
 
 		end
 	end
-	# CASE consecutive swipe gesture before previous gesture finishes.
-	# CASE swipe left -> swipe right before swipe left complete, vice versa
-
 
 	def new_swipe_handler( event )
 		
@@ -81,11 +88,12 @@ class SwipeHandler < BBLComponent
 		
 		@swipe_handler_count ||= 0
 		@swipe_handler_count += 1
-		
+		pe_log "swipe count: #{@swipe_handler_count}"
+
 		event_cancelled = false
 
 		swipe_handler = lambda { |gestureAmount, phase, isComplete, stop|
-			pe_debug "event #{event}: swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop}, #{stop[0]}"
+			pe_debug "swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop}, #{stop[0]}"
 
 			case phase
 			when NSEventPhaseBegan
@@ -98,13 +106,17 @@ class SwipeHandler < BBLComponent
 					case direction
 					when :Forward
 						bottom_layer.contents = client.current_page_image
+
 						top_layer.contents = client.forward_page_image
 						# top layer offset 1 page to the right
 						top_layer.position = NSMakePoint(@animation_overlay.center.x + @animation_overlay.bounds.size.width, @animation_overlay.center.y)
+
 					when :Back
 						bottom_layer.contents = client.back_page_image
+
 						top_layer.contents = client.current_page_image
 						top_layer.position = @animation_overlay.center
+
 					end
 
 					bottom_layer.bounds = @animation_overlay.bounds
@@ -129,7 +141,7 @@ class SwipeHandler < BBLComponent
 	
 				event_cancelled = true
 
-				# animations are handled by further handler invocations.
+				# animations are handled by further handler invocations -- nothing to implement here.
 
 				# just page.
 				self.navigate_web_view opposite_direction( @direction )
@@ -148,7 +160,7 @@ class SwipeHandler < BBLComponent
 			}
 				
 			if isComplete
-				pe_log "#{event} complete"
+				pe_log "swipe #{@swipe_handler_count} complete."
 				@swipe_handler_count -= 1
 
 				# reset overlay state
@@ -159,21 +171,21 @@ class SwipeHandler < BBLComponent
 					
 			end
 
-			pe_log "swipe count: #{@swipe_handler_count}"
 		}
 		
 		swipe_handler
 	end
 
 	def navigate_web_view( direction = @direction )
-
-		# this could potentially take time, requiring clients to call as early as possible.
+		# this could potentially take time; clients should call as early as possible.
+		on_main_async do
 			case direction
 			when :Forward
 				client.handle_forward(self)
 			when :Back
 				client.handle_back(self)
 			end
+		end
 
 	end
 	
