@@ -42,6 +42,7 @@ class SwipeHandler < BBLComponent
 		new_swipe_handler_paging(event)
 	end
 	
+
 	# implement horizontal swipe handling.
 	# layers in overlay should be created on the fly, based on some count of the target offset from current.
 	# actual navigation of the webview should be done after all animations in order to avoid jittery rendering.
@@ -61,21 +62,27 @@ class SwipeHandler < BBLComponent
 			return
 		end
 		
+		# skip vertical events.
 		return if event.scrollingDeltaX.abs <= event.scrollingDeltaY.abs
 		
 		return if ! NSEvent.isSwipeTrackingFromScrollEventsEnabled
 		
-		# if @animation_in_progress
-		# 	# there's a previous swipe being tracked - signal that to be cancelled.
-		# 	pe_debug "signal previous swipe to be cancelled."
-		# 	@cancel_previous_swipes = true
-		# end
-		
+
+		# another important constraint: nav direction must be available.
+		# TODO
+
+
+		# now do the business.
+
 		if event.phase == NSEventPhaseBegan
 
 			swipe_handler = new_swipe_handler(event)
 					
 			event.trackSwipeEventWithOptions(NSEventSwipeTrackingClampGestureAmount|NSEventSwipeTrackingLockDirection, dampenAmountThresholdMin:-1, max:1, usingHandler: swipe_handler)
+
+			# perform the paging early.
+			self.navigate_web_view
+			
 		end
 	end
 	# CASE consecutive swipe gesture before previous gesture finishes.
@@ -86,7 +93,7 @@ class SwipeHandler < BBLComponent
 		
 		# set up overlay and per-lambda state
 		
-		@animation_overlay.visible = true
+		@animation_overlay.visible = true  ## DEV
 		
 		bottom_layer = CALayer.layer
 		top_layer = CALayer.layer
@@ -101,37 +108,12 @@ class SwipeHandler < BBLComponent
 		swipe_handler = lambda { |gestureAmount, phase, isComplete, stop|
 			pe_debug "event #{event}: swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop}, #{stop[0]}"
 
-# 			if @cancel_previous_swipes
-# 				# another swipe coming in - reset the overlay and abort this swipe
-# #				@animation_overlay.hidden = true
-					
-# 				pe_log "cancel previous swipes"
-# 				@cancel_previous_swipes = false
-# 				@animation_in_progress = false
-# 				@event_cancelled = false
-
-# 				# hmm, this doesn't seem to stop!!
-# 				stop.assign(true)
-					
-# 				return
-# 			end
-				
 			case phase
 			when NSEventPhaseBegan
 				pe_log "gesture began."
 					
 				direction = ( gestureAmount < 0 ? :Forward : :Back )
 				@direction = direction
-
-				# perform the paging early.
-				concurrently -> {
-					case direction
-					when :Forward
-						client.handle_forward(self)
-					when :Back
-						client.handle_back(self)
-					end
-				}
 
 				ca_immediately {
 					case direction
@@ -189,12 +171,15 @@ class SwipeHandler < BBLComponent
 				bottom_layer.removeFromSuperlayer
 					
 			end
+
+			pe_log "swipe count: #{@swipe_handler_count}"
 		}
 		
 		swipe_handler
 	end
 
-	def navigate_web_view
+	def navigate_web_view( direction = @direction )
+
 		# this could potentially take time, requiring clients to call as early as possible.
 			case direction
 			when :Forward
@@ -202,6 +187,7 @@ class SwipeHandler < BBLComponent
 			when :Back
 				client.handle_back(self)
 			end
+
 	end
 	
 	def opposite_direction( direction )

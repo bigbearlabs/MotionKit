@@ -317,16 +317,18 @@ class BrowserViewController < PEViewController
 		@web_view.backForwardList.currentItem
 	end
 	
+	#= image retrieval gets called in disparity to webview. work out a way to FIXME
+
 	def back_page_image
-		self.history_stack.back_page ? self.history_stack.back_page.thumbnail : NSImage.stub_image
+		browser_history.back_page ? browser_history.back_page.thumbnail : NSImage.stub_image
 	end
 
 	def current_page_image
-		self.history_stack.current_page ? self.history_stack.current_page.thumbnail : NSImage.stub_image
+		browser_history.current_page ? browser_history.current_page.thumbnail : NSImage.stub_image
 	end
 
 	def forward_page_image
-		self.history_stack.forward_page ? self.history_stack.forward_page.thumbnail : NSImage.stub_image
+		browser_history.forward_page ? browser_history.forward_page.thumbnail : NSImage.stub_image
 	end
 
 #=
@@ -398,5 +400,30 @@ class BrowserViewController < PEViewController
 	  @context_store.history_stack
 	end
 
+	# until we get reliable positions in stack, implement swipe navigation using only the webview's history.
+	def browser_history
+	  @web_view.backForwardList
+	end
+	
 end
 
+
+# duck punch.
+class WebBackForwardList
+	def current_page
+	  currentItem
+	end
+
+	def back_page
+	  backItem
+	end
+	
+	def forward_page
+	  forwardItem
+	end
+end
+
+
+class WebHistoryItem
+	attr_accessor :thumbnail
+end
