@@ -35,14 +35,6 @@ class SwipeHandler < BBLComponent
 	end
 
 
-	def new_swipe_handler(event)
-		# new_swipe_handler_no_animation(event)
-
-		# create a handler that will receive continuous calls for the duration of the gesture (including momentum)
-		new_swipe_handler_paging(event)
-	end
-	
-
 	# implement horizontal swipe handling.
 	# layers in overlay should be created on the fly, based on some count of the target offset from current.
 	# FIXME outstanding: multiple concurrent swipes are not handled properly.
@@ -63,23 +55,20 @@ class SwipeHandler < BBLComponent
 
 
 		# now do the business.
-
+		# on begin event, create and install a new swipe handler.
 		if event.phase == NSEventPhaseBegan
 
 			swipe_handler = new_swipe_handler(event)
 					
 			event.trackSwipeEventWithOptions(NSEventSwipeTrackingClampGestureAmount|NSEventSwipeTrackingLockDirection, dampenAmountThresholdMin:-1, max:1, usingHandler: swipe_handler)
 
-			# perform the paging early.
-			self.navigate_web_view
-			
 		end
 	end
 	# CASE consecutive swipe gesture before previous gesture finishes.
 	# CASE swipe left -> swipe right before swipe left complete, vice versa
 
 
-	def new_swipe_handler_paging( event )
+	def new_swipe_handler( event )
 		
 		# set up overlay and per-lambda state
 		
@@ -129,6 +118,10 @@ class SwipeHandler < BBLComponent
 					
 				original_page_x = top_layer.position.x
 
+				# perform the paging early.
+				self.navigate_web_view
+			
+
 			when NSEventPhaseCancelled
 				# when gesture didn't exceed threshold
 					
@@ -146,7 +139,7 @@ class SwipeHandler < BBLComponent
 				pe_log "event phase ended"
 			end
 
-			# apply page offset.
+			# apply page offset rendering.
 			# -1 <= normalised offset <= 1. 
 			# at 0 the final position should exactly the same as the original position.
 			# at 1 the final position should be exactly 1 page to the right.
