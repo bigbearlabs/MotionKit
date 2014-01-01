@@ -318,15 +318,15 @@ class BrowserViewController < PEViewController
 	end
 	
 	def back_page_image
-		self.history_stack.back_item ? self.history_stack.back_item.thumbnail : NSImage.stub_image
+		self.history_stack.back_page ? self.history_stack.back_page.thumbnail : NSImage.stub_image
 	end
 
 	def current_page_image
-		self.history_stack.current_item ? self.history_stack.current_item.thumbnail : NSImage.stub_image
+		self.history_stack.current_page ? self.history_stack.current_page.thumbnail : NSImage.stub_image
 	end
 
 	def forward_page_image
-		self.history_stack.forward_item ? self.history_stack.forward_item.thumbnail : NSImage.stub_image
+		self.history_stack.forward_page ? self.history_stack.forward_page.thumbnail : NSImage.stub_image
 	end
 
 #=

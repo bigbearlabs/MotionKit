@@ -55,7 +55,9 @@ class SwipeHandler < BBLComponent
 			
 			pe_log "event cancel phase detected in scroll event handler"
 
-			# previous handler will be invoked with amount approaching 0, so no need to do anything here.
+			# animations are handled by further handler invocations.
+			# just page.
+			self.navigate_web_view opposite_direction( @direction )
 			return
 		end
 		
@@ -94,7 +96,7 @@ class SwipeHandler < BBLComponent
 		@swipe_handler_count ||= 0
 		@swipe_handler_count += 1
 		
-		# event_cancelled = false
+		event_cancelled = false
 
 		swipe_handler = lambda { |gestureAmount, phase, isComplete, stop|
 			pe_debug "event #{event}: swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop}, #{stop[0]}"
@@ -119,7 +121,8 @@ class SwipeHandler < BBLComponent
 				pe_log "gesture began."
 					
 				direction = ( gestureAmount < 0 ? :Forward : :Back )
-			
+				@direction = direction
+
 				# perform the paging early.
 				concurrently -> {
 					case direction
@@ -156,7 +159,6 @@ class SwipeHandler < BBLComponent
 
 			when NSEventPhaseCancelled
 				# when gesture didn't exceed threshold
-				pe_log "event phase cancel detected in swipe handler"
 					
 				event_cancelled = true
 
@@ -192,73 +194,6 @@ class SwipeHandler < BBLComponent
 		swipe_handler
 	end
 
-
-=begin
-	# TODO rename.
-	def new_swipe_handler_no_animation( event )
-
-		direction = nil
-
-		# MEMOISE
-		@swipe_handler = lambda { |gestureAmount, phase, isComplete, stop|
-			pe_debug "event #{event}: swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop}, #{stop[0]}"
-
-# 			if @cancel_previous_swipes
-# 				# another swipe coming in - reset the overlay and abort this swipe
-# #				@animation_overlay.hidden = true
-					
-# 				pe_log "cancel previous swipes"
-# 				@cancel_previous_swipes = false
-# 				@animation_in_progress = false
-# 				@event_cancelled = false
-
-# 				# hmm, this doesn't seem to stop!!
-# 				stop.assign(true)
-					
-# 				return
-# 			end
-				
-			case phase
-			when NSEventPhaseBegan
-				pe_log "gesture began."
-
-				@direction = ( gestureAmount < 0 ? :forward : :back )
-
-				(@count ||= 0) += 1
-
-				dispatch_animation {
-					top_layer: client.view.image,
-
-				}
-				
-				page_web_view direction
-
-			when NSEventPhaseCancelled
-				# when gesture didn't exceed threshold
-				pe_log "event phase cancel detected in swipe handler"
-					
-				@count--;
-
-				direction = ( @direction == :forward ? :back : :forward )
-				page_web_view direction
-
-			when NSEventPhaseEnded
-				pe_log "event phase ended"
-			
-				# all done: tear down animation if still around.
-
-				@count--;
-			end
-				
-			if isComplete
-				pe_log "#{event} complete"
-			end
-		}
-		
-		@swipe_handler
-	end
-=end
-
 	def navigate_web_view
 		# this could potentially take time, requiring clients to call as early as possible.
 			case direction
@@ -267,6 +202,10 @@ class SwipeHandler < BBLComponent
 			when :Back
 				client.handle_back(self)
 			end
+	end
+	
+	def opposite_direction( direction )
+	  direction == :Forward ? :Back : :Forward
 	end
 	
 end
