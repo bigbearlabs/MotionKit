@@ -45,20 +45,10 @@ class SwipeHandler < BBLComponent
 
 	# implement horizontal swipe handling.
 	# layers in overlay should be created on the fly, based on some count of the target offset from current.
-	# actual navigation of the webview should be done after all animations in order to avoid jittery rendering.
 	# FIXME outstanding: multiple concurrent swipes are not handled properly.
 	def handle_scroll_event( event )
 		case event.phase
 		when NSEventPhaseNone
-			return
-		when NSEventPhaseCancelled
-			# gesture didn't exceed threshold
-			
-			pe_log "event cancel phase detected in scroll event handler"
-
-			# animations are handled by further handler invocations.
-			# just page.
-			self.navigate_web_view opposite_direction( @direction )
 			return
 		end
 		
@@ -68,7 +58,7 @@ class SwipeHandler < BBLComponent
 		return if ! NSEvent.isSwipeTrackingFromScrollEventsEnabled
 		
 
-		# another important constraint: nav direction must be available.
+		# another important constraint: nav direction must be available for nav.
 		# TODO
 
 
@@ -142,11 +132,15 @@ class SwipeHandler < BBLComponent
 			when NSEventPhaseCancelled
 				# when gesture didn't exceed threshold
 					
+				pe_log "event cancel phase detected in scroll event handler"
+	
 				event_cancelled = true
 
-				# TODO animate back.
+				# animations are handled by further handler invocations.
 
-				# TODO page back.
+				# just page.
+				self.navigate_web_view opposite_direction( @direction )
+				return
 
 			when NSEventPhaseEnded
 				pe_log "event phase ended"
