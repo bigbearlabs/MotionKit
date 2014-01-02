@@ -320,11 +320,20 @@ class BrowserViewController < PEViewController
 	end
 
 	def current_page_image
-		browser_history.current_page ? browser_history.current_page.thumbnail : NSImage.stub_image
+		if page = browser_history.current_page
+			image = page.thumbnail 
+		end
+
+		image ||= NSImage.stub_image
+
 	end
 
 	def forward_page_image
-		browser_history.forward_page ? browser_history.forward_page.thumbnail : NSImage.stub_image
+		if page = browser_history.forward_page
+			image = page.thumbnail 
+		end
+
+		image ||= NSImage.stub_image
 	end
 
 #=
@@ -389,6 +398,15 @@ class BrowserViewController < PEViewController
 		end
 	end
 
+#= history
+
+	def can_navigate( direction )
+		item_for_direction_s = ( direction == :Forward ? :forward_page : :back_page)
+		
+		self.browser_history.send( item_for_direction_s ) != nil
+	end
+			
+
 #= 
 
 	# work around the occasional respondsToSelector malfunction. TODO log calls.
@@ -408,25 +426,4 @@ class BrowserViewController < PEViewController
 	  @web_view.backForwardList
 	end
 	
-end
-
-
-# duck punch.
-
-class WebBackForwardList
-	def current_page
-	  currentItem
-	end
-
-	def back_page
-	  backItem
-	end
-	
-	def forward_page
-	  forwardItem
-	end
-end
-
-class WebHistoryItem
-	attr_accessor :thumbnail
 end

@@ -91,7 +91,6 @@ class SwipeHandler < BBLComponent
 		
 		# set up overlay and per-lambda state
 		
-		@animation_overlay.visible = true  ## DEV
 				
 		swipe_handler = lambda { |gestureAmount, phase, isComplete, stop|
 			pe_debug "swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop}, #{stop[0]}"
@@ -100,14 +99,18 @@ class SwipeHandler < BBLComponent
 			when NSEventPhaseBegan
 				pe_log "gesture began."
 		
-				# # bail out if we can't perform.
-				# return unless client.can_navigate @direction
+				@direction = ( gestureAmount < 0 ? :Forward : :Back )
+
+				# bail out if we can't perform.
+				@can_navigate = client.can_navigate @direction
 		
+				return unless @can_navigate
+
+				@animation_overlay.visible = true  ## DEV
+
 				@swipe_handler_count ||= 0
 				@swipe_handler_count += 1
 				pe_log "swipe count: #{@swipe_handler_count}"
-
-				@direction = ( gestureAmount < 0 ? :Forward : :Back )
 
 				ca_immediately {
 					case @direction
@@ -136,8 +139,7 @@ class SwipeHandler < BBLComponent
 			when NSEventPhaseCancelled
 				# when gesture didn't exceed threshold
 					
-				# # bail out if we can't perform.
-				# return unless client.can_navigate @direction
+				return unless @can_navigate
 
 				pe_log "event cancel phase detected in scroll event handler"
 	
@@ -153,8 +155,7 @@ class SwipeHandler < BBLComponent
 				pe_log "event phase ended"
 			end
 
-			# # bail out if we can't perform.
-			# return unless client.can_navigate @direction
+			return unless @can_navigate
 
 			# apply page offset rendering.
 			# -1 <= normalised offset <= 1. 
