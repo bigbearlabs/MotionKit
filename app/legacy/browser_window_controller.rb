@@ -563,7 +563,7 @@ class BrowserWindowController < NSWindowController
 
 		# PERF?
 		( @update_throttle ||= Object.new ).delayed_cancelling_previous 0.5, -> { 
-			component(FilteringPlugin).update_data
+			# component(FilteringPlugin).update_data  # DEV
 			@context_store.save_thumbnails
 		}
 	end

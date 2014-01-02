@@ -45,7 +45,7 @@ class WebBuddyPlugin < BBLComponent
     end
   end
   
-  def load_view
+  def load_view(h1 = ->{})
     # self.write_data
 
     pe_log "loading plugin #{self}"
@@ -58,7 +58,7 @@ class WebBuddyPlugin < BBLComponent
       end
 
     self.client.plugin_vc.load_url urls, success_handler: -> url {
-      yield if block_given?
+      h1.call
     }
     # , ignore_history: true
   end
@@ -78,7 +78,9 @@ class WebBuddyPlugin < BBLComponent
     self.client.plugin_vc.frame_view.visible = false
   end
   
-  def update_data(data)
+  def update_data(data = nil)
+    data ||= self.data
+
     pe_log "updating data, keys: #{data.keys}"
 
     self.client.plugin_vc.web_view.delegate.send %(
