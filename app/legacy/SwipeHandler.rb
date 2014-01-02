@@ -14,12 +14,24 @@ class SwipeHandler < BBLComponent
 
 		superview = self.client.view
 		
+		# prep the overlay.
 		@animation_overlay = NSView.alloc.initWithFrame(superview.bounds)
 		@animation_overlay.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
 		@animation_overlay.layer = CALayer.layer
 		@animation_overlay.wantsLayer = true
 
 		superview.add_view @animation_overlay
+
+		# prep the layers.
+		@bottom_layer = CALayer.layer
+		@bottom_layer.bounds = @animation_overlay.bounds
+		@bottom_layer.position = @animation_overlay.center
+		@animation_overlay.layer.addSublayer(@bottom_layer)
+
+		@top_layer = CALayer.layer
+		# top layer position will be animated.
+		@top_layer.bounds = @animation_overlay.bounds
+		@animation_overlay.layer.addSublayer(@top_layer)
 	end
 	
 	def add_client_methods
@@ -81,8 +93,7 @@ class SwipeHandler < BBLComponent
 		
 		@animation_overlay.visible = true  ## DEV
 		
-		bottom_layer = CALayer.layer
-		top_layer = CALayer.layer
+		# track some state over successive lambda invocations.
 		original_page_x = nil
 		direction = nil
 		
@@ -98,37 +109,34 @@ class SwipeHandler < BBLComponent
 			case phase
 			when NSEventPhaseBegan
 				pe_log "gesture began."
-					
+				
 				direction = ( gestureAmount < 0 ? :Forward : :Back )
 				@direction = direction
+
+
+				# # bail out if we can't perform.
+				# return unless client.can_navigate @direction
 
 				ca_immediately {
 					case direction
 					when :Forward
-						bottom_layer.contents = client.current_page_image
+						@bottom_layer.contents = client.current_page_image
 
-						top_layer.contents = client.forward_page_image
+						@top_layer.contents = client.forward_page_image
 						# top layer offset 1 page to the right
-						top_layer.position = NSMakePoint(@animation_overlay.center.x + @animation_overlay.bounds.size.width, @animation_overlay.center.y)
+						@top_layer.position = NSMakePoint(@animation_overlay.center.x + @animation_overlay.bounds.size.width, @animation_overlay.center.y)
 
 					when :Back
-						bottom_layer.contents = client.back_page_image
+						@bottom_layer.contents = client.back_page_image
 
-						top_layer.contents = client.current_page_image
-						top_layer.position = @animation_overlay.center
+						@top_layer.contents = client.current_page_image
+						@top_layer.position = @animation_overlay.center
 
 					end
 
-					bottom_layer.bounds = @animation_overlay.bounds
-					bottom_layer.position = @animation_overlay.center
-					@animation_overlay.layer.addSublayer(bottom_layer)
-
-					# it's all about animating the top layer
-					top_layer.bounds = @animation_overlay.bounds
-					@animation_overlay.layer.addSublayer(top_layer)
 				}
 					
-				original_page_x = top_layer.position.x
+				original_page_x = @top_layer.position.x
 
 				# perform the paging early.
 				self.navigate_web_view
@@ -156,7 +164,7 @@ class SwipeHandler < BBLComponent
 			# at 0 the final position should exactly the same as the original position.
 			# at 1 the final position should be exactly 1 page to the right.
 			ca_immediately {
-				top_layer.position = NSMakePoint(original_page_x + (gestureAmount * @animation_overlay.frame.size.width), top_layer.position.y)
+				@top_layer.position = NSMakePoint(original_page_x + (gestureAmount * @animation_overlay.frame.size.width), @top_layer.position.y)
 			}
 				
 			if isComplete
@@ -166,9 +174,7 @@ class SwipeHandler < BBLComponent
 				# reset overlay state
 				# FIXME keep overlay in place until browserVC finishes load.
 				@animation_overlay.visible = false if @swipe_handler_count == 0
-				top_layer.removeFromSuperlayer
-				bottom_layer.removeFromSuperlayer
-					
+
 			end
 
 		}
@@ -176,6 +182,8 @@ class SwipeHandler < BBLComponent
 		swipe_handler
 	end
 
+	#= grammar for navigation.
+	
 	def navigate_web_view( direction = @direction )
 		# this could potentially take time; clients should call as early as possible.
 		on_main_async do
@@ -186,11 +194,10 @@ class SwipeHandler < BBLComponent
 				client.handle_back(self)
 			end
 		end
-
 	end
 	
 	def opposite_direction( direction )
 	  direction == :Forward ? :Back : :Forward
 	end
-	
+
 end
