@@ -558,10 +558,6 @@ class BrowserWindowController < NSWindowController
 			provisional: false,
 			thumbnail: @thumbnail
 
-			# very hackily attach the thumbnail to the history item for the current impl of swipe handler to use.
-			# FIXME thumbnails not appropriate for paging since they always show top of page. replace with another construct.
-			@browser_vc.web_view.backForwardList.currentItem.thumbnail = @thumbnail
-
 
 		# TODO consider invoking update_item here.
 
