@@ -3,11 +3,13 @@ class FilteringPlugin < WebBuddyPlugin
   include Reactive
 
   def on_setup
+    self.load_view do
+      self.update_data self.data
+    end
+
     @filter_reaction = react_to 'client.input_field_vc.current_filter' do |input|
       on_input input if input
     end
-
-    self.load_view
   end
 
   def on_input input
@@ -21,10 +23,8 @@ class FilteringPlugin < WebBuddyPlugin
 
   def update_input input
     @input = input
-    self.client.plugin_vc.web_view.delegate.send %(
-      window.webbuddy_data.input = #{input.to_json};
-      window.webbuddy_data_updated();  // will throw if callback 
-    )
+    
+    update_data input:@input
   end
 
   #=

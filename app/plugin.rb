@@ -78,13 +78,11 @@ class WebBuddyPlugin < BBLComponent
     self.client.plugin_vc.frame_view.visible = false
   end
   
-  def update_data
-    data = self.data
+  def update_data(data)
     pe_log "updating data, keys: #{data.keys}"
 
     self.client.plugin_vc.web_view.delegate.send %(
-      window.webbuddy_data = #{self.data.to_json};
-      window.webbuddy_data_updated();  // will throw if callback 
+      window.webbuddy.on_data(#{data.to_json}); 
     )
   end
 
