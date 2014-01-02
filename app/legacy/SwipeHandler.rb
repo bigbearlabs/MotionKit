@@ -92,33 +92,25 @@ class SwipeHandler < BBLComponent
 		# set up overlay and per-lambda state
 		
 		@animation_overlay.visible = true  ## DEV
-		
-		# track some state over successive lambda invocations.
-		original_page_x = nil
-		direction = nil
-		
-		@swipe_handler_count ||= 0
-		@swipe_handler_count += 1
-		pe_log "swipe count: #{@swipe_handler_count}"
-
-		event_cancelled = false
-
+				
 		swipe_handler = lambda { |gestureAmount, phase, isComplete, stop|
 			pe_debug "swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop}, #{stop[0]}"
 
 			case phase
 			when NSEventPhaseBegan
 				pe_log "gesture began."
-				
-				direction = ( gestureAmount < 0 ? :Forward : :Back )
-				@direction = direction
-
-
+		
 				# # bail out if we can't perform.
 				# return unless client.can_navigate @direction
+		
+				@swipe_handler_count ||= 0
+				@swipe_handler_count += 1
+				pe_log "swipe count: #{@swipe_handler_count}"
+
+				@direction = ( gestureAmount < 0 ? :Forward : :Back )
 
 				ca_immediately {
-					case direction
+					case @direction
 					when :Forward
 						@bottom_layer.contents = client.current_page_image
 
@@ -133,10 +125,9 @@ class SwipeHandler < BBLComponent
 						@top_layer.position = @animation_overlay.center
 
 					end
-
 				}
 					
-				original_page_x = @top_layer.position.x
+				@original_page_x = @top_layer.position.x
 
 				# perform the paging early.
 				self.navigate_web_view
@@ -145,9 +136,12 @@ class SwipeHandler < BBLComponent
 			when NSEventPhaseCancelled
 				# when gesture didn't exceed threshold
 					
+				# # bail out if we can't perform.
+				# return unless client.can_navigate @direction
+
 				pe_log "event cancel phase detected in scroll event handler"
 	
-				event_cancelled = true
+				@event_cancelled = true
 
 				# animations are handled by further handler invocations -- nothing to implement here.
 
@@ -159,12 +153,15 @@ class SwipeHandler < BBLComponent
 				pe_log "event phase ended"
 			end
 
+			# # bail out if we can't perform.
+			# return unless client.can_navigate @direction
+
 			# apply page offset rendering.
 			# -1 <= normalised offset <= 1. 
 			# at 0 the final position should exactly the same as the original position.
 			# at 1 the final position should be exactly 1 page to the right.
 			ca_immediately {
-				@top_layer.position = NSMakePoint(original_page_x + (gestureAmount * @animation_overlay.frame.size.width), @top_layer.position.y)
+				@top_layer.position = NSMakePoint(@original_page_x + (gestureAmount * @animation_overlay.frame.size.width), @top_layer.position.y)
 			}
 				
 			if isComplete
@@ -183,7 +180,7 @@ class SwipeHandler < BBLComponent
 	end
 
 	#= grammar for navigation.
-	
+
 	def navigate_web_view( direction = @direction )
 		# this could potentially take time; clients should call as early as possible.
 		on_main_async do
