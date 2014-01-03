@@ -37,7 +37,7 @@ class WebBuddyPlugin < BBLComponent
     case env
     when :DEV
       
-      default(:plugin_view_template).gsub /#\{.*?\}/, name  # DEV works with grunt server in webbuddy-modules
+      default(:plugin_view_template).gsub /#\{.*?\}/, name  # DEV works with 'grunt server' in webbuddy-modules
     else
       plugin_dir = "plugin"
       module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
@@ -45,7 +45,7 @@ class WebBuddyPlugin < BBLComponent
     end
   end
   
-  def load_view(h1 = ->{})
+  def load_view
     # self.write_data
 
     pe_log "loading plugin #{self}"
@@ -58,7 +58,7 @@ class WebBuddyPlugin < BBLComponent
       end
 
     self.client.plugin_vc.load_url urls, success_handler: -> url {
-      h1.call
+      self.update_data
     }
     # , ignore_history: true
   end
@@ -84,7 +84,9 @@ class WebBuddyPlugin < BBLComponent
     pe_log "updating data, keys: #{data.keys}"
 
     self.client.plugin_vc.web_view.delegate.send %(
-      window.webbuddy.on_data(#{data.to_json}); 
+      setTimeout( function() {
+        window.webbuddy.on_data(#{data.to_json}); 
+      }, 0);
     )
   end
 

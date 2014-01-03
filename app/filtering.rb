@@ -2,23 +2,29 @@
 class FilteringPlugin < WebBuddyPlugin
   include Reactive
 
+  attr_accessor :context_store
+
   def on_setup
+
     @filter_reaction = react_to 'client.input_field_vc.current_filter' do |input|
       on_input input if input
     end
 
-    @update_delta_reaction = react_to 'client.stack', 'client.stack.pages' do
-      pe_log "reacting to stack / page update."
+    @update_stack_reaction = react_to 'client.stack.pages' do
       update_data searches_delta: data_searches( [ self.client.stack ])
     end
+
+    # FIXME triggers the nil ivars issue.
+    @update_stacks_reaction = react_to 'context_store.stacks' do
+      new_stacks = @context_store.stacks - @previous_stacks.to_a
+      @previous_stacks = new_stacks
+
+      update_data searches_delta: data_searches( new_stacks )
+    end
+
+    load_view
   end
 
-  def load_view
-    super -> {
-      self.update_data
-    }
-  end
-  
   def on_input input
     # HACK work around lack of navigability constraint.
     self.load_view unless view_loaded? 
