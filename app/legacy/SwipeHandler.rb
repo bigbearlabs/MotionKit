@@ -91,7 +91,6 @@ class SwipeHandler < BBLComponent
 		
 		# set up overlay and per-lambda state
 		
-				
 		swipe_handler = lambda { |gestureAmount, phase, isComplete, stop|
 			pe_debug "swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop}, #{stop[0]}"
 
