@@ -8,6 +8,7 @@ class FilteringPlugin < WebBuddyPlugin
     end
 
     @update_delta_reaction = react_to 'client.stack', 'client.stack.pages' do
+      pe_log "reacting to stack / page update."
       update_data searches_delta: data_searches( [ self.client.stack ])
     end
   end
@@ -93,7 +94,7 @@ class FilteringPlugin < WebBuddyPlugin
     # quickly hack out a union of all items
     all_items = @context_store.stacks.map(&:items).flatten.uniq
 
-    all_items.sort_by {|e| e.last_accessed_timestamp.to_s}.reverse.map do |item|
+    all_items.map do |item|
       {
         name: item.title,
         url: item.url,
