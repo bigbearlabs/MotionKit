@@ -8,10 +8,7 @@ class FilteringPlugin < WebBuddyPlugin
     end
 
     @update_delta_reaction = react_to 'client.stack', 'client.stack.pages' do
-      update_data searches_delta: {
-        key: :name,
-        data: data_stack(self.client.stack)
-      }
+      update_data searches_delta: data_searches( [ self.client.stack ])
     end
   end
 
@@ -61,9 +58,11 @@ class FilteringPlugin < WebBuddyPlugin
   end
 
   def data_searches( stacks = @context_store.stacks )
-    stacks.sort_by {|e| e.last_accessed_timestamp.to_s}.reverse.map do |stack|
+    stacks_data = stacks.sort_by {|e| e.last_accessed_timestamp.to_s}.reverse.map do |stack|
       data_stack stack
     end
+
+    Hash[ stacks_data.map {|e| [ e[:name], e ]} ]
   end
 
   def data_stack( stack )
