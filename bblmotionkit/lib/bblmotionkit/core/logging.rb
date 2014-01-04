@@ -18,7 +18,11 @@ module Logging
 		Log.info msg.to_s
 	end
   
-	def pe_warn( msg )
+	def pe_warn( msg, options = {})
+      if options[:ticket]
+        # TODO show message with ticket reporting url.
+      end
+
 			Log.warn msg.to_s
 	end
 

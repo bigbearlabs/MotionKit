@@ -9,23 +9,29 @@ class Context
 
   attr_accessor :name
   
+  attr_reader :pages
+  # TODO
+  attr_reader :highlights
+  attr_reader :memos
+  attr_reader :suggestions
+  
   attr_accessor :filter_tag # for array controller filtering
 
-  def history_items
-    @history_items.dup.freeze
+  def items
+    @pages.dup.freeze
   end
   
   # work around RM attr_reader - objc incompatibility.
-  def current_history_item
-    @current_history_item
+  def current_page
+    @current_page
   end
 
-  def initialize( name = "Unnamed context #{self.name_suffix_sequence}", history_items = [])
+  def initialize( name = "Unnamed context #{self.name_suffix_sequence}", pages = [])
     super
 
     @name = name
 
-    @history_items = history_items
+    @pages = pages
 
     @sites ||= {}
   end
@@ -37,37 +43,44 @@ class Context
     pe_debug "detail update requested for #{url}"
     
     # set details on the item.
-    history_item = self.item_for_url url
+    item = self.item_for_url url
     
     # NOTE this seems to happen with shortened url's involving client redirects.
     # CASE https://www.evernote.com/shard/s5/sh/aa05b207-8c98-4b9a-9a7d-9fd5d1d121fe/94d032b0b430fe228820e7347be974a8
     # for now, be a bit generous and watch what happens.
-    if history_item.nil?
+    if item.nil?
       pe_warn "#{url} not found on #update_detail."
 
       # add the access first and check again.
       self.add_access url, details
-      history_item = self.item_for_url url
-      if history_item.nil?
+      item = self.item_for_url url
+      if item.nil?
         raise "#{url} not found in history after falling back and adding to history."
       end
     end
     
     details.each do |k,v|
-      history_item.invoke_setter k, v
+      item.invoke_setter k, v
 
       # additional actions      
       if k == :thumbnail
         # mark for saving
-        history_item.thumbnail_dirty = true
+        item.thumbnail_dirty = true
 
-        pe_log "marked #{history_item} as thumbnail_dirty"
+        pe_log "marked #{item} as thumbnail_dirty"
       end
     end
   end
   
-  def update_history_item( url, history_item )
+  def update_item( url, history_item )
     item_container = self.item_for_url url
+
+    # defensively deal with nil for now.
+    if item_container.nil?
+      pe_warn "nil item for #{url} -- investigate.", ticket: true
+      item_container = ItemContainer.from_hash({})
+    end
+
     unless item_container.history_item.object_id == history_item.object_id
       pe_warn "replacing #{item_container.history_item} with #{history_item}"
       item_container.history_item = history_item
@@ -87,12 +100,12 @@ class Context
 #==
 
   def current_url_match?( url )
-    self.current_history_item && self.current_history_item.match_url?( url )
+    self.current_page && self.current_page.match_url?( url )
   end
 
 
   def item_for_url( url )
-    items = self.history_items.select do |item|
+    items = self.items.select do |item|
       item.match_url? url
     end
     
@@ -102,7 +115,7 @@ class Context
     else
       pe_warn "multiple items match #{url} - investigate."
       # items[0..-2].each do |item|
-      #   self.remove_history_item item
+      #   self.remove_item item
       # end
       return items[0]
     end
@@ -118,10 +131,6 @@ class Context
 
   ##
 
-  def history_count
-    self.history_items.size
-  end
-
 #=
 
   def add_item( history_item )
@@ -132,22 +141,22 @@ class Context
       debug history_item.url, history_item, self
     end
 
-    kvo_change_bindable :history_items do
-      @history_items << history_item
-      self.update_current_history_item
+    kvo_change_bindable :pages do
+      @pages << history_item
+      self.update_current_page
     end
   end
   
-  def remove_history_item( history_item_or_a )
-    history_item_or_a = [ history_item_or_a ] unless history_item_or_a.is_a? Array
+  def remove_item( item_or_a )
+    item_or_a = [ item_or_a ] unless item_or_a.is_a? Array
 
-    kvo_change_bindable :history_items do
-      history_item_or_a.map do |item|
-        index = @history_items.index(item)
+    kvo_change_bindable :items do
+      item_or_a.map do |item|
+        index = @pages.index(item)
 
         raise "item #{item} not found in #{self}" if index.nil?
 
-        @history_items.delete_at index
+        @pages.delete_at index
       end
     end
   end
@@ -159,13 +168,13 @@ class Context
     items.map do |item|
       if item.url.nil?
         pe_log "remove item with nil url: #{item}"
-        self.remove_history_item item
+        self.remove_item item
       end
       
       dups = item_a.select{|e| e.match_url? item}[1..-1].to_a
       dups.map do |dup|
         pe_log "remove dup history items: #{dups.map &:url}"
-        self.remove_history_item matching[1..-1].to_a
+        self.remove_item matching[1..-1].to_a
       end
     end      
   end
@@ -173,18 +182,18 @@ class Context
 #=
 
   def back_item
-    current_item_index = self.index_of_item(@current_history_item)
+    current_item_index = self.index_of_item(@current_page)
     if current_item_index && current_item_index > 0
-      self.history_items[current_item_index - 1]
+      self.pages[current_item_index - 1]
     else
       nil
     end
   end
 
   def forward_item
-    current_item_index = self.index_of_item(@current_history_item)
-    if current_item_index && current_item_index <= self.history_count - 1
-      self.history_items[current_item_index + 1]
+    current_item_index = self.index_of_item(@current_page)
+    if current_item_index && current_item_index <= self.pages.size - 1
+      self.pages[current_item_index + 1]
     else
       nil
     end
@@ -193,7 +202,7 @@ class Context
   ##
 
   def history_data
-    items_data = self.history_items.map do |item|
+    items_data = self.items.map do |item|
       pe_log "item is nil at index #{i} - what's going on?" unless item
 
       item.to_hash.dup
@@ -203,12 +212,6 @@ class Context
     items_data
   end
 
-  def history_links
-    self.history_items.map do |item|
-      item.url
-    end
-  end
-  
   def load_items(items_to_load )
     items_to_load.each do |item|
       self.add_item item
@@ -243,12 +246,12 @@ class Context
     self.add_site Site.new(site_name, site_base_url, site_search_url)
   end
   
-  def site_for( history_item_or_url )
-    case history_item_or_url
+  def site_for( item_or_url )
+    case item_or_url
     when String
-      url = history_item_or_url
+      url = item_or_url
     else
-      url = history_item_or_url.url
+      url = item_or_url.url
     end
     
     @sites[url.to_base_url]
@@ -259,8 +262,8 @@ class Context
   end
   
   def current_site
-    return nil if ! self.current_history_item
-    self.site_for self.current_history_item
+    return nil if ! self.current_page
+    self.site_for self.current_page
   end
   
   def current_site_defined
@@ -268,8 +271,8 @@ class Context
   end
   
   def new_site
-    history_item = self.current_history_item
-    site = Site.new(history_item.title, history_item.url.to_base_url, '')
+    page = self.current_page
+    site = Site.new(page.title, page.url.to_base_url, '')
     
     self.add_site site
     
@@ -307,26 +310,35 @@ class Context
   def to_hash
     { 
       'name' => self.name, 
-      'items' => self.history_items.map(&:to_hash), 
-      'sites' => self.site_data,
+      'pages' => @pages.map(&:to_hash), 
+      # disabling unused stuff for agile core data modeling.
+      # 'sites' => self.site_data,
     }
   end
 
 #==
 
   def last_accessed_timestamp
-    ts = self.history_items.map(&:last_accessed_timestamp).max
+    ts = self.items.map(&:last_accessed_timestamp).map do |timestamp|
+      if timestamp.nil?
+        NilTime
+      elsif timestamp.is_a? String
+        Time.cached_date_formatter('yyyy-MM-dd HH:mm:ss ZZZZZ').dateFromString(timestamp)
+      else
+        timestamp
+      end
+    end.max
     ts or NilTime
   end
 
 
 protected
 
-    attr_writer :current_history_item
+    attr_writer :current_page
 
-    def update_current_history_item( history_item = self.history_items.last )
-      kvo_change_bindable :current_history_item do
-        @current_history_item = history_item
+    def update_current_page( page = self.pages.last )
+      kvo_change_bindable :current_page do
+        @current_page = page
       end
     end
     
@@ -344,7 +356,7 @@ protected
         'url' => url,
         'title' => url,
         'pinned' => false,
-        'timestamp' => NSDate.date.to_s,
+        'timestamp' => NSDate.date,
       })
       item_container.filter_tag = item_container.timestamp
 
@@ -354,17 +366,17 @@ protected
 
       # self.handle_pinning item_container
       
-      pe_debug "context.current_item: #{self.current_history_item.description}"
+      pe_debug "context.current_item: #{self.current_page.description}"
     end
     
     def update_access( url, details = {} )
       pe_debug "update_access: #{caller}"
 
       item = item_for_url url
-      item.last_accessed_timestamp = NSDate.date.to_s
+      item.last_accessed_timestamp = NSDate.date
       item.filter_tag = item.timestamp
 
-      self.update_current_history_item item
+      self.update_current_page item
 
       self.update_detail url, details
     end
@@ -381,13 +393,16 @@ class ItemContainer
   
   # other properties
   attr_accessor :thumbnail
-  attr_accessor :pinned
-  attr_accessor :enquiry
   attr_accessor :timestamp  # first encountered
-  attr_accessor :pinned_timestamp
   attr_accessor :last_accessed_timestamp
   
   attr_accessor :redirect_info
+
+  # incubating
+  attr_accessor :enquiry
+  attr_accessor :pinned
+  attr_accessor :pinned_timestamp
+  
   
   attr_accessor :filter_tag
   
@@ -434,7 +449,7 @@ class ItemContainer
   def add_redirect( redirect_info )
     kvo_change :redirect_info do
       @redirect_info ||= []
-      @redirect_info.concat redirect_info
+      @redirect_info << redirect_info unless @redirect_info.include? redirect_info
       
       pe_log "added #{redirect_info} to #{self}"
     end
@@ -521,8 +536,8 @@ class ItemContainer
   
     o2 = ItemContainer.new(o)
     o2.pinned = item_data['pinned'] # IMPROVE write some kind of serialisation spec to avoid noddy sets like this one
-    o2.timestamp = item_data['timestamp'].to_s
-    o2.last_accessed_timestamp = item_data['last_accessed_timestamp'].to_s
+    o2.timestamp = item_data['timestamp']
+    o2.last_accessed_timestamp = item_data['last_accessed_timestamp']
     o2.enquiry = item_data['enquiry']
     
     o2
@@ -576,4 +591,4 @@ end
 
 
 # TODO check if this is an appropriate stand-in value.
-NilTime = Time.new(0).to_s
+NilTime = Time.new(0)

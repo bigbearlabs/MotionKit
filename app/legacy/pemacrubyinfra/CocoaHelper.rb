@@ -392,6 +392,12 @@ class NSDictionary
 end
 
 
+class NSSet
+  def to_a
+    self.allObjects
+  end
+end
+
 class NSTimer
   def self.new_timer( interval, &action )
     action_holder = ProcRunner.new -> {

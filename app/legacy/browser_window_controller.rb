@@ -1,3 +1,8 @@
+# for BBLWebViewDelegate backwards compatibility after refactor.
+
+class WebViewDelegate < BBLWebViewDelegate
+end
+
 class BrowserWindowController < NSWindowController
 	include ComponentClient
 	include SheetHandling
@@ -94,10 +99,16 @@ class BrowserWindowController < NSWindowController
 
 		pe_log "#{self} synchronous setup complete."
 
+		# asynchronously set up the rest, for more responsive windows.
 		on_main_async do
 			# populate model's redirections 
-			@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |args|
-				self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections if self.stack
+			@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
+				# self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections  
+				from_url = redirections[0]
+				current_url = browser_vc.web_view_delegate.url
+				(redirections[1..-1] << current_url).map do |redirection|
+					self.stack.add_redirect from_url, redirection
+				end
 			end
 
 			@browser_vc.web_view.make_first_responder 
@@ -178,7 +189,8 @@ class BrowserWindowController < NSWindowController
 
 	def setup_reactive_title_bar
 		react_to 'browser_vc.web_view_delegate.state' do |new_state|
-			pe_log "state changed to #{new_state}"
+			url = @browser_vc.web_view.url
+			pe_log "state changed to #{new_state}. url: #{url}"
 			self.title = @browser_vc.web_view_delegate.title
 		end
 
@@ -209,7 +221,7 @@ class BrowserWindowController < NSWindowController
 		react_to 'browser_vc.web_view_delegate.state' do |new_state|
 			# update the WebHistoryItem
 			if new_state == :loaded
-				self.stack.update_history_item @browser_vc.web_view_delegate.url, @browser_vc.web_view.current_history_item if self.stack
+				self.stack.update_item @browser_vc.web_view_delegate.url, @browser_vc.current_history_item if self.stack
 			end
 		end
 	end
@@ -542,7 +554,7 @@ class BrowserWindowController < NSWindowController
 			provisional: false,
 			thumbnail: @browser_vc.view.image
 
-		# TODO consider invoking update_history_item here.
+		# TODO consider invoking update_item here.
 
 		# PERF?
 		( @update_throttle ||= Object.new ).delayed_cancelling_previous 0.5, -> { 
@@ -583,7 +595,7 @@ class BrowserWindowController < NSWindowController
 
 			self.stack.update_detail @browser_vc.url, details
 		else
-			pe_log "#{self} has no stack. not adding"
+			raise "#{self} has no stack. "
 		end
 	end
 
@@ -802,11 +814,11 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def last_url
-		unless self.stack.history_items.last
+		unless self.stack.pages.last
 			raise 'history_empty'
 		end
 
-		self.stack.history_items.last.url
+		self.stack.pages.last.url
 	end
 
 ## would like to factor shit out like this but will it cause startup performance issues?
