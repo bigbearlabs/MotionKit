@@ -141,7 +141,7 @@ namespace :modules do
   desc "copy resources"
   task :cprsc => [] do
     FileUtils.mkdir_p 'resources/plugin'
-    FileUtils.cp_r Dir.glob("#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview/modules/*"), 'resources/plugin', verbose:true
+    sh %Q(rsync -avvv --delete ~/'Google Drive'/bigbearlabs/webbuddy-preview/modules/* resources/plugin/)
   end
 
   desc "build and copy modules"
@@ -177,5 +177,5 @@ namespace :release do
   # TODO revert version
 
   desc "archive, zip, rsync, version, release"
-  task :all => [ :'modules:all', :increment, :'archive:distribution', :zip, :commit_version ]
+  task :all => [ :'modules:cprsc', :increment, :'archive:distribution', :zip, :commit_version ]
 end
