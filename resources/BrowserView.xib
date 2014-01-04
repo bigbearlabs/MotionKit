@@ -7,7 +7,6 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="BrowserViewController">
             <connections>
-                <outlet property="find_bar_container" destination="50" id="54"/>
                 <outlet property="view" destination="4" id="7"/>
                 <outlet property="web_view" destination="38" id="44"/>
                 <outlet property="web_view_delegate" destination="55" id="56"/>
@@ -22,7 +21,9 @@
                 <webView id="38">
                     <rect key="frame" x="0.0" y="0.0" width="397" height="314"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                    <webPreferences key="preferences" defaultFontSize="16" defaultFixedFontSize="13" minimumFontSize="12" javaScriptCanOpenWindowsAutomatically="NO"/>
+                    <webPreferences key="preferences" defaultFontSize="16" defaultFixedFontSize="13" minimumFontSize="12" javaScriptCanOpenWindowsAutomatically="NO">
+                        <nil key="identifier"/>
+                    </webPreferences>
                     <connections>
                         <outlet property="UIDelegate" destination="55" id="58"/>
                         <outlet property="frameLoadDelegate" destination="55" id="61"/>
@@ -52,7 +53,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="53">
-                        <rect key="frame" x="380" y="1" width="16" height="34"/>
+                        <rect key="frame" x="381" y="1" width="15" height="34"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                 </scrollView>

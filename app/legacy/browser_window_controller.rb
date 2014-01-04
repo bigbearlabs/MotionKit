@@ -93,9 +93,9 @@ class BrowserWindowController < NSWindowController
 
 		self.window_title_mode = :title
 
-		@browser_vc.setup context_store: @context_store
-
 		@plugin_vc.setup( {} )			
+
+		@browser_vc.setup context_store: @context_store
 
 		pe_log "#{self} synchronous setup complete."
 
@@ -660,16 +660,6 @@ class BrowserWindowController < NSWindowController
 			proposedMax
 		end
 	end
-
-#= find
-
-	def performTextFinderAction(sender)
-		pe_debug "#{sender} invoked text finder action"
-		
-		send_notification :Text_finder_notification, sender
-	end
-
-	# TODO find action validation
 
 #= browser activity control
 

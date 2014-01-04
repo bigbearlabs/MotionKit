@@ -1,7 +1,17 @@
-class BrowserViewController
+# NOTE text finder responder behaviour can break when multiple BrowserViewControllers are used in the same window.
+# the vc that's set up later will 'win' the text finder.
+class BrowserViewController 
 
+  def toggle_find
+    if find_shown
+      pe_log 'TODO hide find field'
+    else
+      send_notification :Text_finder_notification, sender
+    end
+  end
+  
 
-  # invokes a js snippet that finds the text.
+  # unused.
   def handle_Find_request_notification(notification)
     input_string = notification.userInfo
 
@@ -14,7 +24,8 @@ class BrowserViewController
   def find_string( string )
     first_responder = self.view.window.firstResponder
     @web_view.searchFor(string, direction:(@find_direction != :back), caseSensitive:false, wrap:true)
-    first_responder.make_first_responder
+    # first_responder.
+
   end
 
   # js version using window.find
@@ -25,70 +36,100 @@ class BrowserViewController
 
   # js version with jquery
   def find_string( string )
-    js = "jQuery.searchText($(), '#{string}', $('body'), null)"
+    js = "jQuery.searchText($(), '#{string}', $('body'), null);"
     result = self.eval_js js
   end
 
-#= the 10.7 standard find mechanism
+
+#= system integration: osx text finder
 
   def setup_text_finder
+    # wire webview's scroll view as find bar container.
+    scroll_view = @web_view.views_where {|e| e.is_a? NSScrollView}.flatten.first
+    @find_bar_container = scroll_view
+
     @text_finder ||= NSTextFinder.alloc.init
     @text_finder.client = self
     @text_finder.incrementalSearchingEnabled = true
-    
     @text_finder.findBarContainer = @find_bar_container
+
+    # observe system property indicating find feature activation. provided by the scroll view.
     observe_kvo @find_bar_container, :findBarVisible do |obj, change, context|
       @action_type = nil # duped, ugh.
       
       pe_log "TODO clear search highlights"
-      
+
       self.refresh_find_bar_container
     end
     
     self.refresh_find_bar_container
   end
 
+  def refresh_find_bar_container
+    # if ! @action_type
+    #   @find_bar_container.visible = false
+    #   @web_view.frameSize = self.view.frameSize
+    # else
+    #   @find_bar_container.visible = true
+    #   @find_bar_container.frame = @find_bar_container.frame.modified_frame(find_bar_container.findBarView.frameSize.height + 1, :Top )
+
+    #   @web_view.frame = @web_view.frame.modified_frame( self.view.frameSize.height - @find_bar_container.frameSize.height - 1, :Bottom )
+    # end
+  end
+  
   def handle_Text_finder_notification(notification)
     sender = notification.userInfo
-    tag = sender.tag
+    if sender.respond_to? :tag
+      tag = sender.tag 
+    else
+      # default to the show find.
+      tag = NSTextFinderActionShowFindInterface
+    end
     
     pe_log "tag from #{sender}: #{tag}"
-    
-    @text_finder.performAction(tag)
     
     # based on the tag, instruct webview to perform the right kind of search.
     case tag
     when NSTextFinderActionShowFindInterface
-      pe_log "show interface"
+      pe_log "find: show interface"
       @action_type = :start_find
       
       self.load_js_lib
       
       self.refresh_find_bar_container
 
+      # # make it the first responder. FIXME on startup, something else snatches back first responder status.
+      # if @find_bar_container.isFindBarVisible      
+      #   (@responder_change_throttle ||= Object.new).delayed_cancelling_previous 0.5, -> {
+      #     @text_finder.search_field.make_first_responder
+      #   }
+      # end
+      
     when NSTextFinderActionNextMatch
-      pe_log "next match"
+      pe_log "find: next match"
       @action_type = :next_match
       
       string = @text_finder.search_field.stringValue
       self.find_string string
       
     when NSTextFinderActionPreviousMatch
-      pe_log "previous match"
+      pe_log "find: previous match"
       @action_type = :previous_match
       
       string = @text_finder.search_field.stringValue
       self.find_string string
       
     when NSTextFinderActionHideFindInterface
-      pe_log "hide interface"
+      pe_log "find: hide interface"
       @action_type = nil
 
-      self.refresh_find_bar_container
+      # self.refresh_find_bar_container
     end
-  end
 
-#= NSTextFinder
+    pe_warn "windows on find: #{@find_bar_container.window.responder_chain}"
+    # pass on to the text finder.
+    @text_finder.performAction(tag)
+  end
 
   def string
     pe_log "string request"
@@ -148,29 +189,41 @@ class BrowserViewController
     
     @find_bar_container.findBarVisible = false
   end
-  
-  def refresh_find_bar_container
-    if ! @action_type
-      @find_bar_container.visible = false
-      @web_view.frameSize = self.view.frameSize
-    else
-      @find_bar_container.visible = true
-      @find_bar_container.frame = @find_bar_container.frame.modified_frame(find_bar_container.findBarView.frameSize.height + 1, :Top )
-
-      @web_view.frame = @web_view.frame.modified_frame( self.view.frameSize.height - @find_bar_container.frameSize.height - 1, :Bottom )
-    end
-  end
-  
-
 end
 
 
+
+#= system integration: responder chain
+
+class WebBuddyAppDelegate
+  # when input field is first responder, unwanted menu validation early in the responder chain disables the find menu item. work around.
+  def performTextFinderAction(sender)
+    pe_debug "#{sender} invoked text finder action"
+    
+    send_notification :Text_finder_notification, sender, wc.browser_vc
+  end
+end
 
 #=
 
 class NSTextFinder
   def search_field
-    findBarContainer.findBarView.views_where {|v| v.kind_of? NSFindPatternSearchField }.flatten.first
+    self.findBarContainer.findBarView.views_where {|v| v.kind_of? NSFindPatternSearchField }.flatten.first
   end
 end
 
+
+# special case for making an NSTextField the first responder.
+class NSTextField
+  def field_editor
+    currentEditor
+  end
+  
+  def make_first_responder
+    if (field_editor = self.field_editor)
+      self.window.makeFirstResponder(field_editor)
+    else
+      super
+    end
+  end
+end

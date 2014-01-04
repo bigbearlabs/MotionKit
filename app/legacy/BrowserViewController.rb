@@ -116,7 +116,7 @@ class BrowserViewController < PEViewController
 		setup_scroll_tracking
 
 		watch_notification :Find_request_notification
-		watch_notification :Text_finder_notification
+		watch_notification :Text_finder_notification, self
 		watch_notification :Url_load_finished_notification
 					
 		self.setup_text_finder
