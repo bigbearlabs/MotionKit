@@ -18,7 +18,7 @@ class RubyEvalPlugin < WebBuddyPlugin
      @input = input
      @output = do_eval input
 
-     update_data
+     update_data self.data
   end 
 
   def do_eval( expr )
