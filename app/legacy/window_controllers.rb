@@ -42,7 +42,7 @@ class ViewerWindowController < BrowserWindowController
 				end
 			end
 
-			react_to 'browser_vc.event' do |new_val|
+			react_to 'browser_vc.scroll_event' do |new_val|
 				if new_val
 					self.hide_toolbar
 				end

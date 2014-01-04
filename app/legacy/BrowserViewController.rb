@@ -20,13 +20,9 @@ class BrowserViewController < PEViewController
 	attr_accessor :nav_buttons
 	
 	attr_accessor :find_bar_container
-	attr_accessor :swipe_handler
-	
+
 	attr_accessor :web_view_delegate
 	
-	# view-model
-	attr_accessor :event  # last user-facing user agent event.
-
 	def components
 	  [
 	  	{
@@ -35,6 +31,9 @@ class BrowserViewController < PEViewController
 					web_view: @web_view
 				},
 	  	},
+	  	{
+	  		module: SwipeHandler
+	  	}
 	  ]
 	end
 
@@ -114,6 +113,8 @@ class BrowserViewController < PEViewController
 		
 		@web_view_delegate.setup
 		
+		setup_scroll_tracking
+
 		watch_notification :Find_request_notification
 		watch_notification :Text_finder_notification
 		watch_notification :Url_load_finished_notification
@@ -321,7 +322,7 @@ class BrowserViewController < PEViewController
 	end
 
 	def current_page_image
-		self.history_stack.current_item ? self.history_stack.current_history_item.thumbnail : NSImage.stub_image
+		self.history_stack.current_item ? self.history_stack.current_item.thumbnail : NSImage.stub_image
 	end
 
 	def forward_page_image
@@ -368,26 +369,24 @@ class BrowserViewController < PEViewController
 		@web_view.goToBackForwardItem( selected_cell.historyItem )
 	end
 	
-#= gesture handling integration
 
-	def setup_swipe_handler
-		@animation_overlay = NSView.alloc.initWithFrame(self.view.bounds)
+#= scroll tracking.
+
+	attr_reader :scroll_event
+
+	def setup_scroll_tracking
+		scroll_view = @web_view.views_where {|e| e.is_a? NSScrollView}.flatten.first
+		scroll_view.extend Reactive
+		scroll_view.extend ScrollTracking
+
+		@scroll_reaction = scroll_view.react_to :scroll_event do |event|
+			kvo_change :scroll_event, event
+		end
 	end
 
-	def wantsScrollEventsForSwipeTrackingOnAxis( axis )
-		axis == NSEventGestureAxisHorizontal
-	end
+#= 
 
-	def scrollWheel( event )
-		pe_debug "#{event.description}"
-		
-		@swipe_handler.handle_scroll_event event
-		super
-	end
-
-	#= 
-
-	# work around the occasional respondsToSelector malfunction.
+	# work around the occasional respondsToSelector malfunction. TODO log calls.
 	def respondsToSelector(sel)
 	  self.respond_to? sel
 	end	
@@ -398,6 +397,6 @@ class BrowserViewController < PEViewController
 	def history_stack
 	  @context_store.history_stack
 	end
-	
+
 end
 
