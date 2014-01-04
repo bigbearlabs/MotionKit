@@ -33,6 +33,8 @@ class Carousel
       @state = next_state
     end
 
+    pe_log "state for #{self} set to #{@state}"
+    
     @state.call
   end
 

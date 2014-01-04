@@ -18,12 +18,17 @@ module Logging
 		Log.info msg.to_s
 	end
   
-	def pe_warn( msg )
+	def pe_warn( msg, options = {})
+      if options[:ticket]
+        # TODO show message with ticket reporting url.
+      end
+
 			Log.warn msg.to_s
 	end
 
   def pe_trace(msg = nil)
-  	if Environment.instance.isDebugBuild
+  	# if Environment.instance.isDebugBuild
+    if RUBYMOTION_ENV == "development"
 	  	stack = $DEBUG ? caller : caller[0..2]
 	    pe_log "** TRACE #{msg.to_s} ** #{stack.format_backtrace.join(" - ")}"
     end
@@ -31,7 +36,7 @@ module Logging
 
 
 	def pe_report( exception, msg = nil )
-		pe_warn "** Exception ** #{exception.inspect} #{msg ? msg : nil} ** backtrace: #{exception.report}"
+		pe_warn "** Exception ** #{msg ? msg : nil} ** #{exception.description}** backtrace: #{exception.report}"
 		debug exception: exception
 	end
 	

@@ -20,13 +20,9 @@ class BrowserViewController < PEViewController
 	attr_accessor :nav_buttons
 	
 	attr_accessor :find_bar_container
-	attr_accessor :swipe_handler
-	
+
 	attr_accessor :web_view_delegate
 	
-	# view-model
-	attr_accessor :event  # last user-facing user agent event.
-
 	def components
 	  [
 	  	{
@@ -35,6 +31,9 @@ class BrowserViewController < PEViewController
 					web_view: @web_view
 				},
 	  	},
+	  	{
+	  		module: SwipeHandler
+	  	}
 	  ]
 	end
 
@@ -114,6 +113,8 @@ class BrowserViewController < PEViewController
 		
 		@web_view_delegate.setup
 		
+		setup_scroll_tracking
+
 		watch_notification :Find_request_notification
 		watch_notification :Text_finder_notification
 		watch_notification :Url_load_finished_notification
@@ -141,37 +142,15 @@ class BrowserViewController < PEViewController
 	
 #=
 
-	# def load_module( module_name, on_load = proc {})
-	# 	modules_src = "#{NSApp.resource_dir}/plugin/"
-	# 	modules_tgt = "#{NSApp.app_support_dir}/modules"
-
-	# 	# HACK copy modules to app support dir.
-	# 	system "rsync -av '#{modules_src}' '#{modules_tgt}'"
-
-	# 	url_str = "#{modules_tgt}/#{module_name}/index.html"
-
-	# 	self.load_url url_str, success_handler: on_load
-
-	# 	# work around some weird caching behaviour by queuing a refresh.
-	# 	delayed 0.5, proc {
-	# 		on_main_async do
-	# 			self.handle_refresh self
-	# 		end
-	# 	}
-	# end
-			
-#=
-
-#=
-
 	def load_url(url_or_array, options = {})
-		load_handler = options[:success_handler]
+    pe_trace
+
 		load_proc = proc {
 
 			# MOVE
-			# if (! options[:ignore_history]) && self.history.item_for_url(new_url)
+			# if (! options[:ignore_history]) && self.history_stack.item_for_url(new_url)
 			# 		pe_log "load #{new_url} from history"
-			# 		self.load_history_item self.history.item_for_url new_url
+			# 		self.load_history_item self.history_stack.item_for_url new_url
 			# else
 			# 	@web_view.mainFrameURL = new_url
 			# end
@@ -223,7 +202,7 @@ class BrowserViewController < PEViewController
 				@web_view.stopLoading(self)
 				@web_view.goToBackForwardItem(item_container.history_item)
 				
-				item_container.last_accessed_timestamp = Time.new.to_s
+				item_container.last_accessed_timestamp = NSDate.date
 				
 				unless @web_view.backForwardList.containsItem(item_container.history_item)
 					pe_warn "#{item_container.description} not found in bflist - investigate."
@@ -250,17 +229,13 @@ class BrowserViewController < PEViewController
 	def handle_back(sender)
 		send_notification :Bf_navigation_notification
 
-		on_main {
-			@web_view.goBack(sender)
-		}
+		@web_view.goBack(sender)
 	end
 	
 	def handle_forward(sender)
 		send_notification :Bf_navigation_notification
 
-		on_main {
-			@web_view.goForward(sender)
-		}
+		@web_view.goForward(sender)
 	end
 	
 #= 
@@ -296,7 +271,7 @@ class BrowserViewController < PEViewController
 	def handle_pin(sender)
 		history_item = @web_view.backForwardList.currentItem
 		history_item.pinned = ! history_item.pinned
-		#		self.history.handle_pinning history_item
+		#		self.history_stack.handle_pinning history_item
 	end
 	
 #=
@@ -337,16 +312,27 @@ class BrowserViewController < PEViewController
 		@web_view.backForwardList.currentItem
 	end
 	
+	#= image retrieval gets called in disparity to webview. work out a way to FIXME
+
 	def back_page_image
-		self.history.back_item ? self.history.back_item.thumbnail : NSImage.stub_image
+		browser_history.back_page ? browser_history.back_page.thumbnail : NSImage.stub_image
 	end
 
 	def current_page_image
-		self.history.current_history_item ? self.history.current_history_item.thumbnail : NSImage.stub_image
+		if page = browser_history.current_page
+			image = page.thumbnail 
+		end
+
+		image ||= NSImage.stub_image
+
 	end
 
 	def forward_page_image
-		self.history.forward_item ? self.history.forward_item.thumbnail : NSImage.stub_image
+		if page = browser_history.forward_page
+			image = page.thumbnail 
+		end
+
+		image ||= NSImage.stub_image
 	end
 
 #=
@@ -389,26 +375,40 @@ class BrowserViewController < PEViewController
 		@web_view.goToBackForwardItem( selected_cell.historyItem )
 	end
 	
-#= gesture handling integration
 
-	def setup_swipe_handler
-		@animation_overlay = NSView.alloc.initWithFrame(self.view.bounds)
+#= scroll tracking.
+
+	attr_reader :scroll_event
+
+	def setup_scroll_tracking
+		scroll_view = @web_view.views_where {|e| e.is_a? NSScrollView}.flatten.first
+		scroll_view.extend Reactive
+		scroll_view.extend ScrollTracking
+
+		@scroll_reaction = scroll_view.react_to :scroll_event do |event|
+			kvo_change :scroll_event, event
+
+			# using a small delay, attach a thumbnail for the history item for the swipe handler to use to to animate paging.
+			(@thumbnail_throttle ||= Object.new).delayed_cancelling_previous 0.1, -> {
+				pe_log "taking thumbnail after scroll event #{event}"
+				self.current_history_item.thumbnail = @web_view.image
+			}
+
+		end
 	end
 
-	def wantsScrollEventsForSwipeTrackingOnAxis( axis )
-		axis == NSEventGestureAxisHorizontal
-	end
+#= history
 
-	def scrollWheel( event )
-		pe_debug "#{event.description}"
+	def can_navigate( direction )
+		item_for_direction_s = ( direction == :Forward ? :forward_page : :back_page)
 		
-		@swipe_handler.handle_scroll_event event
-		super
+		self.browser_history.send( item_for_direction_s ) != nil
 	end
+			
 
-	#= 
+#= 
 
-	# work around the occasional respondsToSelector malfunction.
+	# work around the occasional respondsToSelector malfunction. TODO log calls.
 	def respondsToSelector(sel)
 	  self.respond_to? sel
 	end	
@@ -416,9 +416,13 @@ class BrowserViewController < PEViewController
 
 	protected
 
-	def history
-	  @context_store.history
+	def history_stack
+	  @context_store.history_stack
+	end
+
+	# until we get reliable positions in stack, implement swipe navigation using only the webview's history.
+	def browser_history
+	  @web_view.backForwardList
 	end
 	
 end
-

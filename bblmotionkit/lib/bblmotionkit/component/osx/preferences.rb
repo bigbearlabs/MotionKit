@@ -8,10 +8,11 @@ module Preferences
   def preference_pane_controllers flavour
     [ 
       GeneralPrefPaneController.alloc.initWithViewFactory(self),
+      # DeveloperPrefPaneController.alloc.initWithViewFactory(self),
     ].tap do |a|
-      if flavour == :dev
+      if flavour == :dev || RUBYMOTION_ENV == 'development'
         a << PreviewPrefPaneController.alloc.initWithViewFactory(self)
-      end      
+      end
     end
   end
   
@@ -27,7 +28,7 @@ module Preferences
 
     @prefs_window_controller.close if @prefs_window_controller
 
-    @prefs_window_controller = PreferencesWindowController.new (
+    @prefs_window_controller = PreferencesWindowController.new(
       self.preference_pane_controllers flavour
     )
 
@@ -39,34 +40,36 @@ module Preferences
     NSApp.activate
   end
 
-  def new_pref_section( component_class )
-    component = self.component component_class
+  def new_pref_section( pref_owner )
+    if pref_owner.is_a?(Class) && pref_owner.ancestors.include?(BBLComponent)
+      pref_owner = self.component pref_owner
+    end
 
-    defaults_spec = component.defaults_spec
+    defaults_spec = pref_owner.defaults_spec
 
     views = defaults_spec.map do |default, val|
       pref_spec = val[:preference_spec]
-      view = 
-        case pref_spec[:view_type]
-        when :boolean
-          new_boolean_preference_view default, pref_spec, component
-        when :list
-          new_list_preference_view default, pref_spec, component
-        end
+
+      case pref_spec[:view_type]
+      when :boolean
+        new_boolean_preference_view default, pref_spec, pref_owner
+      when :list
+        new_list_preference_view default, pref_spec, pref_owner
+      end
       .tap do |view|
         # watch for default specified by :depends_on and update state.
         if super_default = val[:depends_on]
-          update_visible = -> view, enabled {
-            view.views_where {|e| e.is_a? NSControl}.flatten.map do |control|
+          update_visible = -> v, enabled {
+            v.views_where {|e| e.is_a? NSControl}.flatten.map do |control|
               control.enabled = enabled
             end
           }
           
-          component.client.watch_default super_default do |key, new_val|
+          pref_owner.client.watch_default super_default do |key, new_val|
             update_visible.call view, new_val
           end
 
-          update_visible.call view, component.client.default( super_default)
+          update_visible.call view, pref_owner.client.default( super_default)
         end
       end
     end
@@ -346,8 +349,24 @@ class PreviewPrefPaneController < PreferencePaneViewController
   end
 end
 
+class DeveloperPrefPaneController < PreferencePaneViewController
+  # MASPreferences interface compliance
+  def identifier
+    'Developer'
+  end
+  def toolbarItemLabel
+    'Developer'
+  end
 
-# expose defaults on BrowserWindowController as preferences and bridge changes.
+  def preference_views
+    [
+      @factory.new_pref_section(WebViewPreferenceExposer.new), 
+    ]
+  end
+end
+
+
+# expose defaults on BrowserWindowController as preferences and bridge data flow.
 class WindowPreferenceExposer < BBLComponent
   def on_setup
     
@@ -365,11 +384,14 @@ class WindowPreferenceExposer < BBLComponent
         },
         preference_spec: {
           view_type: :boolean,
-          label: "Input field",
+          label: "Input Field",
         }
         # MAYBE post_register to specify actions after defaults registered.
         # MAYBE initial val
-      }
+      },
+
+      # migrate to another pref pane.
+
     }
   end
 
@@ -380,4 +402,33 @@ class WindowPreferenceExposer < BBLComponent
     full_key
   end
 
+end
+
+
+class WebViewPreferenceExposer
+
+  def on_setup
+  end
+
+  def defaults_spec
+    {
+      inspector: {
+        postflight: -> val {
+        },
+        preference_spec: {
+          view_type: :boolean,
+          label: "Web Inspector"
+        }
+      },
+      inspector: {
+        postflight: -> val {
+        },
+        preference_spec: {
+          view_type: :text,
+          label: "User Agent String"
+        }
+      }
+    } 
+  end
+      
 end

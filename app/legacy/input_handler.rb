@@ -16,11 +16,15 @@ class InputHandler < BBLComponent
     type = input.pe_type
     pe_log "input type for '#{input}': #{type}"
     case type
+    when :module
+      module_name = input.gsub /^#/, ''
+      self.client.plugin_vc.load_url "http://localhost:9000/#/#{module_name}"
+
     when :cmd
-      self.process_command input
+      self.client.component(RubyEvalPlugin).input = input.gsub(/^>/,'')
 
     when :url
-      self.client.load_url input
+      self.client.load_url input.to_url_string, stack_id: "navigation to '#{input}'"
 
     when :search
       self.client.load_url input.to_search_url_string, stack_id: input
@@ -33,43 +37,28 @@ class InputHandler < BBLComponent
     end
   end
 
-
-  #= command processing.  REFACTOR move to a plugin.
-
-  attr_accessor :command_output
-
-  def process_command( input )
-    command = input.gsub /^>/, ''
-
-    self.command_output = eval command
-
-    pe_log "command result: #{self.command_output}"
-
-    # HACK put output into an html and load.
-    output_file = "#{NSApp.app_support_dir}/plugin/output/data/output.json"
-    FileUtils.mkdir_p( File.dirname output_file) unless Dir.exist? File.dirname( output_file )
-    File.open output_file, 'w' do |f|
-      f << %Q(
-        {
-          "output": "#{self.command_output}"
-        }
-      )
-    end
-
-    # TODO pull out.
-    NSApp.delegate.wc.browser_vc.load_module :output
-  end
 end
 
 
 class String
+  
+  # NOTE this is probably incomplete.
   def valid_url?
-    # NOTE this is probably incomplete.
-    self =~ %r{^(\w+)://}
+    case self.to_s
+    when %r{^(\w+)://}  # with a scheme.
+      return true
+    when %r{\S+:\d+}  # address/host:port format.
+      return true
+    end
+
+    false
   end
   
   def pe_type
-    if self =~ /^>/
+    if self.starts_with? '#'
+      :module
+
+    elsif self.starts_with? '>'
       :cmd
     
     elsif self.valid_url?
@@ -84,4 +73,5 @@ class String
     end
   end
 end
+
 

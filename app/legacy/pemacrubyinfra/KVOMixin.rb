@@ -112,9 +112,17 @@ class NSObject
 	end
 
 	# perform an operation and send kvo change notification for a property.
-	def kvo_change( prop, &change_block )
+	def kvo_change( prop, val = nil)
 		self.willChangeValueForKey(prop.to_s)
-		yield
+		
+		if block_given?
+			yield prop
+		else
+			raise "call with val or block" if val.nil?
+			
+			instance_variable_set "@#{prop}", val
+		end
+
 		self.didChangeValueForKey(prop.to_s)
 	end
 

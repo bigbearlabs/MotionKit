@@ -43,5 +43,11 @@ guard :shell do
     `curl -i -T #{m[0]} http://localhost:59123`
   end
 
+  # watch some libraries too.
+  watch %r{^(?:app|bblmotionkit|sketch|etc/motion_data_wrapper)/(.+)\.rb$} do |m|
+    # `say #{m[0]}`
+    `curl -i -T #{m[0]} http://localhost:59123`
+  end
+
   # TODO watch /resources, copy to resources path.
 end

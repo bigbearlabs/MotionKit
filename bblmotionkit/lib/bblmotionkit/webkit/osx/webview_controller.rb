@@ -9,11 +9,23 @@ class WebViewController < BBLComponent
 
   def on_setup
     init_bridge @web_view
+
+    # setup downloads
+    @download_delegate = DownloadDelegate.new downloads_path: default(:downloads_path)
+    @web_view.downloadDelegate = @download_delegate
   end
   
 #=
 
+  def dev_extras=(enable)
+    @web_view.preferences.developerExtrasEnabled = enable
+  end
+
   def load_url( urls, options = {})
+    unless urls.is_a? String or urls.is_a? NSURL or urls.is_a? Array
+      raise "urls #{urls} is a bad type"
+    end
+    
     pe_log "loading urls #{urls}, options #{options}"
 
     urls = [ urls ] unless urls.is_a? Array
@@ -151,6 +163,35 @@ class WebViewJavascriptBridge
   
   def webView( webView, didReceiveTitle:title, forFrame:frame )
     @web_view_delegate.webView(webView, didReceiveTitle:title, forFrame:frame)    
+  end
+
+  def webView(webView, decidePolicyForMIMEType:mimeType, request:request, frame:frame, decisionListener:listener)
+    @web_view_delegate.webView(webView, decidePolicyForMIMEType:mimeType, request:request, frame:frame, decisionListener:listener)
+  end
+
+
+  def webView(webView, willPerformClientRedirectToURL:url, delay:seconds, fireDate:date, forFrame:frame)
+    @web_view_delegate.webView(webView, willPerformClientRedirectToURL:url, delay:seconds, fireDate:date, forFrame:frame)
+  end
+  
+  def webView(webView, didCancelClientRedirectForFrame:frame)
+    @web_view_delegate.webView(webView, didCancelClientRedirectForFrame:frame)
+  end
+  
+  def webView(webView, didReceiveServerRedirectForProvisionalLoadForFrame:frame)
+    @web_view_delegate.webView(webView, didReceiveServerRedirectForProvisionalLoadForFrame:frame)
+  end
+
+  def webView(webView, createWebViewWithRequest:request)
+    @web_view_delegate.webView(webView, createWebViewWithRequest:request)
+  end
+
+  def webViewShow(webView)
+    @web_view_delegate.webViewShow(webView)
+  end
+
+  def webView(webView, decidePolicyForNewWindowAction:actionInformation, request:request, newFrameName:frameName, decisionListener:listener)
+    @web_view_delegate.webView(webView, decidePolicyForNewWindowAction:actionInformation, request:request, newFrameName:frameName, decisionListener:listener)
   end
 end
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
     </dependencies>
@@ -14,10 +14,17 @@
         <customObject id="-3" userLabel="Application"/>
         <menu id="1">
             <items>
-                <menuItem title="Show/Hide" tag="6001" id="2">
+                <menuItem title="toggle_activation" tag="6001" id="2">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="toggle_front:" target="-2" id="73"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="6DD-0c-1hp"/>
+                <menuItem title="browser_selector" tag="6004" hidden="YES" id="tko-xq-Yqq">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="handle_menu_item_select:" target="-1" id="sDm-cp-HIY"/>
                     </connections>
                 </menuItem>
                 <menuItem title="Dismiss on Focus Change" tag="6004" id="nPd-7L-vhz">
@@ -26,7 +33,6 @@
                         <action selector="handle_menu_item_select:" target="-1" id="nY9-bL-VFB"/>
                     </connections>
                 </menuItem>
-                <menuItem isSeparatorItem="YES" id="6DD-0c-1hp"/>
                 <menuItem title="Preferences..." keyEquivalent="," id="8">
                     <connections>
                         <action selector="new_pref_window:" target="-1" id="9"/>
@@ -38,6 +44,7 @@
                         <action selector="new_pref_window:" target="-1" id="65"/>
                     </connections>
                 </menuItem>
+                <menuItem isSeparatorItem="YES" id="ixJ-rY-QmJ"/>
                 <menuItem title="Intro..." tag="6002" id="66">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>

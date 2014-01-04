@@ -13,9 +13,10 @@ gem 'motion-cocoapods'
 gem 'cocoapods-core'
 gem 'versionomy'
 
+gem 'motion-logger'
 gem 'bubble-wrap'
 gem 'motion-yaml'
-gem 'motion-logger'
+gem "motion_data_wrapper"
 
 # gem 'motion-cocoapods',  "~> 1.3.0.rc1"
 # gem 'cocoapods-core'

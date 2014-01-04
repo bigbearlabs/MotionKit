@@ -248,7 +248,6 @@ class PEAppDelegate
 		self.on_space_change notification
 	end
 	
-	
 	def applicationDidFinishLaunching(notification)
 		self.setup
 	end

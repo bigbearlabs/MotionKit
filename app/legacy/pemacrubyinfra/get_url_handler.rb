@@ -1,5 +1,7 @@
 module GetUrlHandler
 
+	attr_accessor :requested_url
+	
 	#= url scheme handling
 
 	def register_url_handling
@@ -10,11 +12,31 @@ module GetUrlHandler
 	end
 
 	def getUrl(url_event, withReplyEvent:reply_event)
-		details = { url_event: url_event, url:url_event.url_string, reply_event:reply_event }
+		url = url_event.url_string
+		details = { url_event: url_event, url:url, reply_event:reply_event }
 		pe_warn "getUrl: #{details}"
 
-		self.on_get_url( details )
-		# TODO replace with user.perform_url_invocation
+		self.requested_url = url
+
+		# WORKAROUND kvo swizzling resulting in nil
+		component = self.component BrowserDispatch
+		if component
+			component.on_get_url details
+		else 
+			pe_warn "component not initialised. not dispatching requested_url"
+		end
 	end
 
+	#==
+
+	module InstanceMethods
+		def applicationWillFinishLaunching(notification)
+			# this must be done early in order to catch gurl events on launch.
+			register_url_handling
+		end
+	end
+	
+	def self.included(receiver)
+		receiver.send :include, InstanceMethods
+	end
 end

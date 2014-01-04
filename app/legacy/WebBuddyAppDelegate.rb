@@ -4,13 +4,14 @@
 
 class WebBuddyAppDelegate < PEAppDelegate
 	include ServicesHandler
+	include GetUrlHandler
 	include Preferences
 
 	include ComponentClient
 
-	include KVOMixin
 	include Reactive
 
+  include MotionDataWrapper::Delegate
 
 	# collaborators
 
@@ -60,7 +61,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= major lifecycle
 
 	def setup
-
 		super
 
 		# important domain object
@@ -97,7 +97,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# user actions
 		watch_notification :Visit_request_notification
 		watch_notification :Revisit_request_notification
-		watch_notification :Site_search_notification
 		
 		try {
 			watch_notification NSWindowDidEndLiveResizeNotification
@@ -129,7 +128,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		}
 
 		try {
-			self.setup_main_window
+			# self.setup_main_window
 
 			NSApp.activate
 
@@ -147,14 +146,15 @@ class WebBuddyAppDelegate < PEAppDelegate
 	# the bit that happens after the intro.
 	def load_start
 
-		@ready_to_load = true
-
 		if @pending_handlers && (! @pending_handlers.empty?)
 			@pending_handlers.each do |handler|
 				handler.call
 			end
 			@pending_handlers.clear
+		elsif self.requested_url   # HACK
+			# skip loading welcome page.
 		else
+
 			if @load_welcome
 				on_main {
 					self.load_welcome_page
@@ -205,9 +205,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 		wc.do_activate
 		wc.window.center
 
-		url = NSBundle.mainBundle.url 'plugin/intro/index.html'
+		url = default :intro_url
 
-		self.load_url url.absoluteString,
+		self.load_url url,
 			interface_callback_handler: self
 
 	end
@@ -253,7 +253,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# welcome_plugin_url = plugin(:welcome).url  # SKETCH plugin per static is too heavy. perhaps a statics plugin?
 		welcome_plugin_url = NSBundle.mainBundle.url "plugin/welcome/index.html"
 		
-		self.load_url [ url, welcome_plugin_url ]
+		self.load_url [ url, welcome_plugin_url.absoluteString ], stack_id: 'WebBuddy'
 	end
 
 	def load_url(urls, details = {})
@@ -297,14 +297,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def handle_Revisit_request_notification( notification )
 		url = notification.userInfo.url
 		self.load_url url, stack_id: notification.userInfo.stack_id
-	end
-
-	def handle_Site_search_notification(notification)
-		pe_trace stack.format_backtrace.report
-		
-		search_details = notification.userInfo
-
-		wc.do_activate.do_search search_details
 	end
 
 #= tracks
@@ -570,31 +562,29 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 
 	def on_active
-		pe_debug "became active"
-		pe_debug "windows: " + NSApp.windows_report
+		pe_log "became active"
+		pe_log "windows: " + NSApp.windows_report
 
-		window_controller = wc
+		# window_controller = wc
 		# window_controller.do_activate if window_controller
 	end
 	
 	def on_will_resign
 		pe_debug "resign active"
 		
-		if @ready_to_load
-			main_window = NSApp.mainWindow
-			if main_window.is_a? MainWindow
-				pe_log "window.shown:#{main_window.shown?}, window.active:#{main_window.active?}, fronting needed:#{main_window.shown?}"
-			else
-				pe_log "mainWindow: #{main_window}"
-			end
-			
-			# mask window fronting is unfinished - its state must be correctly saved and restored with space changes.
-			# @main_window_controller.window.front_with_mask_window if @main_window_controller.window.shown?
-			
-			if_enabled :save_context
-
-			if_enabled :deactivate_on_resign
+		main_window = NSApp.mainWindow
+		if main_window.is_a? MainWindow
+			pe_log "window.shown:#{main_window.shown?}, window.active:#{main_window.active?}, fronting needed:#{main_window.shown?}"
+		else
+			pe_log "mainWindow: #{main_window}"
 		end
+		
+		# mask window fronting is unfinished - its state must be correctly saved and restored with space changes.
+		# @main_window_controller.window.front_with_mask_window if @main_window_controller.window.shown?
+		
+		if_enabled :save_context
+
+		if_enabled :deactivate_on_resign
 	end
 
 	def on_screen_change( notification )
@@ -795,10 +785,8 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	def on_load_error( e )
 		debug e
-		case e.message
-		when 'history_empty'
-			self.load_welcome_page
-		end
+
+		self.load_welcome_page
 	end
 
 	#= TODO split all url-handling specific to url-handling.rb

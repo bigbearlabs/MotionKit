@@ -39,6 +39,7 @@ module ComponentClient
   end
 
   def component component_class
+    @registered_components ||= []
     o = @registered_components.select { |e| e.is_a? component_class } [0]
     raise "no component #{component_class} found" if nil
     o

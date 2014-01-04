@@ -42,7 +42,7 @@ class ViewerWindowController < BrowserWindowController
 				end
 			end
 
-			react_to 'browser_vc.event' do |new_val|
+			react_to 'browser_vc.scroll_event' do |new_val|
 				if new_val
 					self.hide_toolbar
 				end
@@ -50,12 +50,17 @@ class ViewerWindowController < BrowserWindowController
 		end
 
 		on_main_async do
-			if self.stack
-				try do 
+			begin
+				if self.stack
 					self.load_url last_url
+				else
+					"no stack, not loading."
 				end
-			else
-				"no stack, not loading."
+			rescue Exception => e
+				# case: first-time launch
+				# case: etc etc
+
+				NSApp.delegate.on_load_error e
 			end
 		end
 	end

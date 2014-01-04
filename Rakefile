@@ -34,7 +34,7 @@ Motion::Project::App.setup do |app|
   end
 
   # frameworks
-  app.frameworks += %w( WebKit Carbon ExceptionHandling )
+  app.frameworks += %w( WebKit Carbon ExceptionHandling CoreData )
 
 
   # dev-only
@@ -75,13 +75,13 @@ Motion::Project::App.setup do |app|
   app.info_plist['NSServices'] = [
     {
       'NSKeyEquivalent' =>  {
-          'default' =>  "Z"
+          'default' =>  "\|"
       },
       'NSMenuItem' =>  {
           'default' =>  "Send to WebBuddy"
       },
       'NSMessage' =>  "handle_service",
-      'NSPortName' =>  "${PRODUCT_NAME}",
+      'NSPortName' =>  "#{app.name}",
       'NSRequiredContext' =>  {
           'NSServiceCategory' =>  'Browsing'
       },
@@ -97,7 +97,8 @@ Motion::Project::App.setup do |app|
 
   app.delegate_class = "WebBuddyAppDelegate"
 
-  app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb'
+  app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb',
+    'app/context_store_persistence.rb' => 'app/legacy/WebBuddyAppDelegate.rb'
     # 'app/legacy/WebBuddyAppDelegate.rb' => 'app/filtering.rb',
     # 'app/filtering.rb' => 'app/plugin.rb',
     # 'app/aa_plugin.rb' => "#{`pwd`.strip}/bblmotionkit/lib/bblmotionkit/core/delegating.rb"
@@ -131,11 +132,19 @@ namespace :vendor do
   end
 end
 
+desc "loop build"
+task :loop do
+  sh %(
+    while [ 0 ]; do
+      rake
+    done
+  )
+end
 
-namespace :modules do
+namespace :plugins do
   desc "build"
   task :build => [] do
-    sh 'cd ../webbuddy-modules; rake'
+    sh 'cd ../webbuddy-plugins; rake'
   end
 
   desc "copy resources"
@@ -144,7 +153,7 @@ namespace :modules do
     sh %Q(rsync -avvv --delete ~/'Google Drive'/bigbearlabs/webbuddy-preview/modules/* resources/plugin/)
   end
 
-  desc "build and copy modules"
+  desc "build and copy plugins"
   task :all => [ :build, :cprsc ]
 end
 
@@ -178,4 +187,8 @@ namespace :release do
 
   desc "archive, zip, rsync, version, release"
   task :all => [ :'modules:cprsc', :increment, :'archive:distribution', :zip, :commit_version ]
+
+  desc 'increment version and upload to hockeyapp.'
+  task :'h' => [:all, :hockeyapp ]
+
 end

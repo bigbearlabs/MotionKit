@@ -17,6 +17,7 @@ class WebBuddyPlugin < BBLComponent
     react_to 'client.plugin_vc.web_view_delegate' do |web_view_delegate|
       web_view_delegate.policies_by_pattern = {
         /(localhost|#{NSBundle.mainBundle.path})/ => :load,
+        %r{(http://)?about:} => :load,
         /.+/ => -> url, listener {
           pe_log "policy will send #{url} to client."
           
@@ -28,17 +29,19 @@ class WebBuddyPlugin < BBLComponent
     end
   end
 
-  def view_url(env = nil)
+  def name
     @plugin_name ||= self.class.clean_name.gsub('Plugin', '').downcase
-
-
+  end
+  
+  def view_url(env = nil)
     case env
     when :DEV
-      "http://localhost:9000/#/#{@plugin_name}"  # DEV works with grunt server in webbuddy-modules
+      
+      default(:plugin_view_template).gsub /#\{.*?\}/, name  # DEV works with 'grunt server' in webbuddy-modules
     else
       plugin_dir = "plugin"
       module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-      "file://#{module_index_path}#/#{@plugin_name}"  # DEPLOY
+      "file://#{module_index_path}#/#{name}"  # DEPLOY
     end
   end
   
@@ -55,18 +58,16 @@ class WebBuddyPlugin < BBLComponent
       end
 
     self.client.plugin_vc.load_url urls, success_handler: -> url {
-      ## this is made obsolete by wb-integration.coffee.
-      # self.attach_hosting_interface
-
-      yield if block_given?
+      self.update_data
     }
     # , ignore_history: true
   end
 
   def view_loaded?
-    [self.view_url(:DEV), self.view_url].map do |url|
+    [self.view_url(:DEV), self.view_url].select do |url|
       self.client.plugin_vc.url.to_s.include? url
     end
+    .size != 0
   end
 
   def show_plugin
@@ -77,19 +78,15 @@ class WebBuddyPlugin < BBLComponent
     self.client.plugin_vc.frame_view.visible = false
   end
   
-  def attach_hosting_interface
-    pe_log "attaching hosting interface to #{self.view_url}"
+  def update_data(data = nil)
+    data ||= self.data
 
-    eval_js_file 'plugin/assets/js/webbuddy.attach.js'
-  end
-
-  def update_data
-    data = self.data
     pe_log "updating data, keys: #{data.keys}"
 
     self.client.plugin_vc.web_view.delegate.send %(
-      window.webbuddy_data = #{self.data.to_json};
-      window.webbuddy_data_updated();  // will throw if callback 
+      setTimeout( function() {
+        window.webbuddy.on_data(#{data.to_json}); 
+      }, 0);
     )
   end
 
@@ -98,15 +95,6 @@ class WebBuddyPlugin < BBLComponent
     self.client.load_url url
 
     # TODO restore the stack
-  end
-  
-
-  # OBSOLETE
-  def write_data
-    # # write to data/filtering.json TODO fix up prior to release.
-    # data_path = NSBundle.mainBundle.path + "/#{module_dir}/data/filtering.json"  # DEPLOY
-    data_path = '/Users/ilo-robbie/dev/src/bigbearlabs/webbuddy-plugin/output/app/data/filtering.json'  # DEV
-    write_file data_path, self.data.to_json  # FIXME this races with the load on filtering.coffee
   end
   
   #=

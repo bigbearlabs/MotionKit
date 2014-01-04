@@ -52,16 +52,19 @@ class SpaceAnchorWindowController < NSWindowController
 		# TEST make view errors obvious
 		anchor_window.frame = new_rect( 0,0,600,600)
 		
-		# make key status pass onto main window
-		anchor_window.did_become_key {
-			pe_log "#{self} became key!"
-			# @main_window.makeKeyAndOrderFront(self)
-		}
-
 		# once created, the anchor window should always stay in order to serve as an anchor for the space.
 		anchor_window.canHide = false
 	end
 
+	#= NSWindow delegate methods
+	
+	def windowDidBecomeKey(notifications)
+		pe_warn "#{self} became key!"
+
+		# make key status pass onto main window
+		# @main_window.makeKeyAndOrderFront(self)
+	end
+	
 end
 
 

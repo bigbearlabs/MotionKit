@@ -6,6 +6,8 @@
 
 class ContextStore
 	include DefaultsAccess
+
+  include CoreDataPersistence
 	
 	attr_accessor :current_context
 
@@ -34,10 +36,10 @@ class ContextStore
 			# case context.name
 			# when "History"
 			# 	# hash for history is treated in a special way.
-			# 	history_items = self.stacks.map(&:history_items).flatten.uniq
+			# 	pages = self.stacks.map(&:pages).flatten.uniq
 			# 	stack_data = {
 			# 		"name" => "History",
-			# 		"items" => history_items.map(&:to_hash),
+			# 		"items" => pages.map(&:to_hash),
 			# 		"sites" => context.site_data,
 			# 		"stacks" => context.tracks_data
 			# 	}
@@ -151,84 +153,6 @@ class ContextStore
 	end
 	
 
-	def save_stacks
-		hash = self.to_hash
-		save_report =  hash['stacks'].collect do |stack|
-			"#{stack['name']}: #{stack['items'].count} history items"
-		end
-
-		hash.save_plist plist_name
-		pe_log "saved #{self} - #{save_report}"
-	rescue Exception => e
-		pe_report e, "error saving #{plist_name}"
-	end
-
-	def load_stacks
-		begin
-			pe_log "loading contexts from #{plist_name}"
-			context_store_data  = NSDictionary.from_plist( plist_name).dup
-		rescue Exception => e
-			pe_report e
-			pe_warn "TODO trigger backup restoration workflow"  # IMPL
-			
-			context_store_data = {}
-		end
-		
-		if ( ! context_store_data || context_store_data.keys.empty? )
-			pe_log "initializing empty context store from default template."
-			context_store_data = NSBundle.mainBundle.dictionary_from_plist( "data/#{default_plist_name}" )
-		end
-
-		
-		# load the history context.
-
-		# history_data = context_store_data['stacks'].find do |stack_hash|
-		# 	stack_hash['name'] == 'History'
-		# end
-		# history_context = self.stacks.find do |context|
-		# 	context.name == 'History'
-		# end
-
-		# items_data = history_data['items']
-		# items_data.each do |item_hash|
-		# 	item = new_item item_hash
-		# 	history_context.add_item item
-		# end
-		# pe_log "loaded #{items_data.count} items in history context."
-
-		# # history_context.load_sites history_data['sites']
-
-		# # self.load_stacks history_data['stacks']
-
-
-		# initialise or populate the other contexts.
-		try {	
-			context_store_data['stacks'].to_a.each do |stack_hash|
-
-				name = stack_hash['name']
-				matching_stacks = self.stacks.select { |e| e.name == name }
-				case matching_stacks.size
-				when 0
-					stack = stack_for name
-				when 1
-					# the object already exists.
-				else
-					pe_warn "multiple stacks named '#{name}' found - using last one."
-				end
-
-				stack ||= self.stacks.last
-
-				items = stack_hash['items'].map {|e| new_item e}
-				stack.load_items items
-
-				# context.load_sites stack_hash['sites']
-			end
-
-		}
-		
-	end
-	
-
 	# HACKY
 
 	def save_thumbnails
@@ -236,7 +160,7 @@ class ContextStore
 		
 		concurrently proc {
 			self.stacks
-				.map(&:history_items)
+				.map(&:pages)
 				.flatten.select(&:thumbnail_dirty).map do |history_item|
 					file_name = "#{thumbnail_path}/#{history_item.url.hash}.#{thumbnail_extension}"
 					thumbnail = history_item.thumbnail
@@ -258,7 +182,7 @@ class ContextStore
 
 	def load_thumbnails    
 		self.stacks.each do |stack|
-			stack.history_items do |history_item|
+			stack.pages do |history_item|
 				if ! history_item.thumbnail
 					file_name = thumbnail_url history_item
 					image_png_data = NSData.data_from_file file_name  # OPTIMISE change to do this lazily
@@ -277,10 +201,11 @@ class ContextStore
 	#=
 
   # PERF
-	def history
-		item_union = NSSet.setWithArray self.stacks.map { |e| e.history_items }.flatten
+	def history_stack
+		item_union = NSSet.setWithArray self.stacks.map { |e| e.pages }.flatten
 
 	  h = Context.new('History', item_union.allObjects)
 	end
 	
 end
+
