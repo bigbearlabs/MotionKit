@@ -14,14 +14,6 @@ class FilteringPlugin < WebBuddyPlugin
       update_data searches_delta: data_searches( [ self.client.stack ])
     end
 
-    # FIXME triggers the nil ivars issue.
-    @update_stacks_reaction = react_to 'context_store.stacks' do
-      new_stacks = @context_store.stacks - @previous_stacks.to_a
-      @previous_stacks = new_stacks
-
-      update_data searches_delta: data_searches( new_stacks )
-    end
-
     load_view
   end
 
