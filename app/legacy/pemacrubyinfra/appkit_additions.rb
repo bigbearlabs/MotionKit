@@ -690,34 +690,4 @@ class NSEvent
 
 end
 
-#== webkit
-
-# macruby_framework 'WebKit'
-
-class WebView
-	def url
-		self.mainFrameURL.copy
-	end
-end
-
-class WebBackForwardList
-	def index(url)
-		bf_list_size = self.forwardListCount + self.backListCount
-		(bf_list_size + 1).times do |i|
-			index = self.forwardListCount - i
-			history_item = self.itemAtIndex index
-			if history_item.originalURLString.isEqual url.absoluteString
-				pe_log  "returning index #{index} for url #{url.description}"
-				return index
-			end
-		end
-
-		nil
-	end
-
-	def head
-		return "current: #{currentItem.description}, back: #{backItem.description}"
-	end
-end
-
 

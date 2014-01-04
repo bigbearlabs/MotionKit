@@ -230,17 +230,13 @@ class BrowserViewController < PEViewController
 	def handle_back(sender)
 		send_notification :Bf_navigation_notification
 
-		on_main {
-			@web_view.goBack(sender)
-		}
+		@web_view.goBack(sender)
 	end
 	
 	def handle_forward(sender)
 		send_notification :Bf_navigation_notification
 
-		on_main {
-			@web_view.goForward(sender)
-		}
+		@web_view.goForward(sender)
 	end
 	
 #= 
@@ -317,16 +313,27 @@ class BrowserViewController < PEViewController
 		@web_view.backForwardList.currentItem
 	end
 	
+	#= image retrieval gets called in disparity to webview. work out a way to FIXME
+
 	def back_page_image
-		self.history_stack.back_item ? self.history_stack.back_item.thumbnail : NSImage.stub_image
+		browser_history.back_page ? browser_history.back_page.thumbnail : NSImage.stub_image
 	end
 
 	def current_page_image
-		self.history_stack.current_item ? self.history_stack.current_item.thumbnail : NSImage.stub_image
+		if page = browser_history.current_page
+			image = page.thumbnail 
+		end
+
+		image ||= NSImage.stub_image
+
 	end
 
 	def forward_page_image
-		self.history_stack.forward_item ? self.history_stack.forward_item.thumbnail : NSImage.stub_image
+		if page = browser_history.forward_page
+			image = page.thumbnail 
+		end
+
+		image ||= NSImage.stub_image
 	end
 
 #=
@@ -381,8 +388,24 @@ class BrowserViewController < PEViewController
 
 		@scroll_reaction = scroll_view.react_to :scroll_event do |event|
 			kvo_change :scroll_event, event
+
+			# using a small delay, attach a thumbnail for the history item for the swipe handler to use to to animate paging.
+			(@thumbnail_throttle ||= Object.new).delayed_cancelling_previous 0.1, -> {
+				pe_log "taking thumbnail after scroll event #{event}"
+				self.current_history_item.thumbnail = @web_view.image
+			}
+
 		end
 	end
+
+#= history
+
+	def can_navigate( direction )
+		item_for_direction_s = ( direction == :Forward ? :forward_page : :back_page)
+		
+		self.browser_history.send( item_for_direction_s ) != nil
+	end
+			
 
 #= 
 
@@ -398,5 +421,9 @@ class BrowserViewController < PEViewController
 	  @context_store.history_stack
 	end
 
+	# until we get reliable positions in stack, implement swipe navigation using only the webview's history.
+	def browser_history
+	  @web_view.backForwardList
+	end
+	
 end
-

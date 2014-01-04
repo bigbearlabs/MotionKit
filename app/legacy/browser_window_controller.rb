@@ -550,9 +550,14 @@ class BrowserWindowController < NSWindowController
 	def handle_Url_load_finished_notification( notification )
 		new_url = notification.userInfo
 
+		# TODO observe thumbnails instead.
+
+		@thumbnail = browser_vc.web_view.image
+
 		if_enabled :touch_stack, new_url, 
 			provisional: false,
-			thumbnail: @browser_vc.view.image
+			thumbnail: @thumbnail
+
 
 		# TODO consider invoking update_item here.
 
