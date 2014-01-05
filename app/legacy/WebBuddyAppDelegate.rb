@@ -819,5 +819,15 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# TODO teardown.
 		end
 	end
+
+#= finding
+
+  # when input field is first responder, unwanted menu validation early in the responder chain disables the find menu item. work around by adding the find method on appd.
+  def performTextFinderAction(sender)
+    pe_debug "#{sender} invoked text finder action"
+    
+    send_notification :Text_finder_notification, sender, wc.browser_vc
+  end
+
 end
 

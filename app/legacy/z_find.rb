@@ -2,6 +2,12 @@
 # the vc that's set up later will 'win' the text finder.
 class BrowserViewController 
 
+  def setup_text_finder
+    setup_ns_text_finder
+    watch_notification :Find_request_notification
+    watch_notification :Text_finder_notification, self
+  end
+
   def toggle_find
     if find_shown
       pe_log 'TODO hide find field'
@@ -19,6 +25,7 @@ class BrowserViewController
   end
 
   
+=begin
   # API-compliant version of an in-page find.
   # issues: snatches first responder status
   def find_string( string )
@@ -33,6 +40,7 @@ class BrowserViewController
     js = "window.find('#{string}')"
     self.eval_js js # TODO how to consolidate all js like this?
   end
+=end
 
   # js version with jquery
   def find_string( string )
@@ -43,7 +51,7 @@ class BrowserViewController
 
 #= system integration: osx text finder
 
-  def setup_text_finder
+  def setup_ns_text_finder
     # wire webview's scroll view as find bar container.
     scroll_view = @web_view.views_where {|e| e.is_a? NSScrollView}.flatten.first
     @find_bar_container = scroll_view
@@ -53,16 +61,16 @@ class BrowserViewController
     @text_finder.incrementalSearchingEnabled = true
     @text_finder.findBarContainer = @find_bar_container
 
-    # observe system property indicating find feature activation. provided by the scroll view.
-    observe_kvo @find_bar_container, :findBarVisible do |obj, change, context|
-      @action_type = nil # duped, ugh.
+    # # observe system property indicating find feature activation. provided by the scroll view.
+    # observe_kvo @find_bar_container, :findBarVisible do |obj, change, context|
+    #   @action_type = nil # duped, ugh.
       
-      pe_log "TODO clear search highlights"
+    #   pe_log "TODO clear search highlights"
 
-      self.refresh_find_bar_container
-    end
+    #   self.refresh_find_bar_container
+    # end
     
-    self.refresh_find_bar_container
+    # self.refresh_find_bar_container
   end
 
   def refresh_find_bar_container
@@ -191,18 +199,6 @@ class BrowserViewController
   end
 end
 
-
-
-#= system integration: responder chain
-
-class WebBuddyAppDelegate
-  # when input field is first responder, unwanted menu validation early in the responder chain disables the find menu item. work around.
-  def performTextFinderAction(sender)
-    pe_debug "#{sender} invoked text finder action"
-    
-    send_notification :Text_finder_notification, sender, wc.browser_vc
-  end
-end
 
 #=
 
