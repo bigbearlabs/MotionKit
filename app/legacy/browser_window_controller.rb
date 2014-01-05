@@ -62,6 +62,9 @@ class BrowserWindowController < NSWindowController
 					context_store: @context_store
 				}
 			},
+	  	{
+	  		module: TextFinderPlugin
+	  	}
 		]
 	end
 	

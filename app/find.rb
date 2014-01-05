@@ -1,6 +1,25 @@
+# NOTE touching the rough edges of plugin abstraction - independent from plugin_vc, loading scheme different etc.
+
 # NOTE text finder responder behaviour can break when multiple BrowserViewControllers are used in the same window.
 # the vc that's set up later will 'win' the text finder.
-class TextFinder < BBLComponent
+
+class TextFinderPlugin < WebBuddyPlugin
+
+  #= plugin methods
+  def view_url
+    raise "plugin #{self} doesn't have a view url."
+  end
+  
+  def load_view
+
+    client.browser_vc.load_js_lib :jquery
+
+    client.browser_vc.eval_js_file 'plugin/assets/js/jquery.search.js'
+  end
+  
+  def view_loaded?
+    raise "unimplemented"
+  end
 
   def on_setup
     setup_ns_text_finder
@@ -38,14 +57,14 @@ class TextFinder < BBLComponent
   # js version using window.find
   def find_string( string )
     js = "window.find('#{string}')"
-    self.client.eval_js js # TODO how to consolidate all js like this?
+    self.client.browser_vc.eval_js js # TODO how to consolidate all js like this?
   end
 =end
 
   # js version with jquery
   def find_string( string )
     js = "jQuery.searchText($(), '#{string}', $('body'), null);"
-    result = self.client.eval_js js
+    result = self.client.browser_vc.eval_js js
   end
 
 
@@ -53,7 +72,7 @@ class TextFinder < BBLComponent
 
   def setup_ns_text_finder
     # wire webview's scroll view as find bar container.
-    scroll_view = self.client.view.views_where {|e| e.is_a? NSScrollView}.flatten.first
+    scroll_view = self.client.browser_vc.view.views_where {|e| e.is_a? NSScrollView}.flatten.first
     @find_bar_container = scroll_view
 
     @text_finder = NSTextFinder.alloc.init
@@ -102,7 +121,7 @@ class TextFinder < BBLComponent
       pe_log "find: show interface"
       @action_type = :start_find
       
-      self.client.load_js_lib
+      self.load_view
       
       self.refresh_find_bar_container
 
@@ -141,7 +160,7 @@ class TextFinder < BBLComponent
 
   def string
     pe_log "string request"
-    search_content = self.client.eval_js 'document.documentElement.innerText'
+    search_content = self.client.browser_vc.eval_js 'return document.documentElement.innerText'
   end
 
   # this is the hook that triggers incremental search
@@ -159,7 +178,7 @@ class TextFinder < BBLComponent
       self.find_string string 
     end
     
-    self.client.view
+    self.client.browser_vc.view
   end
 
   def rectsForCharacterRange(range)

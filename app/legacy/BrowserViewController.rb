@@ -32,9 +32,6 @@ class BrowserViewController < PEViewController
 	  	{
 	  		module: SwipeHandler
 	  	},
-	  	{
-	  		module: TextFinder
-	  	}
 	  ]
 	end
 
