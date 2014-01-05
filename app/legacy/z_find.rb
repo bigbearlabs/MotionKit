@@ -159,7 +159,7 @@ class TextFinder < BBLComponent
       self.find_string string 
     end
     
-    self.view
+    self.client.view
   end
 
   def rectsForCharacterRange(range)
