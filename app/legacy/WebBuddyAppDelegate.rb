@@ -827,6 +827,9 @@ class WebBuddyAppDelegate < PEAppDelegate
     pe_debug "#{sender} invoked text finder action"
     
     send_notification :Text_finder_notification, sender, wc.browser_vc.component(TextFinder)
+
+		wc.hide_toolbar
+		# TIDY
   end
 
 end
