@@ -1,8 +1,8 @@
 # NOTE text finder responder behaviour can break when multiple BrowserViewControllers are used in the same window.
 # the vc that's set up later will 'win' the text finder.
-class BrowserViewController 
+class TextFinder < BBLComponent
 
-  def setup_text_finder
+  def on_setup
     setup_ns_text_finder
     watch_notification :Find_request_notification
     watch_notification :Text_finder_notification, self
@@ -38,14 +38,14 @@ class BrowserViewController
   # js version using window.find
   def find_string( string )
     js = "window.find('#{string}')"
-    self.eval_js js # TODO how to consolidate all js like this?
+    self.client.eval_js js # TODO how to consolidate all js like this?
   end
 =end
 
   # js version with jquery
   def find_string( string )
     js = "jQuery.searchText($(), '#{string}', $('body'), null);"
-    result = self.eval_js js
+    result = self.client.eval_js js
   end
 
 
@@ -53,10 +53,10 @@ class BrowserViewController
 
   def setup_ns_text_finder
     # wire webview's scroll view as find bar container.
-    scroll_view = @web_view.views_where {|e| e.is_a? NSScrollView}.flatten.first
+    scroll_view = self.client.view.views_where {|e| e.is_a? NSScrollView}.flatten.first
     @find_bar_container = scroll_view
 
-    @text_finder ||= NSTextFinder.alloc.init
+    @text_finder = NSTextFinder.alloc.init
     @text_finder.client = self
     @text_finder.incrementalSearchingEnabled = true
     @text_finder.findBarContainer = @find_bar_container
@@ -102,7 +102,7 @@ class BrowserViewController
       pe_log "find: show interface"
       @action_type = :start_find
       
-      self.load_js_lib
+      self.client.load_js_lib
       
       self.refresh_find_bar_container
 
@@ -141,7 +141,7 @@ class BrowserViewController
 
   def string
     pe_log "string request"
-    search_content = self.eval_js 'document.documentElement.innerText'
+    search_content = self.client.eval_js 'document.documentElement.innerText'
   end
 
   # this is the hook that triggers incremental search

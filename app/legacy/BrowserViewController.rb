@@ -33,6 +33,9 @@ class BrowserViewController < PEViewController
 	  	},
 	  	{
 	  		module: SwipeHandler
+	  	},
+	  	{
+	  		module: TextFinder
 	  	}
 	  ]
 	end
@@ -117,8 +120,6 @@ class BrowserViewController < PEViewController
 
 		watch_notification :Url_load_finished_notification
 					
-		self.setup_text_finder
-		
 		# self.setup_switcher
 
 		# self.setup_nav_buttons_validation

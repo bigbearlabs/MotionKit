@@ -826,7 +826,7 @@ class WebBuddyAppDelegate < PEAppDelegate
   def performTextFinderAction(sender)
     pe_debug "#{sender} invoked text finder action"
     
-    send_notification :Text_finder_notification, sender, wc.browser_vc
+    send_notification :Text_finder_notification, sender, wc.browser_vc.component(TextFinder)
   end
 
 end
