@@ -19,8 +19,6 @@ class BrowserViewController < PEViewController
 	attr_accessor :nav_buttons_toolbar_item
 	attr_accessor :nav_buttons
 	
-	attr_accessor :find_bar_container
-
 	attr_accessor :web_view_delegate
 	
 	def components
