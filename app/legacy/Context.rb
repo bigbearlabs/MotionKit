@@ -163,7 +163,7 @@ class Context
 
   # drops duplicate items as tested by #match_url?.
   def compact
-    items = self.history_items
+    items = self.items
     item_a = items.dup
     items.map do |item|
       if item.url.nil?
