@@ -20,6 +20,14 @@ Motion::Require.all
 # rakefile's deps
 require 'fileutils'
 
+
+desc "Run the test/spec suite for plain ruby (**/ruby/**.rb)"
+task :'spec:r' do
+  App.config_without_setup.spec_mode = false
+  Rake::Task["run"].invoke
+end
+
+
 Motion::Project::App.setup do |app|
 
   # cocoapods deps
