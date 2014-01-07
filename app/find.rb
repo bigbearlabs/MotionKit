@@ -67,6 +67,11 @@ class TextFinderPlugin < WebBuddyPlugin
     result = self.client.browser_vc.eval_js js
   end
 
+  def clear_highlights
+    self.client.browser_vc.eval_js %Q(
+      $.searchText($(), '', $('body'), null)
+    )
+  end
 
 #= system integration: osx text finder
 
@@ -149,6 +154,8 @@ class TextFinderPlugin < WebBuddyPlugin
     when NSTextFinderActionHideFindInterface
       pe_log "find: hide interface"
       @action_type = nil
+
+      clear_highlights
 
       # self.refresh_find_bar_container
     end
