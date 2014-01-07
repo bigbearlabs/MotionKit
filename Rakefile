@@ -83,7 +83,7 @@ Motion::Project::App.setup do |app|
   app.info_plist['NSServices'] = [
     {
       'NSKeyEquivalent' =>  {
-          'default' =>  "\|"
+          'default' =>  "\>"
       },
       'NSMenuItem' =>  {
           'default' =>  "Send to WebBuddy"
