@@ -14,7 +14,7 @@ class TextFinderPlugin < WebBuddyPlugin
 
     client.browser_vc.load_js_lib :jquery
 
-    client.browser_vc.eval_js_file 'plugin/assets/js/jquery.search.js'
+    client.browser_vc.eval_js_file 'plugin/finder/finder.js'
   end
   
   def view_loaded?
@@ -153,7 +153,6 @@ class TextFinderPlugin < WebBuddyPlugin
       # self.refresh_find_bar_container
     end
 
-    pe_warn "windows on find: #{@find_bar_container.window.responder_chain}"
     # pass on to the text finder.
     @text_finder.performAction(tag)
   end
