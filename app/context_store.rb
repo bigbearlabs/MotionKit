@@ -201,10 +201,21 @@ class ContextStore
 	#=
 
   # PERF
+  # FIXME position keeping is a hassle here.
 	def history_stack
 		item_union = NSSet.setWithArray self.stacks.map { |e| e.pages }.flatten
 
 	  h = Context.new('History', item_union.allObjects)
+	end
+	
+	def compact
+	  nil_names = stacks.select {|e| e.name.nil?}
+	  pe_warn "stacks #{nil_names} have empty names. let's remove."
+
+	  nil_names.map do |bad_stack|
+		  @stacks_by_id.delete_if {|k,v| v == bad_stack}
+		  bad_stack.persistence_record && bad_stack.persistence_record.destroy
+		end
 	end
 	
 end
