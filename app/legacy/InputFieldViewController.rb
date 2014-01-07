@@ -369,7 +369,7 @@ class InputFieldViewController < PEViewController
 	def complete_find
 		@mode = :default
 	end
-	
+		
 	
 #= NSTextField integration points
 
@@ -488,17 +488,20 @@ class InputFieldViewController < PEViewController
 	end
 
 	# FIXME this method seems to get called too often.
-	# def tokenField(field, styleForRepresentedObject:object)
-	# 	pe_debug "token style callback for input: '#{object}'"
+	def tokenField(field, styleForRepresentedObject:object)
+		# pe_debug "token style callback for input: '#{object}'"
 
-	# 	if tokens.include? object
-	# 		NSDefaultTokenStyle  # this means it gets tokenised.
-	# 	else
-	# 		# object += ' ' unless object.end_with? ' '
+		# if tokens.include? object
+		# 	NSDefaultTokenStyle  # this means it gets tokenised.
+		# else
+		# 	# object += ' ' unless object.end_with? ' '
 
-	# 		NSPlainTextTokenStyle  # this means it doesn't show as a token.
-	# 	end
-	# end
+		# 	NSPlainTextTokenStyle  # this means it doesn't show as a token.
+		# end
+		# DISABLED token functionality not yet spec'ed.
+		NSPlainTextTokenStyle
+	end
+
 
 	# FIXME on enter, this makes a trailing space. remember last entered char and handle outside the field's string value.
 	# def tokenField(field, displayStringForRepresentedObject:object)
