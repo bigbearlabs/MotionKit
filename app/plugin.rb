@@ -72,9 +72,11 @@ class WebBuddyPlugin < BBLComponent
 
   def show_plugin
     self.client.plugin_vc.frame_view.visible = true
+    self.client.browser_vc.frame_view.visible = false
   end
   
   def hide_plugin
+    self.client.browser_vc.frame_view.visible = true
     self.client.plugin_vc.frame_view.visible = false
   end
   

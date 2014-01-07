@@ -26,8 +26,10 @@ class ViewerWindowController < BrowserWindowController
 				# view model -> view
 				if self.input_field_shown
 					self.show_toolbar
+					@input_field_vc.view.visible = true
 				else
 					self.hide_toolbar
+					@input_field_vc.view.visible = false
 				end
 			end
 

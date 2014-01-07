@@ -1,15 +1,21 @@
 module JsEval
 
   # TODO generalise
-  def load_js_lib
-    file_names = [ "plugin/assets/js/jquery-1.7.1.min.js", "plugin/assets/js/jquery.search.js" ]
-    file_names.each do |file_name| 
-      eval_js_file file_name
+  def load_js_lib( lib )
+    case lib
+    when :jquery
+      file_name = "plugin/assets/js/jquery-1.7.1.min.js"
+      condition_js = 'return (window.jQuery == null)'
+    else
+      raise "js lib #{lib} unimplemented"
     end
 
-    # TODO check if load really necessary
-    # window.jQuery || load_it
-    # FIXME somehow optimise the invocation frequency, e.g. once per page
+    if eval_js condition_js
+      eval_js_file file_name
+    else
+      pe_log "'#{condition_js}' returned false, not loading #{lib}"
+    end
+
   end
   
   def eval_js_file file_name
@@ -19,6 +25,7 @@ module JsEval
     result
   end
   
+  # FIXME depends on json2/cycle.js
   def eval_expr single_line_expr
     eval_js %(
       return JSON.stringify(
@@ -54,7 +61,7 @@ module JsEval
       result = dom_window.evaluateWebScript(script_string)
     
       if result.is_a? WebUndefined
-        pe_log "find js returned undefined. no match?"
+        pe_log "js returned undefined"
         result = result.to_s
       end
 
@@ -62,6 +69,7 @@ module JsEval
       pe_debug "eval_results: #{result.description}"
     
       raise result.description + " for #{script_description}" if result.description.starts_with? 'JS Exception: '
+
       result
     end
   end

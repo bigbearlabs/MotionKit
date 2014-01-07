@@ -7,7 +7,6 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="BrowserViewController">
             <connections>
-                <outlet property="find_bar_container" destination="50" id="54"/>
                 <outlet property="view" destination="4" id="7"/>
                 <outlet property="web_view" destination="38" id="44"/>
                 <outlet property="web_view_delegate" destination="55" id="56"/>
@@ -19,40 +18,34 @@
             <rect key="frame" x="0.0" y="0.0" width="397" height="353"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <webView id="38">
-                    <rect key="frame" x="0.0" y="0.0" width="397" height="314"/>
+                <scrollView autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="Rvh-sY-XU6">
+                    <rect key="frame" x="-1" y="-1" width="399" height="355"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                    <webPreferences key="preferences" defaultFontSize="16" defaultFixedFontSize="13" minimumFontSize="12" javaScriptCanOpenWindowsAutomatically="NO"/>
-                    <connections>
-                        <outlet property="UIDelegate" destination="55" id="58"/>
-                        <outlet property="frameLoadDelegate" destination="55" id="61"/>
-                        <outlet property="policyDelegate" destination="55" id="60"/>
-                        <outlet property="resourceLoadDelegate" destination="55" id="59"/>
-                    </connections>
-                </webView>
-                <customView hidden="YES" id="31">
-                    <rect key="frame" x="0.0" y="0.0" width="397" height="353"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                </customView>
-                <scrollView hidden="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="50">
-                    <rect key="frame" x="0.0" y="317" width="397" height="36"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                    <clipView key="contentView" id="yox-0E-Lh5">
-                        <rect key="frame" x="1" y="1" width="395" height="34"/>
+                    <clipView key="contentView" id="BwL-Kx-dvp">
+                        <rect key="frame" x="1" y="1" width="397" height="353"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view id="51">
-                                <rect key="frame" x="0.0" y="0.0" width="395" height="34"/>
+                            <webView id="38">
+                                <rect key="frame" x="0.0" y="0.0" width="397" height="353"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            </view>
+                                <webPreferences key="preferences" defaultFontSize="16" defaultFixedFontSize="13" minimumFontSize="12" javaScriptCanOpenWindowsAutomatically="NO">
+                                    <nil key="identifier"/>
+                                </webPreferences>
+                                <connections>
+                                    <outlet property="UIDelegate" destination="55" id="58"/>
+                                    <outlet property="frameLoadDelegate" destination="55" id="61"/>
+                                    <outlet property="policyDelegate" destination="55" id="60"/>
+                                    <outlet property="resourceLoadDelegate" destination="55" id="59"/>
+                                </connections>
+                            </webView>
                         </subviews>
                     </clipView>
-                    <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="52">
-                        <rect key="frame" x="1" y="19" width="395" height="16"/>
+                    <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="Yvc-JU-SN1">
+                        <rect key="frame" x="1" y="338" width="397" height="16"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
-                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="53">
-                        <rect key="frame" x="380" y="1" width="16" height="34"/>
+                    <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="b30-dB-cze">
+                        <rect key="frame" x="382" y="1" width="16" height="353"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                 </scrollView>

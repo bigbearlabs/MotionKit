@@ -19,8 +19,6 @@ class BrowserViewController < PEViewController
 	attr_accessor :nav_buttons_toolbar_item
 	attr_accessor :nav_buttons
 	
-	attr_accessor :find_bar_container
-
 	attr_accessor :web_view_delegate
 	
 	def components
@@ -33,7 +31,7 @@ class BrowserViewController < PEViewController
 	  	},
 	  	{
 	  		module: SwipeHandler
-	  	}
+	  	},
 	  ]
 	end
 
@@ -115,12 +113,8 @@ class BrowserViewController < PEViewController
 		
 		setup_scroll_tracking
 
-		watch_notification :Find_request_notification
-		watch_notification :Text_finder_notification
 		watch_notification :Url_load_finished_notification
 					
-		self.setup_text_finder
-		
 		# self.setup_switcher
 
 		# self.setup_nav_buttons_validation

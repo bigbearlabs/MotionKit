@@ -370,15 +370,6 @@ class InputFieldViewController < PEViewController
 		@mode = :default
 	end
 	
-	def performFindPanelAction( sender )
-		pe_log "find invoked."
-		
-		send_notification :Find_request_notification, @input_field.stringValue
-		
-		# take back focus.
-		self.make_first_responder
-	end
-	
 	
 #= NSTextField integration points
 

@@ -62,6 +62,9 @@ class BrowserWindowController < NSWindowController
 					context_store: @context_store
 				}
 			},
+	  	{
+	  		module: TextFinderPlugin
+	  	}
 		]
 	end
 	
@@ -93,9 +96,9 @@ class BrowserWindowController < NSWindowController
 
 		self.window_title_mode = :title
 
-		@browser_vc.setup context_store: @context_store
-
 		@plugin_vc.setup( {} )			
+
+		@browser_vc.setup context_store: @context_store
 
 		pe_log "#{self} synchronous setup complete."
 
@@ -407,17 +410,13 @@ class BrowserWindowController < NSWindowController
 	# actions - the name is now lagging as these control the control overlay.
 	
 	def handle_hide_input_field(sender)
-		@input_field_vc.view.visible = false
-
-		# self.hide_toolbar
+		self.input_field_shown = false
 	end
 	
 	def handle_focus_input_field(sender)
 		send_notification :Input_field_focused_notification
 
-		self.show_toolbar
-
-		@input_field_vc.view.visible = true
+		self.input_field_shown = true
 
 		@input_field_vc.focus_input_field
 	end
@@ -660,16 +659,6 @@ class BrowserWindowController < NSWindowController
 			proposedMax
 		end
 	end
-
-#= find
-
-	def performTextFinderAction(sender)
-		pe_debug "#{sender} invoked text finder action"
-		
-		send_notification :Text_finder_notification, sender
-	end
-
-	# TODO find action validation
 
 #= browser activity control
 
