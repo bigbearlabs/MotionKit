@@ -27,7 +27,7 @@ module ExceptionHandling
     # return false
 
     # log.
-    pe_warn exception.report
+    pe_report exception
 
     false
   end
@@ -44,16 +44,23 @@ class NSException
   end
 
   def report
-    self.backtrace ? 
-      self.backtrace.collect { |trace_elem| trace_elem.gsub(/^.*\//, '') }.join("\n") 
-      : self.description + ", " + caller.to_s
+    backtrace = caller.to_a.join "\n"
+    if bt = self.backtrace
+      backtrace + "\n:::" + bt.join("\n")
+    end
+
+    # seems obsolete now.
+    # self.backtrace.collect { |trace_elem| trace_elem.gsub(/^.*\//, '') }.join("\n") 
+    # : ''
+
+    self.description.to_s + "\n" + backtrace
   end
 
   def symbolised_stack_trace
     addresses = self.callStackReturnAddresses
     if RUBYMOTION_ENV == 'development'
       addresses = addresses.to_a.map{|e| e.to_s(16)}  # convert to hex
-      `atos -p #{NSApp.pid} #{addresses.join ' '}`
+      `atos -d -p #{NSApp.pid} #{addresses.join ' '}`
     else
       addresses
     end
