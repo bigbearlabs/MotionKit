@@ -82,12 +82,12 @@ end
 
 module CoreDataPersistence
 
+  # CASE when data doesn't have an attached persistence record, will create duplicate records.
   def save_stacks
     # Stack -> CoreDataStack, then save.
 
     # focus first on clean high-level impl -- there will probably be perf enhancements when data scales to large sizes.
     records_to_save = self.stacks.map do |stack|
-
       # insert_or_update stack
       if stack.persistence_record
         stack.persistence_record
@@ -97,41 +97,46 @@ module CoreDataPersistence
       end
     end
 
-    records_to_save.map(&:save!)   # will throw errors if any
-    # FIXME potentially inefficient.
-
     new_count = records_to_save.select( &:new_record?).size
     persist_count = records_to_save.select( &:persisted?).size
 
-    pe_log "saved stacks. new: #{new_count}, saved: #{persist_count}"
+    records_to_save.map(&:save!)   # will throw errors if any
+    # FIXME potentially inefficient.
+
+    pe_log "saved stacks. new: #{new_count}, updated: #{persist_count}"
      
-    anomaly_count = records_to_save.size - persist_count
-    raise "out of #{records_to_save.size} records, only #{persist_count} objects persisted" if anomaly_count != 0
+    anomaly_count = records_to_save.size - persist_count - new_count
+    raise "out of #{records_to_save.size} records, #{anomaly_count} objects not persisted" if anomaly_count != 0
   end
   
   def load_stacks
     # fetch CoreDataStack, then -> Stack.
 
     CoreDataStack.all.map do |record|
-      stack = self.stack_for record.name
-
-      page_hashes = record.pages.to_a.map do |page_record|
-        {
-          title: page_record.title,
-          url: page_record.url,
-          last_accessed_timestamp: page_record.last_accessed,
-          timestamp: page_record.first_accessed,
-        }.to_stringified
-      end
-      # FIXME reconcile all attribute names.
-      
-      pages = page_hashes.map{|e| new_item e}  # TODO rename new_item to new_page or Page.from_hash
-      stack.load_items pages
-
-      stack.persistence_record = record
+      stack = to_stack record
     end
   end
 
+  def to_stack( record )
+    stack = self.stack_for record.name
+
+    page_hashes = record.pages.to_a.map do |page_record|
+      {
+        title: page_record.title,
+        url: page_record.url,
+        last_accessed_timestamp: page_record.last_accessed,
+        timestamp: page_record.first_accessed,
+      }.to_stringified
+    end
+    # FIXME reconcile all attribute names.
+    
+    pages = page_hashes.map{|e| new_item e}  # TODO rename new_item to new_page or Page.from_hash
+    stack.load_items pages
+
+    stack.persistence_record = record
+    stack
+  end
+  
   #= TODO revise to commit-worthy.
 
   def persistable_pages pages
