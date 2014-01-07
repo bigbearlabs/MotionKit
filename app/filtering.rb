@@ -61,7 +61,11 @@ class FilteringPlugin < WebBuddyPlugin
       data_stack stack
     end
 
-    Hash[ stacks_data.map {|e| [ e[:name], e ]} ]
+    # convert into a hash keyed by encoded name, to facilitate merging based on keys in the view.
+    Hash[ stacks_data.map {|e| 
+      encoded_name = CGI::escape( e[:name] ).gsub('+', '%20')
+      [ encoded_name, e ]
+    } ]
   end
 
   def data_stack( stack )
