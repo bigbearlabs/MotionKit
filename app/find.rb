@@ -63,6 +63,9 @@ class TextFinderPlugin < WebBuddyPlugin
 
   # js version with jquery
   def find_string( string )
+    # be a bit paranoid about the content's state, to avoid deviations between js-based matching and NSTextFinder internal matching / counting.
+    @text_finder.noteClientStringWillChange
+
     js = "jQuery.searchText($(), '#{string}', $('body'), null);"
     result = self.client.browser_vc.eval_js js
   end
