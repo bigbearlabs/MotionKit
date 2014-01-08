@@ -39,16 +39,19 @@ class SwipeHandler < BBLComponent
 	def add_client_methods
 		# work around crash when extending client with a module.
 
-		def client.wantsForwardedScrollEventsForAxis( axis )
+		scroll_forwarder = client.view
+		scroll_forwarder.instance_variable_set :@scroll_handler, self
+
+		def scroll_forwarder.wantsForwardedScrollEventsForAxis( axis )
 			# track horizontal only.
 			axis == NSEventGestureAxisHorizontal
 		end
 
 		# only deals with forwarded scroll events.
-		def client.scrollWheel( event )
+		def scroll_forwarder.scrollWheel( event )
 			pe_debug event.description
 			
-			self.component(SwipeHandler).handle_scroll_event event
+			@scroll_handler.handle_scroll_event event
 
 			super
 		end
@@ -94,7 +97,7 @@ class SwipeHandler < BBLComponent
 		# set up overlay and per-lambda state
 		
 		swipe_handler = lambda { |gestureAmount, phase, isComplete, stop|
-			pe_debug "swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop}, #{stop[0]}"
+			pe_debug "swipe handler block: #{gestureAmount}, #{phase}, #{isComplete}, #{stop[0]}"
 
 			case phase
 			when NSEventPhaseBegan
@@ -105,7 +108,11 @@ class SwipeHandler < BBLComponent
 				# bail out if we can't perform.
 				@can_navigate = client.can_navigate @direction
 		
-				return unless @can_navigate
+				# stop further handler invocations if we can't navigate.
+				unless @can_navigate
+					stop[0] = true
+					return
+				end
 
 				@animation_overlay.visible = true  ## DEV
 
@@ -140,8 +147,6 @@ class SwipeHandler < BBLComponent
 			when NSEventPhaseCancelled
 				# when gesture didn't exceed threshold
 					
-				return unless @can_navigate
-
 				pe_log "event cancel phase detected in scroll event handler"
 	
 				@event_cancelled = true
@@ -150,13 +155,12 @@ class SwipeHandler < BBLComponent
 
 				# just page.
 				self.navigate_web_view opposite_direction( @direction )
-				return
 
 			when NSEventPhaseEnded
 				pe_log "event phase ended"
+	
 			end
 
-			return unless @can_navigate
 
 			# apply page offset rendering.
 			# -1 <= normalised offset <= 1. 
