@@ -6,17 +6,17 @@ class FilteringPlugin < WebBuddyPlugin
 
   def on_setup
 
-    @filter_reaction = react_to 'client.input_field_vc.current_filter' do |input|
+    @input_reaction = react_to 'client.input_field_vc.current_filter' do |input|
       on_input input if input
     end
 
-    @update_stack_reaction = react_to 'client.stack.pages' do
+    @update_data_reaction = react_to 'client.stack.pages' do
       update_data searches_delta: data_searches( [ self.client.stack ])
     end
 
     # set up a policy on the web view delegate to prevent href navigation.
-    react_to 'client.plugin_vc.web_view_delegate' do |web_view_delegate|
-      web_view_delegate.policies_by_pattern = {
+    @set_policies_reaction = react_to 'client.plugin_vc.web_view_delegate' do |delegate|
+      delegate.policies_by_pattern = {
         /(localhost|#{NSBundle.mainBundle.path})/ => :load,
         %r{(http://)?about:} => :load,
         /.+/ => -> url, listener {
