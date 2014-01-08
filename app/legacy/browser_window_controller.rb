@@ -104,14 +104,12 @@ class BrowserWindowController < NSWindowController
 
 		# asynchronously set up the rest, for more responsive windows.
 		on_main_async do
+
+			# TODO extract stack-population related workflow like this into an appropriate abstraction.
 			# populate model's redirections 
 			@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
-				# self.stack.add_redirect browser_vc.url, browser_vc.web_view_delegate.redirections  
-				from_url = redirections[0]
-				current_url = browser_vc.web_view_delegate.url
-				(redirections[1..-1] << current_url).map do |redirection|
-					self.stack.add_redirect from_url, redirection
-				end
+				# just keep adding the current page - it should be enough.
+				self.stack.add_redirect redirections[0], @browser_vc.web_view.url
 			end
 
 			@browser_vc.web_view.make_first_responder 

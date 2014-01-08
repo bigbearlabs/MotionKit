@@ -159,8 +159,11 @@ class BBLWebViewDelegate
   def add_redirect
     # interpret the last event and log.
     redirect_event = @events.last
-    kvo_change :redirections do
-      @redirections << redirect_event[:data][:from_url]
+    from_url = redirect_event[:data][:from_url]
+    if from_url
+      kvo_change :redirections do
+        @redirections << from_url
+      end
     end
   end
 
@@ -258,8 +261,8 @@ class BBLWebViewDelegate
 
     to_url = request.URL.absoluteString
 
-    # page redirects have response_url equal to url and a different to_url.
-    if response_url
+    # page redirects have a to_url same as one already set on frame.
+    if to_url == webView.url
       self.push_event 'willSendRequestForRedirectResponse', { 
         from_url: response_url,
         to_url: to_url, 
