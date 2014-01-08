@@ -57,21 +57,14 @@ class FilteringPlugin < WebBuddyPlugin
   end
 
   def data_searches( stacks = @context_store.stacks )
-    stacks_data = stacks.sort_by {|e| e.last_accessed_timestamp.to_s}.reverse.map do |stack|
+    stacks_data = stacks.map do |stack|
       data_stack stack
     end
-
-    # convert into a hash keyed by encoded name, to facilitate merging based on keys in the view.
-    Hash[ stacks_data.map {|e| 
-      encoded_name = CGI::escape( e[:name] ).gsub('+', '%20')
-      [ encoded_name, e ]
-    } ]
   end
 
   def data_stack( stack )
     pages = stack.pages
       .select { |e| ! e.provisional }
-      .sort_by {|e| e.last_accessed_timestamp.to_s}.reverse
 
     stack_url = pages.empty? ? '' : pages.first.url
 
