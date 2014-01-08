@@ -88,6 +88,11 @@ class Context
   end
   
   def add_redirect( url, redirect_info )
+    if url.nil?
+      pe_log "got a nil url for redirect. ignoring"
+      return
+    end
+
     item = self.item_for_url(url)
     if ! item.nil?
       item.add_redirect redirect_info
