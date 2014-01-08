@@ -111,7 +111,8 @@ class BrowserViewController < PEViewController
 		
 		@web_view_delegate.setup
 		
-		setup_scroll_tracking
+		# the cleanest pattern we've seen so far for composition.
+		@web_view.extend ScrollTracking
 
 		watch_notification :Url_load_finished_notification
 					
@@ -370,27 +371,12 @@ class BrowserViewController < PEViewController
 	end
 	
 
-#= scroll tracking.
+#=
 
-	attr_reader :scroll_event
-
-	def setup_scroll_tracking
-		scroll_view = @web_view.views_where {|e| e.is_a? NSScrollView}.flatten.first
-		scroll_view.extend Reactive
-		scroll_view.extend ScrollTracking
-
-		@scroll_reaction = scroll_view.react_to :scroll_event do |event|
-			kvo_change :scroll_event, event
-
-			# using a small delay, attach a thumbnail for the history item for the swipe handler to use to to animate paging.
-			(@thumbnail_throttle ||= Object.new).delayed_cancelling_previous 0.1, -> {
-				pe_log "taking thumbnail after scroll event #{event}"
-				self.current_history_item.thumbnail = @web_view.image
-			}
-
-		end
+	def snapshot
+	  self.current_history_item.thumbnail = @web_view.image
 	end
-
+	
 #= history
 
 	def can_navigate( direction )

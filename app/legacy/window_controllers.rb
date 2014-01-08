@@ -44,10 +44,16 @@ class ViewerWindowController < BrowserWindowController
 				end
 			end
 
-			react_to 'browser_vc.scroll_event' do |new_val|
-				if new_val
+			react_to 'browser_vc.web_view.scroll_event' do |event|
+				if event
 					self.hide_toolbar
 				end
+
+				# using a small delay, attach a thumbnail for the history item for the swipe handler to use to to animate paging.
+				(@thumbnail_throttle ||= Object.new).delayed_cancelling_previous 0.1, -> {
+					pe_log "taking thumbnail after scroll event #{event}"
+					@browser_vc.snapshot
+				}
 			end
 		end
 
