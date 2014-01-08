@@ -14,8 +14,37 @@ class FilteringPlugin < WebBuddyPlugin
       update_data searches_delta: data_searches( [ self.client.stack ])
     end
 
+    # set up a policy on the web view delegate to prevent href navigation.
+    react_to 'client.plugin_vc.web_view_delegate' do |web_view_delegate|
+      web_view_delegate.policies_by_pattern = {
+        /(localhost|#{NSBundle.mainBundle.path})/ => :load,
+        %r{(http://)?about:} => :load,
+        /.+/ => -> url, listener {
+          pe_log "policy will send #{url} to client."
+          
+          pe_warn "#{self}"
+          on_web_view_nav url
+
+          listener.ignore
+        },
+      }
+    end
+
     load_view
   end
+  
+  # FIXME why doesn't this work on FilteringPlugin ?
+  def on_web_view_nav( url )
+    # get the stack based on the view model.
+
+    selected_item_data = self.client.plugin_vc.eval_expr 'window.webbuddy.scope.view_model.selected_item'
+    # stack_id = selected_item_data[:name]
+    stack_id = Object.from_json(selected_item_data)['name']
+
+    # load url in the client. 
+    self.client.load_url url, stack_id: stack_id
+  end  
+
 
   def on_input input
     # HACK work around lack of navigability constraint.

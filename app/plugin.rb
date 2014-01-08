@@ -12,27 +12,14 @@ class WebBuddyPlugin < BBLComponent
     super client
 
     inject_collaborators deps
-
-    # set up a policy on the web view delegate to prevent href navigation.
-    react_to 'client.plugin_vc.web_view_delegate' do |web_view_delegate|
-      web_view_delegate.policies_by_pattern = {
-        /(localhost|#{NSBundle.mainBundle.path})/ => :load,
-        %r{(http://)?about:} => :load,
-        /.+/ => -> url, listener {
-          pe_log "policy will send #{url} to client."
-          
-          on_web_view_nav url
-
-          listener.ignore
-        },
-      }
-    end
   end
+
 
   def name
     @plugin_name ||= self.class.clean_name.gsub('Plugin', '').downcase
   end
   
+  # TODO doesn't work with static plugins.
   def view_url(env = nil)
     case env
     when :DEV
@@ -40,8 +27,8 @@ class WebBuddyPlugin < BBLComponent
       default(:plugin_view_template).gsub /#\{.*?\}/, name  # DEV works with 'grunt server' in webbuddy-modules
     else
       plugin_dir = "plugin"
-      module_index_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-      "file://#{module_index_path}#/#{name}"  # DEPLOY
+      plugin_view_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
+      "file://#{plugin_view_path}#/#{name}"  # DEPLOY
     end
   end
   
@@ -92,13 +79,6 @@ class WebBuddyPlugin < BBLComponent
     )
   end
 
-  def on_web_view_nav( url )
-    # load url. 
-    self.client.load_url url
-
-    # TODO restore the stack
-  end
-  
   #=
 
   def inspect_data
