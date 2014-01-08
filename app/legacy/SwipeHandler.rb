@@ -62,11 +62,6 @@ class SwipeHandler < BBLComponent
 	# layers in overlay should be created on the fly, based on some count of the target offset from current.
 	# FIXME outstanding: multiple concurrent swipes are not handled properly.
 	def handle_scroll_event( event )
-		case event.phase
-		when NSEventPhaseNone
-			return
-		end
-		
 		# skip vertical events.
 		return if event.scrollingDeltaX.abs <= event.scrollingDeltaY.abs
 		
@@ -104,16 +99,16 @@ class SwipeHandler < BBLComponent
 				pe_log "gesture began."
 		
 				@direction = ( gestureAmount < 0 ? :Forward : :Back )
+				@event_cancelled = false
 
 				# bail out if we can't perform.
 				@can_navigate = client.can_navigate @direction
-		
-				# stop further handler invocations if we can't navigate.
-				unless @can_navigate
+
+				if ! @can_navigate
 					stop[0] = true
 					return
 				end
-
+				
 				@animation_overlay.visible = true  ## DEV
 
 				@swipe_handler_count ||= 0
@@ -140,8 +135,6 @@ class SwipeHandler < BBLComponent
 					
 				@original_page_x = @top_layer.position.x
 
-				# perform the paging early.
-				self.navigate_web_view
 			
 
 			when NSEventPhaseCancelled
@@ -152,9 +145,6 @@ class SwipeHandler < BBLComponent
 				@event_cancelled = true
 
 				# animations are handled by further handler invocations -- nothing to implement here.
-
-				# just page.
-				self.navigate_web_view opposite_direction( @direction )
 
 			when NSEventPhaseEnded
 				pe_log "event phase ended"
@@ -173,6 +163,11 @@ class SwipeHandler < BBLComponent
 			if isComplete
 				pe_log "swipe #{@swipe_handler_count} complete."
 				@swipe_handler_count -= 1
+
+				# perform the paging.
+				# TODO delay overlay hiding until after successful paging.
+				# TODO count offset based on handle count and navigate at once, to avoid stutters.
+				self.navigate_web_view unless @event_cancelled
 
 				# reset overlay state
 				# FIXME keep overlay in place until browserVC finishes load.
