@@ -17,9 +17,11 @@ class SwipeHandler < BBLComponent
 		# prep the overlay.
 		@animation_overlay = NSView.alloc.initWithFrame(superview.bounds)
 		@animation_overlay.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
+		@animation_overlay.canDrawConcurrently = true
 		@animation_overlay.layer = CALayer.layer
 		@animation_overlay.wantsLayer = true
-
+		@animation_overlay.visible = false
+		
 		superview.add_view @animation_overlay
 
 		# prep the layers.
