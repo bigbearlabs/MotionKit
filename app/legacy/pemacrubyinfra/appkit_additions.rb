@@ -112,6 +112,8 @@ class NSResponder
 
 		responders = []
 		while next_responder
+			raise "responder chain loops" if responders.include? next_responder
+
 			responders << next_responder
 
 			next_responder = next_responder.nextResponder
@@ -154,7 +156,7 @@ class NSResponder
 
 	def send_to_responder( selector, sender )
 		if self.is_a? NSApplication
-			target = nil
+			target = nil  # will search through responder chain
 		else
 			target = self
 		end
