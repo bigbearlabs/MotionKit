@@ -12,8 +12,6 @@ module ScrollTracking
 
     # define the system event handler method and route over to self.
     class << scroll_view
-      attr_accessor :scroll_tracking_owner
-
       def scrollWheel( event )
         # just set the property.
         @scroll_tracking_owner.kvc_set :scroll_event, event
@@ -22,8 +20,8 @@ module ScrollTracking
       end
     end
 
-    scroll_view.scroll_tracking_owner = receiver
+    scroll_view.instance_variable_set :@scroll_tracking_owner,receiver
 
-    pe_log "Scroll Tracking added to #{receiver}"
+    pe_log "scroll tracking added to #{receiver}"
   end
 end
