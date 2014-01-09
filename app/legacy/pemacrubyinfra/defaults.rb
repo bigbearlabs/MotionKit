@@ -243,8 +243,8 @@ module DefaultsAccess
       return
     end
 
-    # otherwise.
-    yield if block_given?
+    # otherwise return false
+    false
 	end
 	
 #=
