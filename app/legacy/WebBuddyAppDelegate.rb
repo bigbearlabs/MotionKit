@@ -92,8 +92,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def setup_part2
 		super
 
-		watch_notification :Activation_notification
-
 		# user actions
 		watch_notification :Visit_request_notification
 		watch_notification :Revisit_request_notification
@@ -280,13 +278,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 	  deactivate_viewer_window
 	end
 	
-
-	# TODO delay until space state stabilises.
-	def handle_Activation_notification( notification )
-		NSApp.activate
-		self.activate_viewer_window
-	end
-
 #= user actions
 	
 	def handle_Visit_request_notification( notification )
@@ -330,7 +321,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def load_ext_url_in_space_window( params )
 		url = params[:url]
 
-		self.current_viewer_wc.do_activate
+		self.current_viewer_wc
+			.do_activate
+			.hide_toolbar
+			
 		self.load_url url, stack_id:app_stack_id
 	end
 
@@ -429,7 +423,8 @@ class WebBuddyAppDelegate < PEAppDelegate
 			self.active_status = :activating
 
 			activation_params = execute_policy :parse_activation_parameters
-			self.user.perform_activation activation_params	
+
+			self.activate_main_window activation_params
 
 		else
 			self.active_status = :deactivating
@@ -468,8 +463,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def activate_viewer_window
 		self.current_viewer_wc
 			.do_activate
-			.show_toolbar
-		
 
 		self.update_main_window_state
 	end
@@ -828,8 +821,7 @@ class WebBuddyAppDelegate < PEAppDelegate
     
     send_notification :Text_finder_notification, sender, wc.component(TextFinderPlugin)
 
-		wc.hide_toolbar
-		# TIDY
+		wc.input_field_shown = false
   end
 
 end

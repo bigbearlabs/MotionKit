@@ -26,16 +26,6 @@ class User
     @filters.last
   end
 
-#= methods representing user actions to app
-
-  def perform_activation( activation_params )
-    send_notification :Activation_notification, activation_params
-  end
-
-  def perform_deactivation
-    send_notification :Deactivation_notification
-  end
-    
 #= REFACTOR inline, as already abstracted well. 
 
   def perform_filter(filter_string)

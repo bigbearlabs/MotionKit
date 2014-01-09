@@ -89,7 +89,6 @@ class InputFieldViewController < PEViewController
 			self.setup_kvo_display_mode
 			self.setup_kvo_display_strings
 
-			watch_notification :Activation_notification
 			watch_notification :Site_search_notification
 			watch_notification :Visit_request_notification
 
@@ -138,6 +137,7 @@ class InputFieldViewController < PEViewController
 	
 #=
 	
+	# TODO ensure the right dataflows for the obsolete logic below are in place 
 	def handle_Activation_notification( notification )
 		# pass the selection to the input field.
 		if notification && notification.userInfo

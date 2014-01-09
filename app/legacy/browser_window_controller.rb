@@ -685,11 +685,6 @@ class BrowserWindowController < NSWindowController
 			self.window.do_activate -> {
 				NSApp.activate
 
-				# TODO migrate into a reaction.
-				if_enabled :handle_focus_input_field, self do
-					self.handle_hide_input_field self
-				end
-
 				completion_proc.call
 			}
 

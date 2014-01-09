@@ -40,13 +40,13 @@ class ViewerWindowController < BrowserWindowController
 
 					# react to mouse out of the wider tracking area TODO
 				else
-					# self.hide_toolbar 2
+					# self.hide_toolbar delay:2
 				end
 			end
 
 			react_to 'browser_vc.web_view.scroll_event' do |event|
 				if event
-					self.hide_toolbar
+					self.input_field_shown = false
 				end
 
 				# using a small delay, attach a thumbnail for the history item for the swipe handler to use to to animate paging.

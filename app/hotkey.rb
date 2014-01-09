@@ -46,13 +46,13 @@ class HotkeyHandler < BBLComponent
 		@dtap_definition = {
 			modifier: default(:hotkey_modkey),
 			handler: -> {
-				execute_policy :hotkey_action
+				hotkey_action_activate_viewer_window params
 			},
 			handler_hold: -> {
 				if ! NSApp.active? && @hotkey_manager.modkey_counter == 2
 					self.on_double_tap_hold
 				else
-					NSApp.send_to_responder "handle_show_page_detail:", self
+					# NSApp.send_to_responder "handle_show_page_detail:", self
 				end
 			}
 		}
@@ -83,6 +83,11 @@ class HotkeyHandler < BBLComponent
 		#
 		# it2
 		client.main_window_shown = ! client.main_window_shown
+
+		# when activating, focus on input field.
+		# TODO migrate into a reaction.
+		client.wc.handle_focus_input_field self
+
 	end
 
 	#= modkey pref CLEANUP
@@ -109,12 +114,12 @@ class HotkeyHandler < BBLComponent
 	def on_double_tap_hold
 		client.activate_viewer_window
 
+		client.wc.input_field_shown = false
+
 		# NSApp.send_to_responder "handle_show_page_detail:", self
 
 		# oh, the dream.
 		# NSApp.delegate.handle_show_app_actions
-
-		client.wc.hide_toolbar
 	end
 
 #== modifier related
