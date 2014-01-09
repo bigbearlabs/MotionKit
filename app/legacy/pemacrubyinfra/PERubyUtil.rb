@@ -154,7 +154,8 @@ module StringUtil
       # FIXME probably has some edge cases
       self
     else
-      "http://#{self.escaped}"
+      pre_params, param_str = self.split('?', 2)
+      "http://#{pre_params}?#{param_str.to_s.escaped}"
     end
   end
   
@@ -167,7 +168,7 @@ module StringUtil
 #= hacks
 
   def to_search_url_string
-    "http://google.com/search?q=#{self.escaped}"
+    "http://google.com/search?q=#{self.escaped}".gsub '%20', '+'
   end
   
   def escaped( escape_style = :all )
@@ -175,13 +176,8 @@ module StringUtil
     when :simple
       return self.gsub ' ', '%20'
     else
-      # CGI.escape self TODO encode only the param string.
-      if self.index '?'
-        pre_params, param_str = self.split('?', 2)
-        return pre_params + "?" + CGI.escape(param_str)
-      else
-        self
-      end
+      # return CGI.escape(param_str)
+      return self.to_url_encoded  # cope with kr chars
     end
   end
 end
