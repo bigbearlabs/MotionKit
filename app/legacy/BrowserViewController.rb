@@ -138,8 +138,6 @@ class BrowserViewController < PEViewController
 #=
 
 	def load_url(url_or_array, options = {})
-    pe_trace
-
 		load_proc = proc {
 
 			# MOVE

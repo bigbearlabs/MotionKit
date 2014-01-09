@@ -97,7 +97,7 @@ class Context
     if ! item.nil?
       item.add_redirect redirect_info
     else
-      raise "no item for #{url} **TRACE**  #{caller}"
+      raise "no item for #{url}"
       
     end
   end

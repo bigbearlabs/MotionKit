@@ -58,7 +58,7 @@ class SpaceAnchorWindowController < NSWindowController
 
 	#= NSWindow delegate methods
 	
-	def windowDidBecomeKey(notifications)
+	def windowDidBecomeKey(notification)
 		pe_warn "#{self} became key!"
 
 		# make key status pass onto main window
