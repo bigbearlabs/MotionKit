@@ -28,21 +28,21 @@ module Delegating
   module InstanceMethods
 
     def method_missing(method, *args)      
-      # # when delegating methods are specified
-      # if self.class.respond_to? :delegating_methods and self.class.delegating_methods.include?( method.intern)
-      #     # send the method to the obj returned from the accessor instead.
-      #     self.delegate.send method, *args
-      # else
-      #   if delegate.respond_to? method
-      #     delegate.send method, *args
-      #   else
-      #     super
-      #   end
-      # end
+      # when delegating methods are specified
+      if self.class.respond_to? :delegating_methods
+        if self.class.delegating_methods.include?( method.intern)
+          # send the method to the obj returned from the accessor instead.
+          return self.delegate.send method, *args
+        end
+      else 
+        # we defined the delegator in a generic way.
+        if self.delegate.respond_to? method
+          pe_log "delegating call #{method}"
+          return self.delegate.send method, *args
+        end
+      end
 
-      # if we came this far, we can just delegate.
-      pe_log "delegating call #{method}"
-      self.delegate.send method, *args
+      return super
     rescue Exception => e
       pe_report e, "delegating method '#{method}' to #{self.class.delegate_accessor}"
     end
