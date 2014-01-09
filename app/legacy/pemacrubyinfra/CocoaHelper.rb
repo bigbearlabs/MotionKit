@@ -215,23 +215,23 @@ class NSDictionary; include HashUtil; end
 
 class NSDictionary
 
-	def self.dictionary_from( path_string )
-		path_string = NSApp.app_support_dir + "/" + path_string
-		if File.size? path_string
-      content = File.open(path_string).read
-
-      # TODO test if yaml file.
-			instance = YAML::load content
-		end
-
-		instance ? instance : {}
-	end
-
-	def save_to( path_string )
+	def save_yaml( path_string )
 		path_string = NSApp.app_support_dir + "/" + path_string
     content = self.to_yaml
     
     write_file path_string, content
+  end
+
+  def self.load_yaml( path_string )
+    path_string = NSApp.app_support_dir + "/" + path_string
+    if File.size? path_string
+      content = File.open(path_string).read
+
+      # TODO test if yaml file.
+      instance = YAML::load content
+    end
+
+    instance ? instance : {}
   end
 
 
