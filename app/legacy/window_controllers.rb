@@ -59,11 +59,7 @@ class ViewerWindowController < BrowserWindowController
 
 		on_main_async do
 			begin
-				if self.stack
-					self.load_url last_url
-				else
-					"no stack, not loading."
-				end
+				on_setup_complete
 			rescue Exception => e
 				# case: first-time launch
 				# case: etc etc
@@ -76,6 +72,19 @@ class ViewerWindowController < BrowserWindowController
 	# TODO browser_view.event
 	# TODO revise mouse tracking routines to interface via .mouse_entered
 
+	def on_setup_complete
+		# # load stack.
+		# if self.stack
+		# 	self.load_url last_url
+		# else
+		# 	"no stack, not loading."
+		# end
+
+		if browser_vc.url.nil?
+			self.component(FilteringPlugin).show_plugin
+		end
+	end
+	
 
 	#= gallery
 
