@@ -14,21 +14,25 @@ module DefaultsAccess
   def default( key )
     raise "factory defaults not set!" if self.factory_defaults.nil?
 
-    key = defaults_qualified_key key
-    val = NSUserDefaults.standardUserDefaults.kvc_get(key)
+    qualified_key = defaults_qualified_key key
+    key = key.to_s
+
+    val = NSUserDefaults.standardUserDefaults.kvc_get(qualified_key)
 
     # retrieve from merged defaults.
     merged_defaults = 
       if val.nil?
         factory_defaults.dup
       else
-        factory_defaults.overwritten_hash({ key => val }.unflattened_hash)
+        factory_defaults.overwritten_hash({ qualified_key => val }.unflattened_hash)
       end
 
-    # guard against flattened dupe key.
-    final_val = merged_defaults.flattened_hash.unflattened_hash.kvc_get key
+    # guard against flattened dupe qualified_key.
+    merged_defaults = merged_defaults.flattened_hash.unflattened_hash
 
-    pe_warn "nil value for default '#{key}'" if final_val.nil?
+    final_val = merged_defaults.kvc_get qualified_key
+
+    pe_warn "nil value for default '#{qualified_key}'" if final_val.nil?
     debug [ self ] if final_val.nil?
     
     case final_val
