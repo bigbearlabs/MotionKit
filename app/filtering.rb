@@ -1,10 +1,13 @@
 # TODO need to ensure the view doesn't load another url. how to best facilitate?
 class FilteringPlugin < WebBuddyPlugin
+  include DynamicServer
+
   include Reactive
 
   attr_accessor :context_store
 
   def on_setup
+    self.start 9123
 
     @input_reaction = react_to 'client.input_field_vc.current_filter' do |input|
       on_input input if input
@@ -127,4 +130,13 @@ class FilteringPlugin < WebBuddyPlugin
     end
   end
   
+
+  def on_request( request, response )
+    p 'filtering request received'
+
+    response.respondWithString self.data.to_json
+  end
+  
 end
+
+

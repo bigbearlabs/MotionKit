@@ -7,18 +7,29 @@ module DynamicServer
     @server.interface = 'loopback'
     @server.port = port
 
+    # PULL-OUT
+    @server.get('/*', withBlock:proc {|request, response|
+      pe_log "GET requested."
+
+      # for view to fetch data. TEMP
+      response.setHeader 'Access-Control-Allow-Origin', value:'*'
+
+      self.on_request request, response
+    })
     @server.put('/*', withBlock:proc {|request, response|
       pe_log "PUT requested."
 
-      self.handle_request request, response
-      })
+      self.on_request request, response
+    })
+    # END PULL-OUT
+
 
     err = Pointer.new '@'
     @server.start err
     if err[0]
       raise err[0]
     else
-      pe_log "server started: #{@server}"
+      pe_log "#{@server} started serving."
     end
   end
 
@@ -27,7 +38,7 @@ end
 module Hotloader
   include DynamicServer
   
-  def handle_request request, response
+  def on_request request, response
     resource_name = request.url.path
     content = request.body
 
@@ -49,6 +60,7 @@ class HotloaderComponent < BBLComponent
   include Hotloader
 
   def on_setup
-    self.start
+    self.start 59123
   end  
 end
+

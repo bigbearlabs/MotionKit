@@ -45,7 +45,7 @@ class WebBuddyPlugin < BBLComponent
       end
 
     self.client.plugin_vc.load_url urls, success_handler: -> url {
-      self.update_data
+      # self.update_data
     }
     # , ignore_history: true
   end
