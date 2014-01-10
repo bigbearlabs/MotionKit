@@ -517,7 +517,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 				viewer_wc = viewer_wcs[0]
 
 				viewer_wcs[1..-1].map do |redundant_wc|
-					pe_warn "closing redundant wc #{reduncant_wc} for space #{current_space_id}"
+					pe_warn "closing redundant wc #{redundant_wc} for space #{current_space_id}"
 					reduncant_wc.should_close = true
 					redundant_wc.close
 				end
