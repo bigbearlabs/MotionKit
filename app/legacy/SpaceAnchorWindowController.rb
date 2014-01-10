@@ -63,6 +63,9 @@ class SpaceAnchorWindowController < NSWindowController
 
 		# make key status pass onto main window
 		# @main_window.makeKeyAndOrderFront(self)
+
+		wc = NSApp.delegate.wc
+		wc.do_activate if wc.window.visible
 	end
 	
 end
