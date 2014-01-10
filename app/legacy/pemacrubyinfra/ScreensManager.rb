@@ -1,11 +1,3 @@
-#
-#  ScreensManager.rb
-#  WebBuddy
-#
-#  Created by Park Andy on 02/12/2011.
-#  Copyright 2011 TheFunHouseProject. All rights reserved.
-#
-
 # require 'CocoaHelper'
 # require 'defaults'
 

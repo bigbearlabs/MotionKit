@@ -1,11 +1,3 @@
-#
-#  MainWindow.rb
-#  WebBuddy
-#
-#  Created by Park Andy on 31/10/2011.
-#  Copyright 2011 TheFunHouseProject. All rights reserved.
-#
-
 # motion_require 'pemacrubyinfra/NSWindow_additions'
 
 ##

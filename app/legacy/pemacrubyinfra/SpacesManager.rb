@@ -1,11 +1,3 @@
-#
-#  SpacesManager.rb
-#  WebBuddy
-#
-#  Created by Park Andy on 08/11/2011.
-#  Copyright 2011 TheFunHouseProject. All rights reserved.
-#
-
 # @precondition status bar menu item must have been set up.
 class SpacesManager
 
