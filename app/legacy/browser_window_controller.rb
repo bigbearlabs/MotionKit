@@ -63,7 +63,7 @@ class BrowserWindowController < NSWindowController
 				}
 			},
 	  	{
-	  		module: TextFinderPlugin
+	  		module: FindPlugin
 	  	}
 		]
 	end

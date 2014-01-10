@@ -3,7 +3,7 @@
 # NOTE text finder responder behaviour can break when multiple BrowserViewControllers are used in the same window.
 # the vc that's set up later will 'win' the text finder.
 
-class TextFinderPlugin < WebBuddyPlugin
+class FindPlugin < WebBuddyPlugin
 
   #= plugin methods
   def view_url

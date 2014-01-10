@@ -819,7 +819,7 @@ class WebBuddyAppDelegate < PEAppDelegate
   def performTextFinderAction(sender)
     pe_debug "#{sender} invoked text finder action"
     
-    send_notification :Text_finder_notification, sender, wc.component(TextFinderPlugin)
+    send_notification :Text_finder_notification, sender, wc.component(FindPlugin)
 
 		wc.input_field_shown = false
   end
