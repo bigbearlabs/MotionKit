@@ -34,6 +34,8 @@ class Context
     @pages = pages
 
     @sites ||= {}
+
+    update_current_page
   end
 
 #==
@@ -103,10 +105,6 @@ class Context
   end
   
 #==
-
-  def current_url_match?( url )
-    self.current_page && self.current_page.match_url?( url )
-  end
 
 
   def item_for_url( url )
@@ -223,6 +221,9 @@ class Context
     end
 
     pe_log "loaded #{items_to_load.count} items to context '#{self.name}'."
+
+    # conditionally set the current page.
+    update_current_page
   end
   
 #= sites
