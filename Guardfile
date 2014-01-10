@@ -39,13 +39,13 @@
 
 guard :shell do
   watch %r{^(?:app|bblmotionkit|sketch)/(.+)\.rb$} do |m|
-    # `say #{m[0]}`
+    puts "updating #{m[0]}"
     `curl -i -T #{m[0]} http://localhost:59123`
   end
 
   # watch some libraries too.
-  watch %r{^(?:app|bblmotionkit|sketch|etc/motion_data_wrapper)/(.+)\.rb$} do |m|
-    # `say #{m[0]}`
+  watch %r{^(?:etc/motion_data_wrapper)/(.+)\.rb$} do |m|
+    puts "updating #{m[0]}"
     `curl -i -T #{m[0]} http://localhost:59123`
   end
 
