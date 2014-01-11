@@ -40,7 +40,7 @@ class FilteringPlugin < WebBuddyPlugin
   def on_web_view_nav( url )
     # get the stack based on the view model.
 
-    selected_item_data = self.client.plugin_vc.eval_expr 'window.webbuddy.scope.view_model.selected_item'
+    selected_item_data = self.client.plugin_vc.eval_expr "angular.element('.detail').scope().view_model.selected_item"
     # stack_id = selected_item_data[:name]
     stack_id = Object.from_json(selected_item_data)['name']
 
