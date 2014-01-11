@@ -27,11 +27,13 @@ class NSApplication
 		applicationIconImage
 	end
 	
-	def app_support_dir
+	#= path access
+
+	def app_support_path
 		NSFileManager.defaultManager.privateDataPath
 	end
 
-	def resource_dir
+	def bundle_resources_path
 		NSBundle.mainBundle.resourcePath
 	end
 	

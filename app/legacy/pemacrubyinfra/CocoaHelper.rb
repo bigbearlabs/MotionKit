@@ -216,14 +216,14 @@ class NSDictionary; include HashUtil; end
 class NSDictionary
 
 	def save_yaml( path_string )
-		path_string = NSApp.app_support_dir + "/" + path_string
+		path_string = NSApp.app_support_path + "/" + path_string
     content = self.to_yaml
     
     write_file path_string, content
   end
 
   def self.load_yaml( path_string )
-    path_string = NSApp.app_support_dir + "/" + path_string
+    path_string = NSApp.app_support_path + "/" + path_string
     if File.size? path_string
       content = File.open(path_string).read
 
@@ -236,7 +236,7 @@ class NSDictionary
 
 
   def save_plist( path_string )
-    path_string = NSApp.app_support_dir + "/" + path_string
+    path_string = NSApp.app_support_path + "/" + path_string
     
     written = writeToFile("#{path_string}", atomically:true)
 
@@ -244,7 +244,7 @@ class NSDictionary
   end
 
   def self.from_plist( app_support_subpath )
-    full_path = NSApp.app_support_dir + "/" + app_support_subpath 
+    full_path = NSApp.app_support_path + "/" + app_support_subpath 
     pe_log "loading Hash from #{full_path}"
 
     NSDictionary.dictionaryWithContentsOfFile(full_path)

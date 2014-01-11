@@ -154,7 +154,7 @@ class ScreensManager
 	end
 	
 	def self.serialisation_path
-		"#{NSApp.app_support_dir}/screens_manager.yaml"
+		"#{NSApp.app_support_path}/screens_manager.yaml"
 	end
 end
 

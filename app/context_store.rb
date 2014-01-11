@@ -94,7 +94,7 @@ class ContextStore
 #=
 
 	def thumbnail_path
-		"#{NSApp.app_support_dir}/" + thumbnail_dir
+		"#{NSApp.app_support_path}/" + thumbnail_dir
 	end
 
   def thumbnail_url( item )
