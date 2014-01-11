@@ -102,8 +102,8 @@ class NSWindow
 
 		# self.alphaValue = from_opacity
 		
-		do_animate -> {
-			self.animator.alphaValue = to_opacity
+		do_animate -> animator {
+			animator.alphaValue = to_opacity
 		}, completion_handler
 	end
 
@@ -215,10 +215,10 @@ class MaskingWindow < TransparentWindow
 			NSEnableScreenUpdates()
 		}
 
-		do_animate -> {
+		do_animate -> animator {
 			pe_log "animate #{self} from #{self.frame} to #{to_frame}"
 			
-			self.animator.setFrame(to_frame, display:true)   
+			animator.setFrame(to_frame, display:true)   
 		}, completion_handler
 	end
 

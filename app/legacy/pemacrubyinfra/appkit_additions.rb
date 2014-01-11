@@ -276,6 +276,21 @@ end
 #= animation
 
 class NSResponder
+		# TODO method signature sucks. 
+		# consider animate( subject = self, animation_params = {}) with @param :completion_block (optional)
+	def do_animate( animation_proc, completion_proc = nil )
+		on_main {
+			NSAnimationContext.beginGrouping
+
+			NSAnimationContext.currentContext.setCompletionHandler( completion_proc ) if completion_proc
+			
+			animation_proc.call self.animator
+
+			NSAnimationContext.endGrouping
+		}
+	end
+
+	# DEPRECATED use do_animate
 	def animate( animation_subject, animation_block, completion_block = nil )
 		if completion_block
 			NSAnimationContext.currentContext.setCompletionHandler( completion_block )
@@ -322,18 +337,6 @@ def ca_immediately( &block )
 	end
 		
 	CATransaction.commit
-end
-
-def do_animate( animation_proc, completion_proc = nil )
-	on_main {
-		NSAnimationContext.beginGrouping
-
-		NSAnimationContext.currentContext.setCompletionHandler( completion_proc ) if completion_proc
-		
-		animation_proc.call
-
-		NSAnimationContext.endGrouping
-	}
 end
 
 

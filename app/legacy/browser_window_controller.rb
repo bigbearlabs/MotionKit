@@ -425,9 +425,16 @@ class BrowserWindowController < NSWindowController
 	def hide_toolbar( delay = 0 )
 		delayed_cancelling_previous delay, -> {
 			on_main {
-				@top_portion_frame.visible = false
-				# @bar_vc.frame_view.snap_to_top
-				# @browser_vc.frame_view.fit_to_bottom_of @bar_vc.frame_view
+				@top_portion_frame.do_animate -> animator {
+					animator.alphaValue = 0
+				}, -> {
+					@top_portion_frame.hidden = true
+					@top_portion_frame.alphaValue = 1
+
+					# some resizing / repositioning during the days when the browser view wasn't fixed.
+					# @bar_vc.frame_view.snap_to_top
+					# @browser_vc.frame_view.fit_to_bottom_of @bar_vc.frame_view
+				}
 			}
 		}
 	end
@@ -435,10 +442,15 @@ class BrowserWindowController < NSWindowController
 	# TODO there are cases where this doesn't render properly - implement the top-of-scroll-view solution.
 	def show_toolbar
 		on_main {
-			@top_portion_frame.visible = true
-			# @bar_vc.frame_view.snap_to_bottom_of @input_field_vc.frame_view
-			# @browser_vc.frame_view.fit_to_bottom_of @bar_vc.frame_view
+			@top_portion_frame.do_animate -> animator {
+				animator.hidden = false
+
+				# @bar_vc.frame_view.snap_to_bottom_of @input_field_vc.frame_view
+				# @browser_vc.frame_view.fit_to_bottom_of @bar_vc.frame_view
+			}
+
 		}
+
 	end
 	
 	def toolbar_shown?
