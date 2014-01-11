@@ -48,7 +48,7 @@
 			<integer>524288</integer>
 		</dict>
 	</dict>
-	<key>WebKitDeveloperExtras</key>
+	<key>WebKitDeveloperExtras_buggy</key>
 	<false/>
 	<key>WebBuddyAppDelegate</key>
 	<dict>
@@ -185,7 +185,7 @@
 		<key>FilteringPlugin</key>
 		<dict>
 			<key>plugin_view_template</key>
-			<string>http://localhost:9000/#/#{name}</string>
+			<string>http://localhost:9000/#/#{name}, file://#{:app_support_path}/plugins/index.html#/#{name}, file://#{:bundle_resources_path}/plugins/index.html/#/#{name}</string>
 		</dict>
 		<key>overlay_dismissal_delay</key>
 		<integer>2</integer>

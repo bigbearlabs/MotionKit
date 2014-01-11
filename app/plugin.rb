@@ -21,15 +21,11 @@ class WebBuddyPlugin < BBLComponent
   
   # TODO doesn't work with static plugins.
   def view_url(env = nil)
-    case env
-    when :DEV
-      
-      default(:plugin_view_template).gsub /#\{.*?\}/, name  # DEV works with 'grunt server' in webbuddy-modules
-    else
-      plugin_dir = "plugin"
-      plugin_view_path = NSBundle.mainBundle.url("#{plugin_dir}/index.html").path
-      "file://#{plugin_view_path}#/#{name}"  # DEPLOY
-    end
+    default_val = default(:plugin_view_template)
+      .gsub( /#\{name\}/, name)
+      .gsub( /#\{:app_support_path\}/, NSApp.app_support_path)
+      .gsub( /#\{:bundle_resources_path\}/, NSApp.bundle_resources_path)
+      .split( ', ')
   end
   
   def load_view
@@ -37,12 +33,7 @@ class WebBuddyPlugin < BBLComponent
 
     pe_log "loading plugin #{self}"
 
-    urls = 
-      if RUBYMOTION_ENV == 'development'
-        [ self.view_url(:DEV), self.view_url ]
-      else
-        [ self.view_url]
-      end
+    urls = self.view_url
 
     self.client.plugin_vc.load_url urls, success_handler: -> url {
       # self.update_data
@@ -51,7 +42,7 @@ class WebBuddyPlugin < BBLComponent
   end
 
   def view_loaded?
-    [self.view_url(:DEV), self.view_url].select do |url|
+    self.view_url.select do |url|
       self.client.plugin_vc.url.to_s.include? url
     end
     .size != 0
