@@ -139,6 +139,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 			end
 		}
 
+		## dev aliases.
+		$appd = NSApp.delegate
+		$wc = $appd.wc
+
 	end
 
 	# the bit that happens after the intro.

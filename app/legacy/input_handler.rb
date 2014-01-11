@@ -1,3 +1,4 @@
+## RENAME InputParser
 # application logic for handling text input.
 # NOTE filtering input not handled here.
 # TODO resolve with repl.rb
