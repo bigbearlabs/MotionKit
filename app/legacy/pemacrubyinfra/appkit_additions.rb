@@ -290,15 +290,6 @@ class NSResponder
 		}
 	end
 
-	# DEPRECATED use do_animate
-	def animate( animation_subject, animation_block, completion_block = nil )
-		if completion_block
-			NSAnimationContext.currentContext.setCompletionHandler( completion_block )
-		end
-		
-		animation_block.call(animation_subject.animator)
-	end
-
 	def animate_layer( layer_to_animate, duration, animation_block, completion_block = nil )
 		self.layer.addSublayer(layer_to_animate)
 

@@ -877,8 +877,9 @@ class BrowserWindowController < NSWindowController
 	def hide_overlay
 		# @overlay_window.isVisible = false
 		NSAnimationContext.beginGrouping
-		@overlay_window.animate @overlay_window,
-			-> animator { animator.alphaValue = 0 },
+		@overlay_window.do_animate -> animator { 
+			animator.alphaValue = 0 
+		},
 			-> { @overlay_window.isVisible = false }
 		NSAnimationContext.endGrouping
 		
