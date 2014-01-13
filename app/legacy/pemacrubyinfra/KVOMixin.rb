@@ -118,7 +118,7 @@ class NSObject
 		if block_given?
 			yield prop
 		else
-			raise "call with val or block" if val.nil?
+			# raise "call with val or block" if val.nil?
 			
 			instance_variable_set "@#{prop}", val
 		end
