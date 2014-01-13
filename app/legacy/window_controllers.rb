@@ -22,16 +22,23 @@ class ViewerWindowController < BrowserWindowController
 
 		on_main_async do
 
-			react_to :input_field_shown do
+			react_to :input_field_shown do |val|
 				# view model -> view
-				if self.input_field_shown
+				if val
+					if default :handle_focus_input_field
+						@input_field_vc.show
+					end
+
+					# bar must be visible
 					self.show_toolbar
-					@input_field_vc.view.visible = true
+
 				else
-					self.hide_toolbar
-					@input_field_vc.view.visible = false
+					@input_field_vc.hide
 				end
 			end
+
+			self.input_field_shown = default :handle_focus_input_field
+
 
 			self.title_bar_view.track_mouse_entered
 			react_to 'title_bar_view.mouse_entered' do |new_val|

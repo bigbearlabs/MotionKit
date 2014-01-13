@@ -74,7 +74,7 @@ class HotkeyHandler < BBLComponent
 	end
 
 	def hotkey_action_activate_viewer_window( params )
-		client.toggle_viewer_window
+		client.toggle_viewer_window activation_type: :hotkey
 		
 		# # temporarily mirror with main window.
 		# if ! current_viewer_wc.window.visible  # taking advantage of main runloop
@@ -83,10 +83,6 @@ class HotkeyHandler < BBLComponent
 		#
 		# it2
 		client.main_window_shown = ! client.main_window_shown
-
-		# when activating, focus on input field.
-		# TODO migrate into a reaction.
-		client.wc.handle_focus_input_field self
 
 	end
 

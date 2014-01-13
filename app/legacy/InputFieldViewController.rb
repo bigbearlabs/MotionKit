@@ -81,6 +81,9 @@ class InputFieldViewController < PEViewController
 		self.display_mode = :Display_enquiry
 		
 		if self.view
+
+			# a lot of the following looks redundant.
+
 			self.setup_click_tracking
 			self.setup_token_field
 			

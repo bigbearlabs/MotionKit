@@ -438,7 +438,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 	end
 
 	def activate_main_window
-		@main_window_controller.do_activate -> {
+		@main_window_controller.do_activate on_complete: -> {
 			self.active_status = :activated
 		}
 	end
@@ -455,18 +455,20 @@ class WebBuddyAppDelegate < PEAppDelegate
 	
 #= viewer window
 
-	def toggle_viewer_window
+	def toggle_viewer_window( params = {} )
 
 		if current_viewer_wc.window.active?
 			self.deactivate_viewer_window
 		else
-			self.activate_viewer_window
+			self.activate_viewer_window params
 		end
 	end
 	
-	def activate_viewer_window
+
+	def activate_viewer_window( params = {} )
+
 		self.current_viewer_wc
-			.do_activate
+			.do_activate params
 
 		self.update_main_window_state
 	end

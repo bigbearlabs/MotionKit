@@ -112,6 +112,14 @@ class BrowserWindowController < NSWindowController
 				self.stack.add_redirect redirections[0], @browser_vc.web_view.url
 			end
 
+			react_to :activation_type do |val|
+				if val == :hotkey		# initial view state
+					self.input_field_shown = true
+				else
+					self.input_field_shown = false
+				end
+			end
+
 			@browser_vc.web_view.make_first_responder 
 
 			# self.setup_overlay
@@ -683,8 +691,10 @@ class BrowserWindowController < NSWindowController
 	end
 	
 #= window behaviour
+
+	attr_reader :activation_type
 	
-	def do_activate( completion_proc = -> {} )
+	def do_activate( params = {})
 		# debug
 		case default(:activation_style)
 		when :popover
@@ -697,10 +707,12 @@ class BrowserWindowController < NSWindowController
 			self.window.do_activate -> {
 				NSApp.activate
 
-				completion_proc.call
+				params[:on_complete].call if params[:on_complete]
 			}
-
 		end
+
+		activation_type = params[:activation_type]
+		kvo_change :activation_type, activation_type
 
 		self
 	end
