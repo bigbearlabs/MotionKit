@@ -20,7 +20,7 @@ class FilteringPlugin < WebBuddyPlugin
     # set up a policy on the web view delegate to prevent href navigation.
     @set_policies_reaction = react_to 'client.plugin_vc.web_view_delegate' do |delegate|
       delegate.policies_by_pattern = {
-        /(localhost|#{NSBundle.mainBundle.path})/ => :load,
+        %r{localhost|WebBuddy/plugins|WebBuddy.app/Contents/Resources/plugins} => :load,
         %r{(http://)?about:} => :load,
         /.+/ => -> url, listener {
           pe_log "policy will send #{url} to client."
