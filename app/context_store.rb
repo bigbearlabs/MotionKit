@@ -111,7 +111,7 @@ class ContextStore
     item
 	end
 	
-#= persistence to disk
+#= persistence
 
 	def save
 		@io_queue.async do

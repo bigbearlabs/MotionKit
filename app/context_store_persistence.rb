@@ -81,6 +81,7 @@ end
 
 
 module CoreDataPersistence
+  attr_accessor :abort_load  # set to true to abort loading.
 
   # CASE when data doesn't have an attached persistence record, will create duplicate records.
   def save_stacks
@@ -112,9 +113,22 @@ module CoreDataPersistence
   def load_stacks
     # fetch CoreDataStack, then -> Stack.
 
-    CoreDataStack.all.map do |record|
+    # pe_trace
+
+    # stack_records = CoreDataStack.all_prefetching ['name, pages.url, pages.title, pages.last_accessed, pages.first_accessed']
+    stack_records = CoreDataStack.all
+    
+    pe_log "loading #{stack_records.size} stack records."
+    stack_records.map do |record|
+      if @abort_load
+        pe_warn "aborting load_stacks"
+        return
+      end
+      
       stack = to_stack record
     end
+
+    pe_log "finished loading #{stack_records.size} stacks."
   end
 
   def to_stack( record )
@@ -200,3 +214,4 @@ end
 
 class CoreDataStack < MotionDataWrapper::Model
 end
+
