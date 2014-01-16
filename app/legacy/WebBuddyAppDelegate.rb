@@ -827,7 +827,7 @@ class WebBuddyAppDelegate < PEAppDelegate
     
     send_notification :Text_finder_notification, sender, wc.component(FindPlugin)
 
-		wc.input_field_shown = false
+		wc.bar_shown = false
   end
 
 end

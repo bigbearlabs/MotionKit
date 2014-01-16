@@ -22,15 +22,15 @@ class ViewerWindowController < BrowserWindowController
 
 		on_main_async do
 
-			react_to :input_field_shown do |val|
+			react_to :input_field_shown do |shown|
 				# view model -> view
-				if val
+				if shown
 					if default :handle_focus_input_field
 						@input_field_vc.show
 					end
 
 					# bar must be visible
-					self.show_toolbar
+					self.bar_shown = true
 
 				else
 					@input_field_vc.hide
@@ -40,10 +40,19 @@ class ViewerWindowController < BrowserWindowController
 			self.input_field_shown = default :handle_focus_input_field
 
 
+			react_to :bar_shown do |shown|
+				if shown
+					self.show_toolbar
+				else
+					self.hide_toolbar
+				end
+			end
+			
+
 			self.title_bar_view.track_mouse_entered
-			react_to 'title_bar_view.mouse_entered' do |new_val|
-				if new_val == true
-					self.input_field_shown = true
+			react_to 'title_bar_view.mouse_entered' do |entered|
+				if entered
+					self.bar_shown = true
 
 					# react to mouse out of the wider tracking area TODO
 				else
@@ -53,7 +62,7 @@ class ViewerWindowController < BrowserWindowController
 
 			react_to 'browser_vc.web_view.scroll_event' do |event|
 				if event
-					self.input_field_shown = false
+					self.bar_shown = false
 				end
 
 				# using a small delay, attach a thumbnail for the history item for the swipe handler to use to to animate paging.

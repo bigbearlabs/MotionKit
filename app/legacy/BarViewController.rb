@@ -1,3 +1,8 @@
+class BrowserWindowController
+	attr_accessor :bar_shown
+end
+
+
 class BarViewController < PEViewController
 	include KVOMixin
 	include DefaultsAccess

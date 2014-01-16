@@ -110,7 +110,7 @@ class HotkeyHandler < BBLComponent
 	def on_double_tap_hold
 		client.activate_viewer_window
 
-		client.wc.input_field_shown = false
+		client.wc.bar_shown = false
 
 		# NSApp.send_to_responder "handle_show_page_detail:", self
 
