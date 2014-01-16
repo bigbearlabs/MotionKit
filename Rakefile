@@ -159,8 +159,8 @@ namespace :plugins do
 
   desc "copy resources"
   task :cprsc => [] do
-    FileUtils.mkdir_p 'resources/plugin'
-    sh %Q(rsync -avvv --delete ~/'Google Drive'/bigbearlabs/webbuddy-preview/modules/* resources/plugin/)
+    FileUtils.mkdir_p 'resources/plugins'
+    sh %Q(rsync -avvv --delete ~/"Google Drive"/bigbearlabs/webbuddy-preview/webbuddy-plugins/dist/* resources/plugins/)
   end
 
   desc "build and copy plugins"
