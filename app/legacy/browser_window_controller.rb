@@ -115,7 +115,6 @@ class BrowserWindowController < NSWindowController
 			react_to :activation_type do |val|
 				if val == :hotkey		# initial view state
 					self.input_field_shown = true
-					self.handle_focus_input_field self
 				else
 					self.input_field_shown = false
 				end

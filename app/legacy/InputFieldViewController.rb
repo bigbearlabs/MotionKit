@@ -22,6 +22,7 @@ class BrowserWindowController
 			if shown
 				if default :handle_focus_input_field
 					@input_field_vc.show
+					self.handle_focus_input_field self
 				end
 
 				# bar must be visible
@@ -45,8 +46,6 @@ class BrowserWindowController
 	
 	def handle_focus_input_field(sender)
 		send_notification :Input_field_focused_notification
-
-		self.input_field_shown = true
 
 		@input_field_vc.focus_input_field
 	end
