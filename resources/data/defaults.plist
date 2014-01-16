@@ -185,7 +185,7 @@
 		<key>FilteringPlugin</key>
 		<dict>
 			<key>plugin_view_template</key>
-			<string>http://localhost:9000/#/#{name}, file://#{:app_support_path}/plugins/index.html#/#{name}, file://#{:bundle_resources_path}/plugins/index.html/#/#{name}</string>
+			<string>http://localhost:9000/#/#{name}, file://#{:app_support_path}/plugins/index.html#/#{name}, file://#{:bundle_resources_path}/plugins/index.html#/#{name}</string>
 		</dict>
 		<key>overlay_dismissal_delay</key>
 		<integer>2</integer>
