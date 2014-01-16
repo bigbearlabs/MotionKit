@@ -22,24 +22,6 @@ class ViewerWindowController < BrowserWindowController
 
 		on_main_async do
 
-			react_to :input_field_shown do |shown|
-				# view model -> view
-				if shown
-					if default :handle_focus_input_field
-						@input_field_vc.show
-					end
-
-					# bar must be visible
-					self.bar_shown = true
-
-				else
-					@input_field_vc.hide
-				end
-			end
-
-			self.input_field_shown = default :handle_focus_input_field
-
-
 			react_to :bar_shown do |shown|
 				if shown
 					self.show_toolbar

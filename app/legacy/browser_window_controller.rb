@@ -153,15 +153,6 @@ class BrowserWindowController < NSWindowController
 		end
 	end
 
-	def setup_input_field
-		@input_field_vc.setup
-
-		watch_notification :Input_field_focused_notification, @input_field_vc
-		watch_notification :Input_field_unfocused_notification, @input_field_vc
-		watch_notification :Input_field_cancelled_notification, @input_field_vc
-
-	end
-
 	def setup_popover
 		self.setup_reactive_first_responder
 	end
@@ -412,94 +403,6 @@ class BrowserWindowController < NSWindowController
 		end
 	end
 
-#= input field
-	
-	# actions - the name is now lagging as these control the control overlay.
-	
-	def handle_hide_input_field(sender)
-		self.input_field_shown = false
-	end
-	
-	def handle_focus_input_field(sender)
-		send_notification :Input_field_focused_notification
-
-		self.input_field_shown = true
-
-		@input_field_vc.focus_input_field
-	end
-	
-
-	# view operations
-		
-	def hide_toolbar( delay = 0 )
-		delayed_cancelling_previous delay, -> {
-			on_main {
-				@top_portion_frame.do_animate -> animator {
-					animator.alphaValue = 0
-				}, -> {
-					@top_portion_frame.hidden = true
-					@top_portion_frame.alphaValue = 1
-
-					# some resizing / repositioning during the days when the browser view wasn't fixed.
-					# @bar_vc.frame_view.snap_to_top
-					# @browser_vc.frame_view.fit_to_bottom_of @bar_vc.frame_view
-				}
-			}
-		}
-	end
-
-	# TODO there are cases where this doesn't render properly - implement the top-of-scroll-view solution.
-	def show_toolbar
-		on_main {
-			@top_portion_frame.do_animate -> animator {
-				animator.hidden = false
-
-				# @bar_vc.frame_view.snap_to_bottom_of @input_field_vc.frame_view
-				# @browser_vc.frame_view.fit_to_bottom_of @bar_vc.frame_view
-			}
-
-		}
-
-	end
-	
-	def toolbar_shown?
-		@top_portion_frame.visible
-	end
-
-	# events
-
-	def handle_Input_field_focused_notification( notification )
-		# self.show_popover(@nav_buttons_view)
-	
-		self.bar_shown = true
-
-		# disable the overlay for now.    
-=begin
-		case @input_field_vc.mode 
-		when :Filter
-			self.show_filter_overlay
-		else
-			self.show_navigation_overlay
-		end
-=end
-	end
-
-	def handle_Input_field_unfocused_notification( notification )
-		# self.hide_overlay
-	end
-	
-	def handle_Input_field_cancelled_notification( notification )
-		# self.handle_transition_to_browser
-		# self.hide_overlay
-	end
-
-#= REFACTOR to on_input.
-
-	def handle_input( input, details = {})
-		# just try loading, fall back to a search.
-		self.load_url [input, input.to_search_url_string], details
-	end
-	
 #= browsing
 
 	#= interface
