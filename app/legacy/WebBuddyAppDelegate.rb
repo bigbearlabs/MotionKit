@@ -46,6 +46,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 			# {
 			# 	module: ServicesHandler,
 			# },
+			{
+				module: ServerComponent
+			}
 		].tap do | cs|
 			# dev-only
 			if RUBYMOTION_ENV == 'development'

@@ -40,13 +40,13 @@
 guard :shell do
   watch %r{^(?:app|bblmotionkit|sketch)/(.+)\.rb$} do |m|
     puts "updating #{m[0]}"
-    `curl -i -T #{m[0]} http://localhost:59123`
+    `curl -i -T #{m[0]} http://localhost:59123/source`
   end
 
   # watch some libraries too.
   watch %r{^(?:etc/motion_data_wrapper)/(.+)\.rb$} do |m|
     puts "updating #{m[0]}"
-    `curl -i -T #{m[0]} http://localhost:59123`
+    `curl -i -T #{m[0]} http://localhost:59123/source`
   end
 
   # TODO watch /resources, copy to resources path.

@@ -1,16 +1,15 @@
-# TODO need to ensure the view doesn't load another url. how to best facilitate?
 class FilteringPlugin < WebBuddyPlugin
-  include DynamicServer  # FIXME associate with appd to avoid contention when windows > 1.
-
   include Reactive
 
   attr_accessor :context_store
 
   def on_setup
-    begin
-      self.start 9123
-    rescue Exception => e
-      pe_report e      
+    unless @server_registered
+      NSApp.delegate.component(ServerComponent).add_handler '/data', :GET do |request, response|
+        on_request request, response
+      end
+
+      @server_registered = true
     end
 
     @input_reaction = react_to 'client.input_field_vc.current_filter' do |input|

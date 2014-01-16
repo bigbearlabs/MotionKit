@@ -73,6 +73,11 @@ class NSURL
     segments ? segments.last : ''
 
   end
+
+  def inspect
+    self.description
+  end
+  
 end
 
 
