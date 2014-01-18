@@ -26,14 +26,14 @@ module JsEval
   end
   
   # FIXME depends on json2/cycle.js
-  def eval_expr single_line_expr
+  def eval_expr( single_line_expr, description = 'anonymous expression' )
     eval_js %(
       return JSON.stringify(
         JSON.decycle(
           #{single_line_expr}
         )
       );
-    )
+    ), description
   end
   
   # call with a return statement at the end of the js to ensure a value back.
