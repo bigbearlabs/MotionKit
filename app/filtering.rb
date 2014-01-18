@@ -145,9 +145,10 @@ class FilteringPlugin < WebBuddyPlugin
     end
   end
   
+  #=
 
   def on_request( request, response )
-    p 'filtering request received'
+    pe_log 'filtering request received'
 
     response.respondWithString self.data.to_json
   end
