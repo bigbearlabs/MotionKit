@@ -58,6 +58,7 @@ Motion::Project::App.setup do |app|
   app.vendor_project('vendor/DDHotKeyCenter', :static)
   # FIXME need to copy resource.
 
+  app.resources_dirs << 'etc/ext-resources'
 
   # Use `rake config' to see complete project settings.
   app.name = 'WebBuddy'
@@ -152,19 +153,26 @@ task :loop do
 end
 
 namespace :plugins do
+  desc "all plugins tasks"
+  task :all => [ :build, :hotdeploy ]
+
   desc "build"
   task :build => [] do
     sh 'cd ../webbuddy-plugins; rake'
   end
 
-  desc "copy resources"
+  desc "copy resources - obsolete"
   task :cprsc => [] do
     FileUtils.mkdir_p 'resources/plugins'
     sh %Q(rsync -avvv --delete ~/"Google Drive"/bigbearlabs/webbuddy-preview/webbuddy-plugins/dist/* resources/plugins/)
   end
 
-  desc "build and copy plugins"
-  task :all => [ :build, :cprsc ]
+  desc "deploy plugins to app support"
+  task :hotdeploy do
+    sh %(
+      rsync -avv --delete ../webbuddy-plugins/dist/* ~/"Library/Application Support/WebBuddy/plugins/"  
+    )
+  end  
 end
 
 
