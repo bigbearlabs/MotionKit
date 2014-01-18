@@ -414,6 +414,7 @@ class BrowserWindowController < NSWindowController
 	# FIXME migrate objc_interface_obj to webbuddy.interface, migrate webbuddy.module use cases.
 	def load_url(urls, details = {})
 		sid = details[:stack_id]  # can be nil.
+		
 		self.stack = @context_store.stack_for( sid ) if sid
 
 		@browser_vc.load_url urls, details

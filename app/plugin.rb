@@ -36,7 +36,7 @@ class WebBuddyPlugin < BBLComponent
     urls = self.view_url
 
     self.client.plugin_vc.load_url urls, success_handler: -> url {
-      # self.update_data
+      # nothing to do here - view will pull data.
     }
     # , ignore_history: true
   end
