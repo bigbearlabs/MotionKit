@@ -209,4 +209,18 @@ namespace :release do
   desc 'increment version and upload to hockeyapp.'
   task :'h' => [:all, :hockeyapp ]
 
+  desc 'release loop'
+  task :loop do
+    sh %(
+      while [ 0 ]; do
+        git pull
+        (cd ../webbuddy-plugins; git pull)
+        rvm use system
+        rake release:all
+    
+        echo "### sleeping..."
+        sleep 36000
+      done
+    )
+  end
 end
