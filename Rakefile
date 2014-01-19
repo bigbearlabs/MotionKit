@@ -204,7 +204,8 @@ namespace :release do
   # TODO revert version
 
   desc "archive, zip, rsync, version, release"
-  task :all => [ :'modules:cprsc', :increment, :'archive:distribution', :zip, :commit_version ]
+  task :all => [ :'plugins:build', :increment, :'archive:distribution', :zip, :commit_version ]
+
 
   desc 'increment version and upload to hockeyapp.'
   task :'h' => [:all, :hockeyapp ]
