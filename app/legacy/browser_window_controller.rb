@@ -119,7 +119,13 @@ class BrowserWindowController < NSWindowController
 				else
 					self.input_field_shown = false
 				end
+	
 			end
+
+			# new window case.
+			if @activation_type == :hotkey
+				on_main_async { self.handle_focus_input_field self}
+			end			
 
 			@browser_vc.web_view.make_first_responder 
 
