@@ -231,6 +231,13 @@ namespace :release do
       (cd ../webbudy-plugins; rake clean)
       rake clean
     )
-
   end
 end
+
+desc 'clean-env'
+task :'clean:env' do
+  sh %(
+    rm -rf ~/Library/Preferences/com.bigbearlabs.WebBuddy.plist  # prefs
+    rm -rf ~/Library/"Application Support"/*WebBuddy*  # sandboxed prefs
+    rm -rf ~/Library/Containers/com.bigbearlabs.WebBuddy  # sandboxed prefs
+  )
