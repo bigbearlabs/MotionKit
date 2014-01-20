@@ -15,7 +15,6 @@ module JsEval
     else
       pe_log "'#{condition_js}' returned false, not loading #{lib}"
     end
-
   end
   
   def eval_js_file file_name
@@ -25,6 +24,7 @@ module JsEval
     result
   end
   
+
   # FIXME depends on json2/cycle.js
   def eval_expr( single_line_expr, description = 'anonymous expression' )
     eval_js %(
@@ -36,6 +36,7 @@ module JsEval
     ), description
   end
   
+
   # call with a return statement at the end of the js to ensure a value back.
   def eval_js( script_string, script_description = "'#{script_string[0..80]}...'" )
 
@@ -82,15 +83,30 @@ module JsEval
   end
 
   def set_window_property property, obj
-#   if obj.is_a? NSDictionary
-#     obj = obj.dup.to_stringified
-#   end
+    # if obj.is_a? NSDictionary
+    #   obj = obj.dup.to_stringified
+    # end
 
     window_obj = @web_view.windowScriptObject
     window_obj.setValue(obj, forKey:property)
     pe_log "set #{property} on DOM window to #{obj}. url: #{self.url}"
   end
   
+  #= bookmarklets
+
+  def eval_bookmarklet(content)
+    content = content.gsub /^javascript:/, ''
+    unescaped = content.to_url_decoded
+    eval_js unescaped
+  end
+
+  Bookmarklet_lastpass = %(
+    "javascript:(function()%7B/*Click_This_Button_To_AutoFill___Copyright_LastPass_all_rights_reserved*/_LASTPASS_INC=function(u,s)%7Bif(u.match(/_LASTPASS_RAND/))%7Balert('Cancelling_request_may_contain_randkey');return;%7Ds=document.createElement('script');s.setAttribute('type','text/javascript');s.setAttribute('charset','UTF-8');s.setAttribute('src',u);if(typeof(window.attachEvent)!='undefined')document.body.appendChild(s);else%7Bif(document.getElementsByTagName('head').length%3E0)%7Bdocument.getElementsByTagName('head').item(0).appendChild(s);%7Delse%7Bdocument.getElementsByTagName('body').item(0).appendChild(s);%7D%7D%7D;_LASTPASS_RAND='5aeaafb6b122433d0497b3e60e8d2469aa7df074649a7bdcabb82e3d8bb6ed75';_LASTPASS_INC('https://lastpass.com/bml.php'+String.fromCharCode(63)+'v=0&a=0&r='+Math.random()+'&h=80e5ef816bd5cc6c937fda306588f0954221de2716e616e2e40ae24f92a225b5&u='+escape(document.location.href));%7D)();"
+  )
+
+  Bookmarklet_feedly = %(
+    javascript:window.open('http://www.feedly.com/home%23subscription/feed/'+document.location.href,'_top');
+  )
 
   #= module boilerplate
 
