@@ -173,7 +173,7 @@ namespace :plugins do
     sh %(
       rsync -avv --delete ../webbuddy-plugins/dist/* ~/"Library/Application Support/WebBuddy/plugins/"  
     )
-  end  
+  end
 end
 
 
@@ -217,12 +217,20 @@ namespace :release do
       while [ 0 ]; do
         git pull
         (cd ../webbuddy-plugins; git pull)
-        rvm use system
         rake release:all
     
         echo "### sleeping..."
         sleep 36000
       done
     )
+  end
+
+  desc 'clean all'
+  task :'clean:all' do
+    sh %(
+      (cd ../webbudy-plugins; rake clean)
+      rake clean
+    )
+
   end
 end
