@@ -241,3 +241,4 @@ task :'clean:env' do
     rm -rf ~/Library/"Application Support"/*WebBuddy*  # sandboxed prefs
     rm -rf ~/Library/Containers/com.bigbearlabs.WebBuddy  # sandboxed prefs
   )
+end
