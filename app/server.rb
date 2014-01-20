@@ -44,8 +44,8 @@ module DynamicServer
 
   def handlers_for_method( path, method)
     # look up a handler.
-    handlers_for_path = @handlers_by_path[path] or {}
-    handlers_for_method = handlers_for_path[method]
+    handlers_for_path = @handlers_by_path[path]
+    handlers_for_method = (handlers_for_path || {})[method]
     handlers_for_method.to_a
   end
       
