@@ -87,7 +87,7 @@ class FilteringPlugin < WebBuddyPlugin
 
       searches: data_searches,
 
-      pages: data_pages,
+      # pages: data_pages,
 
       # http://suggestqueries.google.com/complete/search?output=toolbar&hl=ja&q=keyword
       suggestions: 
