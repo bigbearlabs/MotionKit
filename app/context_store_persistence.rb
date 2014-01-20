@@ -1,3 +1,22 @@
+module ContextLoader
+  def save_context
+    @context_store.save
+  end
+
+  def load_context
+    @context_store.load
+
+    # HACK work around the kvo -> nil ivar bug.
+    pe_log "context store finished load. updating data for FilteringPlugin"
+    self.component(FilteringPlugin).update_data
+  end
+end
+
+class WebBuddyAppDelegate < PEAppDelegate
+  include ContextLoader
+end
+
+
 module FilePersistence
 
   def save_stacks

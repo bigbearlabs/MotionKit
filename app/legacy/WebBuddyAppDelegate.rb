@@ -300,14 +300,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 #= tracks
 
-	def save_context
-		@context_store.save
-	end
-
-	def load_context
-		@context_store.load
-	end
-	
 	def app_stack_id
 		result = @current_app
 		if ! result || result =~ /#{NSApp.name}/
