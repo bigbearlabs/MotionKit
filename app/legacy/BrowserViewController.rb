@@ -173,6 +173,10 @@ class BrowserViewController < PEViewController
 #=
 
 	def handle_refresh( sender )
+		refresh
+	end
+
+	def refresh( sender = self )
 		@web_view.reload( sender )
 	end
 	
