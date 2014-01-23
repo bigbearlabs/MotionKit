@@ -59,7 +59,7 @@
 			<key>hotkey_action_policy</key>
 			<string>activate_viewer_window</string>
 			<key>enable_hotkey_dtap</key>
-			<false/>
+			<true/>
 			<key>hotkey_modkey</key>
 			<string>alt</string>
 			<key>hotkey_manager</key>
@@ -122,8 +122,6 @@
 		<key>load_ext_url_policy</key>
 		<string>in_space_window</string>
 		<key>save_context</key>
-		<true/>
-		<key>enable_hotkey_dtap</key>
 		<true/>
 		<key>load_context</key>
 		<true/>
