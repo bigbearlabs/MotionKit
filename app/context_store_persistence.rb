@@ -8,7 +8,9 @@ module ContextLoader
 
     # HACK work around the kvo -> nil ivar bug.
     pe_log "context store finished load. updating data for FilteringPlugin"
-    self.component(FilteringPlugin).update_data
+    if filtering_p = self.component(FilteringPlugin)
+      filtering_p.update_data
+    end
   end
 end
 
