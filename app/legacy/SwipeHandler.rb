@@ -9,7 +9,7 @@ class SwipeHandler < BBLComponent
 	attr_accessor :animation_overlay
 	
 
-	def on_setup		
+	def on_setup
 		add_client_methods
 
 		superview = self.client.view
@@ -109,31 +109,32 @@ class SwipeHandler < BBLComponent
 					return
 				end
 				
-				@animation_overlay.visible = true  ## DEV
-
 				@swipe_handler_count ||= 0
 				@swipe_handler_count += 1
 				pe_log "swipe count: #{@swipe_handler_count}"
 
-				ca_immediately {
-					case @direction
-					when :Forward
-						@bottom_layer.contents = client.current_page_image
+				# DISABLE-SWIPE-OVERLAY
+				# @animation_overlay.visible = true 
 
-						@top_layer.contents = client.forward_page_image
-						# top layer offset 1 page to the right
-						@top_layer.position = NSMakePoint(@animation_overlay.center.x + @animation_overlay.bounds.size.width, @animation_overlay.center.y)
+				# ca_immediately {
+				# 	case @direction
+				# 	when :Forward
+				# 		@bottom_layer.contents = client.current_page_image
 
-					when :Back
-						@bottom_layer.contents = client.back_page_image
+				# 		@top_layer.contents = client.forward_page_image
+				# 		# top layer offset 1 page to the right
+				# 		@top_layer.position = NSMakePoint(@animation_overlay.center.x + @animation_overlay.bounds.size.width, @animation_overlay.center.y)
 
-						@top_layer.contents = client.current_page_image
-						@top_layer.position = @animation_overlay.center
+				# 	when :Back
+				# 		@bottom_layer.contents = client.back_page_image
 
-					end
-				}
+				# 		@top_layer.contents = client.current_page_image
+				# 		@top_layer.position = @animation_overlay.center
+
+				# 	end
+				# }
 					
-				@original_page_x = @top_layer.position.x
+				# @original_page_x = @top_layer.position.x
 
 			
 
@@ -151,14 +152,14 @@ class SwipeHandler < BBLComponent
 	
 			end
 
-
-			# apply page offset rendering.
-			# -1 <= normalised offset <= 1. 
-			# at 0 the final position should exactly the same as the original position.
-			# at 1 the final position should be exactly 1 page to the right.
-			ca_immediately {
-				@top_layer.position = NSMakePoint(@original_page_x + (gestureAmount * @animation_overlay.frame.size.width), @top_layer.position.y)
-			}
+			# DISABLE-SWIPE-OVERLAY
+			# # apply page offset rendering.
+			# # -1 <= normalised offset <= 1. 
+			# # at 0 the final position should exactly the same as the original position.
+			# # at 1 the final position should be exactly 1 page to the right.
+			# ca_immediately {
+			# 	@top_layer.position = NSMakePoint(@original_page_x + (gestureAmount * @animation_overlay.frame.size.width), @top_layer.position.y)
+			# }
 				
 			if isComplete
 				pe_log "swipe #{@swipe_handler_count} complete."
