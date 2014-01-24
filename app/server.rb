@@ -7,15 +7,6 @@ module DynamicServer
     @server.interface = 'loopback'
     @server.port = port
 
-    # PULL-OUT
-    @server.get('/*', withBlock:proc {|request, response|
-      self.on_request request, response
-    })
-    @server.put('/*', withBlock:proc {|request, response|
-      self.on_request request, response
-    })
-    # END PULL-OUT
-
 
     err = Pointer.new '@'
     @server.start err
@@ -31,34 +22,22 @@ module DynamicServer
     response.setHeader 'Access-Control-Allow-Origin', value:'*'
 
     pe_log "http request received: #{request.method} #{request.url.inspect}"
-
-    if request.url.path == '/'
-      # TODO return index
-      return
-    end
-    
-    handlers_for_method(request.url.path, request.method.intern).map do |handler|
-      handler.call request, response
-    end
   end
 
-  def handlers_for_method( path, method)
-    # look up a handler.
-    handlers_for_path = @handlers_by_path[path]
-    handlers_for_method = (handlers_for_path || {})[method]
-    handlers_for_method.to_a
-  end
-      
+  # TODO redundant given routinghttpserver. register directly
   def add_handler( path, method, &handler)
-    @handlers_by_path ||= {}
-
-    @handlers_by_path[path] ||= {}
-    handlers_for_path = @handlers_by_path[path]
-
-    handlers_for_path[method.intern] ||= []
-    handlers_for_method = handlers_for_path[method.intern]
-
-    handlers_for_method << handler
+    case method
+    when :GET
+      @server.get path, withBlock: proc {|request, response|
+        self.on_request request, response
+        handler.call request, response
+      }
+    when :PUT
+      @server.put path, withBlock: proc {|request, response|
+        self.on_request request, response
+        handler.call request, response
+      }
+    end      
   end
   
 end
