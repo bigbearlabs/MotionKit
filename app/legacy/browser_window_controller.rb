@@ -100,6 +100,8 @@ class BrowserWindowController < NSWindowController
 
 		@browser_vc.setup context_store: @context_store
 
+		self.setup_reactive_update_stack
+
 		pe_log "#{self} synchronous setup complete."
 
 		# asynchronously set up the rest, for more responsive windows.
@@ -159,6 +161,18 @@ class BrowserWindowController < NSWindowController
 		end
 	end
 
+	def setup_reactive_update_stack
+	  react_to 'browser_vc.web_view_delegate.state' do |state|
+	  	url = @browser_vc.web_view_delegate.url
+
+	  	pe_trace "#{state} #{url}"
+	
+			if state == :loading
+				if_enabled :touch_stack, url, provisional: true
+			end
+	  end
+	end
+	
 	def setup_popover
 		self.setup_reactive_first_responder
 	end
@@ -446,8 +460,6 @@ class BrowserWindowController < NSWindowController
 	# TODO move out to a component.
 	def handle_Load_request_notification( notification )
 		new_url = notification.userInfo
-
-		if_enabled :touch_stack, new_url, provisional: true
 
 		# debug [ self.stack_id, notification ]
 

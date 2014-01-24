@@ -15,6 +15,8 @@ class BrowserViewController < PEViewController
 	include DefaultsAccess
 	include JsEval
 	
+	attr_reader :url
+
 	attr_accessor :web_view
 	attr_accessor :nav_buttons_toolbar_item
 	attr_accessor :nav_buttons
@@ -110,12 +112,15 @@ class BrowserViewController < PEViewController
 		# @bflist = @web_view.backForwardList
 		
 		@web_view_delegate.setup
+
+		# cover kvo's. TODO generalise
+		react_to 'web_view_delegate.url' do |url|
+			kvo_change :url, url
+		end
 		
 		# the cleanest pattern we've seen so far for composition.
 		@web_view.extend ScrollTracking
 
-		watch_notification :Url_load_finished_notification
-					
 		# self.setup_switcher
 
 		# self.setup_nav_buttons_validation
@@ -164,12 +169,7 @@ class BrowserViewController < PEViewController
 			end
 		end
 	end
-	
-#=
-	def handle_Url_load_finished_notification(notif)
-		# handle_load_success notif.userInfo
-	end
-	
+		
 #=
 
 	def handle_refresh( sender )
@@ -299,12 +299,7 @@ class BrowserViewController < PEViewController
 	end
 	
 #=
-	
-	# FIXME kvo!
-	def url
-		@web_view.mainFrameURL
-	end
-	
+		
 	def current_history_item
 		@web_view.backForwardList.currentItem
 	end

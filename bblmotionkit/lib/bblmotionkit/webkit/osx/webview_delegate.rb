@@ -7,7 +7,7 @@ class BBLWebViewDelegate
   attr_reader :events
   attr_reader :redirections
 
-  attr_reader :state
+  attr_reader :state  # webview activity 
   attr_reader :url
   attr_reader :title
 
@@ -30,10 +30,8 @@ class BBLWebViewDelegate
 #= event logging
 
   def push_event( event_name, event_data = {} )
-    if @url != @web_view.url
-      kvo_change :url do
-        @url = @web_view.url
-      end
+    if new_url = event_data[:new_url]
+      kvo_change :url, new_url
     end
 
     # keep track of the events.
@@ -107,6 +105,7 @@ class BBLWebViewDelegate
           @state = :loaded
         end
 
+        # CLEANUP replace watchers to watch :state instead.
         send_notification :Url_load_finished_notification, @url
 
         @success_handler.call @url if @success_handler
@@ -177,7 +176,7 @@ class BBLWebViewDelegate
   def webView(webView, didStartProvisionalLoadForFrame:frame)
     if frame == webView.mainFrame
       self.push_event 'didStartProvisionalLoad',
-        new_url: webView.url
+        url: webView.url
     end
   end
   
@@ -308,7 +307,7 @@ class BBLWebViewDelegate
     if frame == webView.mainFrame
       self.push_event 'decidePolicyForNavigation', { 
         action_info: actionInformation, 
-        url: (actionInformation[WebActionOriginalURLKey] ? 
+        new_url: (actionInformation[WebActionOriginalURLKey] ? 
           actionInformation[WebActionOriginalURLKey].absoluteString :  # hoping this is the destination url
           'no WebActionOriginalURLKey') ,
         request: request
