@@ -109,7 +109,7 @@ class BrowserWindowController < NSWindowController
 
 			# TODO extract stack-population related workflow like this into an appropriate abstraction.
 			# populate model's redirections 
-			@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
+			react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
 				# just keep adding the current page - it should be enough.
 				self.stack.add_redirect redirections[0], @browser_vc.web_view.url
 			end
@@ -242,7 +242,7 @@ class BrowserWindowController < NSWindowController
 		react_to 'browser_vc.web_view_delegate.state' do |new_state|
 			# update the WebHistoryItem
 			if new_state == :loaded
-				self.stack.update_item @browser_vc.web_view_delegate.url, @browser_vc.current_history_item if self.stack
+				self.stack.update_item @browser_vc.url, @browser_vc.current_history_item if self.stack
 			end
 		end
 	end
