@@ -26,6 +26,8 @@ gem "motion_data_wrapper"
 # gem 'motion-xray'
 # gem 'motion-hockeyrink'
 
+gem "slim"
+
 group :motion do
   # gem 'idn'
   # gem 'addressable'
@@ -37,3 +39,4 @@ group :development do
   gem 'guard-shell'
   gem 'compass'  # work around grunt:compass freaking out on webbuddy-modules.
 end
+

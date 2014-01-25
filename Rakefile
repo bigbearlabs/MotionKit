@@ -159,19 +159,19 @@ namespace :plugins do
 
   desc "build"
   task :build => [] do
-    sh 'cd ../webbuddy-plugins; rake'
+    sh 'cd ../webbuddy-plugins; rake build'
   end
 
   desc "copy resources - obsolete"
   task :cprsc => [] do
     FileUtils.mkdir_p 'resources/plugins'
-    sh %Q(rsync -avvv --delete ~/"Google Drive"/bigbearlabs/webbuddy-preview/webbuddy-plugins/dist/* resources/plugins/)
+    sh %Q(rsync -avvv --delete ~/"Google Drive"/bigbearlabs/webbuddy-preview/webbuddy-plugins/_public/* resources/plugins/)
   end
 
   desc "deploy plugins to app support"
   task :hotdeploy do
     sh %(
-      rsync -avv --delete ../webbuddy-plugins/dist/* ~/"Library/Application Support/WebBuddy/plugins/"  
+      rsync -avv --delete ../webbuddy-plugins/_public/* ~/"Library/Application Support/WebBuddy/plugins/"  
     )
   end
 end
