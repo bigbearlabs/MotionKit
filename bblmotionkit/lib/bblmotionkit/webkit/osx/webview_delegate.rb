@@ -33,6 +33,7 @@ class BBLWebViewDelegate
     if new_url = event_data[:new_url]
       kvo_change :url, new_url
     end
+    # EDGECASE when policy ignores url, no longer accurately reflects webview detail.
 
     # keep track of the events.
     event = {
