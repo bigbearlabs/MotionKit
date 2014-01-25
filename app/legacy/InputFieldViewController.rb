@@ -17,6 +17,14 @@ class BrowserWindowController
 	def setup_input_field
 		@input_field_vc.setup
 
+		react_to 'browser_vc.url' do |url|
+			@input_field_vc.current_url = url
+		end
+
+		react_to 'stack.name' do |name|
+			@input_field_vc.current_enquiry = name
+		end
+
 		react_to :input_field_shown do |shown|
 			# view model -> view
 			if shown
@@ -154,7 +162,7 @@ class InputFieldViewController < PEViewController
 			self.setup_click_tracking
 			self.setup_token_field
 			
-			self.setup_data_processing
+			self.setup_reactive_refresh
 
 			self.setup_kvo_display_mode
 			self.setup_kvo_display_strings
@@ -169,25 +177,10 @@ class InputFieldViewController < PEViewController
 		
 	end
 	
-	def setup_data_processing
-		# TEMP debugging echo chamber
-	  # react_to :current_enquiry do
-	  # 	# OBSOLETE
-   #    # self.search_site
-
-   #    # TODO set when the url really loads.
-   #    self.current_url = self.current_enquiry.to_search_url_string
-   #  end
-
-    # react_to :current_url do
-    #   # self.current_enquiry = self.current_url
-      
-    #   # alternative approaches:
-    #   # use previous enquiry
-    #   # extract enquiry from url
-      
-    #   refresh_input_field
-    # end
+	def setup_reactive_refresh
+    react_to :current_url, :current_enquiry do
+      refresh_input_field
+    end
 	end
 	
 #=
@@ -291,8 +284,6 @@ class InputFieldViewController < PEViewController
 		self.submitted_text = self.input_text
 
 		self.current_enquiry = self.submitted_text
-		
-		self.refresh_input_field
 	end
 
 
