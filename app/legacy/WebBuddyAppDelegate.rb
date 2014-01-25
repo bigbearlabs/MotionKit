@@ -522,6 +522,8 @@ class WebBuddyAppDelegate < PEAppDelegate
 					pe_warn "closing redundant wc #{redundant_wc} for space #{current_space_id}"
 					redundant_wc.should_close = true
 					redundant_wc.close
+
+					@viewer_window_controllers_by_space.delete_if {|k,v| v == redundant_wc}
 				end
 			else
 				viewer_wc = new_viewer_window_controller
