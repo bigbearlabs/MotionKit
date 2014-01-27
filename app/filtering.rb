@@ -125,7 +125,8 @@ class FilteringPlugin < WebBuddyPlugin
           {
             name: page.title,
             url: page.url,
-            thumbnail_url: @context_store.thumbnail_url(page).to_url_string
+            thumbnail_url: @context_store.thumbnail_url(page).to_url_string,
+            last_accessed_timestamp: page.last_accessed_timestamp.to_s
           }
         end
     }
