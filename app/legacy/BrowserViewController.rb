@@ -111,7 +111,9 @@ class BrowserViewController < PEViewController
 		# prevent inexplicable bflist collection
 		# @bflist = @web_view.backForwardList
 		
-		@web_view_delegate.setup
+		@web_view_delegate.setup on_policy_error:-> {
+			self.policy_error_prompt_action
+		}
 
 		# cover kvo's. TODO generalise
 		react_to 'web_view_delegate.url' do |url|
@@ -241,7 +243,7 @@ class BrowserViewController < PEViewController
 		url = params[:url]
 
 		self.show_dialog({
-			message: "Oops, this is embarrasing - I'm so new I don't know how to handle this url yet.\n\nShall I send the URL '#{url}' to the main browser?",
+			message: "Send the URL '#{url}' to the main browser?",
 			confirm_handler: proc {
 				policy_error_send_to_primary params
 			}

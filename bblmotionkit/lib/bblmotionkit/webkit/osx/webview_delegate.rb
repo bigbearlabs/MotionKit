@@ -18,12 +18,13 @@ class BBLWebViewDelegate
 
   attr_accessor :policies_by_pattern
 
-  def setup   
+  def setup( opts = {})
     @events = []
 
-    @policy_error_handler = -> url {
-    }
-
+    if on_policy_error = opts[:on_policy_error]
+      @policy_error_handler = on_policy_error.weak!
+    end
+    
     # watch_notification WebHistoryItemChangedNotification
   end
 
@@ -408,7 +409,7 @@ class BBLWebViewDelegate
 
     self.push_event 'policyImplError', { error: error, url: url }
 
-    @policy_error_handler.call url
+    @policy_error_handler.call url if @policy_error_handler
   end
 
   def webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)
