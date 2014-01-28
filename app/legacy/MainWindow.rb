@@ -112,6 +112,8 @@ class MainWindow < NSPanel
 	end
 	
 	def do_deactivate( completion_proc = -> {} )
+		pe_trace
+		
 		if self.shown?
 			# hide all child windows to avoid kCGErrorIllegalArgument
 			self.childWindows.each {|w| w.orderOut(self) } if self.childWindows # FIXME restore later
