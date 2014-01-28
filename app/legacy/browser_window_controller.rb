@@ -51,7 +51,7 @@ class BrowserWindowController < NSWindowController
 	def components
 		[
 			{
-				module: InputHandler
+				module: InputInterpreter
 			},
 			{
 				module: RubyEvalPlugin
@@ -64,6 +64,9 @@ class BrowserWindowController < NSWindowController
 			},
 	  	{
 	  		module: FindPlugin
+	  	},
+	  	{
+	  		module: InputField
 	  	}
 		]
 	end

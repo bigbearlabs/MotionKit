@@ -271,6 +271,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 #= activation / deactivation
 
+	# deactivate to ensure the system returns focus to context-holding app. need to reimplement the condition for hiding, as it appears visible windows may not be a reliable indicator.
 	def deactivate_if_needed
 		#		main_window.orderOut(self)
 
@@ -452,7 +453,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= viewer window
 
 	def toggle_viewer_window( params = {} )
-
 		if current_viewer_wc.window.active?
 			self.deactivate_viewer_window
 		else
