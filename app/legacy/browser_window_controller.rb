@@ -538,7 +538,12 @@ class BrowserWindowController < NSWindowController
 		if self.stack
 			self.stack.touch url, details
 
-			self.stack.update_detail @browser_vc.url, details
+			# self.stack.update_detail @browser_vc.url, details  #looks redundant
+
+			# TACTICAL update view data. TODO rework to initiate based on kvo.
+			NSApp.windows.map { |w| w.windowController }.select {|e| e.is_a? BrowserWindowController}.map do |wc|
+				wc.component(FilteringPlugin).update_data searches_delta:[ self.stack.to_hash ]
+			end
 		else
 			raise "#{self} has no stack. "
 		end
