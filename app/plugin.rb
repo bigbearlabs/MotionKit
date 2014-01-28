@@ -23,7 +23,7 @@ class WebBuddyPlugin < BBLComponent
   def view_url(env = nil)
     default_val = default(:plugin_view_template)
       .gsub( /#\{name\}/, name)
-      .gsub( /#\{:app_support_path\}/, NSApp.app_support_path)
+      .gsub( /#\{:app_support_path\}/, NSApp.app_support_path.to_url_encoded)
       .gsub( /#\{:bundle_resources_path\}/, NSApp.bundle_resources_path)
       .split( ', ')
   end
