@@ -75,18 +75,17 @@ class BarViewController < PEViewController
 		on_main_async {
 			self.clear_all
 
-			add_action_buttons
+			# add the buttons
+			buttons.map do |button|
+				add_button button
+			end
 
 			# add_folder
 
-			# if context
-			# 	add_bookmarks
-			# end
 		}
 	end
 
 	def add_folder  #STUB
-		button = new_button 'stub-folder'
 		menu_data = [
 			{ title: 'item1', proc: -> { puts 'hi' } },
 			{ 
@@ -101,7 +100,7 @@ class BarViewController < PEViewController
 		]
 		menu = new_menu menu_data
 
-		button.on_click do
+		button = new_button 'stub-folder' do 
 			# drop down a menu.
 			button.display_context_menu menu
 		end
@@ -123,16 +122,6 @@ class BarViewController < PEViewController
 		end
 	end
 
-	def new_action_button( action_def )
-		button = new_button nil, action_def[:icon] 
-		button.on_click do |the_button|
-			self.instance_exec &action_def[:proc] 
-		end
-
-		button
-	end
-
-
 #= platform integration
 
 	def update_view_model( site )
@@ -141,12 +130,16 @@ class BarViewController < PEViewController
 		end
 	end
 
-	def new_button( title = 'cloned-button', icon )
+	def new_button( title = 'cloned-button', icon = nil, &handler)
 		button = @button_template.duplicate
 		
 		button.title = title
 		button.image = icon
 		button.sizeToFit
+
+		button.on_click do |button|
+			handler.call button
+		end
 
 		button
 	end
@@ -164,22 +157,34 @@ class BarViewController
 	# view model
 	attr_accessor :browsers_to_add
 
-	def add_action_buttons
-		browsers_to_add.each do |browser|
-			# attach the handler to each view model 
-			browser[:proc] ||= -> {
-				NSApp.send_to_responder 'handle_open_url_in:', browser
-			}
+	def buttons
+		browser_buttons + ui_buttons
 
-			button = new_action_button browser
-			add_button button
+		# + bookmark_buttons
+	end
+
+	def browser_buttons
+		browsers_to_add.map do |browser|
+			title = "Open page in #{browser[:description]}"
+			title = nil  # TODO change prop consumption
+			button = new_button title,  browser[:icon] do
+				NSApp.send_to_responder 'handle_open_url_in:', browser
+			end
 		end
 	end
 
-	def add_bookmarks
-		context.sites.collect {|site| site[1] }.each do |site|	# FIXME reconcile strange context.sites data structure
+	def ui_buttons
+		# controls:
+		# plugin view toggle
+
+		# bookmarklets:
+
+		[]
+	end
+
+	def bookmark_buttons
+		context.sites.collect {|site| site[1] }.map do |site|	# FIXME reconcile strange context.sites data structure
 			bookmark = new_bookmark_from site
-			add_button bookmark
 		end
 	end
 
@@ -199,8 +204,7 @@ class BarViewController
 	end
 
 	def new_bookmark_from( site )
-		button = new_button( site.name )
-		button.on_click do |the_button|
+		button = new_button site.name do |the_button|
 			pe_debug "button #{the_button} clicked - site #{site}"
 
 	    send_notification :Bar_item_selected_notification, site
