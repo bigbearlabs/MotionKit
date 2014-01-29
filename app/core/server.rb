@@ -2,6 +2,8 @@
 # pod RoutingHTTPServer
 
 module DynamicServer
+  include DefaultsAccess
+
   def start( port = 59123 )
     @server = RoutingHTTPServer.alloc.init
     @server.interface = 'loopback'
@@ -51,6 +53,10 @@ class ServerComponent < BBLComponent
   include DynamicServer
 
   def on_setup
+    if_enabled :start_server
+  end
+
+  def start_server
     self.start 59123
   end
 

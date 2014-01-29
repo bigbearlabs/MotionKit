@@ -43,9 +43,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 			{
 				module: WindowPreferenceExposer,
 			},
-			# {
-			# 	module: ServicesHandler,
-			# },
 			{
 				module: ServerComponent
 			}
