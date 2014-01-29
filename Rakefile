@@ -2,7 +2,7 @@
 
 build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
-version_number = "1.2.0"
+version_number = "2.0.0"
 build_number = `cat build.VERSION`.strip
 
 
@@ -79,7 +79,7 @@ Motion::Project::App.setup do |app|
 
   # TODO declare document types
 
-  app.info_plist['LSUIElement'] = true
+  # app.info_plist['LSUIElement'] = true
 
   app.info_plist['NSServices'] = [
     {
