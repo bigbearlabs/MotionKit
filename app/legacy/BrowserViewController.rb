@@ -111,8 +111,8 @@ class BrowserViewController < PEViewController
 		# prevent inexplicable bflist collection
 		# @bflist = @web_view.backForwardList
 		
-		@web_view_delegate.setup on_policy_error:-> {
-			self.policy_error_prompt_action
+		@web_view_delegate.setup on_policy_error: lambda { |url|
+			self.policy_error_prompt_action url
 		}
 
 		# cover kvo's. TODO generalise
@@ -239,19 +239,16 @@ class BrowserViewController < PEViewController
 	
 #= 
 	
-	def policy_error_prompt_action( params )
-		url = params[:url]
-
+	def policy_error_prompt_action( url )
 		self.show_dialog({
 			message: "Send the URL '#{url}' to the main browser?",
 			confirm_handler: proc {
-				policy_error_send_to_primary params
+				policy_error_send_to_primary url
 			}
 		})
 	end
 
-	def policy_error_send_to_primary( params )
-		url = params[:url]
+	def policy_error_send_to_primary( url )
 		pe_warn "TODO send #{url} to the browser"
 	end
 

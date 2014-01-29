@@ -193,6 +193,11 @@ class WebViewJavascriptBridge
   def webView(webView, decidePolicyForNewWindowAction:actionInformation, request:request, newFrameName:frameName, decisionListener:listener)
     @web_view_delegate.webView(webView, decidePolicyForNewWindowAction:actionInformation, request:request, newFrameName:frameName, decisionListener:listener)
   end
+
+  def webView(webView, unableToImplementPolicyWithError:error, frame:frame)
+    @web_view_delegate.webView(webView, unableToImplementPolicyWithError:error, frame:frame)
+  end
+  
 end
 
 

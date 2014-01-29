@@ -133,6 +133,10 @@ class BBLWebViewDelegate
 
         @success_handler = nil
         @fail_handler = nil
+
+      when 'policyImplError'
+        @policy_error_handler.call url if @policy_error_handler
+
       end
 
     rescue Exception => e
@@ -327,6 +331,7 @@ class BBLWebViewDelegate
     if @policies_by_pattern
       @policies_by_pattern.keys.map do |pattern|
         if url =~ pattern
+          # matching policy found.
           matching_policy = @policies_by_pattern[pattern]
           case matching_policy
           when Proc
@@ -343,8 +348,8 @@ class BBLWebViewDelegate
       end
     end
 
-    pe_log "no matching policy for #{url}, using default policy"
-    decision_listener.use
+      pe_log "no matching policy for #{url}, using default policy"
+      decision_listener.use
   end
   
 #= script handling
@@ -408,8 +413,6 @@ class BBLWebViewDelegate
     url = error.userInfo['NSErrorFailingURLStringKey']
 
     self.push_event 'policyImplError', { error: error, url: url }
-
-    @policy_error_handler.call url if @policy_error_handler
   end
 
   def webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)
