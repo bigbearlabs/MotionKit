@@ -1,5 +1,7 @@
 class HotkeyHandler < BBLComponent
 
+	attr_accessor :state_hotkey
+
 	attr_accessor :hotkey_manager
 
 	def on_setup
@@ -49,21 +51,13 @@ class HotkeyHandler < BBLComponent
 				on_hotkey_double_tap
 			},
 			handler_hold: -> { on_hotkey_double_tap_hold }
-			}
+		}
 
 		# set up the modkey.
 		@hotkey_manager.add_modkey_action_definition @dtap_definition
-
-=begin
-		@hotkey_manager.add_hotkey_definition( {
-			id: :activation,
-			defaults_key: 'hotkeys.activation',
-
-		self.update_toggle_menu_item
-=end
 	end
 	
-	def hotkey_action_activate_main_window( params )
+	def hotkey_action_activOate_main_window( params )
 		client.toggle_main_window({ activation_type: :hotkey })
 	end
 
