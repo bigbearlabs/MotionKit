@@ -50,7 +50,6 @@ class HotkeyHandler < BBLComponent
 			},
 			handler_hold: -> { on_hotkey_double_tap_hold }
 			}
-		}
 
 		# set up the modkey.
 		@hotkey_manager.add_modkey_action_definition @dtap_definition
