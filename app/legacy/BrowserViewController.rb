@@ -240,16 +240,17 @@ class BrowserViewController < PEViewController
 #= 
 	
 	def policy_error_prompt_action( url )
-		self.show_dialog({
-			message: "Send the URL '#{url}' to the main browser?",
+		handler = {
+			bundle_id: 'com.apple.safari'  # TODO work out how to go from scheme to handler.
+		}
+
+		self.show_dialog message: "Send the URL '#{url}' to default handler?",
 			confirm_handler: proc {
-				policy_error_send_to_primary url
+				handle_open_url_in role: :scheme_handler
 			}
-		})
 	end
 
-	def policy_error_send_to_primary( url )
-		pe_warn "TODO send #{url} to the browser"
+	def policy_error_send_to_primary( url, handler )
 	end
 
 #=
@@ -276,7 +277,13 @@ class BrowserViewController < PEViewController
 	def handle_open_url_in( params = { role: :primary_browser } )
 		role = params[:role]
 
-		if role
+		if role == :scheme_handler
+			NSWorkSpace.sharedWorkSpace.openURL self.url.to_url
+			return
+		end
+
+
+		if role == :primary_browser
 			browser_bundle_id = self.bundle_id_for role
 		end
 
