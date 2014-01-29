@@ -6,15 +6,6 @@ class WebBuddyPlugin < BBLComponent
   def_delegator :'client.plugin_vc', :eval_js, :eval_expr, :eval_js_file
 
 
-  include IvarInjection
-  
-  def initialize(client, deps = {})
-    super client
-
-    inject_collaborators deps
-  end
-
-
   def name
     @plugin_name ||= self.class.clean_name.gsub('Plugin', '').downcase
   end

@@ -66,7 +66,10 @@ class BrowserWindowController < NSWindowController
 	  		module: FindPlugin
 	  	},
 	  	{
-	  		module: InputFieldComponent
+	  		module: InputFieldComponent,
+  			deps: {
+  				input_field_vc: @input_field_vc
+  			}
 	  	}
 		]
 	end
@@ -143,9 +146,6 @@ class BrowserWindowController < NSWindowController
 
 			# user
 			watch_notification :Bf_navigation_notification
-
-			# input field
-			component(InputFieldComponent).setup_input_field
 
 			# history views
 			watch_notification :Item_selected_notification
@@ -291,25 +291,6 @@ class BrowserWindowController < NSWindowController
 			@find_carousel.previous
 		end
 	end
-	
-#= 
-
-	def handle_show_location(sender)
-		# self.page_details_vc.display_mode = :url
-		# self.handle_show_page_detail self
-
-		@input_field_vc.display_mode = :Display_url
-		@input_field_vc.focus_input_field
-	end
-
-	def handle_show_search(sender)
-		# self.page_details_vc.display_mode = :query
-		# self.handle_show_page_detail self   
-
-		@input_field_vc.display_mode = :Display_enquiry
-		@input_field_vc.focus_input_field
-	end
-
 
 #= popover-specific
 

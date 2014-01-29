@@ -5,57 +5,48 @@ Display_tags_by_modes = {
 }
 
 class InputFieldComponent < BBLComponent
-  
-  def setup_input_field
+  include Reactive
+
+  def on_setup
+
     @input_field_vc.setup
 
-    react_to 'browser_vc.url' do |url|
+    react_to 'client.browser_vc.url' do |url|
       @input_field_vc.current_url = url
     end
 
-    react_to 'stack.name' do |name|
+    react_to 'client.stack.name' do |name|
       @input_field_vc.current_enquiry = name
     end
 
-    react_to :input_field_shown do |shown|
+    react_to 'client.input_field_shown' do |shown|
       # view model -> view
       if shown
-        if default :handle_focus_input_field
+        if client.default :handle_focus_input_field
           @input_field_vc.show
         end
 
         # bar must be visible
-        self.bar_shown = true
+        client.bar_shown = true
       else
         @input_field_vc.hide
       end
     end
 
-    self.input_field_shown = default :handle_focus_input_field
+    client.input_field_shown = client.default :handle_focus_input_field
 
+    # client.extend ClientMethods
 
     watch_notification :Input_field_focused_notification, @input_field_vc
     watch_notification :Input_field_unfocused_notification, @input_field_vc
     watch_notification :Input_field_cancelled_notification, @input_field_vc
   end
 
-  def handle_hide_input_field(sender)
-    self.input_field_shown = false
-  end
-  
-  def handle_focus_input_field(sender)
-    send_notification :Input_field_focused_notification
-
-    self.input_field_shown = true
-
-    @input_field_vc.focus_input_field
-  end
-
 
   def handle_Input_field_focused_notification( notification )
     # self.show_popover(@nav_buttons_view)
   
-    self.bar_shown = true
+    client.bar_shown = true
 
     # disable the overlay for now.    
 =begin
@@ -76,7 +67,46 @@ class InputFieldComponent < BBLComponent
     # self.handle_transition_to_browser
     # self.hide_overlay
   end
-  
+
 end
 
 
+class BrowserWindowController < NSWindowController
+
+  # WORKAROUND add traits to client.
+  def focus_input_field
+    self.handle_focus_input_field self
+  end
+  
+  def handle_hide_input_field(sender)
+    self.input_field_shown = false
+  end
+  
+  def handle_focus_input_field(sender)
+    send_notification :Input_field_focused_notification
+
+    self.input_field_shown = true
+
+    @input_field_vc.focus_input_field
+  end
+
+  
+#= 
+
+  def handle_show_location(sender)
+    # self.page_details_vc.display_mode = :url
+    # self.handle_show_page_detail self
+
+    @input_field_vc.display_mode = :Display_url
+    @input_field_vc.focus_input_field
+  end
+
+  def handle_show_search(sender)
+    # self.page_details_vc.display_mode = :query
+    # self.handle_show_page_detail self   
+
+    @input_field_vc.display_mode = :Display_enquiry
+    @input_field_vc.focus_input_field
+  end
+
+end
