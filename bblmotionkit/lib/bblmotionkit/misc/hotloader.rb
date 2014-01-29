@@ -1,7 +1,7 @@
 class HotloaderComponent < BBLComponent
   
   def on_setup
-    NSApp.delegate.component(ServerComponent).add_handler '/source', :PUT do |request, response|
+    NSApp.delegate.component(ServerComponent).add_handler '/source/*', :PUT do |request, response|
       on_request request, response
     end
   end

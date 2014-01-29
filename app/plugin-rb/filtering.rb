@@ -105,30 +105,8 @@ class FilteringPlugin < WebBuddyPlugin
 
   def data_searches( stacks = @context_store.stacks )
     stacks_data = stacks.map do |stack|
-      data_stack stack
+      stack.to_hash
     end
-  end
-
-  def data_stack( stack )
-    pages = stack.pages
-      .select { |e| ! e.provisional }
-
-    stack_url = pages.empty? ? '' : pages.first.url
-
-    {
-      name: stack.name,
-      # thumbnail_url: 'stub-thumbnail-url',
-      url: stack_url,
-      last_accessed_timestamp: stack.last_accessed_timestamp.to_s,
-      pages: 
-        pages.map do |page|
-          {
-            name: page.title,
-            url: page.url,
-            thumbnail_url: @context_store.thumbnail_url(page).to_url_string
-          }
-        end
-    }
   end
   
   
@@ -151,8 +129,9 @@ class FilteringPlugin < WebBuddyPlugin
     pe_log 'filtering request received'
 
     response.respondWithString self.data.to_json
+
+    pe_log 'served filtering request'
   end
   
 end
-
 

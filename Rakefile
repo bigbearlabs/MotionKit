@@ -106,10 +106,10 @@ Motion::Project::App.setup do |app|
 
   app.delegate_class = "WebBuddyAppDelegate"
 
-  app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb',
-    'app/context_store_persistence.rb' => 'app/legacy/WebBuddyAppDelegate.rb',
-    'app/find.rb' => 'app/legacy/WebBuddyAppDelegate.rb',
-    'app/switcher.rb' => 'app/legacy/WebBuddyAppDelegate.rb'
+  # app.files_dependencies 'app/legacy/window_controllers.rb' => 'app/legacy/browser_window_controller.rb',
+  #   'app/context_store_persistence.rb' => 'app/legacy/WebBuddyAppDelegate.rb',
+  #   'app/find.rb' => 'app/legacy/WebBuddyAppDelegate.rb',
+  #   'app/switcher.rb' => 'app/legacy/WebBuddyAppDelegate.rb'
     # 'app/legacy/WebBuddyAppDelegate.rb' => 'app/filtering.rb',
     # 'app/filtering.rb' => 'app/plugin.rb',
     # 'app/aa_plugin.rb' => "#{`pwd`.strip}/bblmotionkit/lib/bblmotionkit/core/delegating.rb"
@@ -159,19 +159,19 @@ namespace :plugins do
 
   desc "build"
   task :build => [] do
-    sh 'cd ../webbuddy-plugins; rake'
+    sh 'cd ../webbuddy-plugins; rake build'
   end
 
   desc "copy resources - obsolete"
   task :cprsc => [] do
     FileUtils.mkdir_p 'resources/plugins'
-    sh %Q(rsync -avvv --delete ~/"Google Drive"/bigbearlabs/webbuddy-preview/webbuddy-plugins/dist/* resources/plugins/)
+    sh %Q(rsync -avvv --delete ~/"Google Drive"/bigbearlabs/webbuddy-preview/webbuddy-plugins/_public/* resources/plugins/)
   end
 
   desc "deploy plugins to app support"
   task :hotdeploy do
     sh %(
-      rsync -avv --delete ../webbuddy-plugins/dist/* ~/"Library/Application Support/WebBuddy/plugins/"  
+      rsync -avv --delete ../webbuddy-plugins/_public/* ~/"Library/Application Support/WebBuddy/plugins/"  
     )
   end
 end

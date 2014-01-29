@@ -6,80 +6,6 @@
 # require 'KVOMixin'
 # require 'defaults'
 
-Display_tags_by_modes = { 
-	Display_enquiry: 7001, 
-	Display_url: 7002, 
-	Display_filter: 7003 
-}
-
-class BrowserWindowController
-	
-	def setup_input_field
-		@input_field_vc.setup
-
-		react_to :input_field_shown do |shown|
-			# view model -> view
-			if shown
-				if default :handle_focus_input_field
-					@input_field_vc.show
-				end
-
-				# bar must be visible
-				self.bar_shown = true
-			else
-				@input_field_vc.hide
-			end
-		end
-
-		self.input_field_shown = default :handle_focus_input_field
-
-
-		watch_notification :Input_field_focused_notification, @input_field_vc
-		watch_notification :Input_field_unfocused_notification, @input_field_vc
-		watch_notification :Input_field_cancelled_notification, @input_field_vc
-	end
-
-	def handle_hide_input_field(sender)
-		self.input_field_shown = false
-	end
-	
-	def handle_focus_input_field(sender)
-		send_notification :Input_field_focused_notification
-
-		self.input_field_shown = true
-
-		@input_field_vc.focus_input_field
-	end
-
-
-	def handle_Input_field_focused_notification( notification )
-		# self.show_popover(@nav_buttons_view)
-	
-		self.bar_shown = true
-
-		# disable the overlay for now.    
-=begin
-		case @input_field_vc.mode 
-		when :Filter
-			self.show_filter_overlay
-		else
-			self.show_navigation_overlay
-		end
-=end
-	end
-
-	def handle_Input_field_unfocused_notification( notification )
-		# self.hide_overlay
-	end
-	
-	def handle_Input_field_cancelled_notification( notification )
-		# self.handle_transition_to_browser
-		# self.hide_overlay
-	end
-	
-end
-
-
 # REFACTOR reorganise members.
 # RENAME morphing into a toolbar controller.
 class InputFieldViewController < PEViewController
@@ -154,7 +80,7 @@ class InputFieldViewController < PEViewController
 			self.setup_click_tracking
 			self.setup_token_field
 			
-			self.setup_data_processing
+			self.setup_reactive_refresh
 
 			self.setup_kvo_display_mode
 			self.setup_kvo_display_strings
@@ -169,25 +95,10 @@ class InputFieldViewController < PEViewController
 		
 	end
 	
-	def setup_data_processing
-		# TEMP debugging echo chamber
-	  # react_to :current_enquiry do
-	  # 	# OBSOLETE
-   #    # self.search_site
-
-   #    # TODO set when the url really loads.
-   #    self.current_url = self.current_enquiry.to_search_url_string
-   #  end
-
-    # react_to :current_url do
-    #   # self.current_enquiry = self.current_url
-      
-    #   # alternative approaches:
-    #   # use previous enquiry
-    #   # extract enquiry from url
-      
-    #   refresh_input_field
-    # end
+	def setup_reactive_refresh
+    react_to :current_url, :current_enquiry do
+      refresh_input_field
+    end
 	end
 	
 #=
@@ -291,8 +202,6 @@ class InputFieldViewController < PEViewController
 		self.submitted_text = self.input_text
 
 		self.current_enquiry = self.submitted_text
-		
-		self.refresh_input_field
 	end
 
 
@@ -824,5 +733,6 @@ class InputFieldMenu < NSMenu
 	end
 
 end
+
 
 

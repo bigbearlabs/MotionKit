@@ -51,7 +51,7 @@ class BrowserWindowController < NSWindowController
 	def components
 		[
 			{
-				module: InputHandler
+				module: InputInterpreter
 			},
 			{
 				module: RubyEvalPlugin
@@ -64,6 +64,12 @@ class BrowserWindowController < NSWindowController
 			},
 	  	{
 	  		module: FindPlugin
+	  	},
+	  	{
+	  		module: InputFieldComponent,
+  			deps: {
+  				input_field_vc: @input_field_vc
+  			}
 	  	}
 		]
 	end
@@ -100,6 +106,8 @@ class BrowserWindowController < NSWindowController
 
 		@browser_vc.setup context_store: @context_store
 
+		self.setup_reactive_update_stack
+
 		pe_log "#{self} synchronous setup complete."
 
 		# asynchronously set up the rest, for more responsive windows.
@@ -107,7 +115,7 @@ class BrowserWindowController < NSWindowController
 
 			# TODO extract stack-population related workflow like this into an appropriate abstraction.
 			# populate model's redirections 
-			@redir_reaction = react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
+			react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
 				# just keep adding the current page - it should be enough.
 				self.stack.add_redirect redirections[0], @browser_vc.web_view.url
 			end
@@ -139,9 +147,6 @@ class BrowserWindowController < NSWindowController
 			# user
 			watch_notification :Bf_navigation_notification
 
-			# input field
-			self.setup_input_field
-
 			# history views
 			watch_notification :Item_selected_notification
 
@@ -159,6 +164,18 @@ class BrowserWindowController < NSWindowController
 		end
 	end
 
+	def setup_reactive_update_stack
+	  react_to 'browser_vc.web_view_delegate.state' do |state|
+	  	url = @browser_vc.web_view_delegate.url
+
+	  	pe_trace "#{state} #{url}"
+	
+			if state == :loading
+				if_enabled :touch_stack, url, provisional: true
+			end
+	  end
+	end
+	
 	def setup_popover
 		self.setup_reactive_first_responder
 	end
@@ -228,7 +245,7 @@ class BrowserWindowController < NSWindowController
 		react_to 'browser_vc.web_view_delegate.state' do |new_state|
 			# update the WebHistoryItem
 			if new_state == :loaded
-				self.stack.update_item @browser_vc.web_view_delegate.url, @browser_vc.current_history_item if self.stack
+				self.stack.update_item @browser_vc.url, @browser_vc.current_history_item if self.stack
 			end
 		end
 	end
@@ -274,25 +291,6 @@ class BrowserWindowController < NSWindowController
 			@find_carousel.previous
 		end
 	end
-	
-#= 
-
-	def handle_show_location(sender)
-		# self.page_details_vc.display_mode = :url
-		# self.handle_show_page_detail self
-
-		@input_field_vc.display_mode = :Display_url
-		@input_field_vc.focus_input_field
-	end
-
-	def handle_show_search(sender)
-		# self.page_details_vc.display_mode = :query
-		# self.handle_show_page_detail self   
-
-		@input_field_vc.display_mode = :Display_enquiry
-		@input_field_vc.focus_input_field
-	end
-
 
 #= popover-specific
 
@@ -447,8 +445,6 @@ class BrowserWindowController < NSWindowController
 	def handle_Load_request_notification( notification )
 		new_url = notification.userInfo
 
-		if_enabled :touch_stack, new_url, provisional: true
-
 		# debug [ self.stack_id, notification ]
 
 		## zoom to page
@@ -526,7 +522,12 @@ class BrowserWindowController < NSWindowController
 		if self.stack
 			self.stack.touch url, details
 
-			self.stack.update_detail @browser_vc.url, details
+			# self.stack.update_detail @browser_vc.url, details  #looks redundant
+
+			# TACTICAL update view data. TODO rework to initiate based on kvo.
+			NSApp.windows.map { |w| w.windowController }.select {|e| e.is_a? BrowserWindowController}.map do |wc|
+				wc.component(FilteringPlugin).update_data searches_delta:[ self.stack.to_hash ]
+			end
 		else
 			raise "#{self} has no stack. "
 		end

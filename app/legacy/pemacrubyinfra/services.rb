@@ -12,6 +12,6 @@ module ServicesHandler
 		pe_log "service handler received: '#{string}'"
 		NSApp.delegate.wc
 			.do_activate
-			.component(InputHandler).process_input string
+			.component(InputInterpreter).process_input string
 	end
 end

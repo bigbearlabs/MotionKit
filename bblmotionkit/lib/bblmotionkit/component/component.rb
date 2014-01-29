@@ -77,8 +77,12 @@ end
 class BBLComponent
   attr_reader :client
 
-  def initialize(client)
+  include IvarInjection
+  
+  def initialize(client, deps = {})
     @client = client
+
+    inject_collaborators deps
   end
 
   def setup

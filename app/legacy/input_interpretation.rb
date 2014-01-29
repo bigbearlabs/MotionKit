@@ -2,7 +2,7 @@
 # application logic for handling text input.
 # NOTE filtering input not handled here.
 # TODO resolve with repl.rb
-class InputHandler < BBLComponent
+class InputInterpreter < BBLComponent
   include Reactive
 
   def setup

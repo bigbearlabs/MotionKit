@@ -7,7 +7,7 @@ class BBLWebViewDelegate
   attr_reader :events
   attr_reader :redirections
 
-  attr_reader :state
+  attr_reader :state  # webview activity 
   attr_reader :url
   attr_reader :title
 
@@ -18,23 +18,23 @@ class BBLWebViewDelegate
 
   attr_accessor :policies_by_pattern
 
-  def setup   
+  def setup( opts = {})
     @events = []
 
-    @policy_error_handler = -> url {
-    }
-
+    if on_policy_error = opts[:on_policy_error]
+      @policy_error_handler = on_policy_error.weak!
+    end
+    
     # watch_notification WebHistoryItemChangedNotification
   end
 
 #= event logging
 
   def push_event( event_name, event_data = {} )
-    if @url != @web_view.url
-      kvo_change :url do
-        @url = @web_view.url
-      end
+    if new_url = event_data[:new_url]
+      kvo_change :url, new_url
     end
+    # EDGECASE when policy ignores url, no longer accurately reflects webview detail.
 
     # keep track of the events.
     event = {
@@ -107,6 +107,7 @@ class BBLWebViewDelegate
           @state = :loaded
         end
 
+        # CLEANUP replace watchers to watch :state instead.
         send_notification :Url_load_finished_notification, @url
 
         @success_handler.call @url if @success_handler
@@ -177,7 +178,7 @@ class BBLWebViewDelegate
   def webView(webView, didStartProvisionalLoadForFrame:frame)
     if frame == webView.mainFrame
       self.push_event 'didStartProvisionalLoad',
-        new_url: webView.url
+        url: webView.url
     end
   end
   
@@ -308,7 +309,7 @@ class BBLWebViewDelegate
     if frame == webView.mainFrame
       self.push_event 'decidePolicyForNavigation', { 
         action_info: actionInformation, 
-        url: (actionInformation[WebActionOriginalURLKey] ? 
+        new_url: (actionInformation[WebActionOriginalURLKey] ? 
           actionInformation[WebActionOriginalURLKey].absoluteString :  # hoping this is the destination url
           'no WebActionOriginalURLKey') ,
         request: request
@@ -408,7 +409,7 @@ class BBLWebViewDelegate
 
     self.push_event 'policyImplError', { error: error, url: url }
 
-    @policy_error_handler.call url
+    @policy_error_handler.call url if @policy_error_handler
   end
 
   def webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)

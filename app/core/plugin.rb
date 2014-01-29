@@ -6,15 +6,6 @@ class WebBuddyPlugin < BBLComponent
   def_delegator :'client.plugin_vc', :eval_js, :eval_expr, :eval_js_file
 
 
-  include IvarInjection
-  
-  def initialize(client, deps = {})
-    super client
-
-    inject_collaborators deps
-  end
-
-
   def name
     @plugin_name ||= self.class.clean_name.gsub('Plugin', '').downcase
   end
@@ -23,7 +14,7 @@ class WebBuddyPlugin < BBLComponent
   def view_url(env = nil)
     default_val = default(:plugin_view_template)
       .gsub( /#\{name\}/, name)
-      .gsub( /#\{:app_support_path\}/, NSApp.app_support_path)
+      .gsub( /#\{:app_support_path\}/, NSApp.app_support_path.to_url_encoded)
       .gsub( /#\{:bundle_resources_path\}/, NSApp.bundle_resources_path)
       .split( ', ')
   end

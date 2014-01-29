@@ -314,9 +314,16 @@ class Context
   
   # REFACTOR generalise hash serialisation from object attributes.
   def to_hash
+    # filter out provisional pages for now.
+    pages = self.pages.select { |e| ! e.provisional }
+
+    stack_url = pages.empty? ? '' : pages.first.url
     { 
       'name' => self.name, 
-      'pages' => @pages.map(&:to_hash), 
+      'url' => stack_url,
+      # thumbnail_url: 'stub-thumbnail-url',
+      'last_accessed_timestamp' => self.last_accessed_timestamp.to_s,
+      'pages' => pages.map(&:to_hash), 
       # disabling unused stuff for agile core data modeling.
       # 'sites' => self.site_data,
     }
@@ -525,12 +532,15 @@ class ItemContainer
   def to_hash
     { 
       'url'=> self.url, 
-      'title'=> self.title, 
-      'timestamp'=> self.timestamp, 
-      'last_accessed_timestamp'=> self.last_accessed_timestamp, 
-      'pinned'=> (self.pinned ? true : false), 
-      'enquiry'=> ( self.enquiry ? self.enquiry : '' ),
-      'id' => self.url.hash  # id redundant?
+      'name'=> self.title, 
+      'last_accessed_timestamp'=> self.last_accessed_timestamp.to_s, 
+      'thumbnail_url'=> NSApp.delegate.context_store.thumbnail_url(self).to_url_string,  # HACK
+
+      # leftovers from the file persistence days.
+      # 'timestamp'=> self.timestamp, 
+      # 'pinned'=> (self.pinned ? true : false), 
+      # 'enquiry'=> ( self.enquiry ? self.enquiry : '' ),
+      # 'id' => self.url.hash  # id redundant?
     }
   end
   
