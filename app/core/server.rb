@@ -25,19 +25,23 @@ module DynamicServer
   end
 
   # TODO redundant given routinghttpserver. register directly
-  def add_handler( path, method, &handler)
-    case method
-    when :GET
-      @server.get path, withBlock: proc {|request, response|
-        self.on_request request, response
-        handler.call request, response
-      }
-    when :PUT
-      @server.put path, withBlock: proc {|request, response|
-        self.on_request request, response
-        handler.call request, response
-      }
-    end      
+  def add_handler( path, *methods, &handler)
+    methods.map do |method|
+      case method
+      when :GET
+        @server.get path, withBlock: proc {|request, response|
+          self.on_request request, response
+          handler.call request, response
+        }
+      when :PUT
+        @server.put path, withBlock: proc {|request, response|
+          self.on_request request, response
+          handler.call request, response
+        }
+      end
+
+      # TODO post.
+    end
   end
   
 end

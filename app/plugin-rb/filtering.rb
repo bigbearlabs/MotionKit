@@ -5,7 +5,9 @@ class FilteringPlugin < WebBuddyPlugin
 
   def on_setup
     unless @server_registered
-      NSApp.delegate.component(ServerComponent).add_handler '/data', :GET do |request, response|
+      server = NSApp.delegate.component(ServerComponent)
+
+      server.add_handler '/data', :GET, :PUT do |request, response|
         on_request request, response
       end
 
@@ -103,6 +105,8 @@ class FilteringPlugin < WebBuddyPlugin
     }
   end
 
+#= TODO refactor as feature strategies
+
   def data_searches( stacks = @context_store.stacks )
     stacks_data = stacks.map do |stack|
       stack.to_hash
@@ -127,6 +131,11 @@ class FilteringPlugin < WebBuddyPlugin
 
   def on_request( request, response )
     pe_log 'filtering request received'
+
+    pe_trace  # seems to be looping: why?
+    
+    # TODO when method is put, update store with potentially tainted data.
+    pe_log "request: #{request.body.to_str}"
 
     response.respondWithString self.data.to_json
 
