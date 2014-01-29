@@ -66,7 +66,7 @@ class BrowserWindowController < NSWindowController
 	  		module: FindPlugin
 	  	},
 	  	{
-	  		module: InputField
+	  		module: InputFieldComponent
 	  	}
 		]
 	end
@@ -145,7 +145,7 @@ class BrowserWindowController < NSWindowController
 			watch_notification :Bf_navigation_notification
 
 			# input field
-			self.setup_input_field
+			component(InputFieldComponent).setup_input_field
 
 			# history views
 			watch_notification :Item_selected_notification
