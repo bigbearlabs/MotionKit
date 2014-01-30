@@ -1,14 +1,18 @@
 class NSButton
-  def on_click(&handler)
-    @click_handler = handler
+  attr_reader :on_click
 
-    self.target = self
-    self.action = 'handle_click:'
+  def on_click=(handler)
+    self.target ||= self
+    self.action ||= 'handle_click:'
+
+    kvo_change :on_click, handler    
   end
 
-  # 
   def handle_click(sender)
-    @click_handler.call sender
+    raise "nil handler" unless @on_click
+
+    pe_log "calling handler #{@on_click}"
+    @on_click.call sender
   end
 
   def on_r_click(&handler)

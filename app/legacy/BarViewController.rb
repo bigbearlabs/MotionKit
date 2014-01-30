@@ -137,9 +137,9 @@ class BarViewController < PEViewController
 		button.image = icon
 		button.sizeToFit
 
-		button.on_click do |button|
-			handler.call button
-		end
+		button.on_click = -> *args {
+			handler.call *args
+		}
 
 		button
 	end
@@ -149,6 +149,30 @@ class BarViewController < PEViewController
 		self.view.arrange_single_row
 	end
 
+	def bookmarklet_buttons
+		bookmarklets = [
+			{
+				title: 'LastPass',
+				path: "plugins/assets/js/bookmarklets/lastpass.js"
+			}
+		]
+
+		bookmarklets.map do |bookmarklet|
+			
+			new_button bookmarklet[:title], NSImage.stub_image do |sender|
+				puts "!! bookmarklet button!"
+				self.eval_bookmarklet bookmarklet[:path]
+			end
+
+		end
+	end
+
+	def eval_bookmarklet(path)
+		wc = self.view.window.windowController
+		browser_vc = wc.browser_vc
+		browser_vc.eval_bookmarklet nil, path:path
+	end
+	
 end
 
 
@@ -159,8 +183,7 @@ class BarViewController
 
 	def buttons
 		browser_buttons + ui_buttons
-
-		# + bookmark_buttons
+		 # + bookmark_buttons
 	end
 
 	def browser_buttons
@@ -179,7 +202,7 @@ class BarViewController
 
 		# bookmarklets:
 
-		[]
+		bookmarklet_buttons
 	end
 
 	def bookmark_buttons
@@ -204,8 +227,8 @@ class BarViewController
 	end
 
 	def new_bookmark_from( site )
-		button = new_button site.name do |the_button|
-			pe_debug "button #{the_button} clicked - site #{site}"
+		button = new_button site.name do |sender|
+			pe_debug "button #{button} clicked - site #{site}"
 
 	    send_notification :Bar_item_selected_notification, site
 		end
