@@ -94,9 +94,16 @@ module JsEval
   
   #= bookmarklets
 
-  def eval_bookmarklet(content)
+  def eval_bookmarklet(content = nil, opts = {})
+    if content.nil?
+      path = opts[:path]
+      content = NSBundle.mainBundle.content path
+    end
+
     content = content.gsub /^javascript:/, ''
     unescaped = content.to_url_decoded
+    
+    pe_log "ready to eval #{content}"
     eval_js unescaped
   end
 
