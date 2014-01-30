@@ -82,8 +82,11 @@ class PEViewController < NSViewController
 #= dialog management
 
 	def show_dialog( details )
+		pe_trace
+
 		dialog_sheet_controller = DialogSheetController.alloc.init details
 		self.view.window.windowController.show_sheet dialog_sheet_controller do
+			pe_trace
 			details[:confirm_handler].call
 		end
 	end

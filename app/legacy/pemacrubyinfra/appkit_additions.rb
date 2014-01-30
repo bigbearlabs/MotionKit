@@ -587,7 +587,7 @@ module SheetHandling
 	#=
 
 	def didEndSheet(sheet, returnCode:returnCode, contextInfo:contextInfo)
-		puts "!! end sheet, #{@sheet_state}"
+		pe_trace "end sheet, #{@sheet_state.description}"
 		sheet_window_controller = @sheet_state[:controller]
 		confirm_handler = @sheet_state[:handler]
 
