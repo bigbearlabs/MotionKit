@@ -453,10 +453,12 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= viewer window
 
 	def toggle_viewer_window( params = {} )
-		if current_viewer_wc.window.active?
-			self.deactivate_viewer_window
-		else
-			self.activate_viewer_window params
+		on_main_async do
+			if current_viewer_wc.window.active?
+				self.deactivate_viewer_window
+			else
+				self.activate_viewer_window params
+			end
 		end
 	end
 	
