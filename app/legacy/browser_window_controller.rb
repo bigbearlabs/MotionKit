@@ -5,7 +5,6 @@ end
 
 class BrowserWindowController < NSWindowController
 	include ComponentClient
-	include SheetHandling
 
 	include KVOMixin
 	include DefaultsAccess

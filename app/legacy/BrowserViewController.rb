@@ -278,7 +278,7 @@ class BrowserViewController < PEViewController
 		role = params[:role]
 
 		if role == :scheme_handler
-			NSWorkSpace.sharedWorkSpace.openURL self.url.to_url
+			NSWorkspace.sharedWorkspace.openURL self.url.to_url
 			return
 		end
 
