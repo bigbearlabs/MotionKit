@@ -574,69 +574,6 @@ module NSTextFieldResponderHandling
 end
 
 
-#= sheets
-
-# mixin only for NSWindowController
-module SheetHandling
-
-	def show_sheet( sheet_window_controller, &confirm_handler )
-		@sheet_state = { handler: confirm_handler, controller: sheet_window_controller }
-		NSApp.beginSheet(sheet_window_controller.window, modalForWindow:self.window, modalDelegate:self, didEndSelector:'didEndSheet:returnCode:contextInfo:', contextInfo:nil)
-	end
-
-	#=
-
-	def didEndSheet(sheet, returnCode:returnCode, contextInfo:contextInfo)
-		puts "!! end sheet, #{@sheet_state}"
-		sheet_window_controller = @sheet_state[:controller]
-		confirm_handler = @sheet_state[:handler]
-
-		if returnCode == NSRunStoppedResponse # FIXME
-			confirm_handler.call
-
-			# ?? would we also need a cancel_handler?
-		end
-
-		# dismiss the sheet.
-		# NSApp.endSheet(sheet_window_controller.window)
-		sheet_window_controller.window.close
-	end
-
-end
-
-
-module SheetController
-	def handle_modal_confirm( sender )
-		puts "!! modal confirm"
-		NSApp.endSheet(self.window)
-	end
-
-	def handle_modal_cancel( sender )
-		puts "!! modal cancel"
-		NSApp.endSheet(self.window, returnCode:NSRunAbortedResponse)
-	end
-end
-
-class DialogSheetController < NSWindowController
-	include SheetController
-
-	attr_accessor :message_field
-
-	def init( details )
-		initWithWindowNibName('DialogSheet')
-
-		@details = details
-
-		self
-	end
-
-	def awakeFromNib
-		super
-
-		self.message_field.stringValue = @details[:message]
-	end
-end
-
 
 #=
 

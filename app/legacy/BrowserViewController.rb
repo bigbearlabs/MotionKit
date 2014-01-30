@@ -111,8 +111,8 @@ class BrowserViewController < PEViewController
 		# prevent inexplicable bflist collection
 		# @bflist = @web_view.backForwardList
 		
-		@web_view_delegate.setup on_policy_error:-> {
-			self.policy_error_prompt_action
+		@web_view_delegate.setup on_policy_error: lambda { |url|
+			self.policy_error_prompt_action url
 		}
 
 		# cover kvo's. TODO generalise
@@ -239,20 +239,18 @@ class BrowserViewController < PEViewController
 	
 #= 
 	
-	def policy_error_prompt_action( params )
-		url = params[:url]
+	def policy_error_prompt_action( url )
+		handler = {
+			bundle_id: 'com.apple.safari'  # TODO work out how to go from scheme to handler.
+		}
 
-		self.show_dialog({
-			message: "Send the URL '#{url}' to the main browser?",
+		self.show_dialog message: "Send the URL '#{url}' to default handler?",
 			confirm_handler: proc {
-				policy_error_send_to_primary params
+				handle_open_url_in role: :scheme_handler
 			}
-		})
 	end
 
-	def policy_error_send_to_primary( params )
-		url = params[:url]
-		pe_warn "TODO send #{url} to the browser"
+	def policy_error_send_to_primary( url, handler )
 	end
 
 #=
@@ -279,7 +277,13 @@ class BrowserViewController < PEViewController
 	def handle_open_url_in( params = { role: :primary_browser } )
 		role = params[:role]
 
-		if role
+		if role == :scheme_handler
+			NSWorkspace.sharedWorkspace.openURL self.url.to_url
+			return
+		end
+
+
+		if role == :primary_browser
 			browser_bundle_id = self.bundle_id_for role
 		end
 

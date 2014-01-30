@@ -79,15 +79,6 @@ class PEViewController < NSViewController
 		end
 	end
 	
-#= dialog management
-
-	def show_dialog( details )
-		dialog_sheet_controller = DialogSheetController.alloc.init details
-		self.view.window.windowController.show_sheet dialog_sheet_controller do
-			details[:confirm_handler].call
-		end
-	end
-
 end
 
 
