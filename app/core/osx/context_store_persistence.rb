@@ -20,23 +20,22 @@ end
 
 
 module FilePersistence
-
   def save_stacks
     hash = self.to_hash
     save_report =  hash['stacks'].collect do |stack|
       "#{stack['name']}: #{stack['items'].count} history items"
     end
 
-    hash.save_plist plist_name
+    hash.save_plist default :plist_name
     pe_log "saved #{self} - #{save_report}"
   rescue Exception => e
-    pe_report e, "error saving #{plist_name}"
+    pe_report e, "error saving #{default :plist_name}"
   end
 
   def load_stacks
     begin
-      pe_log "loading contexts from #{plist_name}"
-      context_store_data  = NSDictionary.from_plist( plist_name).dup
+      pe_log "loading contexts from #{default :plist_name}"
+      context_store_data  = NSDictionary.from_plist( default :plist_name).dup
     rescue Exception => e
       pe_report e
       pe_warn "TODO trigger backup restoration workflow"  # IMPL

@@ -11,7 +11,6 @@ class ContextStore
 	
 	attr_accessor :current_context
 
-	default :plist_name  # RENAME yaml_name.  # REFACTOR abstract into a uri
 	default :default_plist_name
 	default :thumbnail_dir
 	default :thumbnail_extension
