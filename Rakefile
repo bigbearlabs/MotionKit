@@ -101,6 +101,165 @@ Motion::Project::App.setup do |app|
     },
   ]
 
+  # document types
+  app.info_plist['CFBundleDocumentTypes'] = [
+    {
+      CFBundleTypeExtensions: [
+        'css',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeMIMETypes: [
+        'text/css',
+      ],
+      CFBundleTypeName: 'CSS style sheet',
+      CFBundleTypeRole: 'Viewer',
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'pdf',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeMIMETypes: [
+        'application/pdf',
+      ],
+      CFBundleTypeName: 'PDF document',
+      CFBundleTypeRole: 'Viewer',
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'webbookmark',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeName: 'Safari bookmark',
+      CFBundleTypeRole: 'Viewer',
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'webhistory',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeName: 'Safari history item',
+      CFBundleTypeRole: 'Viewer',
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'webloc',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeName: 'Web internet location',
+      CFBundleTypeOSTypes: [
+        'ilht',
+      ], 
+      CFBundleTypeRole: 'Viewer',
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'html',
+        'htm',
+        'shtml',
+        'jhtml',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeMIMETypes: [
+        'text/html',
+      ],
+      CFBundleTypeName: 'HTML document',
+      CFBundleTypeOSTypes: [
+        'HTML',
+      ],
+      CFBundleTypeRole: 'Viewer',
+      LSIsAppleDefaultForType: true,
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'js',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeMIMETypes: [
+        'application/x-javascript',
+      ],
+      CFBundleTypeName: 'JavaScript script',
+      CFBundleTypeRole: 'Viewer',
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'url',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeName: 'Web site location',
+      CFBundleTypeOSTypes: [
+        'LINK',
+      ],
+      CFBundleTypeRole: 'Viewer',
+      LSIsAppleDefaultForType: true,
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'ico',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeMIMETypes: [
+        'image/x-icon',
+      ],
+      CFBundleTypeName: 'Windows icon image',
+      CFBundleTypeOSTypes: [
+        'ICO',
+      ],
+      CFBundleTypeRole: 'Viewer',
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'xhtml',
+        'xht',
+        'xhtm',
+        'xht',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeMIMETypes: [
+        'application/xhtml+xml',
+      ],
+      CFBundleTypeName: 'XHTML document',
+      CFBundleTypeRole: 'Viewer',
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'xml',
+        'xbl',
+        'xsl',
+        'xslt',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeMIMETypes: [
+        'application/xml',
+      'text/xml',
+      ],
+      CFBundleTypeName: 'XML document',
+      CFBundleTypeRole: 'Viewer',
+      NSDocumentClass: 'BrowserDocument'
+    },
+    {
+      CFBundleTypeExtensions: [
+        'svg',
+      ],
+      CFBundleTypeIconFile: 'document.icns',
+      CFBundleTypeMIMETypes: [
+        'image/svg+xml',
+      ],
+      CFBundleTypeName: 'SVG document',
+      CFBundleTypeRole: 'Viewer',
+      NSDocumentClass: 'BrowserDocument'
+    }
+  ]
 
   ## files
 
