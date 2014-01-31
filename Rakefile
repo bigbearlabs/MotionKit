@@ -87,7 +87,7 @@ Motion::Project::App.setup do |app|
           'default' =>  "\>"
       },
       'NSMenuItem' =>  {
-          'default' =>  "Send to WebBuddy"
+          'default' =>  "WebBuddy: Search"
       },
       'NSMessage' =>  "handle_service",
       'NSPortName' =>  "#{app.name}",
