@@ -124,7 +124,15 @@ class Context
     end
   end  
 
-  def touch( url, details = {} )
+  def touch( url_or_item, details = {} )
+    if url_or_item.is_a? String
+      url = url_or_item
+    else
+      # it's a history item.
+      details[:history_item] = url_or_item
+      url = url_or_item.URLString
+    end
+
     if self.item_for_url url
       self.update_access url, details
     else
@@ -400,7 +408,10 @@ end
 # RENAME Page
 # SPLIT domain & integration layers
 class ItemContainer
-  include KVOMixin
+  # extend Delegating
+
+  # def_delegating_accessor :history_item, :title
+  # def_delegating_accessor :history_item, :originalURLString
   
   attr_accessor :history_item
   
@@ -468,7 +479,7 @@ class ItemContainer
     end
   end
 
-#=
+#= delegation by method_missing.
 
   def method_missing(m, *args, &block) 
     @history_item.send(m, *args, &block)
@@ -489,9 +500,9 @@ class ItemContainer
     "#{super} (#{self.history_item ? self.url : ''})"
   end
   
-  def title
-    history_item.title ? history_item.title : self.url
-  end
+  # def title
+  #   history_item.title ? history_item.title : self.url
+  # end
 
   def ref
     # use the url as the reference.

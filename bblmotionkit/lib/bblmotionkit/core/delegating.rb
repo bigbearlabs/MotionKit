@@ -1,16 +1,16 @@
 # a duck-typing-compliant replacement for Forwardable that works with RubyMotion.
-# use with #extend, not #include.
+# use with #extend on class or module, rather than #include.
 module Delegating
 
   ## class-scope methods
 
-  def def_delegator accessor_key_path, *methods
+  def def_delegator delegate_key_path, *methods
     raise "method_missing already defined" if self.methods.include? :method_missing
 
     self.send :include, InstanceMethods
 
     def_method_once :delegate_accessor do
-      accessor_key_path
+      delegate_key_path
     end
 
     if methods.empty?
@@ -23,7 +23,55 @@ module Delegating
   end
   
   # TODO when extended, check if at risk of clobbering.
+  # TODO build a chain of delegations so it can cope with sucessive calls to different keypaths.
 
+
+=begin doesn't work with RM kvo - define_method incompatibility.  
+  def def_delegating_accessor delegate_key_path, attr_name
+    delegate_key_path = delegate_key_path.to_s
+    attr_name = attr_name.to_s
+
+    ## define accessors
+
+    define_method attr_name do
+      self.kvc_get(delegate_key_path).send attr_name
+    end
+
+    writer = "#{attr_name}="
+    define_method writer do |*args|
+      kvo_change attr_name do
+        self.kvc_get(delegate_key_path).send writer, *args
+      end
+    end
+
+    ## save the data for the class-scope kvo methods.
+    @delegating_attr_key_path_h ||= {}
+    @delegating_attr_key_path_h[attr_name] = delegate_key_path
+  end
+
+  ## declare kvo deps for delegating accessors.
+
+  def automaticallyNotifiesObserversForKey(key)
+    return super unless @delegating_attr_key_path_h
+    if @delegating_attr_key_path_h.keys.include? key
+      false
+    else
+      super
+    end
+  end
+
+  def keyPathsForValuesAffectingValueForKey(key)
+    return super unless @delegating_attr_key_path_h
+    if @delegating_attr_key_path_h.keys.include? key
+      dep_key_paths = @delegating_attr_key_path_h.values
+      super_vals = super.allObjects
+
+      NSSet.setWithArray dep_key_paths + super_vals
+    else
+      super
+    end
+  end
+=end
 
   module InstanceMethods
 

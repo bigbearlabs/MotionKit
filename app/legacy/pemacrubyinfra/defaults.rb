@@ -235,7 +235,7 @@ module DefaultsAccess
 #=
 	
   # pass in a block as an otherwise proc
-	def if_enabled method, *params
+	def if_enabled( method, *params )
 	  if default method
 	  	# see if selector needs working out
 	  	if self.methods.include? "#{method}:".intern
@@ -243,7 +243,12 @@ module DefaultsAccess
 	  	end
 
       pe_log "invoking method #{method} based on default val."
-	  	self.send method, *params
+      if params.size > 0
+  	  	self.send method, *params
+      else
+        self.send method
+      end
+      
       return
     end
 

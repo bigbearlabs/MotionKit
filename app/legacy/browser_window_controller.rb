@@ -168,10 +168,19 @@ class BrowserWindowController < NSWindowController
 	  	url = @browser_vc.web_view_delegate.url
 
 	  	pe_trace "#{state} #{url}"
-	
-			if state == :loading
-				if_enabled :touch_stack, url, provisional: true
+
+			touch_params = {}
+			
+			touch_params[:provisional] = true if state == :loading
+			
+			if [ :loading, :loaded ].include? state
+				if_enabled :touch_stack, url, touch_params
 			end
+	  end
+
+	  # for history updates without page changes, e.g. workflowy.com item navigation
+	  react_to 'browser_vc.web_view_delegate.history_item' do |item|
+	  	if_enabled :touch_stack, item, {}
 	  end
 	end
 	
@@ -181,7 +190,7 @@ class BrowserWindowController < NSWindowController
 			
 
 	def setup_reactive_detail_input
-		@reaction_detail_input = react_to 'browser_vc.web_view.mainFrameURL', :search_details, 'page_details_vc.display_mode' do
+		@reaction_detail_input = react_to 'browser_vc.web_view.url', :search_details, 'page_details_vc.display_mode' do
 			on_main_async do
 				self.refresh_page_detail if @page_details_vc
 			end
@@ -517,11 +526,11 @@ class BrowserWindowController < NSWindowController
 
 #= data management
 
-	def touch_stack( url, details )
-		if self.stack
-			self.stack.touch url, details
+	def touch_stack( url_or_item, details = {})
 
-			# self.stack.update_detail @browser_vc.url, details  #looks redundant
+		if self.stack
+			self.stack.touch url_or_item, details
+
 
 			# TACTICAL update view data. TODO rework to initiate based on kvo.
 			NSApp.windows.map { |w| w.windowController }.select {|e| e.is_a? BrowserWindowController}.map do |wc|

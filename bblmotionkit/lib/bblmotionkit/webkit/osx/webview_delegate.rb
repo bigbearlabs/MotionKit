@@ -6,10 +6,11 @@ class BBLWebViewDelegate
   # a running history 
   attr_reader :events
   attr_reader :redirections
-
+  
   attr_reader :state  # webview activity 
   attr_reader :url
   attr_reader :title
+  attr_reader :history_item
 
   attr_accessor :web_view  
 
@@ -77,6 +78,9 @@ class BBLWebViewDelegate
 
           prep_load @url
         end
+
+        history_item = web_view.backForwardList.currentItem
+        kvo_change :history_item, history_item if history_item != @history_item
 
 
       when 'willSendRequestForRedirectResponse', 'willPerformClientRedirect'
@@ -395,7 +399,9 @@ class BBLWebViewDelegate
 #= mime type handling
 
   def webView(webView, decidePolicyForMIMEType:mimeType, request:request, frame:frame, decisionListener:listener)
-    self.push_event 'policyForMimeType', { mimeType: mimeType }
+    if frame == webView.mainFrame
+      self.push_event 'policyForMimeType', { mimeType: mimeType }
+    end
 
     if WebView.canShowMIMEType(mimeType)
       listener.use
