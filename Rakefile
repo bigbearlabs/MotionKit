@@ -282,6 +282,7 @@ Motion::Project::App.setup do |app|
   app.entitlements['com.apple.security.app-sandbox'] = true
   app.entitlements['com.apple.security.files.downloads.read-write'] = true
   app.entitlements['com.apple.security.files.user-selected.read-write'] = true
+  app.entitlements['com.apple.security.files.user-selected.executable'] = true
   app.entitlements['com.apple.security.network.client'] = true
   app.entitlements['com.apple.security.network.server'] = true
   app.entitlements['com.apple.security.print'] = true
