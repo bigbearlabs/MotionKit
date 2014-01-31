@@ -71,11 +71,6 @@ class BBLWebViewDelegate
         end
       
         if @state != :loading
-
-          kvo_change :state do
-            @state = :loading
-          end
-
           prep_load @url
         end
 
@@ -87,6 +82,10 @@ class BBLWebViewDelegate
         self.add_redirect
 
       when 'didStartProvisionalLoad'
+        if @state != :loading
+          kvo_change :state, :loading
+        end
+
         pe_log "#{@url} started provisional load"
  
         send_notification :Load_request_notification, @url
