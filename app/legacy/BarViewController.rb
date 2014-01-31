@@ -159,7 +159,7 @@ class BarViewController < PEViewController
 
 		bookmarklets.map do |bookmarklet|
 			
-			new_button bookmarklet[:title], NSImage.stub_image do |sender|
+			new_button bookmarklet[:title], nil do |sender|
 				puts "!! bookmarklet button!"
 				self.eval_bookmarklet bookmarklet[:path]
 			end
