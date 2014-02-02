@@ -178,11 +178,12 @@ end
 
 # webbuddy-specific
 class BarViewController
+
 	# view model
 	attr_accessor :browsers_to_add
 
 	def buttons
-		browser_buttons + ui_buttons
+		browser_buttons + ui_buttons.to_a
 		 # + bookmark_buttons
 	end
 
@@ -202,7 +203,7 @@ class BarViewController
 
 		# bookmarklets:
 
-		bookmarklet_buttons
+		if_enabled :bookmarklet_buttons
 	end
 
 	def bookmark_buttons

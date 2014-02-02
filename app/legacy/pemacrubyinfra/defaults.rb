@@ -252,8 +252,8 @@ module DefaultsAccess
       return
     end
 
-    # otherwise return false
-    false
+    # otherwise return nil
+    nil
 	end
 	
 #=
