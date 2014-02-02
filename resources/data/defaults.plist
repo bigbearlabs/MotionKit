@@ -114,7 +114,7 @@
 		<key>intro_enabled</key>
 		<true/>
 		<key>intro_url</key>
-		<string>http://bbl-rails.herokuapp.com/webbuddy/intro</string>
+		<string>http://intro.webbuddyapp.com</string>
 		<key>load_welcome</key>
 		<true/>
 		<key>welcome_url</key>
@@ -216,6 +216,11 @@
 				<key>downloads_path</key>
 				<string>~/Downloads</string>
 			</dict>
+		</dict>
+		<key>bar_vc</key>
+		<dict>
+			<key>bookmarklet_buttons</key>
+			<false/>
 		</dict>
 		<key>handle_focus_input_field</key>
 		<true/>
