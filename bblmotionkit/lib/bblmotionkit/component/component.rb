@@ -121,5 +121,11 @@ class BBLComponent
     full_key += ".#{key}" if key
     full_key.intern
   end
+
+  def if_enabled key, *args
+    if default key
+      self.send key, *args
+    end
+  end
 end
 

@@ -2,7 +2,6 @@
 # pod RoutingHTTPServer
 
 module DynamicServer
-  include DefaultsAccess
 
   def start( port = 59123 )
     @server = RoutingHTTPServer.alloc.init
