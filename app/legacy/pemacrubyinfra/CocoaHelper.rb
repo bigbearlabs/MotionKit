@@ -22,74 +22,74 @@
 
 # environment variables, analogous to ruby ENV.
 def env
-  NSProcessInfo.processInfo.environment
+	NSProcessInfo.processInfo.environment
 end
 
 
 # DEPRECATED prefer FilesystemAccess
 def write_file path, content
-  # make the dir if necessary.
-  dir = File.dirname path
-  unless File.exist? dir
-    pe_log "making dir #{dir}"
-    # FileUtils.mkdir_p dir   
-    Dir.mkdir dir  # FIXME do an mkdir -p equivalent
-  end
+	# make the dir if necessary.
+	dir = File.dirname path
+	unless File.exist? dir
+		pe_log "making dir #{dir}"
+		# FileUtils.mkdir_p dir   
+		Dir.mkdir dir  # FIXME do an mkdir -p equivalent
+	end
 
-  # write the file.
-  File.open(path, "w") do |file|
-    bytes = file.write content
+	# write the file.
+	File.open(path, "w") do |file|
+		bytes = file.write content
 
-    pe_log "#{self.object_id} saved to #{path}: #{bytes} bytes"
+		pe_log "#{self.object_id} saved to #{path}: #{bytes} bytes"
 
-    return bytes
-  end
+		return bytes
+	end
 rescue Exception => e
-  pe_report e, "saving to #{path}"
+	pe_report e, "saving to #{path}"
 end
 
 
 
 def network_connection?( timeout = 2 )
-  result = nil
-  begin
-  	test_file = nil
-    quickly_connect = -> {
-      test_file = Net::HTTP.get_response URI("http://www.w3c.org/")
-    }
+	result = nil
+	begin
+		test_file = nil
+		quickly_connect = -> {
+			test_file = Net::HTTP.get_response URI("http://www.w3c.org/")
+		}
 
 		group = Dispatch::Group.new
 		Dispatch::Queue.concurrent.async(group) do
 			begin
-	      quickly_connect.call
-		 	rescue Exception
-		 	end
-    end
+				quickly_connect.call
+			rescue Exception
+			end
+		end
 
 		group.wait timeout
 
-    result = (test_file != nil)
-  rescue Exception => e
-  	pe_debug "exception: #{e}"
-    result = false
-  end
+		result = (test_file != nil)
+	rescue Exception => e
+		pe_debug "exception: #{e}"
+		result = false
+	end
 
-  pe_debug "network connectivity: #{result}"
-  result
+	pe_debug "network connectivity: #{result}"
+	result
 end
 
 
 class Module
 	def clean_name
-    find_clean_name = -> ancestors {
-      if ancestors[0].name =~ /^(NSKVONotifying_|RBAnonymous)/
-        find_clean_name.call ancestors[1..-1]
-      else
-        ancestors[0].name
-      end
-    }
+		find_clean_name = -> ancestors {
+			if ancestors[0].name =~ /^(NSKVONotifying_|RBAnonymous)/
+				find_clean_name.call ancestors[1..-1]
+			else
+				ancestors[0].name
+			end
+		}
 
-    find_clean_name.call self.ancestors
+		find_clean_name.call self.ancestors
 	end
 end
 
@@ -118,22 +118,22 @@ class NSObject
  #    "<#{class_name}:#{self.object_id}>"
  #  end
 
-  def inspect
+	def inspect
 
-    # bypass conditions.
-    case self
-    when NSException, TrueClass, FalseClass, String, Numeric, Array, Hash
-      return super
-    end
+		# bypass conditions.
+		case self
+		when NSException, TrueClass, FalseClass, String, Numeric, Array, Hash
+			return super
+		end
 
-    if (val = super).size > 80
-      val[0..77] + "..."
-    else
-      val
-    end
-  end	
+		if (val = super).size > 80
+			val[0..77] + "..."
+		else
+			val
+		end
+	end	
 
-  # looks redundant.
+	# looks redundant.
 	def invoke_setter(property_name, value)
 		kvo_change property_name do
 			begin
@@ -176,7 +176,7 @@ class NSString
 
 	def to_base_url
 		url = NSURL.URLWithString(self)
-    "#{url.scheme}://#{url.host}"
+		"#{url.scheme}://#{url.host}"
 	end
 
 end
@@ -217,41 +217,41 @@ class NSDictionary
 
 	def save_yaml( path_string )
 		path_string = NSApp.app_support_path + "/" + path_string
-    content = self.to_yaml
-    
-    write_file path_string, content
-  end
+		content = self.to_yaml
+		
+		write_file path_string, content
+	end
 
-  def self.load_yaml( path_string )
-    path_string = NSApp.app_support_path + "/" + path_string
-    if File.size? path_string
-      content = File.open(path_string).read
+	def self.load_yaml( path_string )
+		path_string = NSApp.app_support_path + "/" + path_string
+		if File.size? path_string
+			content = File.open(path_string).read
 
-      # TODO test if yaml file.
-      instance = YAML::load content
-    end
+			# TODO test if yaml file.
+			instance = YAML::load content
+		end
 
-    instance ? instance : {}
-  end
+		instance ? instance : {}
+	end
 
 
-  def save_plist( path_string )
-    path_string = NSApp.app_support_path + "/" + path_string
-    
-    written = writeToFile("#{path_string}", atomically:true)
+	def save_plist( path_string )
+		path_string = NSApp.app_support_path + "/" + path_string
+		
+		written = writeToFile("#{path_string}", atomically:true)
 
-    raise "save error" if ! written
-  end
+		raise "save error" if ! written
+	end
 
-  def self.from_plist( app_support_subpath )
-    full_path = NSApp.app_support_path + "/" + app_support_subpath 
-    pe_log "loading Hash from #{full_path}"
+	def self.from_plist( app_support_subpath )
+		full_path = NSApp.app_support_path + "/" + app_support_subpath 
+		pe_log "loading Hash from #{full_path}"
 
-    NSDictionary.dictionaryWithContentsOfFile(full_path)
-  rescue Exception => e
-    pe_report e
-    return {}
-  end
+		NSDictionary.dictionaryWithContentsOfFile(full_path)
+	rescue Exception => e
+		pe_report e
+		return {}
+	end
 end
 
 #=
@@ -314,15 +314,15 @@ end
 class NSBundle
 	def url( resource_name, subdirectory = nil)
 		url = 
-      if subdirectory
-  			self.URLForResource(resource_name, withExtension:nil, subdirectory:subdirectory, localization:nil)
-  		else
-  			self.URLForResource(resource_name, withExtension:nil)
-  		end
+			if subdirectory
+				self.URLForResource(resource_name, withExtension:nil, subdirectory:subdirectory, localization:nil)
+			else
+				self.URLForResource(resource_name, withExtension:nil)
+			end
 
-    raise "no resource #{subdirectory.to_s.empty? ? '' : subdirectory + '/'}#{resource_name} in #{path}" if url.nil?
+		raise "no resource #{subdirectory.to_s.empty? ? '' : subdirectory + '/'}#{resource_name} in #{path}" if url.nil?
 
-    url
+		url
 	end
 	
 	def path
@@ -331,7 +331,7 @@ class NSBundle
 
 	#=
 
-  # REDUNDANT FilesystemAccess#load
+	# REDUNDANT FilesystemAccess#load
 	def content( resource_name, subdirectory = nil )
 		file_path = "#{self.path}#{subdirectory ? '/' + subdirectory : ''}/#{resource_name}"
 		begin
@@ -393,24 +393,24 @@ end
 
 
 class NSSet
-  def to_a
-    self.allObjects
-  end
+	def to_a
+		self.allObjects
+	end
 end
 
 class NSTimer
-  def self.new_timer( interval, &action )
-    action_holder = ProcRunner.new -> {
-      pe_debug "#{self}: interval reached, yielding to block"
-      action.call
-    }
+	def self.new_timer( interval, &action )
+		action_holder = ProcRunner.new -> {
+			pe_debug "#{self}: interval reached, yielding to block"
+			action.call
+		}
 
-    timer = self.scheduledTimerWithTimeInterval(interval, target:action_holder, selector: 'perform_proc', userInfo:nil, repeats:false)
+		timer = self.scheduledTimerWithTimeInterval(interval, target:action_holder, selector: 'perform_proc', userInfo:nil, repeats:false)
 
-    NSRunLoop.currentRunLoop.addTimer(timer, forMode:NSDefaultRunLoopMode)
+		NSRunLoop.currentRunLoop.addTimer(timer, forMode:NSDefaultRunLoopMode)
 
-    timer
-  end
+		timer
+	end
 end
 
 
@@ -429,63 +429,63 @@ def new_predicate formatted_str, word
 end
 
 class NSPredicate
-  
-  def self.widening_predicates( array_controller, chunk_size = 30, another_predicate = nil)
+	
+	def self.widening_predicates( array_controller, chunk_size = 30, another_predicate = nil)
 
-    ## NOTE as this requires the filter to be present in order to test for membership in the slice, it needs to be instantiated every time the collection mutates. 
-    filtered_objects = array_controller.unfiltered_objects.for_predicate another_predicate
+		## NOTE as this requires the filter to be present in order to test for membership in the slice, it needs to be instantiated every time the collection mutates. 
+		filtered_objects = array_controller.unfiltered_objects.for_predicate another_predicate
 
-    slices = filtered_objects.each_slice(chunk_size).to_a
-    
-    if slices.empty?
-      pe_log "no widening predicates created for #{another_predicate.description} - just returning the original predicate."
-        
-      return [ another_predicate ]
-    end
+		slices = filtered_objects.each_slice(chunk_size).to_a
+		
+		if slices.empty?
+			pe_log "no widening predicates created for #{another_predicate.description} - just returning the original predicate."
+				
+			return [ another_predicate ]
+		end
 
-    selection = []
-    slices.map do |slice|
-      selection.concat slice
+		selection = []
+		slices.map do |slice|
+			selection.concat slice
 
-      # a limited predicate includes the object if it's in the slice.
-      my_selection = selection.dup
-      limited_predicate = NSPredicate.predicateWithBlock(
-        -> evaluatedObject, bindings {
-          my_selection.include? evaluatedObject
-          })
-    end
-    
-  end
+			# a limited predicate includes the object if it's in the slice.
+			my_selection = selection.dup
+			limited_predicate = NSPredicate.predicateWithBlock(
+				-> evaluatedObject, bindings {
+					my_selection.include? evaluatedObject
+					})
+		end
+		
+	end
 
-  # returns a predicate that matches the first n sorted elements of the array controller.
-  def self.limit_predicate array_controller, limit, another_predicate = nil
-  	pe_log "creating predicate with limit #{limit}"
-    NSPredicate.predicateWithBlock(
-      -> evaluatedObject, bindings {
-        unfiltered_objects = array_controller.unfiltered_objects
-        if another_predicate
-        	unfiltered_objects = unfiltered_objects.for_predicate another_predicate
-        end
+	# returns a predicate that matches the first n sorted elements of the array controller.
+	def self.limit_predicate array_controller, limit, another_predicate = nil
+		pe_log "creating predicate with limit #{limit}"
+		NSPredicate.predicateWithBlock(
+			-> evaluatedObject, bindings {
+				unfiltered_objects = array_controller.unfiltered_objects
+				if another_predicate
+					unfiltered_objects = unfiltered_objects.for_predicate another_predicate
+				end
 
-        index = unfiltered_objects.index(evaluatedObject)
+				index = unfiltered_objects.index(evaluatedObject)
 
-        pe_log "#{self} limit: #{limit}, index: #{index}"
-        index.to_i < limit
-      }
-    )
-  end
+				pe_log "#{self} limit: #{limit}, index: #{index}"
+				index.to_i < limit
+			}
+		)
+	end
 
 
-  def new_and predicate
-    predicate.nil? ?
-      self :
-      NSCompoundPredicate.andPredicateWithSubpredicates( [ self, predicate ] )
-  end
+	def new_and predicate
+		predicate.nil? ?
+			self :
+			NSCompoundPredicate.andPredicateWithSubpredicates( [ self, predicate ] )
+	end
 
-  def new_or predicate
-    predicate.nil? ?
-      self :
-      NSCompoundPredicate.orPredicateWithSubpredicates( [ self, predicate ] )
-  end
+	def new_or predicate
+		predicate.nil? ?
+			self :
+			NSCompoundPredicate.orPredicateWithSubpredicates( [ self, predicate ] )
+	end
 
 end

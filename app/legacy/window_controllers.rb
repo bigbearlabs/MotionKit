@@ -78,8 +78,14 @@ class ViewerWindowController < BrowserWindowController
 		# 	"no stack, not loading."
 		# end
 
+		# # show filtering.
+		# if browser_vc.url.nil?
+		# 	self.component(FilteringPlugin).show_plugin
+		# end
+
+		# show initial.
 		if browser_vc.url.nil?
-			self.component(FilteringPlugin).show_plugin
+			self.load_url default :initial_url
 		end
 	end
 	
@@ -105,10 +111,10 @@ end
 class NSWindowController
 
 	def title_bar_view
-  	top_level_view = self.window.view.superview
-	  if ! @title_bar_view
-	  	@title_bar_view = new_view top_level_view.titlebarRect
-	  	top_level_view.addSubview(@title_bar_view)
+		top_level_view = self.window.view.superview
+		if ! @title_bar_view
+			@title_bar_view = new_view top_level_view.titlebarRect
+			top_level_view.addSubview(@title_bar_view)
 		else
 			@title_bar_view.frame = top_level_view.titlebarRect	  	
 		end
@@ -149,9 +155,9 @@ class MainWindowController < BrowserWindowController
 	# 	# 	end
 	# 	# end
 	# end
-  
+	
 	def filter( filter_spec )
-	  # gallery_vc.update_filter_spec filter_spec
+		# gallery_vc.update_filter_spec filter_spec
 	end
 	
 end

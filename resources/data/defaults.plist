@@ -226,6 +226,8 @@
 		<true/>
 		<key>touch_stack</key>
 		<true/>
+		<key>initial_url</key>
+		<string>http://webbuddyapp.com</string>
 	</dict>
 </dict>
 </plist>
