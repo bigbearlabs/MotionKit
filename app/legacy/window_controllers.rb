@@ -85,7 +85,7 @@ class ViewerWindowController < BrowserWindowController
 
 		# show initial.
 		if browser_vc.url.nil?
-			self.load_url default :initial_url
+			self.load_url default(:initial_url), stack_id: self.to_s
 		end
 	end
 	
