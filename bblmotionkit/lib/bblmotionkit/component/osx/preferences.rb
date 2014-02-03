@@ -90,7 +90,7 @@ module Preferences
     checkbox = view.subview(:checkbox)
     checkbox.title = pref_spec[:label]
     checkbox.state = component.default(default) ? NSOnState : NSOffState
-    checkbox.on_click do
+    checkbox.on_click = proc do
       new_val = (checkbox.state == NSOnState)
 
       # set the default.
