@@ -318,9 +318,14 @@ namespace :plugins do
   desc "all plugins tasks"
   task :all => [ :build, :hotdeploy ]
 
-  desc "build"
+  desc "build and remove stubs"
   task :build => [] do
-    sh 'cd ../webbuddy-plugins; rake build'
+    sh '
+      cd ../webbuddy-plugins
+      rake build
+    '
+
+    system 'rm -r ../webbuddy-plugins/_public/data'
   end
 
   desc "copy resources - obsolete"
