@@ -84,6 +84,11 @@
 			<key>shift_opt_click_handler</key>
 			<string>com.google.Chrome</string>
 		</dict>
+		<key>ServerComponent</key>
+		<dict>
+			<key>start_server</key>
+			<true/>
+		</dict>
 		<key>tags_by_description</key>
 		<dict>
 			<key>menu_item_debug_console</key>
