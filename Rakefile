@@ -46,11 +46,11 @@ Motion::Project::App.setup do |app|
 
 
   # dev-only
+  # FIXME this bleeds into release builds - fix or work around.
   app.development do
-    version_number = "#{version_number}-#{build_number}"
+    # version_number = "#{version_number}-#{build_number}"
     app.files += Dir.glob('sketch/**/*.rb') 
   end
-
 
   # vendor projects
   # app.vendor_project('vendor/PEFramework', :xcode)
