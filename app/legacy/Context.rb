@@ -17,6 +17,10 @@ class Context
   
   attr_accessor :filter_tag # for array controller filtering
 
+  def log_level
+    :warn
+  end
+  
   def items
     @pages.dup.freeze
   end
