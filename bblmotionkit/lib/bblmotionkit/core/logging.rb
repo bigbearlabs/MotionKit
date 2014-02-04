@@ -9,21 +9,26 @@ Log.level = :info
 # set the LOGGING envvar to a csv of log levels to send to NSLog.
 # TODO change envvar value to a csv of log module - level pairs.
 module Logging
-	
+	def log_level
+		:info
+	end
+
 	def pe_debug( msg )
 		Log.debug msg.to_s
 	end
 	
 	def pe_log( msg )
-		Log.info msg.to_s
+		if log_level == :info
+			Log.info msg.to_s
+		end
 	end
   
 	def pe_warn( msg, options = {})
-      if options[:ticket]
-        # TODO show message with ticket reporting url.
-      end
+    if options[:ticket]
+      # TODO show message with ticket reporting url.
+    end
 
-			Log.warn msg.to_s
+		Log.warn msg.to_s
 	end
 
   def pe_trace(msg = nil)
