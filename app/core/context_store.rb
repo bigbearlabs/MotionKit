@@ -7,10 +7,10 @@
 class ContextStore
 	include DefaultsAccess
 
-  include CoreDataPersistence
+	include CoreDataPersistence
 	
-	attr_accessor :current_context
-
+	attr_accessor :current_context  # SMELL
+	
 	default :default_plist_name
 	default :thumbnail_dir
 	default :thumbnail_extension
@@ -58,9 +58,9 @@ class ContextStore
 
 #= stacks
 
-  def stack_for( stack_expr )
+	def stack_for( stack_expr )
 		# stack_expr is the id for now (which in turn is the name), but can be extensible.
-    stack_id = stack_expr
+		stack_id = stack_expr
 
 		stack = find_stack stack_id
 		stack ||= add_stack stack_id
@@ -75,12 +75,12 @@ class ContextStore
 			raise "stack_id '#{stack_id}' is not available."
 		end
 
-        stack = Context.new stack_id
+		stack = Context.new stack_id
 		kvo_change_bindable :stacks do
-        @stacks_by_id[stack_id] = stack
+			@stacks_by_id[stack_id] = stack
 
-        pe_log "new stack '#{stack_id}' created"
-      end
+			pe_log "new stack '#{stack_id}' created"
+		end
 
 		stack_updated stack
 	end
@@ -98,27 +98,27 @@ class ContextStore
 		else
 			raise "no stack '#{stack_id}' found"
 		end
-    end
+	end
 
 	def stack_updated(stack)
 	  # work around the kvo bug.
 	  NSApp.delegate.updated_stack = stack
-  end
+	end
+	
+	
+	def stacks_data
+		self.stacks.map &:to_hash
+	end
 
 
-  def stacks_data
-    self.stacks.map &:to_hash
-  end
+	def tokens
+		tokens = self.stacks.map{|e| e.name}.join(' ').split.uniq
 
-
-  def tokens
-    tokens = self.stacks.map{|e| e.name}.join(' ').split.uniq
-
-    # get rid of short ones.
-    tokens.select do |token|
-      token.size > 2
-    end
-  end
+		# get rid of short ones.
+		tokens.select do |token|
+			token.size > 2
+		end
+	end
 
 #=
 
@@ -126,18 +126,18 @@ class ContextStore
 		"#{NSApp.app_support_path}/" + thumbnail_dir
 	end
 
-  def thumbnail_url( item )
-    "#{thumbnail_path}/#{item.url.hash}.#{thumbnail_extension}"
-  end
-  
+	def thumbnail_url( item )
+		"#{thumbnail_path}/#{item.url.hash}.#{thumbnail_extension}"
+	end
+	
 #=
 
 	def new_item(item_data)
 		item = ItemContainer.from_hash item_data
 
-    item.filter_tag = 'deserialised item'
+		item.filter_tag = 'deserialised item'
 
-    item
+		item
 	end
 	
 #= persistence
@@ -229,21 +229,21 @@ class ContextStore
 
 	#=
 
-  # PERF
-  # FIXME position keeping is a hassle here.
+	# PERF
+	# FIXME position keeping is a hassle here.
 	def history_stack
 		item_union = NSSet.setWithArray self.stacks.map { |e| e.pages }.flatten
 
-	  h = Context.new('History', item_union.allObjects)
+		h = Context.new('History', item_union.allObjects)
 	end
 	
 	def compact
-	  nil_names = stacks.select {|e| e.name.nil?}
-	  pe_warn "stacks #{nil_names} have empty names. let's remove."
+		nil_names = stacks.select {|e| e.name.nil?}
+		pe_warn "stacks #{nil_names} have empty names. let's remove."
 
-	  nil_names.map do |bad_stack|
-		  @stacks_by_id.delete_if {|k,v| v == bad_stack}
-		  bad_stack.persistence_record && bad_stack.persistence_record.destroy
+		nil_names.map do |bad_stack|
+			@stacks_by_id.delete_if {|k,v| v == bad_stack}
+			bad_stack.persistence_record && bad_stack.persistence_record.destroy
 		end
 	end
 	
