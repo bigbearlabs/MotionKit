@@ -21,7 +21,7 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :should_close
 
 	# all the data. LEAKY
-	attr_accessor :stack  
+	attr_accessor :stack 
 	attr_accessor :search_details
 
 	# bindable data
@@ -38,7 +38,7 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :overlay_window
 	attr_accessor :overlay_frame
 
-	# modules
+	# subsystems
 	attr_accessor :browser_vc
 	attr_accessor :progress_vc
 	attr_accessor :input_field_vc
