@@ -4,15 +4,7 @@ class FilteringPlugin < WebBuddyPlugin
   attr_accessor :context_store
 
   def on_setup
-    unless @server_registered
-      server = NSApp.delegate.component(ServerComponent)
-
-      server.add_handler '/data', :GET, :PUT do |request, response|
-        on_request request, response
-      end
-
-      @server_registered = true
-    end
+    setup_server
 
     @input_reaction = react_to 'client.input_field_vc.current_filter' do |input|
       on_input input if input
@@ -108,7 +100,7 @@ class FilteringPlugin < WebBuddyPlugin
 #= TODO refactor as feature strategies
 
   def data_searches( stacks = @context_store.stacks )
-    stacks_data = stacks.map do |stack|
+    stacks.map do |stack|
       stack.to_hash
     end
   end
@@ -129,6 +121,18 @@ class FilteringPlugin < WebBuddyPlugin
   
   #=
 
+  def setup_server
+    # unless @server_registered
+      server = NSApp.delegate.component(ServerComponent)
+
+      server.add_handler '/data', :GET, :PUT do |request, response|
+        on_request request, response
+      end
+
+      @server_registered = true
+    # end
+  end
+  
   def on_request( request, response )
     pe_log 'filtering request received'
 

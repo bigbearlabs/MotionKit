@@ -45,6 +45,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 			},
 			{
 				module: ServerComponent
+			},
+			{
+				module: APIServer,
+				# DEPS ServerComponent instance - not made explicit yet due to difficulty in referencing other components.
 			}
 		].tap do | cs|
 			# dev-only

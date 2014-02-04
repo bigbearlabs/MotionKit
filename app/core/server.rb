@@ -59,4 +59,27 @@ class ServerComponent < BBLComponent
     self.start 59123
   end
 
+
+  def on_entity_request method, path, handler_obj
+    entity = path.match(/\w+$/)[0]
+    handler_method = "handle_#{method}_#{entity}"
+  
+    raise "no method #{handler_method} defined on #{handler_obj}" unless handler_obj.respond_to? handler_method
+
+    @server.put(path, withBlock: proc {|request, response| 
+      begin
+        params = request.params
+        args = [ *params.values, request, response ]
+        retval = handler_obj.send handler_method, *args
+
+        response.respondWithString(retval)
+      rescue Exception => e
+        response.respondWithString(e.to_s)
+      end
+
+    })
+
+    pe_log "now handling #{method} #{path} with #{handler_method}"
+  end
+
 end
