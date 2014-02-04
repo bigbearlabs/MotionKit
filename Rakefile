@@ -346,12 +346,18 @@ end
 namespace :release do
   desc "zip up the .app and rsync to #{deploy_path}"
   task :zip do
+    system %Q(
+      cd #{build_path}
+      rm *.tgz
+    )
     sh %Q(
       cd #{build_path}
-      rm *.zip
-      zip -r webbuddy-#{version_number}.zip WebBuddy.app
-      rsync -avvv *.zip "#{deploy_path}/"
+      tar -czvf webbuddy-#{version_number}.tgz WebBuddy.app
     )
+    sh %Q(
+      rsync -avvv #{build_path}/*.tgz "#{deploy_path}/"
+    )
+
   end
 
   desc "increment build number"
