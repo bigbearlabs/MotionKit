@@ -1,9 +1,13 @@
 class APIServer < BBLComponent
+
+  attr_reader :new_stack
+  attr_reader :new_page
+
   def on_setup
 
     @server = NSApp.delegate.component(ServerComponent)
 
-    # prototypical api. refactor after settled
+
     @server.on_entity_request :put, '/stacks', self
 
     @server.on_entity_request :put, '/stacks/:id/pages', self
@@ -38,8 +42,12 @@ class APIServer < BBLComponent
     new_page.to_json
   end
 
+
   def add_stack data
-    record = CoreDataStack.create data
+    record = CoreDataStack.create! data
+
+    kvo_change :new_stack, record
+    
     id = encode_id record.objectID.URIRepresentation.absoluteString
 
     {
@@ -54,17 +62,21 @@ class APIServer < BBLComponent
   def add_page stack_id, data
     stack_record = fetch decode_id(stack_id)
 
+
     record = CoreDataPage.create! data
     stack_record.pages.addObject(record)
     
     stack_record.save! 
+
+    kvo_change :new_page, record
 
     {
       msg: "added page",
       id: encode_id(record.objectID.URIRepresentation.absoluteString)
     }
   end
-  
+
+
   def encode_id core_data_id
     core_data_id.gsub('/', '.')
   end
