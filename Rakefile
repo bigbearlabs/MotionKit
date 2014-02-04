@@ -322,7 +322,7 @@ namespace :plugins do
   task :build => [] do
     sh '
       cd ../webbuddy-plugins
-      rake build
+      rake build assemble
     '
 
     system 'rm -r ../webbuddy-plugins/_public/data'
