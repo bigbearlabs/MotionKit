@@ -11,7 +11,7 @@ class FilteringPlugin < WebBuddyPlugin
     end
 
     @update_data_reaction = react_to 'client.stack.pages' do
-      update_data searches_delta: data_searches( [ self.client.stack ])
+      on_updated_stack client.stack
     end
 
     # set up a policy on the web view delegate to prevent href navigation.
@@ -49,14 +49,18 @@ class FilteringPlugin < WebBuddyPlugin
   
     self.show_plugin
 
-    self.update_input input
-  end
-
-  def update_input input
     @input = input
     
     update_data input:@input
   end
+
+  def on_updated_stack stack
+    update_data searches_delta: data_searches([ stack ])
+  end
+  
+  def update_input input
+  end
+
 
   #= view-layer operations
 
