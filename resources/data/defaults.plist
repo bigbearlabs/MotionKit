@@ -86,6 +86,8 @@
 		</dict>
 		<key>ServerComponent</key>
 		<dict>
+			<key>port</key>
+			<integer>59124</integer>
 			<key>start_server</key>
 			<true/>
 		</dict>

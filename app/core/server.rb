@@ -3,7 +3,7 @@
 
 module DynamicServer
 
-  def start( port = 59123 )
+  def start( port )
     @server = RoutingHTTPServer.alloc.init
     @server.interface = 'loopback'
     @server.port = port
@@ -56,7 +56,7 @@ class ServerComponent < BBLComponent
   end
 
   def start_server
-    self.start 59123
+    self.start default(:port)
   end
 
 
