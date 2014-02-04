@@ -10,8 +10,10 @@ class FilteringPlugin < WebBuddyPlugin
       on_input input if input
     end
 
-    @update_data_reaction = react_to 'client.stack.pages' do
-      on_updated_stack client.stack
+    # react_to 'context_store.updated_stack' do |updated_stack|
+    # WORKAROUND kvo -> nil ivar bug
+    NSApp.delegate.react_to 'updated_stack' do |updated_stack|
+      on_updated_stack updated_stack
     end
 
     # set up a policy on the web view delegate to prevent href navigation.
@@ -55,12 +57,10 @@ class FilteringPlugin < WebBuddyPlugin
   end
 
   def on_updated_stack stack
+    pe_log "sending updated stack #{stack} to filtering plugin"
     update_data searches_delta: data_searches([ stack ])
   end
   
-  def update_input input
-  end
-
 
   #= view-layer operations
 

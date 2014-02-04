@@ -124,6 +124,8 @@ class NSObject
 		end
 
 		self.didChangeValueForKey(prop.to_s)
+
+		self.kvc_get prop
 	end
 
 #=

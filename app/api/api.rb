@@ -27,21 +27,31 @@ class APIServer < BBLComponent
 
     new_stack_data = Hash.from_json payload
 
-    new_stack = add_stack new_stack_data
+    new_stack = @context_store.stack_for new_stack_data['name']
 
-    new_stack.to_json
+    {
+      msg: "stack created or retrieved",
+      id: new_stack.name,
+      pages: new_stack.pages.map(&:to_hash)
+    }.to_json
   end
 
   def handle_put_pages stack_id, request, response
     payload = request.body.to_s
 
     new_page_data = Hash.from_json payload
+    url = new_page_data['url']
 
-    new_page = add_page stack_id, new_page_data
+    stack = @context_store.update_stack stack_id, url: url
 
-    new_page.to_json
+    {
+      msg: "page added",
+      url: url,
+      stack: stack.name
+    }.to_json
   end
 
+  #= CoreData implementation
 
   def add_stack data
     record = CoreDataStack.create! data

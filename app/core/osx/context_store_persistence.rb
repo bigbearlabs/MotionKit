@@ -16,6 +16,8 @@ end
 
 class WebBuddyAppDelegate < PEAppDelegate
   include ContextLoader
+
+  attr_accessor :updated_stack  # data clients to observe and react. should be on context_store but but working around the kvo bug.
 end
 
 
@@ -107,7 +109,7 @@ module CoreDataPersistence
   def save_stacks
     # Stack -> CoreDataStack, then save.
 
-    # focus first on clean high-level impl -- there will probably be perf enhancements when data scales to large sizes.
+    # focus first on clean high-level impl -- there will probably be perf enhancements required when data scales to large sizes.
     records_to_save = self.stacks.map do |stack|
       # insert_or_update stack
       if stack.persistence_record

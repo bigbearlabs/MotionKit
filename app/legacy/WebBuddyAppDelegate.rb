@@ -49,6 +49,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 			{
 				module: APIServer,
 				# DEPS ServerComponent instance - not made explicit yet due to difficulty in referencing other components.
+				deps: {
+					context_store: @context_store
+				}
 			}
 		].tap do | cs|
 			# dev-only

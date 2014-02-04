@@ -59,20 +59,50 @@ class ContextStore
 #= stacks
 
   def stack_for( stack_expr )
-    # stack_expr is query, but can be extensible.
+		# stack_expr is the id for now (which in turn is the name), but can be extensible.
     stack_id = stack_expr
 
-    stack = @stacks_by_id[stack_id]
-    if ! stack
-      kvo_change_bindable :stacks do
+		stack = find_stack stack_id
+		stack ||= add_stack stack_id
+	end
+
+	def find_stack(stack_id)
+		@stacks_by_id[stack_id]
+	end
+
+	def add_stack( stack_id )
+		if @stacks_by_id[stack_id]
+			raise "stack_id '#{stack_id}' is not available."
+		end
+
         stack = Context.new stack_id
+		kvo_change_bindable :stacks do
         @stacks_by_id[stack_id] = stack
 
         pe_log "new stack '#{stack_id}' created"
       end
+
+		stack_updated stack
+	end
+	
+	def update_stack( stack_id, details )
+		stack = find_stack stack_id
+		if stack
+			if url = details[:url]
+				stack.touch url
+			else
+				raise "can't update with #{details}"
+			end
+
+			stack_updated stack
+		else
+			raise "no stack '#{stack_id}' found"
+		end
     end
 
-    stack
+	def stack_updated(stack)
+	  # work around the kvo bug.
+	  NSApp.delegate.updated_stack = stack
   end
 
 
