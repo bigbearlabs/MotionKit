@@ -352,7 +352,7 @@ namespace :release do
     )
     sh %Q(
       cd #{build_path}
-      tar -czvf webbuddy-#{version_number}.tgz WebBuddy.app
+      tar -czvf webbuddy-#{version_number}-#{build_number}.tgz WebBuddy.app
     )
     sh %Q(
       rsync -avvv #{build_path}/*.tgz "#{deploy_path}/"
