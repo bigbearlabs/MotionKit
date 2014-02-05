@@ -68,6 +68,8 @@ class ServerComponent < BBLComponent
 
     handler_p = proc {|request, response| 
       begin
+        response.setHeader 'Access-Control-Allow-Origin', value:'*'
+
         params = request.params
         args = [ *params.values, request, response ]
         retval = handler_obj.send handler_method, *args
