@@ -66,7 +66,7 @@ class ServerComponent < BBLComponent
   
     raise "no method #{handler_method} defined on #{handler_obj}" unless handler_obj.respond_to? handler_method
 
-    @server.put(path, withBlock: proc {|request, response| 
+    handler_p = proc {|request, response| 
       begin
         params = request.params
         args = [ *params.values, request, response ]
@@ -76,8 +76,18 @@ class ServerComponent < BBLComponent
       rescue Exception => e
         response.respondWithString(e.to_s)
       end
+    }
 
-    })
+    case method
+    when :get
+      @server.put(path, withBlock:handler_p)
+    when :post
+      @server.post(path, withBlock:handler_p)
+    when :put
+      @server.put(path, withBlock:handler_p)      
+    else
+      raise "method '#{method}' not implemented!"
+    end
 
     pe_log "now handling #{method} #{path} with #{handler_method}"
   end

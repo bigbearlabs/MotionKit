@@ -8,9 +8,9 @@ class APIServer < BBLComponent
     @server = NSApp.delegate.component(ServerComponent)
 
 
-    @server.on_entity_request :put, '/stacks', self
+    @server.on_entity_request :post, '/stacks', self
 
-    @server.on_entity_request :put, '/stacks/:id/pages', self
+    @server.on_entity_request :post, '/stacks/:id/pages', self
 
 
     # post '/stacks/:id/pages/:id' do |stack_id, page_id, request|
@@ -22,7 +22,7 @@ class APIServer < BBLComponent
     # end
   end
 
-  def handle_put_stacks request, response
+  def handle_post_stacks request, response
     payload = request.body.to_s
 
     new_stack_data = Hash.from_json payload
@@ -36,7 +36,7 @@ class APIServer < BBLComponent
     }.to_json
   end
 
-  def handle_put_pages stack_id, request, response
+  def handle_post_pages stack_id, request, response
     payload = request.body.to_s
 
     new_page_data = Hash.from_json payload
