@@ -216,7 +216,11 @@ module DefaultsAccess
 
 
   def defaults_root_key
-    self.class.clean_name
+    @defaults_root_key || self.class.clean_name
+  end
+
+  def defaults_root_key=(key)
+    @defaults_root_key = key
   end
 
   # call with a symbol in order to access using the object's defaults_root_key.
@@ -242,14 +246,12 @@ module DefaultsAccess
 	  		method = "#{method}:"
 	  	end
 
-      pe_log "invoking method #{method} based on default val."
+      pe_log "invoking method #{method} based on default val with params #{params}"
       if params.size > 0
-  	  	self.send method, *params
+  	  	return self.send method, *params
       else
-        self.send method
+        return self.send method
       end
-      
-      return
     end
 
     # otherwise return nil
@@ -261,6 +263,7 @@ module DefaultsAccess
   # defining the attr on inclusion due to sporadic crashes when using kvo in conjunction. #define_method looks dangerous.
   def self.included(base)
     base.extend(ClassMethods)
+
   end
 
   module ClassMethods

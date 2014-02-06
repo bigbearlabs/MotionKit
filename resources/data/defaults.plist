@@ -227,7 +227,7 @@
 		<key>bar_vc</key>
 		<dict>
 			<key>bookmarklet_buttons</key>
-			<false/>
+			<true/>
 		</dict>
 		<key>handle_focus_input_field</key>
 		<true/>
