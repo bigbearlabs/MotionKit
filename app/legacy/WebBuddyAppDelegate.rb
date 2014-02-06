@@ -31,9 +31,9 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 	def components
 		[
-			# {
-			# 	module: DefaultBrowserHandler,
-			# },
+			{
+				module: DefaultBrowserHandler,
+			},
 			{
 				module: BrowserDispatch,
 			},
