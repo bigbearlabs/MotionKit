@@ -149,24 +149,6 @@ class BarViewController < PEViewController
 		self.view.arrange_single_row
 	end
 
-	def bookmarklet_buttons
-		bookmarklets = [
-			{
-				title: 'LastPass',
-				path: "plugins/assets/js/bookmarklets/lastpass.js"
-			}
-		]
-
-		bookmarklets.map do |bookmarklet|
-			
-			new_button bookmarklet[:title], nil do |sender|
-				puts "!! bookmarklet button!"
-				self.eval_bookmarklet bookmarklet[:path]
-			end
-
-		end
-	end
-
 	def eval_bookmarklet(path)
 		wc = self.view.window.windowController
 		browser_vc = wc.browser_vc
@@ -204,6 +186,24 @@ class BarViewController
 		# bookmarklets:
 
 		if_enabled :bookmarklet_buttons
+	end
+
+	def bookmarklet_buttons
+		bookmarklets = [
+			{
+				title: 'LastPass',
+				path: "plugins/assets/js/bookmarklets/lastpass.js"
+			}
+		]
+
+		bookmarklets.map do |bookmarklet|
+			
+			new_button bookmarklet[:title], nil do |sender|
+				puts "!! bookmarklet button!"
+				self.eval_bookmarklet bookmarklet[:path]
+			end
+
+		end
 	end
 
 	def bookmark_buttons
