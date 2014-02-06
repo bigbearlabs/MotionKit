@@ -109,6 +109,7 @@ class BrowserWindowController < NSWindowController
 
 		@browser_vc.setup context_store: @context_store
 
+
 		self.setup_reactive_update_stack
 
 		pe_log "#{self} synchronous setup complete."
@@ -125,12 +126,10 @@ class BrowserWindowController < NSWindowController
 
 			react_to :activation_type do |val|
 				if val == :hotkey		# initial view state
-					self.input_field_shown = true
-					self.handle_focus_input_field self
+					self.handle_focus_input_field(self)
 				else
-					self.input_field_shown = false
+					self.handle_hide_input_field(self)
 				end
-	
 			end
 
 			# new window case.

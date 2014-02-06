@@ -12,21 +12,10 @@ class InputFieldViewController < PEViewController
 	include KVOMixin
 	include Reactive
 	include DefaultsAccess
-	
-	attr_accessor :input_field
+		
+	attr_accessor :input_field_focused
 
-	Display_modes = [ :Display_enquiry, :Display_url, :Display_filter ]
-	attr_accessor :display_mode # what's the input field supposed to display?
-
-
-	attr_accessor :input_field_hit_box  # redundant view to catch clicks
-	attr_accessor :input_field_menu
-	
-	# unused.
-	attr_accessor :url_button
-	attr_accessor :google_button
-	
-	# UI model portion
+	# view-model properties
 	attr_accessor :current_enquiry
 	attr_accessor :current_url
 	attr_accessor :current_filter
@@ -38,13 +27,25 @@ class InputFieldViewController < PEViewController
 	attr_accessor :enquiry_display_string
 	attr_accessor :url_display_string
 	attr_accessor :filter_display_string
+
+	# view objects	
+	attr_accessor :input_field
+	attr_accessor :input_field_hit_box  # redundant view to catch clicks
+	attr_accessor :input_field_menu
 	
+	# unused.
+	attr_accessor :url_button
+	attr_accessor :google_button
+
 	# ref to domain layer
 	attr_accessor :user
 	
 	default :filter_delay
 	default :selection_handling_behaviour
 	default :submit_on_activation  # RENAME submit_on_update
+
+	Display_modes = [ :Display_enquiry, :Display_url, :Display_filter ]
+	attr_accessor :display_mode # what's the input field supposed to display?
 
 
 	## debug the mysterious change for respondsToSelector.
@@ -184,7 +185,7 @@ class InputFieldViewController < PEViewController
 		@input_field.track_mouse_down do |event, view|
 			pe_debug "clicked: #{event}"
 			if view
-				send_notification :Input_field_focused_notification
+				self.input_field_focused = true
 			end
 		end
 
@@ -373,7 +374,6 @@ class InputFieldViewController < PEViewController
 		# pe_log "forcing tokenisation"
 		# @input_field.stringValue += ""
 
-		#send_notification :Input_field_action_notification, nil
 		pe_debug "handle newline."
 		
 		self.handle_field_submit(self)
@@ -396,9 +396,6 @@ class InputFieldViewController < PEViewController
 			#pe_debug "restore saved field value"
 			#self.restore_state
 			self.refresh_input_field
-			delayed_cancelling_previous 0, -> {
-				send_notification :Input_field_cancelled_notification
-			}
 			
 			return true
 		else	
@@ -585,16 +582,6 @@ class InputField < NSTokenField
 			if self.mouse_inside?
 				self.selectText(self)
 			end
-
-			# work around the first responder bouncing between the input field and its field editor.
-			if self.notification_on_next_first_responder
-				send_notification :Input_field_focused_notification
-			end
-			self.notification_on_next_first_responder = true
-		}
-		
-		self.resign_responder_handler = -> {
-			send_notification :Input_field_unfocused_notification
 		}
 	end
 

@@ -30,6 +30,11 @@ class ViewerWindowController < BrowserWindowController
 				end
 			end
 			
+			react_to 'input_field_vc.input_field_focused' do |focused|
+				if focused
+					component(FilteringPlugin).show_plugin
+				end
+			end
 
 			self.title_bar_view.track_mouse_entered
 			react_to 'title_bar_view.mouse_entered' do |entered|

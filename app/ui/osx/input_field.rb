@@ -24,6 +24,8 @@ class InputFieldComponent < BBLComponent
       if shown
         if client.default :handle_focus_input_field
           @input_field_vc.show
+
+          @input_field_vc.focus_input_field
         end
 
         # bar must be visible
@@ -36,18 +38,13 @@ class InputFieldComponent < BBLComponent
     client.input_field_shown = client.default :handle_focus_input_field
 
     # client.extend ClientMethods
-
-    watch_notification :Input_field_focused_notification, @input_field_vc
-    watch_notification :Input_field_unfocused_notification, @input_field_vc
-    watch_notification :Input_field_cancelled_notification, @input_field_vc
   end
 
+#= obsolete notification handlers
 
   def handle_Input_field_focused_notification( notification )
     # self.show_popover(@nav_buttons_view)
   
-    client.bar_shown = true
-
     # disable the overlay for now.    
 =begin
     case @input_field_vc.mode 
@@ -75,6 +72,7 @@ class BrowserWindowController < NSWindowController
 
   # WORKAROUND add traits to client.
   def focus_input_field
+    pe_trace "may be redundant"
     self.handle_focus_input_field self
   end
   
@@ -83,11 +81,8 @@ class BrowserWindowController < NSWindowController
   end
   
   def handle_focus_input_field(sender)
-    send_notification :Input_field_focused_notification
-
     self.input_field_shown = true
-
-    @input_field_vc.focus_input_field
+    @input_field_vc.input_field_focused = true
   end
 
   
