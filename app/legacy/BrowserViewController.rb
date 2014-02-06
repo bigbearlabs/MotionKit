@@ -38,11 +38,6 @@ class BrowserViewController < PEViewController
 	end
 
 
-	def defaults_root_key
-		'ViewerWindowController.browser_vc'
-	end
-
-
 	def init_state
 	end
 	

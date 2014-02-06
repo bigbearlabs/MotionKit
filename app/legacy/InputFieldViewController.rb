@@ -47,11 +47,6 @@ class InputFieldViewController < PEViewController
 	default :submit_on_activation  # RENAME submit_on_update
 
 
-	def defaults_root_key
-		'ViewerWindowController.input_field_vc'
-	end
-
-
 	## debug the mysterious change for respondsToSelector.
 
 	def respondsToSelector( selector )

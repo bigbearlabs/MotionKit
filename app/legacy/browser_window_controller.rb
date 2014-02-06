@@ -96,6 +96,10 @@ class BrowserWindowController < NSWindowController
 
 		setup_components
 
+		[ :window, :bar_vc, :browser_vc, :input_field_vc, :plugin_vc ].map do |subsystem|
+			self.send(subsystem).defaults_root_key = "#{self.defaults_root_key}.#{subsystem}"
+		end
+
 		# self.setup_tracking_region
 		# self.setup_nav_long_click
 

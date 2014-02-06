@@ -20,8 +20,6 @@ class ViewerWindowController < BrowserWindowController
 	def setup(collaborators)
 		super
 
-		@bar_vc.defaults_root_key = self.defaults_root_key + '.bar_vc'
-
 		on_main_async do
 
 			react_to :bar_shown do |shown|

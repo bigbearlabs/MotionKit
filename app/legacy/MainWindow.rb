@@ -10,11 +10,6 @@ class MainWindow < NSPanel
 	attr_accessor :space_anchor_window
 	
 
-	def defaults_root_key
-		'ViewerWindowController.window'  # HACK
-	end
-
-
 	def awakeFromNib
 		super
 		
