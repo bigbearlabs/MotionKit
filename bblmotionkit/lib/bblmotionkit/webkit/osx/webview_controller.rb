@@ -1,6 +1,10 @@
 class WebViewController < BBLComponent
   include IvarInjection
 
+  def log_level
+    :warn
+  end
+  
   def initialize(client, deps)
     super(client)
 
