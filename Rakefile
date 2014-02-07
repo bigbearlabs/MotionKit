@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+desc "archive, zip, rsync, version, release"
+task :release => [ :'plugins:build', :'release:increment', :'archive:distribution', :'release:zip', :'release:commit_version' ]
+
+
 build_path = 'build/MacOSX-10.8-Release'
 deploy_path = "#{ENV['HOME']}/Google Drive/bigbearlabs/webbuddy-preview"
 version_number = "2.0.0"
@@ -369,9 +373,6 @@ namespace :release do
   end
 
   # TODO revert version
-
-  desc "archive, zip, rsync, version, release"
-  task :all => [ :'plugins:build', :increment, :'archive:distribution', :zip, :commit_version ]
 
 
   desc 'increment version and upload to hockeyapp.'
