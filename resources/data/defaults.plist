@@ -90,6 +90,8 @@
 			<integer>59124</integer>
 			<key>start_server</key>
 			<true/>
+			<key>serve_plugins</key>
+			<true/>
 		</dict>
 		<key>tags_by_description</key>
 		<dict>
@@ -142,7 +144,7 @@
 		<key>default_plist_name</key>
 		<string>default_context_store</string>
 		<key>thumbnail_dir</key>
-		<string>thumbnails</string>
+		<string>docroot/data/thumbnails</string>
 		<key>thumbnail_extension</key>
 		<string>png</string>
 		<key>plist_name</key>
@@ -190,7 +192,7 @@
 		<key>FilteringPlugin</key>
 		<dict>
 			<key>plugin_view_template</key>
-			<string>file://#{:app_support_path}/plugins/index.html#/#{name}, http://localhost:9000/#/#{name}, file://#{:bundle_resources_path}/plugins/index.html#/#{name}</string>
+			<string>http://localhost:59124/plugins/#/filtering, http://localhost:9000/#/#{name}</string>
 		</dict>
 		<key>overlay_dismissal_delay</key>
 		<integer>2</integer>

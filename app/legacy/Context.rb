@@ -549,7 +549,7 @@ class ItemContainer
       'url'=> self.url, 
       'name'=> self.title, 
       'last_accessed_timestamp'=> self.last_accessed_timestamp.to_s, 
-      'thumbnail_url'=> NSApp.delegate.context_store.thumbnail_url(self).to_url_string,  # HACK
+      'thumbnail_url'=> NSApp.delegate.context_store.thumbnail_url(self)
 
       # leftovers from the file persistence days.
       # 'timestamp'=> self.timestamp, 

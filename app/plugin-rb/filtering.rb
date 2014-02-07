@@ -118,7 +118,7 @@ class FilteringPlugin < WebBuddyPlugin
       {
         name: item.title,
         url: item.url,
-        thumbnail_url: @context_store.thumbnail_url(item).to_url_string
+        thumbnail_url: @context_store.thumbnail_url(item)
       }
     end
   end
@@ -129,7 +129,7 @@ class FilteringPlugin < WebBuddyPlugin
     # unless @server_registered
       server = NSApp.delegate.component(ServerComponent)
 
-      server.add_handler '/data', :GET, :PUT do |request, response|
+      server.add_handler '/plugins/data/filtering.json', :GET do |request, response|
         on_request request, response
       end
 

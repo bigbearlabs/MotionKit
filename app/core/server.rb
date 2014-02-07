@@ -57,9 +57,15 @@ class ServerComponent < BBLComponent
 
   def start_server
     self.start default(:port)
+
+    if_enabled :serve_plugins
   end
 
 
+  def serve_plugins
+    @server.documentRoot = "#{NSApp.app_support_path}/docroot"
+  end
+  
   def on_entity_request method, path, handler_obj
     entity = path.match(/\w+$/)[0]
     handler_method = "handle_#{method}_#{entity}"

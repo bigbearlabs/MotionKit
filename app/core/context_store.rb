@@ -5,16 +5,11 @@
 # require 'fileutils'
 
 class ContextStore
-	include DefaultsAccess
-
 	include CoreDataPersistence
+	include ThumbnailPersistence
 	
 	attr_accessor :current_context  # SMELL
-	
-	default :default_plist_name
-	default :thumbnail_dir
-	default :thumbnail_extension
-	
+		
 	def stacks
 		@stacks_by_id.values.dup.freeze
 	end
@@ -122,16 +117,6 @@ class ContextStore
 
 #=
 
-	def thumbnail_path
-		"#{NSApp.app_support_path}/" + thumbnail_dir
-	end
-
-	def thumbnail_url( item )
-		"#{thumbnail_path}/#{item.url.hash}.#{thumbnail_extension}"
-	end
-	
-#=
-
 	def new_item(item_data)
 		item = ItemContainer.from_hash item_data
 
@@ -181,52 +166,6 @@ class ContextStore
 		yield if block_given?
 	end
 	
-
-	# HACKY
-
-	def save_thumbnails
-		Dir.mkdir thumbnail_path unless Dir.exists? thumbnail_path
-		
-		concurrently proc {
-			self.stacks
-				.map(&:pages)
-				.flatten.select(&:thumbnail_dirty).map do |history_item|
-					file_name = "#{thumbnail_path}/#{history_item.url.hash}.#{thumbnail_extension}"
-					thumbnail = history_item.thumbnail
-					image_rep = thumbnail.representations[0]
-					data = image_rep.representationUsingType(NSPNGFileType, properties:nil)
-
-					result = data.writeToFile("#{file_name}", atomically:false)
-					
-					if result
-						pe_log "saved #{file_name}"
-						history_item.thumbnail_dirty = false
-					else
-						pe_log "failed saving #{file_name}"
-					end
-				end
-		}
-	end
-
-
-	def load_thumbnails    
-		self.stacks.each do |stack|
-			stack.pages do |history_item|
-				if ! history_item.thumbnail
-					file_name = thumbnail_url history_item
-					image_png_data = NSData.data_from_file file_name  # OPTIMISE change to do this lazily
-					if File.exists? file_name
-						image = NSImage.alloc.initWithData(image_png_data)
-						on_main {
-							history_item.thumbnail = image
-							pe_debug "loaded #{file_name} to #{image}"
-						}
-					end
-				end
-			end
-		end
-	end
-
 	#=
 
 	# PERF
