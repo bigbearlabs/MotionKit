@@ -25,7 +25,7 @@ module ThumbnailPersistence
   default :thumbnail_extension
 
   def save_thumbnails
-    Dir.mkdir thumbnail_path unless Dir.exists? thumbnail_path
+    Dir.mkdir_p thumbnail_path unless Dir.exists? thumbnail_path
     
     concurrently proc {
       self.stacks

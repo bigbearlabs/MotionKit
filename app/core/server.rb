@@ -56,12 +56,22 @@ class ServerComponent < BBLComponent
   end
 
   def start_server
+    prep_doc_root
+
     self.start default(:port)
 
     if_enabled :serve_plugins
   end
 
+  def prep_doc_root
+    docroot = "#{NSApp.app_support_path}/docroot"
+    Dir.mkdir_p docroot unless Dir.exist? docroot
 
+    plugins_dir = "#{NSApp.bundle_resources_path}/plugins"
+    dest = "#{docroot}/plugins"
+    cp plugins_dir, dest unless Dir.exist? dest
+  end
+  
   def serve_plugins
     @server.documentRoot = "#{NSApp.app_support_path}/docroot"
   end
@@ -100,4 +110,11 @@ class ServerComponent < BBLComponent
     pe_log "now handling #{method} #{path} with #{handler_method}"
   end
 
+  #=
+
+  def cp src, dest
+    error = Pointer.new :object
+    NSFileManager.defaultManager.copyItemAtPath(src, toPath:dest, error:error)
+    raise error[0].description if error[0]
+  end
 end

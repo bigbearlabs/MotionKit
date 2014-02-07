@@ -489,3 +489,14 @@ class NSPredicate
 	end
 
 end
+
+
+# duck-punch ruby classes just for RM
+class Dir
+	def self.mkdir_p dir
+		err = Pointer.new :object
+    NSFileManager.defaultManager.createDirectoryAtPath(dir, withIntermediateDirectories:true, attributes: nil, error:err)
+    raise err[0].description if err[0]
+  end
+	
+end
