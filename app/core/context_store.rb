@@ -84,7 +84,8 @@ class ContextStore
 		stack = find_stack stack_id
 		if stack
 			if url = details[:url]
-				details = details.dup.delete :url
+				details = details.dup
+				details.delete :url
 				stack.touch url, details
 			else
 				raise "can't update with #{details}"
