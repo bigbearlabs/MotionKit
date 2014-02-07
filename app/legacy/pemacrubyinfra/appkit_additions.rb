@@ -336,6 +336,11 @@ class NSImage
 		self.imageNamed NSImageNameMobileMe
 	end
 
+	def self.from_data_url(url)
+		data = NSData.dataWithContentsOfURL(url)
+		self.alloc.initWithData(data)
+	end
+
 	# resized image which is potentially cropped to fill width of new size.
 	def resized_cropped_image(new_size)
 		aspect_ratio = new_size.width / new_size.height

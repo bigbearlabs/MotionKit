@@ -40,13 +40,19 @@ class APIServer < BBLComponent
     payload = request.body.to_s
 
     new_page_data = Hash.from_json payload
-    url = new_page_data['url']
 
-    stack = @context_store.update_stack stack_id, url: url
+    details = {}
+    details[:url] = new_page_data['url']
+
+    if thumbnail_data = new_page_data['thumbnail_data']
+      details[:thumbnail] = NSImage.from_data_url(thumbnail_data.to_url)
+    end
+
+    stack = @context_store.update_stack stack_id, details
 
     {
       msg: "page added",
-      url: url,
+      url: details[:url],
       stack: stack.name
     }.to_json
   end
