@@ -145,7 +145,10 @@ class FilteringPlugin < WebBuddyPlugin
     # TODO when method is put, update store with potentially tainted data.
     pe_log "request: #{request.body.to_str}"
 
-    response.respondWithString self.data.to_json
+    response.setHeader("Content-Type", value:"text/plain")
+    # response.respondWithData(self.data.to_json)
+    # work around strange nsstring -> nil nsdata for large strings by going through a unicode encoding.
+    response.respondWithData(self.data.to_json.to_encoded_data(NSUnicodeStringEncoding))
 
     pe_log 'served filtering request'
   end

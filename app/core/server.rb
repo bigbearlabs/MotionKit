@@ -27,18 +27,21 @@ module DynamicServer
 
   # TODO redundant given routinghttpserver. register directly
   def add_handler( path, *methods, &handler)
+    on_request =  proc {|request, response|
+      begin
+        self.on_request request, response
+        handler.call request, response            
+      rescue Exception => e
+        response.respondWithString e.to_s
+      end
+    }
+    
     methods.map do |method|
       case method
       when :GET
-        @server.get path, withBlock: proc {|request, response|
-          self.on_request request, response
-          handler.call request, response
-        }
+        @server.get path, withBlock: on_request
       when :PUT
-        @server.put path, withBlock: proc {|request, response|
-          self.on_request request, response
-          handler.call request, response
-        }
+        @server.put path, withBlock: on_request
       end
 
       # TODO post.
@@ -90,6 +93,7 @@ class ServerComponent < BBLComponent
         args = [ *params.values, request, response ]
         retval = handler_obj.send handler_method, *args
 
+        response.setHeader("Content-Type", value:"text/plain")
         response.respondWithString(retval)
       rescue Exception => e
         response.respondWithString(e.to_s)
