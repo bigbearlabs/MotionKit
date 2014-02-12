@@ -6,6 +6,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 	include ServicesHandler
 	include GetUrlHandler
 	include Preferences
+	include StackUpdateReceiver
 
 	include ComponentClient
 
@@ -44,6 +45,12 @@ class WebBuddyAppDelegate < PEAppDelegate
 				module: WindowPreferenceExposer,
 			},
 			{
+				module: ContextLoader,
+				deps: {
+					context_store: @context_store
+				}
+			},
+			{
 				module: ServerComponent
 			},
 			{
@@ -75,8 +82,10 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 		# the app's domain model / storage scheme.
 		self.setup_context_store
-
+		
 		setup_components
+
+		component(ContextLoader).if_enabled :load_context
 
 		# legacy defaults
 		@intro_enabled = default :intro_enabled
@@ -180,8 +189,6 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def setup_context_store
 		try {
 			@context_store = ContextStore.new
-	
-			if_enabled :load_context
 	
 			self.user.context = @context_store.current_context
 		}
@@ -558,7 +565,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 #= system events
 
 	def on_terminate
-		if_enabled :save_context
+		component(ContextLoader).if_enabled :save_context
 	end
 
 	def on_will_become_active
@@ -585,7 +592,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 		# mask window fronting is unfinished - its state must be correctly saved and restored with space changes.
 		# @main_window_controller.window.front_with_mask_window if @main_window_controller.window.shown?
 		
-		if_enabled :save_context
+		component(ContextLoader).if_enabled :save_context
 
 		if_enabled :deactivate_on_resign
 	end

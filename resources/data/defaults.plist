@@ -93,6 +93,13 @@
 			<key>serve_plugins</key>
 			<true/>
 		</dict>
+		<key>ContextLoader</key>
+		<dict>
+			<key>save_context</key>
+			<true/>
+			<key>load_context</key>
+			<true/>
+		</dict>
 		<key>tags_by_description</key>
 		<dict>
 			<key>menu_item_debug_console</key>
@@ -130,10 +137,6 @@
 		<string>http://start.webbuddyapp.com</string>
 		<key>load_ext_url_policy</key>
 		<string>in_space_window</string>
-		<key>save_context</key>
-		<true/>
-		<key>load_context</key>
-		<true/>
 		<key>deactivate_on_resign</key>
 		<false/>
 		<key>enable_selection_grab</key>

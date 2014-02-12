@@ -345,10 +345,12 @@ class PreviewPrefPaneController < PreferencePaneViewController
     [
       @factory.new_pref_section(HotkeyHandler), 
       @factory.new_pref_section(WindowPreferenceExposer), 
+      @factory.new_pref_section(ContextLoader)
     ]
   end
 end
 
+  
 class DeveloperPrefPaneController < PreferencePaneViewController
   # MASPreferences interface compliance
   def identifier

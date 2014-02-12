@@ -1,6 +1,30 @@
-module ContextLoader
+class ContextLoader < BBLComponent
 
-  #= stacks
+  def on_setup
+    
+  end
+  
+  def defaults_spec
+    {
+      save_context: {
+        postflight: -> val {
+        },
+        preference_spec: {
+          view_type: :boolean,
+          label: "Save history data",
+        }
+      },
+      load_context: {
+        postflight: -> val {
+        },
+        preference_spec: {
+          view_type: :boolean,
+          label: "Load history data",
+        }
+      },
+    }
+  end
+
 
   def save_context
     @context_store.save
@@ -11,7 +35,7 @@ module ContextLoader
 
     # HACK work around the kvo -> nil ivar bug.
     pe_log "context store finished load. updating data for FilteringPlugin"
-    if filtering_p = self.component(FilteringPlugin)
+    if filtering_p = client.component(FilteringPlugin)
       filtering_p.update_data
     end
   end
@@ -83,9 +107,8 @@ end
 
 
 
-class WebBuddyAppDelegate < PEAppDelegate
-  include ContextLoader
-
+# class WebBuddyAppDelegate < PEAppDelegate
+module StackUpdateReceiver
   attr_accessor :updated_stack  # data clients to observe and react. should be on context_store but but working around the kvo bug.
 end
 
