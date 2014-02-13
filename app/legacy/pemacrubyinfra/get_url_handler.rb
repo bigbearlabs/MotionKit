@@ -20,6 +20,7 @@ module GetUrlHandler
 
 		# WORKAROUND kvo swizzling resulting in nil
 		push_work = -> {
+		begin
 			dispatcher = component(BrowserDispatch)
 			if dispatcher
 				on_main_async do
@@ -33,6 +34,9 @@ module GetUrlHandler
 					push_work.call
 				end
 			end
+		rescue Exception => e
+			pe_report e, "dispatching #{details}"
+		end
 		}
 		on_main_async do
 			push_work.call
