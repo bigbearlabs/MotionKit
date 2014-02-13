@@ -106,7 +106,9 @@ class BrowserDispatch < BBLComponent
     end
 
     pe_log "open #{url} with #{bundle_id}"
-    self.open_browser bundle_id, url
+    on_main_async do
+      self.open_browser bundle_id, url
+    end
   end
 
   # OBSOLETE salvage any difference and remove.

@@ -274,6 +274,15 @@ class PEAppDelegate
 		on_screen_change( notification )
 	end
 
+	#=	
+
+	def application(app, openFile:file)
+		self.application(app, openFiles:[file])
+	end
+
+	def application(app, openFiles:files)
+		self.load_url files.last
+	end
 end
 
 ## in order to get activation right, we need to comply to the system's general rules on windowing.

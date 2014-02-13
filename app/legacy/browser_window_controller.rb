@@ -540,7 +540,7 @@ class BrowserWindowController < NSWindowController
 				wc.component(FilteringPlugin).update_data searches_delta:[ self.stack.to_hash ]
 			end
 		else
-			raise "#{self} has no stack. "
+			pe_warn "#{self} has no stack. #{url_or_item} will not go in a stack."
 		end
 	end
 

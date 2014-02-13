@@ -19,11 +19,23 @@ module GetUrlHandler
 		self.requested_url = url
 
 		# WORKAROUND kvo swizzling resulting in nil
-		component = self.component BrowserDispatch
-		if component
-			component.on_get_url details
-		else 
-			pe_warn "component not initialised. not dispatching requested_url"
+		push_work = -> {
+			dispatcher = component(BrowserDispatch)
+			if dispatcher
+				on_main_async do
+					dispatcher.on_get_url details
+				end
+			else
+				pe_log "no BrowserDispatch component initialised. requeueing..."
+
+				# keep queueing until it's done.
+				on_main_async do
+					push_work.call
+				end
+			end
+		}
+		on_main_async do
+			push_work.call
 		end
 	end
 
