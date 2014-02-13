@@ -7,7 +7,11 @@ class APIServer < BBLComponent
 
     @server = NSApp.delegate.component(ServerComponent)
 
+    setup_server
 
+  end
+
+  def setup_server
     @server.on_entity_request :post, '/stacks', self
 
     @server.on_entity_request :post, '/stacks/:id/pages', self
@@ -19,9 +23,9 @@ class APIServer < BBLComponent
     #   update_page page_id
 
     #   updated_page.to_json
-    # end
+    # end    
   end
-
+  
   def handle_post_stacks request, response
     payload = request.body.to_s
 
