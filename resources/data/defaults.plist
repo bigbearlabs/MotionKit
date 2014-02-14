@@ -237,6 +237,8 @@
 		<dict>
 			<key>bookmarklet_buttons</key>
 			<true/>
+			<key>action_buttons</key>
+			<true/>
 		</dict>
 		<key>handle_focus_input_field</key>
 		<true/>

@@ -226,12 +226,6 @@ class NSPopUpButton
   end
 end
 
-class NSMenuItem
-  def value
-    self.representedObject
-  end
-end
-
 
 # a view controller that works with a client-instantiated view.
 class GenericViewController < PEViewController

@@ -165,7 +165,9 @@ class BarViewController
 	attr_accessor :browsers_to_add
 
 	def buttons
-		browser_buttons + ui_buttons.to_a
+		browser_buttons + 
+		if_enabled(:bookmarklet_buttons).to_a +
+		if_enabled(:action_buttons).to_a
 		 # + bookmark_buttons
 	end
 
@@ -179,27 +181,54 @@ class BarViewController
 		end
 	end
 
-	def ui_buttons
-		# controls:
-		# plugin view toggle
+	def action_buttons
+		[
+			{
+				title: 'Reading List',
+				on_click: -> sender {
+					pe_log "TODO send to safari reading list."
 
-		# bookmarklets:
+					invoke_service :safari_reading_list, page_url
+				}
+			},
+		].map do |button_spec|
+			
+			new_button button_spec[:title], nil do |sender|
+				pe_log "action button #{button_spec[:title]}"
+				button_spec[:on_click].call sender
+			end
 
-		if_enabled :bookmarklet_buttons
+		end
 	end
 
 	def bookmarklet_buttons
 		bookmarklets = [
 			{
 				title: 'LastPass',
-				path: "plugins/assets/js/bookmarklets/lastpass.js"
-			}
+				path: "plugins/bookmarklets/lastpass.js"
+			},
+			{
+				title: 'Pocket',
+				path: "plugins/bookmarklets/pocket.js"
+			},
+			{
+				title: 'Feedly',
+				path: "plugins/bookmarklets/feedly.js"
+			},
+			{
+				title: 'Instapaper',
+				path: "plugins/bookmarklets/instapaper.js"
+			},
+			{
+				title: 'Evernote',
+				path: "plugins/bookmarklets/evernote.js"
+			},
 		]
 
 		bookmarklets.map do |bookmarklet|
 			
 			new_button bookmarklet[:title], nil do |sender|
-				puts "!! bookmarklet button!"
+				pe_log "bookmarklet button #{bookmarklet[:title]}"
 				self.eval_bookmarklet bookmarklet[:path]
 			end
 
@@ -245,5 +274,41 @@ class BarViewController
 
 		button
 	end
+
+
+	#= realising reading list action. move
+
+	def pasteboard(name)
+	  pb = NSPasteboard.pasteboardWithName(name.to_s)
+	  def pb.copy_content( content )
+	  	unless content.is_a? Array
+	  		content = [ content ]
+	  	end
+
+	  	self.writeObjects(content)
+	  	self
+  	end
+  	pb
+	end
+	
+
+	def invoke_service( service_name, params )
+		case service_name
+		when :safari_reading_list
+			p = pasteboard(:page_url).copy_content params
+		  item = 'Add to Reading List'
+		  
+		  retval = NSPerformService item, p
+		  pe_log "performed service with #{p}, got #{retval}"
+		 else
+		 	raise "service #{service_name} unimplemented."
+		end
+
+	end
+	
+	def page_url
+	  self.view.window.windowController.browser_vc.url
+	end
+	
 
 end

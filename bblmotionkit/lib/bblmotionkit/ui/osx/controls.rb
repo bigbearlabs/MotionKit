@@ -64,6 +64,14 @@ class NSPopUpButton
 end
 
 
+class NSMenu
+  def items
+    self.itemArray
+  end
+  
+end
+
+
 class NSMenuItem
   def value
     self.representedObject
