@@ -330,13 +330,13 @@ namespace :plugins do
       rake build assemble
     '
 
-    system 'rm -r ../webbuddy-plugins/_public/data'
+    system 'rm -r ../webbuddy-plugins/build/data'
   end
 
   desc "deploy plugins to app support"
   task :hotdeploy do
     sh %(
-      rsync -avv --delete ../webbuddy-plugins/_public/* ~/"Library/Application Support/WebBuddy/docroot/plugins/"  
+      rsync -avv --delete ../webbuddy-plugins/build/* ~/"Library/Application Support/WebBuddy/docroot/plugins/"  
     )
   end
 end
