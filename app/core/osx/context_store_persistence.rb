@@ -32,12 +32,6 @@ class ContextLoader < BBLComponent
 
   def load_context
     @context_store.load
-
-    # HACK work around the kvo -> nil ivar bug.
-    pe_log "context store finished load. updating data for FilteringPlugin"
-    if filtering_p = client.component(FilteringPlugin)
-      filtering_p.update_data
-    end
   end
 end
 
@@ -244,6 +238,9 @@ module CoreDataPersistence
       end
       
       stack = to_stack record
+
+      # workaround notif to the stack users.
+      NSApp.delegate.updated_stack = stack
     end
 
     pe_log "finished loading #{stack_records.size} stacks."
