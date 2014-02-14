@@ -177,7 +177,6 @@ Motion::Project::App.setup do |app|
         'HTML',
       ],
       CFBundleTypeRole: 'Viewer',
-      LSIsAppleDefaultForType: true,
       NSDocumentClass: 'BrowserDocument'
     },
     {
