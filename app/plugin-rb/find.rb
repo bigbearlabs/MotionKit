@@ -14,7 +14,7 @@ class FindPlugin < WebBuddyPlugin
 
     client.browser_vc.load_js_lib :jquery
 
-    client.browser_vc.eval_js_file 'plugins/scripts/injectees/find.js'
+    client.browser_vc.eval_js_file 'plugins/injectees/find.js'
   end
   
   def view_loaded?

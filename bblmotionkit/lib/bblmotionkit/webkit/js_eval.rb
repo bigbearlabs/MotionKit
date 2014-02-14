@@ -4,7 +4,7 @@ module JsEval
   def load_js_lib( lib )
     case lib
     when :jquery
-      file_name = "plugins/assets/js/jquery-1.7.1.min.js"
+      file_name = "plugins/js/jquery-1.7.1.min.js"
       condition_js = 'return (window.jQuery == null)'
     else
       raise "js lib #{lib} unimplemented"
