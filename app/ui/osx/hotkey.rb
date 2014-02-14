@@ -49,11 +49,12 @@ class HotkeyHandler < BBLComponent
 				hotkey_action_activate_viewer_window params
 			},
 			handler_hold: -> {
-				if ! NSApp.active? && @hotkey_manager.modkey_counter == 2
-					self.on_double_tap_hold
-				else
-					# NSApp.send_to_responder "handle_show_page_detail:", self
-				end
+				# DISABLE activation on hold because it can trigger by mistake.
+				# if ! NSApp.active? && @hotkey_manager.modkey_counter == 2
+				# 	self.on_double_tap_hold
+				# else
+				# 	# NSApp.send_to_responder "handle_show_page_detail:", self
+				# end
 			}
 		}
 
@@ -300,9 +301,9 @@ class HotkeyManager
 			if self.modkey_counter == 2
 				pe_debug "modkey default action."
 				
-				self.modkey_counter = 0
-
 				@modkey_def[:handler].call
+
+				self.modkey_counter = 0
 
 			else
 				@modkey_timer.invalidate if @modkey_timer
@@ -342,19 +343,22 @@ class HotkeyManager
 		pe_debug "reset all state"
 		self.modkey_counter = 0
 		@modkey_hold_timer.invalidate if @modkey_hold_timer
+
+		# temporarily monitor all keys
+
 	end
 
 	def on_nsevent( event, details )
 		pe_debug "got #{event}, type: #{event.type}, keycode: #{event.keyCode}, modifiers: #{event.modifierFlags}"
 
 		case event.type
+		when NSKeyDown
+			self.key_down = event.keyCode
 		when NSFlagsChanged
 			if event.keyCode != 0
 				modkey_status = event.modifier_down?(details[:modifier]) ? :down : :up
 				self.kvc_set_if_needed :modkey_status, modkey_status
 			end
-		when NSKeyDown
-			self.key_down = event.keyCode
 		else
 			pe_warn "unhandled event type #{event.type}"
 		end
