@@ -92,6 +92,10 @@
 			<true/>
 			<key>serve_plugins</key>
 			<true/>
+			<key>docroot</key>
+			<string>#{NSApp.app_support_path}/docroot</string>
+			<key>rmdir</key>
+			<true/>
 		</dict>
 		<key>ContextLoader</key>
 		<dict>

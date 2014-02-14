@@ -64,20 +64,24 @@ class ServerComponent < BBLComponent
   end
 
   def start_server
-    prep_doc_root
+    prep_docroot
 
     self.start default(:port)
 
     if_enabled :serve_plugins
   end
 
-  def prep_doc_root
-    docroot = "#{NSApp.app_support_path}/docroot"
+  def prep_docroot
+    docroot = default :docroot
     Dir.mkdir_p docroot unless Dir.exist? docroot
 
     plugins_dir = "#{NSApp.bundle_resources_path}/plugins"
     dest = "#{docroot}/plugins"
-    cp plugins_dir, dest unless Dir.exist? dest
+
+    if_enabled :rmdir, dest
+    cp_r plugins_dir, dest
+
+    # TODO reliably overwrite old files and also allow hacking. dejavu with defaults cascading
   end
   
   def serve_plugins
@@ -126,7 +130,15 @@ class ServerComponent < BBLComponent
 
   #=
 
-  def cp src, dest
+  def rmdir dir
+    if Dir.exist? dir
+      error = Pointer.new :object
+      NSFileManager.defaultManager.removeItemAtPath(dir, error:error)
+      raise error[0].description if error[0]
+    end
+  end
+  
+  def cp_r src, dest
     error = Pointer.new :object
     NSFileManager.defaultManager.copyItemAtPath(src, toPath:dest, error:error)
     raise error[0].description if error[0]

@@ -11,7 +11,7 @@ module DefaultsAccess
   end
   
 
-  def default( key )
+  def default( key, interpolation = true )
     raise "factory defaults not set!" if self.factory_defaults.nil?
 
     qualified_key = defaults_qualified_key key
@@ -40,7 +40,11 @@ module DefaultsAccess
     when 'NO' then false
     when NSDictionary then Hash[final_val]
     else
-      final_val
+      if final_val.is_a?(String) and interpolation
+        interpolate final_val 
+      else
+        final_val
+      end
     end
   end
 
@@ -235,20 +239,20 @@ module DefaultsAccess
       end
   end
   
-	
+  
 #=
-	
+  
   # pass in a block as an otherwise proc
-	def if_enabled( method, *params )
-	  if default method
-	  	# see if selector needs working out
-	  	if self.methods.include? "#{method}:".intern
-	  		method = "#{method}:"
-	  	end
+  def if_enabled( method, *params )
+    if default method
+      # see if selector needs working out
+      if self.methods.include? "#{method}:".intern
+        method = "#{method}:"
+      end
 
       pe_log "invoking method #{method} based on default val with params #{params}"
       if params.size > 0
-  	  	return self.send method, *params
+        return self.send method, *params
       else
         return self.send method
       end
@@ -256,8 +260,25 @@ module DefaultsAccess
 
     # otherwise return nil
     nil
-	end
-	
+  end
+
+#=
+
+  def interpolate str
+    # hmm, generic case not feasible without eval. so..
+    hash = {
+      'NSApp.app_support_path' => NSApp.app_support_path,
+      'NSApp.bundle_resources_path' => NSApp.bundle_resources_path
+      # ETC ETC.
+    }
+
+    hash.map do |k, v|
+      str = str.gsub /\#\{#{k}\}/, v
+    end
+
+    str
+  end
+
 #=
 
   # defining the attr on inclusion due to sporadic crashes when using kvo in conjunction. #define_method looks dangerous.
