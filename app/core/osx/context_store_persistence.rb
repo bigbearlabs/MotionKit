@@ -49,19 +49,7 @@ module ThumbnailPersistence
       self.stacks
         .map(&:pages)
         .flatten.select(&:thumbnail_dirty).map do |history_item|
-          file_name = "#{thumbnail_path}/#{history_item.url.hash}.#{thumbnail_extension}"
-          thumbnail = history_item.thumbnail
-          image_rep = thumbnail.representations[0]
-          data = image_rep.representationUsingType(NSPNGFileType, properties:nil)
-
-          result = data.writeToFile("#{file_name}", atomically:false)
-          
-          if result
-            pe_log "saved #{file_name}"
-            history_item.thumbnail_dirty = false
-          else
-            pe_log "failed saving #{file_name}"
-          end
+          save_thumbnail history_item
         end
     }
   end
@@ -84,6 +72,23 @@ module ThumbnailPersistence
     end
   end
 
+  def save_thumbnail history_item
+    file_name = "#{thumbnail_path}/#{history_item.url.hash}.#{thumbnail_extension}"
+    thumbnail = history_item.thumbnail
+    image_rep = thumbnail.representations[0]
+    data = image_rep.representationUsingType(NSPNGFileType, properties:nil)
+
+    result = data.writeToFile("#{file_name}", atomically:false)
+    
+    if result
+      pe_log "saved #{file_name}"
+      history_item.thumbnail_dirty = false
+    else
+      pe_log "failed saving #{file_name}"
+    end
+
+  end
+  
 #=
 
   def thumbnail_path( item = nil)

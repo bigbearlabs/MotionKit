@@ -87,11 +87,17 @@ class ContextStore
 				details = details.dup
 				details.delete :url
 				stack.touch url, details
+
+				# tactical special cases
+				if details[:thumbnail]
+					save_thumbnail stack.item_for_url(url)
+				end
 			else
 				raise "can't update with #{details}"
 			end
 
 			stack_updated stack
+
 		else
 			raise "no stack '#{stack_id}' found"
 		end
