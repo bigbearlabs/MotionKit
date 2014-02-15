@@ -46,15 +46,15 @@ class HotkeyHandler < BBLComponent
 		@dtap_definition = {
 			modifier: default(:hotkey_modkey),
 			handler: -> {
-				hotkey_action_activate_viewer_window params
+				on_double_tap params
 			},
 			handler_hold: -> {
 				# DISABLE activation on hold because it can trigger by mistake.
-				# if ! NSApp.active? && @hotkey_manager.modkey_counter == 2
-				# 	self.on_double_tap_hold
-				# else
-				# 	# NSApp.send_to_responder "handle_show_page_detail:", self
-				# end
+				if ! NSApp.active? && @hotkey_manager.modkey_counter == 2
+					self.on_double_tap_hold param
+				else
+					# NSApp.send_to_responder "handle_show_page_detail:", self
+				end
 			}
 		}
 
@@ -111,12 +111,20 @@ class HotkeyHandler < BBLComponent
 
 	#= events
 
-	def on_double_tap_hold
-		client.activate_viewer_window
+	def on_double_tap params
+		hotkey_action_activate_viewer_window params
+	end
+	
+	def on_double_tap_hold params
+		# client.activate_viewer_window
 
-		client.wc.bar_shown = false
+		# client.wc.bar_shown = false
+
+
 
 		# NSApp.send_to_responder "handle_show_page_detail:", self
+
+
 
 		# oh, the dream.
 		# NSApp.delegate.handle_show_app_actions
