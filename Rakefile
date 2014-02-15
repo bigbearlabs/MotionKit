@@ -320,7 +320,7 @@ end
 
 namespace :plugins do
   desc "all plugins tasks"
-  task :all => [ :build, :hotdeploy ]
+  task :all => [ :build ]
 
   desc "build and remove stubs"
   task :build => [] do
