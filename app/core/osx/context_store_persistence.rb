@@ -201,30 +201,29 @@ module CoreDataPersistence
   attr_accessor :abort_load  # set to true to abort loading.
 
   # CASE when data doesn't have an attached persistence record, will create duplicate records.
-  def save_stacks
+  def save_stacks( stacks = self.stacks )
     # Stack -> CoreDataStack, then save.
 
     # focus first on clean high-level impl -- there will probably be perf enhancements required when data scales to large sizes.
-    records_to_save = self.stacks.map do |stack|
+    inserts = []
+    updates = []
+    stacks.map do |stack|
       # insert_or_update stack
-      if stack.persistence_record
-        stack.persistence_record
-        # process all relationships in this call.
+      if record = stack.persistence_record
+        update_persistence_record stack
+        updates << record if record.updated?
       else
-        new_persistence_record stack
+        record = new_persistence_record stack
+        inserts << record
       end
     end
 
-    new_count = records_to_save.select( &:new_record?).size
-    persist_count = records_to_save.select( &:persisted?).size
-
-    records_to_save.map(&:save!)   # will throw errors if any
+    (inserts + updates).map(&:save!)   # will throw errors if any
     # FIXME potentially inefficient.
 
-    pe_log "saved stacks. new: #{new_count}, updated: #{persist_count}"
-     
-    anomaly_count = records_to_save.size - persist_count - new_count
-    raise "out of #{records_to_save.size} records, #{anomaly_count} objects not persisted" if anomaly_count != 0
+    pe_log "saved stacks. inserted: #{inserts.size}, updated: #{updates.size}"
+  rescue Exception => e
+    pe_report e, "error saving stacks"
   end
   
   def load_stacks
@@ -273,16 +272,17 @@ module CoreDataPersistence
   
   #= TODO revise to commit-worthy.
 
-  def persistable_pages pages
-    pages.map do |page|
-      p = CoreDataPage.new title:page.title, 
-        url:page.url, 
-        last_accessed:page.last_accessed_timestamp, 
-        first_accessed:page.timestamp
-      
-      # unfortunate boilerplating for core_data_wrapper.
-      ctx = App.delegate.managedObjectContext
-      ctx.insertObject(p) # inserted into context, but not yet persisted
+  def persistable_pages stack
+    stack.pages.map do |page|
+      p = CoreDataPage.find_by_url(page.url)  # TODO multiple matches
+
+      if ! p
+        p = CoreDataPage.new title:page.title, 
+          url:page.url, 
+          last_accessed:page.last_accessed_timestamp, 
+          first_accessed:page.timestamp
+        stack.persistence_record.managedObjectContext.insertObject(p)
+      end
 
       p
     end
@@ -290,13 +290,15 @@ module CoreDataPersistence
   
   def new_persistence_record( stack )
     # assume the stack's pages are mostly new.
-    record = CoreDataStack.new name:stack.name
+    record = CoreDataStack.new
+    stack.persistence_record = record
+
+    update_persistence_record stack
 
     # unfortunate boilerplating for core_data_wrapper.
     ctx = App.delegate.managedObjectContext
     ctx.insertObject(record) # inserted into context, but not yet persisted
 
-    record.pages = NSSet.setWithArray(persistable_pages(stack.pages)) # FIXME get rid of boilerplate
 
     stack.persistence_record = record
 
@@ -304,6 +306,15 @@ module CoreDataPersistence
     return record
   end
 
+  def update_persistence_record( stack )
+    record = stack.persistence_record
+
+    # update record properties
+    record.kvc_set_if_needed :name, stack.name
+    record.kvc_set_if_needed :pages, NSSet.setWithArray(persistable_pages(stack)) # FIXME get rid of boilerplate
+    record
+  end
+  
 end
 
 
