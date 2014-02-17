@@ -281,7 +281,9 @@ module CoreDataPersistence
           url:page.url, 
           last_accessed:page.last_accessed_timestamp, 
           first_accessed:page.timestamp
-        stack.persistence_record.managedObjectContext.insertObject(p)
+        if moc = stack.persistence_record.managedObjectContext
+          moc.insertObject(p)
+        end
       end
 
       p
@@ -293,14 +295,13 @@ module CoreDataPersistence
     record = CoreDataStack.new
     stack.persistence_record = record
 
-    update_persistence_record stack
-
     # unfortunate boilerplating for core_data_wrapper.
     ctx = App.delegate.managedObjectContext
     ctx.insertObject(record) # inserted into context, but not yet persisted
 
-
     stack.persistence_record = record
+
+    update_persistence_record stack
 
     pe_log "new persistence record for #{stack}."
     return record
