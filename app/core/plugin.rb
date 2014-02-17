@@ -6,10 +6,6 @@ class WebBuddyPlugin < BBLComponent
   def_delegator :'client.plugin_vc', :eval_js, :eval_expr, :eval_js_file
 
 
-  def name
-    @plugin_name ||= self.class.clean_name.gsub('Plugin', '').downcase
-  end
-  
   # TODO doesn't work with static plugins.
   def view_url(env = nil)
     default_val = default(:plugin_view_template)
@@ -39,6 +35,11 @@ class WebBuddyPlugin < BBLComponent
     .size != 0
   end
 
+  #= 
+  def plugin_visible?
+    self.client.plugin_vc.frame_view.visible
+  end
+  
   def show_plugin
     self.client.plugin_vc.frame_view.visible = true
     self.client.browser_vc.frame_view.visible = false
@@ -48,7 +49,9 @@ class WebBuddyPlugin < BBLComponent
     self.client.browser_vc.frame_view.visible = true
     self.client.plugin_vc.frame_view.visible = false
   end
-  
+
+  #=
+
   def update_data(data = nil)
     data ||= self.data
 
@@ -61,10 +64,32 @@ class WebBuddyPlugin < BBLComponent
     )
   end
 
+  def toggle_dev
+    dev_val = eval_expr "#{scope}.view_model.show_dev"
+    dev_val = dev_val == "true" ? false : true
+    eval_expr "#{scope}.view_model.show_dev = #{dev_val}"
+  end
+  
+  def toggle_plugin
+    if plugin_visible?
+      hide_plugin
+    else
+      show_plugin
+    end
+  end
+  
   #=
 
   def inspect_data
     pe_log Object.from_json( eval_expr 'webbuddy.module.data').description
   end
-  
+
+  def scope
+    'angular.element(".app-view").scope()'
+  end
+
+  def name
+    @plugin_name ||= self.class.clean_name.gsub('Plugin', '').downcase
+  end
+    
 end
