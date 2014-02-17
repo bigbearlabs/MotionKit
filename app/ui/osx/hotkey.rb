@@ -51,7 +51,7 @@ class HotkeyHandler < BBLComponent
 			handler_hold: -> {
 				# DISABLE activation on hold because it can trigger by mistake.
 				if ! NSApp.active? && @hotkey_manager.modkey_counter == 2
-					self.on_double_tap_hold param
+					self.on_double_tap_hold params
 				else
 					# NSApp.send_to_responder "handle_show_page_detail:", self
 				end
