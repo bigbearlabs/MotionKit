@@ -21,6 +21,7 @@ class InputFieldComponent < BBLComponent
 
     react_to 'client.input_field_shown' do |shown|
       # view model -> view
+
       if shown
         if client.default :handle_focus_input_field
           @input_field_vc.show
@@ -30,9 +31,13 @@ class InputFieldComponent < BBLComponent
 
         # bar must be visible
         client.bar_shown = true
+
+        # ALT input field from plugin_vc
+        client.focus_input
       else
         @input_field_vc.hide
       end
+
     end
 
     client.input_field_shown = client.default :handle_focus_input_field
@@ -81,8 +86,12 @@ class BrowserWindowController < NSWindowController
   end
   
   def handle_focus_input_field(sender)
+    pe_trace
+
     self.input_field_shown = true
-    @input_field_vc.input_field_focused = true
+    # @input_field_vc.input_field_focused = true
+
+    # component(FilteringPlugin).show_plugin    
   end
 
   
