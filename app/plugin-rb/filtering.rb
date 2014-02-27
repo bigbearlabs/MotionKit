@@ -37,11 +37,17 @@ class FilteringPlugin < WebBuddyPlugin
   
   # FIXME why doesn't this work on FilteringPlugin ?
   def on_web_view_nav( url )
-    # stack_id = selected_item_data[:name]
-    stack_id = Object.from_json(self.selected_item_data)['name']
+    if selection_data = self.selected_item_data
+      stack_id = Object.from_json(selection_data)['name']
+    else
+      stack_id = 'stub-stack-id-for-no-selection-data'
+    end
 
     # load url in the client. 
     self.client.load_url url, stack_id: stack_id
+
+  rescue Exception => e
+    pe_report e, self.selected_item_data.to_s
   end  
 
 
@@ -66,7 +72,7 @@ class FilteringPlugin < WebBuddyPlugin
 
   # get the stack based on the view model.
   def selected_item_data
-    self.client.plugin_vc.eval_expr %q(
+    val = self.client.plugin_vc.eval_expr %q(
       angular.element('.detail').scope().view_model.selected_item
     ), :get_selected_item
   end
