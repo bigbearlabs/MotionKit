@@ -62,6 +62,7 @@ class WebBuddyPlugin < BBLComponent
         window.webbuddy.on_data(#{data.to_json}); 
       }, 0);
     )
+    # FIXME encode keys to be json compliant.
   end
 
   def toggle_dev
