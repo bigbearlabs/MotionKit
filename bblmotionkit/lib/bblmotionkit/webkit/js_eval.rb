@@ -27,13 +27,16 @@ module JsEval
 
   # FIXME depends on json2/cycle.js
   def eval_expr( single_line_expr, description = 'anonymous expression' )
-    eval_js %(
+    result = eval_js %(
       return JSON.stringify(
         JSON.decycle(
           #{single_line_expr}
         )
       );
     ), description
+    result = nil if result.starts_with "#<WebUndefined:"
+
+    result
   end
   
 
