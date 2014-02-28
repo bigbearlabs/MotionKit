@@ -223,7 +223,7 @@ class WebBuddyAppDelegate < PEAppDelegate
 
 		url = default :intro_url
 
-		self.load_url url,
+		self.load_url [ url, local_intro_url ], 
 			interface_callback_handler: self
 
 	end
@@ -267,12 +267,13 @@ class WebBuddyAppDelegate < PEAppDelegate
 	def load_welcome_page
 		url = default :welcome_url
 
-		# fall back to the intro page.
-		welcome_plugin_url = NSBundle.mainBundle.url "plugins/intro/index.html"
-		
-		self.load_url [ url, welcome_plugin_url.absoluteString ], stack_id: 'WebBuddy'
+		self.load_url [ url, local_intro_url ], stack_id: 'WebBuddy'
 	end
 
+	def local_intro_url
+		NSBundle.mainBundle.url("webbuddy/intro/index.html").absoluteString
+	end
+	
 	def load_url(urls, details = {})
 		# debug [ urls, details ]
 		wc = current_viewer_wc

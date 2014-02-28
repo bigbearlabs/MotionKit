@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 desc "archive, zip, rsync, version, release"
-task :release => [ :'plugins:build', :'release:increment', :'archive:distribution', :'release:zip', :'release:commit_version' ]
+task :release => [ :'plugins:all', :'release:increment', :'archive:distribution', :'release:zip', :'release:commit_version' ]
 
 
 build_path = 'build/MacOSX-10.8-Release'
@@ -62,7 +62,10 @@ Motion::Project::App.setup do |app|
   app.vendor_project('vendor/DDHotKeyCenter', :static)
   # FIXME need to copy resource.
 
-  app.resources_dirs << 'etc/ext-resources'
+  app.resources_dirs += [
+    'etc/ext-resources',
+    'etc/static'
+  ]
 
   # Use `rake config' to see complete project settings.
   app.name = 'WebBuddy'
@@ -325,7 +328,7 @@ namespace :plugins do
   task :build => [] do
     sh '
       cd ../webbuddy-plugins
-      rake build assemble
+      rake release
     '
 
     system 'rm -r ../webbuddy-plugins/build/data'
@@ -368,7 +371,11 @@ namespace :release do
 
   desc "commit all version files"
   task :commit_version do
-    sh %( git commit '*.VERSION' -m "version to #{version_number} / #{build_number}"; git push )
+    sh %(
+      git commit '*.VERSION' -m "version to #{version_number} / #{build_number}"; git push 
+      git tag "#{Time.new.to_s}"
+      echo "add version at: https://rink.hockeyapp.net/manage/apps/41321/app_versions"
+    )
   end
 
   # TODO revert version
