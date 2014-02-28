@@ -54,7 +54,7 @@ class BrowserDispatch < BBLComponent
         },
         preference_spec: {
           view_type: :list,
-          label: 'Alt/Option + Click on URL',
+          label: '⌥(Option/Alt) + Click on URL',
           list_items_accessor: :installed_browsers_menu,
         }
       },
@@ -65,7 +65,7 @@ class BrowserDispatch < BBLComponent
         },
         preference_spec: {
           view_type: :list,
-          label: 'Shift + Alt/Option + Click on URL',
+          label: '⇧(Shift) + ⌥(Option/Alt) + Click on URL',
           list_items_accessor: :installed_browsers_menu,
         }
       },
