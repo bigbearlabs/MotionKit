@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 desc "archive, zip, rsync, version, release"
-task :release => [ :'plugins:all', :'release:increment', :'archive:distribution', :'release:zip', :'release:commit_version' ]
+task :release => [ :'plugins:all', :fix_perms, :'release:increment', :'archive:distribution', :'release:zip', :'release:commit_version' ]
 
 
 build_path = 'build/MacOSX-10.8-Release'
@@ -378,7 +378,7 @@ namespace :release do
     )
   end
 
-  # TODO revert version
+  # TODO revert version when necessary
 
 
   desc 'increment version and upload to hockeyapp.'
@@ -405,7 +405,17 @@ namespace :release do
       rake clean
     )
   end
+
 end
+
+desc "fix perms"
+task :fix_perms do
+  sh %Q(
+    chmod -RL a+r etc/static/
+  )
+end
+
+
 
 desc 'clean-env'
 task :'clean:env' do
