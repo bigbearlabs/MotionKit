@@ -34,7 +34,7 @@ module JsEval
         )
       );
     ), description
-    result = nil if result.starts_with "#<WebUndefined:"
+    result = nil if result.starts_with? "#<WebUndefined:"
 
     result
   end
