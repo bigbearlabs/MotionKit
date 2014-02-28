@@ -373,7 +373,7 @@ namespace :release do
   task :commit_version do
     sh %(
       git commit '*.VERSION' -m "version to #{version_number} / #{build_number}"; git push 
-      git tag "#{Time.new.to_s}"
+      git tag "#{Time.new.utc.to_s.gsub(' ', '_').gsub(':', '_')}"
       echo "add version at: https://rink.hockeyapp.net/manage/apps/41321/app_versions"
     )
   end
