@@ -836,18 +836,6 @@ class BrowserWindowController < NSWindowController
 		# @overlay_frame.convertPoint(point, toView:nil)
 	end
 
-#= input field
-
-	def focus_input
-		component(FilteringPlugin).show_plugin
-		
-		@plugin_vc.web_view.make_first_responder
-
-	  @plugin_vc.eval_js %Q(
-	  	angular.element('#input-field')[0].focus();
-	  )
-	end
-
 end
 	
 # this class needed because singleton method doesn't seem to work reliably with NSWindow subclasses. but why?

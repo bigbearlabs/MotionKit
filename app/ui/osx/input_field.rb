@@ -23,6 +23,7 @@ class InputFieldComponent < BBLComponent
       # view model -> view
 
       if shown
+        ## BEGIN native input field
         if client.default :handle_focus_input_field
           @input_field_vc.show
 
@@ -32,8 +33,11 @@ class InputFieldComponent < BBLComponent
         # bar must be visible
         client.bar_shown = true
 
+        ## END native input field
+
         # ALT input field from plugin_vc
-        client.focus_input
+        client.component(FilteringPlugin).focus_input_field
+        
       else
         @input_field_vc.hide
       end

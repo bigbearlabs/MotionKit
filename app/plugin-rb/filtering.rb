@@ -158,6 +158,21 @@ class FilteringPlugin < WebBuddyPlugin
 
     pe_log 'served filtering request'
   end
-  
+
+#= input field
+
+  def focus_input_field
+    self.show_plugin
+    
+    eval_js %Q(
+      angular.element('.app-view').scope().focus_input_field()
+    )
+
+    # hackily perform native op for focus
+    client.plugin_vc.web_view.make_first_responder
+
+  end
+
+
 end
 
