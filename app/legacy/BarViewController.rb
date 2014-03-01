@@ -186,9 +186,21 @@ class BarViewController
 			{
 				title: 'Reading List',
 				on_click: -> sender {
-					pe_log "TODO send to safari reading list."
+					pe_log "send to safari reading list."
 
 					invoke_service :safari_reading_list, page_url
+				}
+			},
+			{
+				title: 'Stacks',
+				on_click: -> sender {
+					NSApp.delegate.wc.component(FilteringPlugin).toggle_plugin
+				}
+			},
+			{
+				title: 'Bleeding Edge',
+				on_click: -> sender {
+					NSApp.delegate.wc.component(FilteringPlugin).toggle_dev
 				}
 			},
 		].map do |button_spec|

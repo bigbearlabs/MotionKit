@@ -835,6 +835,7 @@ class BrowserWindowController < NSWindowController
 		point = @overlay_frame.frame.top_and_middle
 		# @overlay_frame.convertPoint(point, toView:nil)
 	end
+
 end
 	
 # this class needed because singleton method doesn't seem to work reliably with NSWindow subclasses. but why?

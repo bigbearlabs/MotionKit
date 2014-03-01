@@ -11,7 +11,6 @@
                 <outlet property="gallery_vc" destination="763" id="1048"/>
                 <outlet property="gallery_view_frame" destination="881" id="1032"/>
                 <outlet property="input_field_vc" destination="537" id="1015"/>
-                <outlet property="overlay_frame" destination="1005" id="1028"/>
                 <outlet property="page_details_vc" destination="1056" id="1061"/>
                 <outlet property="plugin_vc" destination="MWc-vU-FnU" id="FjG-0K-Vmd"/>
                 <outlet property="progress_vc" destination="1037" id="1039"/>
@@ -35,10 +34,6 @@
                     <userLayoutGuide location="448" affinity="minY"/>
                 </userGuides>
                 <subviews>
-                    <customView id="1005" userLabel="overlay frame">
-                        <rect key="frame" x="21" y="589" width="872" height="120"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    </customView>
                     <customView id="881" userLabel="gallery frame">
                         <rect key="frame" x="0.0" y="0.0" width="920" height="718"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

@@ -27,6 +27,10 @@ class WebView
     backForwardList
   end
   
+  def make_first_responder
+    self.views_where {|e| e.is_a? WebHTMLView}.flatten.first.make_first_responder
+  end
+  
 end
 
 class WebBackForwardList
