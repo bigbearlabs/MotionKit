@@ -241,7 +241,7 @@
 			<true/>
 		</dict>
 		<key>handle_focus_input_field</key>
-		<true/>
+		<false/>
 		<key>touch_stack</key>
 		<true/>
 		<key>initial_url</key>
