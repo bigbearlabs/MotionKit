@@ -1,5 +1,4 @@
 # RENAME bblviewcontroller
-# TODO reconcile with PEViewController
 class MotionViewController < PlatformViewController
 =begin
   def load_view nib_name
@@ -12,7 +11,6 @@ class MotionViewController < PlatformViewController
     obj = self.initWithNibName(nib_name, bundle:nil)
     obj
   end
-
 
   extend IB
   outlet :frame_view
