@@ -10,11 +10,16 @@ module Notifications
 
     notification = UILocalNotification.alloc.init
     notification.userInfo = { "owner" => owner.to_s }
+    
     notification.fireDate = NSDate.dateWithTimeIntervalSinceNow(time_interval)
-    notification.alertBody = message
+    notification.timeZone = NSTimeZone.defaultTimeZone
+    
+    notification.repeatInterval = NSMinuteCalendarUnit
+
     notification.applicationIconBadgeNumber = badge_count if badge_count
 
-    notification.alertAction = "Open"
+    notification.alertBody = message
+    # notification.alertAction = "Confirm"
 
     notification.soundName = sound
 
