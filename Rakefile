@@ -7,13 +7,21 @@ require 'rubygems'
 require 'bundler'
 Bundler.require
 
-require 'bubble-wrap'
-
-# require 'motion-require'
-# Motion::Require.all Dir.glob('app/**/*.rb', ) | Dir.glob('ProMotion/lib/**/*.rb')
-
 
 Motion::Project::App.setup do |app|
+  app.deployment_target = "6.0"
+
+  # Use `rake config' to see complete project settings.
+  app.name = 'BBLMotionKit'
+  app.identifier = 'com.bigbearlabs.BBLMotionKit.adhoc'
+  app.device_family = [:iphone, :ipad]
+
+  app.files = app.files | Dir.glob(File.join(app.project_dir, 'app/lib/**/*.rb')) |
+              Dir.glob(File.join(app.project_dir, 'app/**/*.rb'))
+              # |
+              # Dir.glob(File.join('ProMotion', 'lib/**/*.rb'))
+
+
   app.pods do
     # pod 'FontReplacer'
     pod 'HockeySDK'
@@ -25,14 +33,11 @@ Motion::Project::App.setup do |app|
     app.hockeyapp.status = "allow" 
 
 
-  # Use `rake config' to see complete project settings.
-  app.name = 'BBLMotionKit'
-  app.identifier = 'com.bigbearlabs.BBLMotionKit.adhoc'
-  app.device_family = [:iphone, :ipad]
+  bw_core_dependenents = app.files.select {|f| f.match(%r{/(uikit_ext.rb|browser.rb|platform.rb)}) }
+  bw_core = app.files.select {|f| f.match('app.rb') }.first
+  puts "setting up #{bw_core_dependenents} to depend on #{bw_core}"
 
-  app.files = app.files | Dir.glob(File.join(app.project_dir, 'app/lib/**/*.rb')) |
-              Dir.glob(File.join(app.project_dir, 'app/**/*.rb'))  # |
-              # Dir.glob(File.join('ProMotion', 'lib/**/*.rb'))
+  app.files_dependencies Hash[ * bw_core_dependenents.map { |dep| [ dep, bw_core ] }.flatten ]
 
 end
 
