@@ -27,12 +27,15 @@ gem 'motion-benchmark'
 # gem 'motion-xray'
 # gem 'motion-hockeyrink'
 
+
 gem "slim"
 
 group :motion do
   # gem 'idn'
   # gem 'addressable'
   # gem 'rack'
+
+  gem "aasm"
 end
 
 group :development do

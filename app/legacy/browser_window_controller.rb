@@ -54,6 +54,77 @@ class BrowserWindowController < NSWindowController
 		]
 	end
 	
+#= state machine
+
+	attr_reader :state
+	
+	class WindowState
+		include AASM
+
+		aasm do
+			state :active, initial: true
+			state :accepting_input
+			state :inactive
+			state :hidden
+
+			event :focus_input do
+				transitions from:[ :inactive, :hidden, :active ], 
+					to: :accepting_input,
+					on_transition: -> obj, *args { obj.after_focus_input(*args) } 
+			end
+
+			event :activate do
+				transitions from:[ :hidden, :inactive ], 
+					to: :active,
+					on_transition: -> obj, *args { obj.after_activate(*args) } 
+			end
+
+			event :hide  do
+				transitions from:[ :active, :accepting_input, :inactive], 
+					to: :hidden,
+					on_transition: -> obj, *args { obj.after_hide(*args) }
+			end
+		end
+
+		def initialize( callback_obj )
+		  @callback_obj = callback_obj
+		end
+		
+		#= 
+
+		def carousel
+		  if accepting_input?
+		  	hide
+		  else
+		  	focus_input
+		  end
+		end
+		
+		#= 
+
+		def after_activate(*args)
+			puts "IMPL activate #{args}"
+
+			@callback_obj._activate *args
+		end
+		
+		def after_hide(*args)
+			puts "IMPL hide"	
+
+			@callback_obj.do_hide *args
+		end
+		
+		def after_focus_input(*args)
+			puts "IMPL focus_input"	
+
+			on_main_async do
+				@callback_obj._activate *args
+				@callback_obj.handle_focus_input_field self
+			end
+		end
+
+		# TODO on window active change, update state.
+	end
 
 #= lifecycle
 
@@ -63,6 +134,8 @@ class BrowserWindowController < NSWindowController
 		# for an unknown reason this can't be set in ib.
 		self.shouldCascadeWindows = false
 
+		@state = WindowState.new self
+		
 		self
 	end
 	
@@ -95,9 +168,29 @@ class BrowserWindowController < NSWindowController
 
 		@browser_vc.web_view.make_first_responder 
 
+			# # # react to state changes.
+			# # BUG losing ivars.
+			# react_to 'state.aasm.current_state' do |state|
+			# 	puts "#{self} state: #{state}"
+
+			# 	case state
+			# 	when :hidden
+			# 		# hide window
+			# 	when :active
+
+			# 	when :accepting_input
+			# 	end
+			# end
+
+
 		self.setup_contextual_menu
 
 		watch_notifications
+
+			# # new window case.
+			# if @activation_type == :hotkey
+			# 	on_main_async { self.handle_focus_input_field self}
+			# end			
 
 		self.setup_reactive_title_bar
 		self.setup_responder_chain
@@ -648,6 +741,12 @@ class BrowserWindowController < NSWindowController
 	attr_reader :activation_type
 	
 	def do_activate( params = {})
+		@state.activate :active, params unless @state.active? or @state.accepting_input?
+
+		self
+	end
+
+	def _activate( params = {})
 		# debug
 		case default(:activation_style)
 		when :popover

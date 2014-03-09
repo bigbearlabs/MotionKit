@@ -114,7 +114,9 @@ class HotkeyHandler < BBLComponent
 	#= events
 
 	def on_double_tap params
-		hotkey_action_activate_main_window params
+		# hotkey_action_activate_viewer_window params
+
+		self.client.wc.state.carousel
 	end
 	
 	def on_double_tap_hold params

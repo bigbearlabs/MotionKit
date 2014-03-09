@@ -291,6 +291,8 @@ end
 MotionBundler.setup do |app|
   app.require "cgi"
   # app.require 'addressable/uri'
+
+  app.require 'ostruct'  # required for aasm
 end
 
 
