@@ -56,17 +56,6 @@ class WebViewController < BBLComponent
     }
     @web_view.delegate.success_handler = success_handler
 
-    attach_callback_handler = -> {
-      # set window.objc_interface_obj to be invoked from web layer  
-      # RENAME, PUSH-DOWN
-      callback_handler = details[:interface_callback_handler]
-      if callback_handler
-        key = 'objc_interface_obj'
-        @browser_vc.register_callback_handler key, callback_handler
-      end
-    }
-    # TODO integrate
-
     
     ## prep and set webview mainFrameURL.
 

@@ -423,10 +423,10 @@ class BrowserWindowController < NSWindowController
 	#= interface
 
 	# params:
-	# objc_interface_obj: interface from js to webbuddy.
+	# objc_interface: interface from js to webbuddy.
 	# stack: the stack to add this page to.
 	# stack_id: the id of stack if stack retrieval not suitable.
-	# FIXME migrate objc_interface_obj to webbuddy.interface, migrate webbuddy.module use cases.
+	# FIXME migrate objc_interface to webbuddy.interface, migrate webbuddy.module use cases.
 	def load_url(urls, details = {})
 		sid = details[:stack_id]  # can be nil.
 		
