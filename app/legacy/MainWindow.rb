@@ -7,8 +7,11 @@
 class MainWindow < NSPanel
   include DefaultsAccess
 
-  attr_accessor :space_anchor_window
-  
+	#= kvo props
+	attr_accessor :active
+
+	attr_accessor :space_anchor_window
+	
 
   def awakeFromNib
     super

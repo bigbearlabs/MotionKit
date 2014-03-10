@@ -56,6 +56,8 @@ class BrowserWindowController < NSWindowController
 	
 #= state machine
 
+	# FIXME state machine - window state sync for new window case.
+	
 	attr_reader :state
 	
 	class WindowState
@@ -111,7 +113,7 @@ class BrowserWindowController < NSWindowController
 		def after_hide(*args)
 			puts "IMPL hide"	
 
-			@callback_obj.do_hide *args
+			@callback_obj._hide *args
 		end
 		
 		def after_focus_input(*args)
@@ -126,6 +128,22 @@ class BrowserWindowController < NSWindowController
 		# TODO on window active change, update state.
 	end
 
+	def init_window_state_machine
+	  @state = WindowState.new self
+
+	  react_to 'window.visible', 'window.active' do
+
+	  	if window.active?
+	  		# if input selected, update to :accepting_input TODO
+	  		@state.aasm.current_state = :active
+	  	elsif window.visible
+	  		@state.aasm.current_state = :inactive
+	  	else
+	  		@state.aasm.current_state = :hidden
+	  	end
+	  end
+	end
+	
 #= lifecycle
 
 	def init
@@ -134,7 +152,7 @@ class BrowserWindowController < NSWindowController
 		# for an unknown reason this can't be set in ib.
 		self.shouldCascadeWindows = false
 
-		@state = WindowState.new self
+		init_window_state_machine
 		
 		self
 	end
@@ -783,6 +801,12 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def do_hide
+		@state.hide
+
+		self
+	end
+
+	def _hide
 		# first hide the window to prevent flickering
 		self.window.orderOut(self)
 
@@ -800,7 +824,9 @@ class BrowserWindowController < NSWindowController
 		
 	def windowDidBecomeKey( notification )
 		pe_debug 'main window became key.'
-		
+
+		window.active = true
+
 		## we have various attempts to control window foregrounding behaviour littered here. CLEANUP
 
 		#self.setLevel( KCGFloatingWindowLevel )
@@ -835,6 +861,9 @@ class BrowserWindowController < NSWindowController
 
 	def windowDidResignKey( notification )
 		pe_debug 'main window resigned key.'
+
+		window.active = false
+
 		#self.setLevel( KCGNormalWindowLevel )
 			
 		# HUD panel defaults to floating level, so set to normal.
