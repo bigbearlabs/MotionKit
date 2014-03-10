@@ -78,11 +78,11 @@ module JsEval
     end
   end
 
+  #= registering callback handler to dom window
+
   # handler defines methods called back from js.
-  def register_callback_handler property, handler       
-    objc_interface_obj = DOMToObjcInterface.alloc.initWithCallbackHandler handler
-    
-    set_window_property property, objc_interface_obj
+  def register_objc_interface handler       
+    set_window_property 'objc_interface', handler
   end
 
   def set_window_property property, obj

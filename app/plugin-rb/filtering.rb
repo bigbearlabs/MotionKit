@@ -35,6 +35,8 @@ class FilteringPlugin < WebBuddyPlugin
     load_view
   end
   
+  #= web -> native
+
   # FIXME why doesn't this work on FilteringPlugin ?
   def on_web_view_nav( url )
     if selection_data = self.selected_item_data
@@ -50,6 +52,24 @@ class FilteringPlugin < WebBuddyPlugin
     pe_report e, self.selected_item_data.to_s
   end  
 
+  def on_input_field_submit( input )
+    input_vc = self.client.input_field_vc
+    
+    input_vc.input_text = input
+    input_vc.handle_field_submit self
+  end
+
+  # TODO abstract.
+  def self.isSelectorExcludedFromWebScript(sel)
+    puts "webview enquiring on sel: #{sel}"
+    if [ 'on_input_field_submit:' ].include? sel.to_s
+      false
+    else
+      true
+    end  
+  end
+      
+  #= native -> web
 
   def on_input input
     # HACK work around lack of navigability constraint.

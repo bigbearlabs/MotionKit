@@ -23,8 +23,10 @@ class WebBuddyPlugin < BBLComponent
     urls = self.view_url
 
     self.client.plugin_vc.load_url urls, success_handler: -> url {
-      # nothing to do here - view will pull data.
+      ## attach callback handler as window.objc_interface
+      client.plugin_vc.register_objc_interface self
     }
+
     # , ignore_history: true
   end
 
