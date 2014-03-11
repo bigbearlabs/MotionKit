@@ -5,6 +5,9 @@ gemspec
 gem 'motion-require'
 gem 'motion-bundler'
 gem 'motion-cocoapods'
+gem 'cocoapods-core'
+
+gem 'motion-logger'
 
 gem 'bubble-wrap', '~> 1.4.0', :require => ['bubble-wrap', 'bubble-wrap/core', 'bubble-wrap/media']
 
