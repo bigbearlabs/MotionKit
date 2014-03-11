@@ -25,6 +25,7 @@ Motion::Project::App.setup do |app|
   app.pods do
     # pod 'FontReplacer'
     pod 'HockeySDK'
+    pod 'CocoaLumberjack'
   end
 
   # motion-hockeyrink

@@ -1,6 +1,11 @@
-###
-# idioms for working with the event loop and dispatching blocks / procs.
-### 
+#
+#  Execution.rb
+#  WebBuddy
+#
+#  Created by Park Andy on 17/02/2012.
+#  Copyright 2012 __MyCompanyName__. All rights reserved.
+#
+
 
 # invoke block on main thread
 def on_main( &block )

@@ -6,10 +6,11 @@ class BBLWebViewDelegate
   # a running history 
   attr_reader :events
   attr_reader :redirections
-
-  attr_reader :state
+  
+  attr_reader :state  # webview activity 
   attr_reader :url
   attr_reader :title
+  attr_reader :history_item
 
   attr_accessor :web_view  
 
@@ -18,20 +19,24 @@ class BBLWebViewDelegate
 
   attr_accessor :policies_by_pattern
 
-  def setup   
+  def setup( opts = {})
     @events = []
 
-    @policy_error_handler = -> url {
-    }
-
+    if on_policy_error = opts[:on_policy_error]
+      @policy_error_handler = on_policy_error.weak!
+    end
+    
     # watch_notification WebHistoryItemChangedNotification
   end
 
 #= event logging
 
   def push_event( event_name, event_data = {} )
-    @url = @web_view.url
-    
+    if new_url = event_data[:new_url]
+      kvo_change :url, new_url
+    end
+    # EDGECASE when policy ignores url, no longer accurately reflects webview detail.
+
     # keep track of the events.
     event = {
       url: @url,
@@ -65,26 +70,24 @@ class BBLWebViewDelegate
           # FIXME this doesn't cover all link navs - e.g. google search result links emit WebNavigationTypeOther, probably due to ajax-based loading.
         end
       
-      when 'willSendRequestForRedirectResponse'
-        kvo_change :url do
-          @url = @url  # value is already updated.
+        if @state != :loading
+          prep_load @url
         end
 
-        # collect the 'from' url.
-        self.add_redirect event_data[:response_url]
+        history_item = web_view.backForwardList.currentItem
+        kvo_change :history_item, history_item if history_item != @history_item
+
+
+      when 'willSendRequestForRedirectResponse', 'willPerformClientRedirect'
+        self.add_redirect
 
       when 'didStartProvisionalLoad'
+        if @state != :loading
+          kvo_change :state, :loading
+        end
+
         pe_log "#{@url} started provisional load"
  
-        kvo_change :state do
-          @state = :loading
-        end
-        kvo_change :url do
-          @url = @url
-        end
-       
-        self.prep_load @url
-
         send_notification :Load_request_notification, @url
 
         # TODO integrate with cancels.
@@ -107,6 +110,7 @@ class BBLWebViewDelegate
           @state = :loaded
         end
 
+        # CLEANUP replace watchers to watch :state instead.
         send_notification :Url_load_finished_notification, @url
 
         @success_handler.call @url if @success_handler
@@ -133,6 +137,9 @@ class BBLWebViewDelegate
         @success_handler = nil
         @fail_handler = nil
 
+      when 'policyImplError'
+        @policy_error_handler.call url if @policy_error_handler
+
       end
 
     rescue Exception => e
@@ -145,23 +152,32 @@ class BBLWebViewDelegate
   
 #=
 
-  def prep_load url
+  # TODO clearing the events like this doesn't work due to the unpredictable order between policy enquiry and provisonal load delegate methods.
+  def prep_load( new_url )
     pe_trace
 
-    # clear the events.
-    @events.slice! 1..-1 unless $DEBUG
+    @previous_events = @events
+    @previous_redirections = @redirections
 
-    @redirections = []
+    # clear log objects for the next request.
+    @events = [] unless $DEBUG
+    @redirections = [] unless $DEBUG
   end
 
-  def add_redirect new_url
-    kvo_change :redirections do
-      @redirections << new_url
+  def add_redirect
+    # interpret the last event and log.
+    redirect_event = @events.last
+    from_url = redirect_event[:data][:from_url]
+    if from_url
+      kvo_change :redirections do
+        @redirections << from_url
+      end
     end
   end
 
+  # only for casual inspection - will not work properly when request in flight.
   def redirect_info
-    "#{@url}: #{@redirections}"
+   "#{@url}: #{@previous_redirections}"
   end
 
 #= http lifecycle
@@ -169,7 +185,7 @@ class BBLWebViewDelegate
   def webView(webView, didStartProvisionalLoadForFrame:frame)
     if frame == webView.mainFrame
       self.push_event 'didStartProvisionalLoad',
-        new_url: webView.url
+        url: webView.url
     end
   end
   
@@ -180,25 +196,7 @@ class BBLWebViewDelegate
     
     request
   end
-  
-  def webView(webView, resource:identifier, willSendRequest:request, redirectResponse:redirectResponse, fromDataSource:dataSource)
-    response_url = 
-      unless redirectResponse.nil?
-        redirectResponse.URL.absoluteString
-      else
-        nil
-      end
 
-    new_url = request.URL.absoluteString
-
-    # page redirects have response_url equal to url and a different new_url.
-    if response_url
-      self.push_event 'willSendRequestForRedirectResponse', { new_url: new_url, response_url: response_url }
-    end
-
-    request
-  end
-  
   def webView( webView, didReceiveTitle:title, forFrame:frame )
     pe_debug "received title #{title}"
 
@@ -260,11 +258,36 @@ class BBLWebViewDelegate
   
 #= redirects
   
+  # EDGECASE http://start.webbuddyapp.com
+  def webView(webView, resource:identifier, willSendRequest:request, redirectResponse:redirectResponse, fromDataSource:dataSource)
+    response_url = 
+      unless redirectResponse.nil?
+        redirectResponse.URL.absoluteString
+      else
+        nil
+      end
+
+    to_url = request.URL.absoluteString
+
+    # page redirects have a to_url same as one already set on frame.
+    if to_url == webView.url
+      self.push_event 'willSendRequestForRedirectResponse', { 
+        from_url: response_url,
+        to_url: to_url, 
+      }
+    end
+
+    request
+  end
+  
   def webView(webView, willPerformClientRedirectToURL:url, delay:seconds, fireDate:date, forFrame:frame)
     # this is a good hook to deal with history cleanup issues on redirect.
-    if frame == webView.mainFrame
-      self.push_event 'willPerformClientRedirect', { new_url: url.absoluteString }
-    end
+    # if frame == webView.mainFrame
+      self.push_event 'willPerformClientRedirect', { 
+        from_url: webView.url,
+        to_url: url.absoluteString,
+      }
+    # end
   end
   
   def webView(webView, didCancelClientRedirectForFrame:frame)
@@ -281,6 +304,57 @@ class BBLWebViewDelegate
   end
 
 
+#= policy
+  
+  def webView(webView, decidePolicyForNewWindowAction:actionInformation, request:request, newFrameName:frameName, decisionListener:listener)    
+    self.push_event 'decidePolicyForNewWindow', { action_info: actionInformation }
+    
+    listener.use
+  end
+  
+  def webView(webView, decidePolicyForNavigationAction:actionInformation, request:request, frame:frame, decisionListener:listener)
+    if frame == webView.mainFrame
+      self.push_event 'decidePolicyForNavigation', { 
+        action_info: actionInformation, 
+        new_url: (actionInformation[WebActionOriginalURLKey] ? 
+          actionInformation[WebActionOriginalURLKey].absoluteString :  # hoping this is the destination url
+          'no WebActionOriginalURLKey') ,
+        request: request
+      }
+    end
+   
+    # listener.use
+
+    apply_policy request.URL.absoluteString, listener
+  end
+
+  #= nav policy
+
+  def apply_policy( url, decision_listener )
+    if @policies_by_pattern
+      @policies_by_pattern.keys.map do |pattern|
+        if url =~ pattern
+          # matching policy found.
+          matching_policy = @policies_by_pattern[pattern]
+          case matching_policy
+          when Proc
+            matching_policy.call url, decision_listener
+          when :load
+            decision_listener.use
+          when :ignore
+            pe_log "policy for #{url}: ignore"
+            decision_listener.ignore
+          end
+
+          return
+        end
+      end
+    end
+
+      pe_log "no matching policy for #{url}, using default policy"
+      decision_listener.use
+  end
+  
 #= script handling
 
   def webView(webView, createWebViewWithRequest:request)
@@ -305,56 +379,6 @@ class BBLWebViewDelegate
     # nothing to do here.
   end
 
-#= policy
-  
-  def webView(webView, decidePolicyForNewWindowAction:actionInformation, request:request, newFrameName:frameName, decisionListener:listener)    
-    self.push_event 'decidePolicyForNewWindow', { action_info: actionInformation }
-    
-    listener.use
-  end
-  
-  def webView(webView, decidePolicyForNavigationAction:actionInformation, request:request, frame:frame, decisionListener:listener)
-    if frame == webView.mainFrame
-      self.push_event 'decidePolicyForNavigation', { 
-        action_info: actionInformation, 
-        url: (actionInformation[WebActionOriginalURLKey] ? 
-          actionInformation[WebActionOriginalURLKey].absoluteString :  # hoping this is the destination url
-          'no WebActionOriginalURLKey') ,
-        request: request
-      }
-    end
-   
-    # listener.use
-
-    apply_policy request.URL.absoluteString, listener
-  end
-
-  #= nav policy
-
-  def apply_policy( url, decision_listener )
-    if @policies_by_pattern
-      @policies_by_pattern.keys.map do |pattern|
-        if url =~ pattern
-          matching_policy = @policies_by_pattern[pattern]
-          case matching_policy
-          when Proc
-            matching_policy.call url, decision_listener
-          when :load
-            decision_listener.use
-          when :ignore
-            pe_log "policy for #{url}: ignore"
-            decision_listener.ignore
-          end
-
-          return
-        end
-      end
-    end
-
-    pe_log "no matching policy for #{url}, using default policy"
-    decision_listener.use
-  end
-  
 #=
 
   # prevents js resizing of window hosting webview 
@@ -374,7 +398,9 @@ class BBLWebViewDelegate
 #= mime type handling
 
   def webView(webView, decidePolicyForMIMEType:mimeType, request:request, frame:frame, decisionListener:listener)
-    self.push_event 'policyForMimeType', { mimeType: mimeType }
+    if frame == webView.mainFrame
+      self.push_event 'policyForMimeType', { mimeType: mimeType }
+    end
 
     if WebView.canShowMIMEType(mimeType)
       listener.use
@@ -392,8 +418,6 @@ class BBLWebViewDelegate
     url = error.userInfo['NSErrorFailingURLStringKey']
 
     self.push_event 'policyImplError', { error: error, url: url }
-
-    @policy_error_handler.call url
   end
 
   def webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)
@@ -404,34 +428,6 @@ class BBLWebViewDelegate
     self.push_event 'loadFailed'
   end
 
-end
-
-
-class DownloadDelegate
-
-  def initialize( details = nil )
-    @downloads_path = details[:downloads_path]
-  end
-
-  def download(download, decideDestinationWithSuggestedFilename:filename)
-    file_path = File.join File.expand_path( @downloads_path ), filename
-  
-    pe_log "download path for #{download.request.inspect}: #{file_path}"
-    download.setDestination(file_path, allowOverwrite: 
-      true)
-  end
-  
-  def downloadDidBegin( download )
-    pe_log "begin download #{download.request.inspect}"
-  end
-  
-  def downloadDidFinish( download )
-    pe_log "finish download #{download.request.inspect}"
-  end
-  
-  def download(download, didFailWithError:error_pointer)
-    pe_log "error downloading #{download.request.inspect}"
-  end
 end
 
 
