@@ -72,8 +72,3 @@ class DialogSheetController < NSWindowController
 end
 
 
-
-class BrowserViewController < PEViewController
-  include DialogPresenter
-end
-
