@@ -21,7 +21,6 @@ Motion::Project::App.setup do |app|
               # |
               # Dir.glob(File.join('ProMotion', 'lib/**/*.rb'))
 
-
   app.pods do
     # pod 'FontReplacer'
     pod 'HockeySDK'
@@ -34,12 +33,15 @@ Motion::Project::App.setup do |app|
     app.hockeyapp.status = "allow" 
 
 
+  # work around 'unrecognised constants' for bubblewrap 
   bw_core_dependenents = app.files.select {|f| f.match(%r{/(uikit_ext.rb|browser.rb|platform.rb)}) }
   bw_core = app.files.select {|f| f.match('app.rb') }.first
   puts "setting up #{bw_core_dependenents} to depend on #{bw_core}"
-
   app.files_dependencies Hash[ * bw_core_dependenents.map { |dep| [ dep, bw_core ] }.flatten ]
 
+  # work around ib
+  # require 'ib/outlets'
+  # app.files_dependencies 'app/_rm_dep_hack.rb' => "#{ENV["HOME"].strip}/lib/ib.rb"
 end
 
 # Track and specify files and their mutual dependencies within the :motion 

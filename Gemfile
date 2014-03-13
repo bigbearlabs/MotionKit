@@ -15,8 +15,8 @@ gem 'sugarcube'
 
 # gem 'motion-pixate'
 
-## DEV
-gem 'ib'
+gem 'ib', '~> 0.4.0', :require => ['ib', 'ib/outlets']
+
 # gem 'motion-xray'
 gem 'motion-hockeyrink'
 gem 'motion-live'

@@ -3,6 +3,7 @@ PATH
   specs:
     bblmotionkit (0.0.5)
       bubble-wrap
+      ib
       motion-bundler
 
 GEM
@@ -114,11 +115,12 @@ DEPENDENCIES
   bblmotionkit!
   bubble-wrap (~> 1.4.0)
   cocoapods-core
-  ib
+  ib (~> 0.4.0)
   motion-bundler
   motion-cocoapods
   motion-hockeyrink
   motion-live
   motion-logger
   motion-require
+  rake
   sugarcube
