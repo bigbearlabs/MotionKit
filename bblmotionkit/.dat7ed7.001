@@ -1,0 +1,17 @@
+UIApplication.mainApplication
+UIApplication.sharedApplication
+UIAPp
+UIApp
+UIApplication.sharedApplication.delegate
+UIApplication.sharedApplication.delegate.instance_variables
+UIApplication.sharedApplication.delegate.methods
+UIApplication.sharedApplication.delegate.methods.grep /view/i
+UIApplication.sharedApplication.delegate.methods.grep /controller/
+UIApplication.sharedApplication.methods.grep /controller/
+UIApplication.sharedApplication.methods.grep /view/i
+UIApplication.sharedApplication.methods.grep /controller/i
+UIApplication.sharedApplication.delegate.methods.grep /controller/i
+UIApplication.sharedApplication.delegate.methods.grep /controller/i
+UIApplication.sharedApplication.keyWindow.rootViewController
+UIApplication.sharedApplication.keyWindow
+quit
