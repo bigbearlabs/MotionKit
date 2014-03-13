@@ -3,6 +3,7 @@ PATH
   specs:
     bblmotionkit (0.0.5)
       bubble-wrap
+      ib
       motion-bundler
 
 GEM
