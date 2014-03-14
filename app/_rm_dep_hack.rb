@@ -1,6 +1,9 @@
 PlatformViewController = NSViewController
 
 
+module Delegating
+end
+
 class MotionViewController < PlatformViewController
 end
 
