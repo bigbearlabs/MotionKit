@@ -1,3 +1,19 @@
+class NSURL
+  def last_path_segment
+    return '' if self.path.nil?
+    
+    segments = self.path.split('/')
+    segments ? segments.last : ''
+
+  end
+
+  def inspect
+    self.description
+  end
+  
+end
+
+
 class NSString
   include StringIdioms
 

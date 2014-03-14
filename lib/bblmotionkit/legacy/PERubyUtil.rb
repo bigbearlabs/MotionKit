@@ -180,6 +180,15 @@ end
 class String; include StringIdioms; end
 
 
+
+class Fixnum
+  def to_s_leading_zero
+    "%02d" % self
+  end
+end
+
+
+
 class Array
 	def summary
 		if self.count > 0
@@ -245,6 +254,8 @@ class Array
   end
   
 end
+
+
 
 # ?? can't get this work with the defaults loaded from the cocoa api. clobbering in CocoaHelper.
 module HashUtil
@@ -394,6 +405,7 @@ module HashUtil
 end
 
 
+
 # kvc-like object path handling.
 module PathRetrieval
   def get_path( path )
@@ -491,6 +503,7 @@ class DotNavigableHash < Hash
     end
   end
 end
+
 
 
 # create instances, with a prototype, and messages will be forwarded if not handled by this class.
