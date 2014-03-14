@@ -94,8 +94,6 @@ class BrowserWindowController < NSWindowController
 				
 		inject_collaborators collaborators
 
-		setup_components
-
 		[ :window, :bar_vc, :browser_vc, :input_field_vc, :plugin_vc ].map do |subsystem|
 			self.send(subsystem).defaults_root_key = "#{self.defaults_root_key}.#{subsystem}"
 		end
@@ -108,6 +106,8 @@ class BrowserWindowController < NSWindowController
 		@plugin_vc.setup( {} )			
 
 		@browser_vc.setup context_store: @context_store
+
+		setup_components
 
 
 		self.setup_reactive_update_stack
