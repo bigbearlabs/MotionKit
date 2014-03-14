@@ -128,12 +128,7 @@ end
 
 #=
 
-module StringUtil
-
-  def starts_with?(prefix)
-    prefix = prefix.to_s
-    self[0, prefix.length] == prefix
-  end
+module StringIdioms
 
   def single_word?
     self =~ /[ \.\/]/ ? false : true
@@ -182,7 +177,7 @@ module StringUtil
   end
 end
 
-class String; include StringUtil; end
+class String; include StringIdioms; end
 
 
 class Array
