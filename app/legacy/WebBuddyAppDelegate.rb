@@ -722,8 +722,14 @@ class WebBuddyAppDelegate < PEAppDelegate
 		NSImage.imageNamed('status_item')
 	end
 
+#= url handling
 
-#== disply set
+	def url_dispatcher
+		component(BrowserDispatch)
+	end
+	
+
+#== display set
 
 	def setup_display_set_change_handling
 		register_display_set_change_handler
