@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.name          = "bblmotionkit"
   gem.version       = BblMotionKit::VERSION
   gem.authors       = ["Andy Park"]
-  gem.email         = ["sohocoke@gmail.com"]
+  gem.email         = ["andy@bigbearlabs.com"]
   gem.description   = %q{kit for BBL RubyMotion apps}
   gem.summary       = %q{kit for BBL RubyMotion apps}
   gem.homepage      = ""
@@ -19,5 +19,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'bubble-wrap'
   gem.add_dependency 'motion-bundler'
+  gem.add_dependency 'ib'
+  gem.add_development_dependency 'rake'
 
 end
