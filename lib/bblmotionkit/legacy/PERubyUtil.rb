@@ -128,12 +128,7 @@ end
 
 #=
 
-module StringUtil
-
-  def starts_with?(prefix)
-    prefix = prefix.to_s
-    self[0, prefix.length] == prefix
-  end
+module StringIdioms
 
   def single_word?
     self =~ /[ \.\/]/ ? false : true
@@ -182,7 +177,16 @@ module StringUtil
   end
 end
 
-class String; include StringUtil; end
+class String; include StringIdioms; end
+
+
+
+class Fixnum
+  def to_s_leading_zero
+    "%02d" % self
+  end
+end
+
 
 
 class Array
@@ -250,6 +254,8 @@ class Array
   end
   
 end
+
+
 
 # ?? can't get this work with the defaults loaded from the cocoa api. clobbering in CocoaHelper.
 module HashUtil
@@ -399,6 +405,7 @@ module HashUtil
 end
 
 
+
 # kvc-like object path handling.
 module PathRetrieval
   def get_path( path )
@@ -496,6 +503,7 @@ class DotNavigableHash < Hash
     end
   end
 end
+
 
 
 # create instances, with a prototype, and messages will be forwarded if not handled by this class.

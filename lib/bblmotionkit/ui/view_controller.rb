@@ -86,7 +86,11 @@ class MotionViewController < PlatformViewController
     super
 
     # RECONCILE PEViewController modelled setup external to awakeFromNib. resolve.
-    @frame_view.addSubview self.view
+    if @frame_view
+      @frame_view.addSubview self.view
+    else
+      pe_warn "no frame view set up for for #{self}"
+    end
 
     pe_log "#{self} awoke from nib."
   end

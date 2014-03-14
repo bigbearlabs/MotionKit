@@ -34,7 +34,7 @@ module JsEval
         )
       );
     ), description
-    result = nil if result.starts_with? "#<WebUndefined:"
+    result = nil if result.start_with? "#<WebUndefined:"
 
     result
   end
@@ -72,7 +72,7 @@ module JsEval
       pe_debug "completed eval_js: #{script_description}"
       pe_debug "eval_results: #{result.description}"
     
-      raise result.description + " for #{script_description}" if result.description.starts_with? 'JS Exception: '
+      raise result.description + " for #{script_description}" if result.description.start_with? 'JS Exception: '
 
       result
     end
