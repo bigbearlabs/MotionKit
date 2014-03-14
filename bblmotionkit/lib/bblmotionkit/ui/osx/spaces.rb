@@ -1,4 +1,3 @@
-# @precondition status bar menu item must have been set up.
 class SpacesManager
 
 	attr_accessor :anchor_delay
@@ -46,6 +45,7 @@ class SpacesManager
 
 	#==
 
+	## PRE-10.8
 	# the window list returned by the Window Services function holds a bunch of untitled windows, things like the menu bar, and windows visible on this space.
 	# eg m.report.map {|w| [ w[:kCGWindowName], w[:kCGWindowOwnerName] ]}
 	#

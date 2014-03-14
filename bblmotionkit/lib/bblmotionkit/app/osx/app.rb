@@ -8,7 +8,7 @@
 # require 'benchmark'
 # require 'application_delegate'  # interactive-macruby
 
-class PEAppDelegate
+class MotionKitAppDelegate
 	include DefaultsAccess
 	include ExceptionHandling
 
