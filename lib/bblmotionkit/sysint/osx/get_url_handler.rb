@@ -46,6 +46,7 @@ module GetUrlHandler
 	#==
 
 	module InstanceMethods
+		# FIXME this will potentially clobber existing delegate method -- refactor to api-level and chain.
 		def applicationWillFinishLaunching(notification)
 			# this must be done early in order to catch gurl events on launch.
 			register_url_handling
