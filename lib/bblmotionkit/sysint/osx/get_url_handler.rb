@@ -21,7 +21,7 @@ module GetUrlHandler
 		# WORKAROUND kvo swizzling resulting in nil
 		push_work = -> {
 		begin
-			dispatcher = component(BrowserDispatch)
+			dispatcher = url_dispatcher
 			if dispatcher
 				on_main_async do
 					dispatcher.on_get_url details

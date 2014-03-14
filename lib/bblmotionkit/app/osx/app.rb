@@ -270,7 +270,7 @@ class MotionKitAppDelegate
 
 	def applicationDidChangeScreenParameters( notification )
 		# how to best distinguish between new screen and res change?
-		pe_log "screen params change: #{notification.desc}"
+		pe_log "screen params change: #{notification.description}"
 		on_screen_change( notification )
 	end
 
