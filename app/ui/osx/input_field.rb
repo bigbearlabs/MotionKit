@@ -35,8 +35,8 @@ class InputFieldComponent < BBLComponent
 
         ## END native input field
 
-        # ALT input field from plugin_vc
-        client.component(FilteringPlugin).focus_input_field
+        # # ALT input field from plugin_vc
+        # client.component(FilteringPlugin).focus_input_field
         
       else
         @input_field_vc.hide
