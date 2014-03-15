@@ -56,10 +56,10 @@ class String
   end
   
   def pe_type
-    if self.starts_with? '#'
+    if self.start_with? '#'
       :module
 
-    elsif self.starts_with? '>'
+    elsif self.start_with? '>'
       :cmd
     
     elsif self.valid_url?

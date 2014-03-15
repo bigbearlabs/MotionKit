@@ -271,9 +271,7 @@ Motion::Project::App.setup do |app|
 
   app.delegate_class = "WebBuddyAppDelegate"
 
-  app.files_dependencies 'app/legacy/WebBuddyAppDelegate.rb' => 'app/legacy/pemacrubyinfra/PEAppDelegate.rb',
-    'app/core/osx/context_store_persistence.rb' => 'app/legacy/WebBuddyAppDelegate.rb',
-    'app/core/osx/context_store_persistence.rb' => 'app/legacy/pemacrubyinfra/PEAppDelegate.rb'
+  app.files_dependencies 'app/core/osx/context_store_persistence.rb' => 'app/legacy/WebBuddyAppDelegate.rb'
     # 'app/find.rb' => 'app/legacy/WebBuddyAppDelegate.rb',
     # 'app/switcher.rb' => 'app/legacy/WebBuddyAppDelegate.rb'
     # 'app/legacy/WebBuddyAppDelegate.rb' => 'app/filtering.rb',

@@ -8,7 +8,7 @@
 # require 'benchmark'
 # require 'application_delegate'  # interactive-macruby
 
-class PEAppDelegate
+class MotionKitAppDelegate
 	include DefaultsAccess
 	include ExceptionHandling
 
@@ -270,7 +270,7 @@ class PEAppDelegate
 
 	def applicationDidChangeScreenParameters( notification )
 		# how to best distinguish between new screen and res change?
-		pe_log "screen params change: #{notification.desc}"
+		pe_log "screen params change: #{notification.description}"
 		on_screen_change( notification )
 	end
 

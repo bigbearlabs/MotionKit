@@ -1,4 +1,3 @@
-# @precondition status bar menu item must have been set up.
 class SpacesManager
 
 	attr_accessor :anchor_delay
@@ -46,6 +45,7 @@ class SpacesManager
 
 	#==
 
+	## PRE-10.8
 	# the window list returned by the Window Services function holds a bunch of untitled windows, things like the menu bar, and windows visible on this space.
 	# eg m.report.map {|w| [ w[:kCGWindowName], w[:kCGWindowOwnerName] ]}
 	#
@@ -58,10 +58,11 @@ class SpacesManager
 		window_list.copy
 	end
 
-	def window_info( app_name )
-		self.space_window_data.select { |w| 
-			w[:kCGWindowOwnerName].to_s.eql? app_name
-		}
+	def window_info( app_name_or_pid )
+		self.space_window_data.select do |w| 
+			w[:kCGWindowOwnerName].to_s.eql?(app_name_or_pid) ||
+			w[:kCGWindowOwnerPID].eql?(app_name_or_pid)
+		end
 	end
 
 	# FIXME this doesn't work as intended because of the status item windows.
@@ -79,7 +80,7 @@ class SpacesManager
 
 	# FIXME this won't work with pid other than this app's.
 	def windows_in_space( criteria = { :pid => NSApp.pid } )
-		NSApp.windows.select &:isOnActiveSpace
+		NSApp.windows.select(&:isOnActiveSpace)
 	end
 
 	# FIXME space changes in mission control report multiple anchors - find out the best way to detect mission control activation.

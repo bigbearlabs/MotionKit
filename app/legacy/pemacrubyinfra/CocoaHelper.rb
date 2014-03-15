@@ -151,37 +151,6 @@ class NSObject
 end
 
 
-class NSString
-	include StringUtil
-
-	def to_url
-		# NOTE we need to first check if string needs encoding. if string alrady percent-escape encoded, we shouldn't encode again.
-		# self = self.escaped
-		url = (
-			if self.starts_with? '~'
-				NSURL.fileURLWithPath( self.stringByExpandingTildeInPath )
-			elsif self.starts_with? '/'
-				NSURL.fileURLWithPath self
-			else
-				NSURL.URLWithString self
-			end
-		)
-
-		pe_debug  "#{url.description}, #{url.class}"
-		
-		return url
-	end  
-
-	#= wrappers
-
-	def to_base_url
-		url = NSURL.URLWithString(self)
-		"#{url.scheme}://#{url.host}"
-	end
-
-end
-
-
 class NSArray
 	
 	def to_index_set
