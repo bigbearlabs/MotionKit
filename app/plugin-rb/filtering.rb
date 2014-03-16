@@ -17,40 +17,31 @@ class FilteringPlugin < WebBuddyPlugin
     end
 
     # set up a policy on the web view delegate to prevent href navigation.
-    @set_policies_reaction = react_to 'client.plugin_vc.web_view_delegate' do |delegate|
+    set_policy = -> delegate {
       delegate.policies_by_pattern = {
-        %r{localhost|WebBuddy/plugins|WebBuddy.app/Contents/Resources/plugins} => :load,
-        %r{(http://)?about:} => :load,
         /.+/ => -> url, listener {
-          pe_log "policy will send #{url} to client."
+          pe_log "nav request #{url} from plugin_vc."
           
-          pe_warn "#{self}"
-          on_web_view_nav url
-
-          listener.ignore
+          listener.use
         },
-      }
+      }    
+    }
+    if delegate = client.plugin_vc.web_view_delegate
+      set_policy.call delegate
+    else
+      react_to 'client.plugin_vc.web_view_delegate' do |delegate|
+        set_policy delegate
+      end
     end
+    # init.
+    # client.plugin_vc.web_view_delegate = client.plugin_vc.web_view_delegate
 
     load_view
   end
   
   #= web -> native
 
-  # FIXME why doesn't this work on FilteringPlugin ?
-  def on_web_view_nav( url )
-    if selection_data = self.selected_item_data
-      stack_id = Object.from_json(selection_data)['name']
-    else
-      stack_id = 'stub-stack-id-for-no-selection-data'
-    end
-
-    # load url in the client. 
-    self.client.load_url url, stack_id: stack_id
-
-  rescue Exception => e
-    pe_report e, self.selected_item_data.to_s
-  end  
+  # TODO generalise web -> native calling mechanism, log around.
 
   def on_input_field_submit( input )
     input_vc = self.client.input_field_vc
@@ -59,10 +50,14 @@ class FilteringPlugin < WebBuddyPlugin
     input_vc.handle_field_submit self
   end
 
+  def on_item_click( item )
+    client.load_url item.kvc_get :url
+  end
+  
   # TODO abstract.
   def self.isSelectorExcludedFromWebScript(sel)
     puts "webview enquiring on sel: #{sel}"
-    if [ 'on_input_field_submit:' ].include? sel.to_s
+    if [ 'on_input_field_submit:', 'on_item_click:' ].include? sel.to_s
       false
     else
       true
@@ -88,18 +83,11 @@ class FilteringPlugin < WebBuddyPlugin
   end
   
 
-  #= view-layer operations
-
-  # get the stack based on the view model.
-  def selected_item_data
-    val = self.client.plugin_vc.eval_expr %q(
-      angular.element('.detail').scope().view_model.selected_item
-    ), :get_selected_item
-  end
+  #= view-layer operations. experimental
   
   def fetch_data
     self.client.plugin_vc.eval_expr %q(
-      angular.element('.detail').scope().fetch_data()
+      angular.element('.app-view').scope().fetch_data()
     ), :fetch_data
   end
   
