@@ -106,6 +106,7 @@ class ContextStore
 	def stack_updated(stack)
 	  # work around the kvo bug.
 	  NSApp.delegate.updated_stack = stack
+	  stack
 	end
 	
 	
