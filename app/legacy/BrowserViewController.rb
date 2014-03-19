@@ -8,12 +8,15 @@
 class BrowserViewController < PEViewController
 	include ComponentClient
 
+	include DialogPresenter
+
+	include JsEval
+
 	include KVOMixin
 	include Reactive
 	include IvarInjection
 
 	include DefaultsAccess
-	include JsEval
 	
 	attr_reader :url
 
@@ -26,9 +29,10 @@ class BrowserViewController < PEViewController
 	def components
 	  [
 	  	{
-	  		module: WebViewController,
+	  		module: WebViewComponent,
 			  deps: {
-					web_view: @web_view
+					web_view: @web_view,
+					web_vc: @web_vc
 				},
 	  	},
 	  	{
@@ -67,8 +71,12 @@ class BrowserViewController < PEViewController
 	
 	def setup( collaborators)
 		super()
-										
+
 		inject_collaborators collaborators
+
+		# slightly convoluted collaborator setup. 
+		# TODO refactor a WebView xib to resolve.
+		@web_vc = WebViewController.new web_view:@web_view
 
 		setup_components
 
@@ -152,7 +160,7 @@ class BrowserViewController < PEViewController
 
 			# TODO prioritising the cache for loads may result in undesirable behaviour for certain cases - allow callers to optionally specify a fresh load.
 
-			self.component(WebViewController).load_url url_or_array, options
+			self.component(WebViewComponent).load_url url_or_array, options
 		}
 
 		# invoke proc in the appropriate fashion depending on whether wiring has finished.

@@ -1,24 +1,21 @@
-class WebViewController < BBLComponent
-  include IvarInjection
+class WebViewController < PEViewController
 
   def log_level
     :warn
   end
   
-  def initialize(client, deps)
-    super(client)
+  def initialize(args = {})
+    # load without the xib.
+    self.init nil
 
-    inject_collaborators deps
+    @web_view = args[:web_view]
+
+    if url = args[:url]
+      load_url url
+    end
+
+    self
   end
-
-  def on_setup
-    init_bridge @web_view
-
-    # setup downloads
-    @download_delegate = DownloadDelegate.new downloads_path: default(:downloads_path)
-    @web_view.downloadDelegate = @download_delegate
-  end
-  
 #=
 
   def dev_extras=(enable)
@@ -98,18 +95,6 @@ class WebViewController < BBLComponent
     }
   end
 
-#=
-
-  def init_bridge( web_view = NSApp.delegate.wc.browser_vc.web_view )
-    original_delegate = web_view.delegate
-    @bridge = WebViewJavascriptBridge.bridgeForWebView(web_view, 
-      webViewDelegate: original_delegate,
-      handler: -> data,responseCallback {
-        pe_log "Received message from javascript: #{data}"
-        responseCallback.call("Right back atcha") if responseCallback
-    })
-    @bridge.web_view_delegate = original_delegate  # to ensure calls to delegate from other collaborators are handled sensibly.
-  end
 
 #=
 
@@ -194,3 +179,43 @@ class WebViewJavascriptBridge
 end
 
 
+# bridges BBLComponent wiring with the web_vc.
+class WebViewComponent < BBLComponent
+  include IvarInjection
+
+  def initialize(client, deps)
+    super(client)
+
+    inject_collaborators deps
+
+  end
+
+  def on_setup
+    init_bridge @web_view
+
+    # setup downloads
+    @download_delegate = DownloadDelegate.new downloads_path: default(:downloads_path)
+    @web_view.downloadDelegate = @download_delegate
+  end
+
+#=
+
+  def init_bridge( web_view = NSApp.delegate.wc.browser_vc.web_view )
+    original_delegate = web_view.delegate
+    @bridge = WebViewJavascriptBridge.bridgeForWebView(web_view, 
+      webViewDelegate: original_delegate,
+      handler: -> data,responseCallback {
+        pe_log "Received message from javascript: #{data}"
+        responseCallback.call("Right back atcha") if responseCallback
+    })
+    @bridge.web_view_delegate = original_delegate  # to ensure calls to delegate from other collaborators are handled sensibly.
+
+  end
+
+  # covers
+
+  def load_url(*args)
+    @web_vc.load_url *args
+  end
+end
+  
