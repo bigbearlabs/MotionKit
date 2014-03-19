@@ -223,7 +223,7 @@
 		<dict>
 			<key>user_agent_string</key>
 			<string>Version/5.1.1 Safari/534.51.22</string>
-			<key>WebViewController</key>
+			<key>WebViewComponent</key>
 			<dict>
 				<key>policy_error_url</key>
 				<string>http://webbuddyapp.com/help/policy_error</string>

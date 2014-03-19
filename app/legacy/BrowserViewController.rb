@@ -160,7 +160,7 @@ class BrowserViewController < PEViewController
 
 			# TODO prioritising the cache for loads may result in undesirable behaviour for certain cases - allow callers to optionally specify a fresh load.
 
-			self.component(WebViewComponent).load_url url_or_array, options
+			@web_vc.load_url url_or_array, options
 		}
 
 		# invoke proc in the appropriate fashion depending on whether wiring has finished.
