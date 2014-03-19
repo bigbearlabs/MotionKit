@@ -1,11 +1,3 @@
-# if BW::App.ios?
-  motion_require 'ios/platform_integration.rb'
-# else
-#   motion_require 'osx/platform_integration.rb'
-# end
-# TODO cleanup
-
-
 class MotionViewController < PlatformViewController
 
 
@@ -65,6 +57,7 @@ class MotionViewController < PlatformViewController
 =end
 
 #= init
+# FIXME resolve with Promotion #new, replace alloc.inits with new calls.
 
   def init( nib_name = self.class.name.gsub(/Controller$/,'') )
     obj = self.initWithNibName(nib_name, bundle:nil)

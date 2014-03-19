@@ -2,14 +2,16 @@
 require 'ib/outlets'
 
 
-# motion_require "../lib/bblmotionkit/ui/ios/platform_integration"
-
-
-# IOS
-PlatformViewController =  ProMotion::Screen
-PlatformView = UIView
-PlatformWebView = UIWebView
-
+# TODO move into a file addition next to bblmotionkit.rb
+if BW::App.ios?
+  PlatformViewController =  ProMotion::Screen
+  PlatformView = UIView
+  PlatformWebView = UIWebView
+else
+  PlatformViewController =  NSViewController
+  PlatformView = NSView
+  PlatformWebView = WebView
+end
 
 
 # motion-require can't take care of this now.
@@ -22,3 +24,4 @@ end
 
 class PEViewController < MotionKitViewController
 end
+
