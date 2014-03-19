@@ -59,9 +59,8 @@ class MotionViewController < PlatformViewController
 #= init
 # FIXME resolve with Promotion #new, replace alloc.inits with new calls.
 
-  def init( nib_name = self.class.name.gsub(/Controller$/,'') )
-    obj = self.initWithNibName(nib_name, bundle:nil)
-    obj
+  def self.new( nib_name = self.class.name.gsub(/Controller$/,'') )
+    self.alloc.initWithNibName(nib_name, bundle:nil)
   end
 
   def initWithNibName(nib, bundle:bundle)

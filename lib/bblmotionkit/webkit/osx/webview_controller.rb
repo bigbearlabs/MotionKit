@@ -1,22 +1,54 @@
-class WebViewController < PEViewController
+class WebViewController < MotionKitViewController
 
   def log_level
     :warn
   end
   
-  def initialize(args = {})
+  # def initialize(args = {})
+  #   # load without the xib.
+  #   super nil
+
+  #   @web_view = args[:web_view]
+  #   @web_view ||= WebView.new args
+
+  #   self.view = @web_view
+
+  #   # if url = args[:url]
+  #   #   load_url url
+  #   # end
+
+  #   self
+  # end
+
+  # def init(args = {})
+  #   # load without the xib.
+  #   self.initWithNibName(nil, bundle:nil)
+
+  #   @web_view = args[:web_view]
+  #   @web_view ||= WebView.new args
+
+  #   self.view = @web_view
+
+  #   # if url = args[:url]
+  #   #   load_url url
+  #   # end
+
+  #   self
+  # end
+
+  attr_accessor :web_view
+  
+  def self.new(args = {})
     # load without the xib.
-    self.init nil
+    obj = super nil
 
-    @web_view = args[:web_view]
+    obj.view = obj.web_view = args[:web_view] || WebView.new(args)
 
-    if url = args[:url]
-      load_url url
-    end
-
-    self
+    obj
   end
-#=
+
+
+  #=
 
   def dev_extras=(enable)
     @web_view.preferences.developerExtrasEnabled = enable
@@ -96,7 +128,7 @@ class WebViewController < PEViewController
   end
 
 
-#=
+  #=
 
   # UNUSED SCAR this results in occasional PM's.
   def chain(*procs)
@@ -200,7 +232,7 @@ class WebViewComponent < BBLComponent
 
 #=
 
-  def init_bridge( web_view = NSApp.delegate.wc.browser_vc.web_view )
+  def init_bridge( web_view )
     original_delegate = web_view.delegate
     @bridge = WebViewJavascriptBridge.bridgeForWebView(web_view, 
       webViewDelegate: original_delegate,
@@ -210,12 +242,6 @@ class WebViewComponent < BBLComponent
     })
     @bridge.web_view_delegate = original_delegate  # to ensure calls to delegate from other collaborators are handled sensibly.
 
-  end
-
-  # covers
-
-  def load_url(*args)
-    @web_vc.load_url *args
   end
 end
   
