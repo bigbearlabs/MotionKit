@@ -2,7 +2,7 @@ motion_require 'browser'
 
 
 # a clunky name to denote a view that composes a BrowserVC and an input field.
-class ConventionalBrowserViewController < MotionViewController
+class BrowserChromeViewController < MotionViewController
   extend IB
 
   outlet :browser_vc

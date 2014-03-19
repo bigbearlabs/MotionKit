@@ -1,11 +1,9 @@
+motion_require '../../ui/view_controller'
+
 require "cgi"
 
-
-
 # TODO this is the conceptual equivalent of the BrowserWindowController. Need to reconcile the compositional manager role between ios an osx.
-# work around for now by making code contingent to ios.
-if BubbleWrap::App.ios?
-  
+
 class BrowserViewController < MotionViewController
   extend IB
 
@@ -131,6 +129,4 @@ class NSString
   def decode_uri_component
     self.stringByReplacingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
   end
-end
-
 end

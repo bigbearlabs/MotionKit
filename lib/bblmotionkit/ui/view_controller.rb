@@ -1,4 +1,11 @@
-# TODO reconcile with PEViewController
+# if BW::App.ios?
+  motion_require 'ios/platform_integration.rb'
+# else
+#   motion_require 'osx/platform_integration.rb'
+# end
+# TODO cleanup
+
+
 class MotionViewController < PlatformViewController
 
 
@@ -103,18 +110,3 @@ class MotionKitViewController < MotionViewController
 end
 
 
-# CONSIDER just monkey-patching NSViewController
-class PEViewController < MotionKitViewController
-
-  def awakeFromNib
-    super
-
-    # if self.view
-    #   pe_log  "#{self} awoke from nib with view set."
-    # else
-    #   pe_log "#{self} awoke from nib but without the view."
-    # end
-    pe_log "#{self} awoke from nib."
-  end
-
-end

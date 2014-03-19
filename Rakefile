@@ -7,6 +7,9 @@ require 'rubygems'
 require 'bundler'
 Bundler.require
 
+# require 'motion-require'
+Motion::Require.all
+
 
 Motion::Project::App.setup do |app|
   app.deployment_target = "6.0"
@@ -16,10 +19,10 @@ Motion::Project::App.setup do |app|
   app.identifier = 'com.bigbearlabs.BBLMotionKit.adhoc'
   app.device_family = [:iphone, :ipad]
 
-  app.files = app.files | Dir.glob(File.join(app.project_dir, 'app/lib/**/*.rb')) |
-              Dir.glob(File.join(app.project_dir, 'app/**/*.rb'))
-              # |
-              # Dir.glob(File.join('ProMotion', 'lib/**/*.rb'))
+  # app.files = app.files | Dir.glob(File.join(app.project_dir, 'app/lib/**/*.rb')) |
+  #             Dir.glob(File.join(app.project_dir, 'app/**/*.rb'))
+  #             # |
+  #             # Dir.glob(File.join('ProMotion', 'lib/**/*.rb'))
 
   app.pods do
     # pod 'FontReplacer'
