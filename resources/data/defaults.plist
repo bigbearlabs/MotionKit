@@ -134,7 +134,7 @@
 		<key>intro_enabled</key>
 		<true/>
 		<key>intro_url</key>
-		<string>http://intro.webbuddyapp.com</string>
+		<string>http://bigbearlabs.com/researches/intro</string>
 		<key>load_welcome</key>
 		<true/>
 		<key>welcome_url</key>
