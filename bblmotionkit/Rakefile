@@ -8,6 +8,10 @@ require 'bundler'
 Bundler.require
 
 
+# motion-require.
+Motion::Require.all
+
+
 Motion::Project::App.setup do |app|
   app.deployment_target = "6.0"
 
@@ -15,11 +19,6 @@ Motion::Project::App.setup do |app|
   app.name = 'BBLMotionKit'
   app.identifier = 'com.bigbearlabs.BBLMotionKit.adhoc'
   app.device_family = [:iphone, :ipad]
-
-  app.files = app.files | Dir.glob(File.join(app.project_dir, 'app/lib/**/*.rb')) |
-              Dir.glob(File.join(app.project_dir, 'app/**/*.rb'))
-              # |
-              # Dir.glob(File.join('ProMotion', 'lib/**/*.rb'))
 
   app.pods do
     # pod 'FontReplacer'
@@ -32,6 +31,14 @@ Motion::Project::App.setup do |app|
     app.hockeyapp.app_id = "7a4f593356d12375b19d9ed86b285d79"
     app.hockeyapp.status = "allow" 
 
+
+
+  # app.files == Dir.glob(File.join(app.project_dir, 'lib/bblmotionkit/ui/ios/platform_integration.rb')) | app.files 
+  
+  # app.files = app.files | Dir.glob(File.join(app.project_dir, 'app/lib/**/*.rb')) |
+  #             Dir.glob(File.join(app.project_dir, 'app/**/*.rb'))
+  #             # |
+  #             # Dir.glob(File.join('ProMotion', 'lib/**/*.rb'))
 
   # work around 'unrecognised constants' for bubblewrap 
   bw_core_dependenents = app.files.select {|f| f.match(%r{/(uikit_ext.rb|browser.rb|platform.rb)}) }
