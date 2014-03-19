@@ -245,6 +245,13 @@ class BarViewController
 				self.eval_bookmarklet bookmarklet[:path]
 			end
 
+			new_button.tap do |button|
+				button.on_r_click do |button, event|
+					puts "rclick!"
+					edit_action bookmarklet, button
+				end
+			end
+
 		end
 	end
 
@@ -254,6 +261,7 @@ class BarViewController
 		end
 	end
 
+	#=
 
 	def setup_browsers(force = true)
 		# lazy setup.
@@ -324,6 +332,24 @@ class BarViewController
 
 	end
 	
+	#=
+
+  # show the action plugin as a popover.
+	def edit_action action_spec, button
+		show_popover button, web_view_controller( "http://localhost:59124/plugins/#/action")
+	end
+	
+	def show_popover anchor_view, view_controller
+	  popover = Popover.new view_controller
+	  popover.show anchor: anchor_view
+	end
+	
+	def web_view_controller url
+		WebViewController.new url:url
+	end
+	
+	#=
+
 	def page_url
 	  self.view.window.windowController.browser_vc.url
 	end

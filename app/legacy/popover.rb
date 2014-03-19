@@ -1,6 +1,21 @@
+class Popover
+  def initialize( view_controller )
+    @popover = NSPopover.new
+    @popover.contentViewController = view_controller
+  end
+
+  def show(args)
+    anchor_view = args[:anchor]
+    @popover.showRelativeToRect(NSZeroRect, ofView:anchor_view, preferredEdge:NSMinYEdge)
+  end
+  
+end   
+
+
+
 #= 
 # a facade to all popover concerns. the view outlet should be assigned the window's content view.
-class PEPopoverController < PEViewController
+class PopoverController < PEViewController
   include KVOMixin
 
   attr_accessor :popover  # wire to the NSPopover whose contentViewController is me.
