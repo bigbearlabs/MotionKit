@@ -13,15 +13,3 @@ else
   PlatformWebView = WebView
 end
 
-
-# motion-require can't take care of this now.
-
-class MotionViewController < PlatformViewController
-end
-
-class MotionKitViewController < MotionViewController
-end
-
-class PEViewController < MotionKitViewController
-end
-
