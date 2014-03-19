@@ -18,7 +18,6 @@ require 'bundler'
 Bundler.require
 
 # motion-require
-require 'motion-require'
 Motion::Require.all
 
 # rakefile's deps
@@ -270,13 +269,6 @@ Motion::Project::App.setup do |app|
   ## files
 
   app.delegate_class = "WebBuddyAppDelegate"
-
-  app.files_dependencies 'app/core/osx/context_store_persistence.rb' => 'app/legacy/WebBuddyAppDelegate.rb'
-    # 'app/find.rb' => 'app/legacy/WebBuddyAppDelegate.rb',
-    # 'app/switcher.rb' => 'app/legacy/WebBuddyAppDelegate.rb'
-    # 'app/legacy/WebBuddyAppDelegate.rb' => 'app/filtering.rb',
-    # 'app/filtering.rb' => 'app/plugin.rb',
-    # 'app/aa_plugin.rb' => "#{`pwd`.strip}/bblmotionkit/lib/bblmotionkit/core/delegating.rb"
 
   # archive:distribution fails with i386 arch - just build for x86_64
   app.archs['MacOSX'] = ['x86_64']

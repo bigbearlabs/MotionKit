@@ -2,7 +2,7 @@
 
 # TODO finish factoring out all hotkey concerns.
 
-class WebBuddyAppDelegate < PEAppDelegate
+class WebBuddyAppDelegate < MotionKitAppDelegate
 	include ServicesHandler
 	include GetUrlHandler
 	include Preferences
