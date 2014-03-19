@@ -1,3 +1,4 @@
+motion_require '../view_controller'
 
 # CONSIDER just monkey-patching NSViewController
 class PEViewController < MotionKitViewController
