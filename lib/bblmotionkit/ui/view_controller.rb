@@ -1,4 +1,3 @@
-# TODO reconcile with PEViewController
 class MotionViewController < PlatformViewController
 
 
@@ -58,6 +57,7 @@ class MotionViewController < PlatformViewController
 =end
 
 #= init
+# FIXME resolve with Promotion #new, replace alloc.inits with new calls.
 
   def init( nib_name = self.class.name.gsub(/Controller$/,'') )
     obj = self.initWithNibName(nib_name, bundle:nil)
@@ -103,18 +103,3 @@ class MotionKitViewController < MotionViewController
 end
 
 
-# CONSIDER just monkey-patching NSViewController
-class PEViewController < MotionKitViewController
-
-  def awakeFromNib
-    super
-
-    # if self.view
-    #   pe_log  "#{self} awoke from nib with view set."
-    # else
-    #   pe_log "#{self} awoke from nib but without the view."
-    # end
-    pe_log "#{self} awoke from nib."
-  end
-
-end

@@ -1,7 +1,5 @@
-if BubbleWrap::App.ios?
-  
 # REFACTOR decouple from the webview to make a proper decorator.
-class OverlayWebViewController < BrowserViewController
+class OverlayWebViewController < WebViewController
   extend IB
 
   outlet :frame_view
@@ -36,6 +34,4 @@ class OverlayWebViewController < BrowserViewController
 
     self.data_handler = self
   end
-end
-
 end
