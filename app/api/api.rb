@@ -52,7 +52,11 @@ class APIServer < BBLComponent
       details[:thumbnail] = NSImage.from_data_url(thumbnail_data.to_url)
     end
 
-    stack = @context_store.update_stack stack_id, details
+    stack = @context_store.find_stack stack_id
+    stack ||= @context_store.add_stack stack_id
+
+    @context_store.update_stack stack_id, details
+
 
     {
       msg: "page added",

@@ -134,7 +134,7 @@
 		<key>intro_enabled</key>
 		<true/>
 		<key>intro_url</key>
-		<string>http://intro.webbuddyapp.com</string>
+		<string>http://bigbearlabs.com/researches/intro</string>
 		<key>load_welcome</key>
 		<true/>
 		<key>welcome_url</key>
@@ -241,11 +241,11 @@
 			<true/>
 		</dict>
 		<key>handle_focus_input_field</key>
-		<false/>
+		<true/>
 		<key>touch_stack</key>
 		<true/>
 		<key>initial_url</key>
-		<string>http://bbl-rails.herokuapp.com/webbuddy-plugins/index.html</string>
+		<string>http://bigbearlabs.com/researches/staging/plugins</string>
 	</dict>
 </dict>
 </plist>

@@ -1,8 +1,17 @@
 module Reactive
   include BubbleWrap::KVO
 
-  def react_to( *key_paths, &block )
+  def react_to_and_init( *key_paths, &block )
 
+    react_to *key_paths, &block
+
+    key_paths.map do |keypath|
+      value = self.kvc_get keypath
+      self.kvc_set keypath, value
+    end
+  end
+
+  def react_to( *key_paths, &block )
     key_paths.each do |key_path|
       observe self, key_path do |k,c,ctx|
         vals = key_paths.map {|p| self.kvc_get p}
@@ -18,5 +27,5 @@ module Reactive
     end
 
   end
-
+  
 end
