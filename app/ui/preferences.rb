@@ -8,7 +8,7 @@ module Preferences
   def preference_pane_controllers flavour
     [ 
       GeneralPrefPaneController.new(factory:self),
-      # DeveloperPrefPaneController.new(factory:self),
+      WebKitPrefPaneController.new(factory:self),
     ].tap do |a|
       if flavour == :dev || RUBYMOTION_ENV == 'development'
         a << PreviewPrefPaneController.new(factory:self)
@@ -55,6 +55,10 @@ module Preferences
         new_boolean_preference_view default, pref_spec, pref_owner
       when :list
         new_list_preference_view default, pref_spec, pref_owner
+      when :text
+        new_text_preference_view default, pref_spec, pref_owner
+      else
+        raise "view_type not implemented: #{pref_spec}"
       end
       .tap do |view|
         # watch for default specified by :depends_on and update state.
@@ -124,6 +128,23 @@ module Preferences
     view
   end
   
+  def new_text_preference_view default, pref_spec, component
+    view = NSBundle.load_nib 'TextPreference', {
+      text_field: 101,
+      label: 102
+    }
+    
+    view.subview :text_field do |text_field|
+      text_field.stringValue = pref_spec[:value]
+    end
+    view.subview :label do |label|
+      label.stringValue = pref_spec[:label]
+    end
+
+    view
+  end
+  
+
 
   # FIXME replace this with a mechanism to always display up-to-date defaults with e.g. hotkey.
   def handle_Preference_updated_notification( notification )
@@ -344,13 +365,13 @@ class PreviewPrefPaneController < PreferencePaneViewController
 end
 
   
-class DeveloperPrefPaneController < PreferencePaneViewController
+class WebKitPrefPaneController < PreferencePaneViewController
   # MASPreferences interface compliance
   def identifier
-    'Developer'
+    'WebKit'
   end
   def toolbarItemLabel
-    'Developer'
+    'WebKit'
   end
 
   def preference_views
@@ -401,6 +422,7 @@ end
 
 
 # WIP
+# TODO map 1-to-many
 class WebViewPreferenceExposer
 
   def on_setup
@@ -408,22 +430,26 @@ class WebViewPreferenceExposer
 
   def defaults_spec
     {
-      inspector: {
-        postflight: -> val {
-        },
+      user_agent: {
         preference_spec: {
-          view_type: :boolean,
-          label: "Web Inspector"
-        }
-      },
-      inspector: {
-        postflight: -> val {
-        },
-        preference_spec: {
+          label: "User Agent",
           view_type: :text,
-          label: "User Agent String"
-        }
-      }
+          value: NSApp.delegate.viewer_controllers[0].browser_vc.web_view.user_agent_string
+        },
+        postflight: -> val {
+          NSApp.delegate.viewer_controllers.map do |wc|
+            wc.browser_vc.web_view.user_agent_string = val
+          end
+        },
+      },
+      # inspector: {
+      #   preference_spec: {
+      #     label: "Web Inspector",
+      #     view_type: :boolean,
+      #   },
+      #   postflight: -> val {
+      #   },
+      # },
     } 
   end
       
