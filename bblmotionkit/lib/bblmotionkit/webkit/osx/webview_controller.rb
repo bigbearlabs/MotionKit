@@ -146,6 +146,16 @@ class WebViewController < MotionKitViewController
   
 end
 
+def new_web_view_window
+  on_main do
+    wc = NSWindowController.new
+    web_vc = WebViewController.new
+    wc.window.view = web_vc.view
+    wc.instance_variable_set :@web_vc, web_vc
+    wc.show
+  end
+end
+
 
 # extensions to WebViewJavascriptBridge
 class WebViewJavascriptBridge
@@ -228,6 +238,31 @@ class WebViewComponent < BBLComponent
     # setup downloads
     @download_delegate = DownloadDelegate.new downloads_path: default(:downloads_path)
     @web_view.downloadDelegate = @download_delegate
+  end
+
+  def defaults_spec
+    {
+      user_agent: {
+        preference_spec: {
+          label: "User Agent",
+          view_type: :text,
+          value: NSApp.delegate.viewer_controllers[0].browser_vc.web_view.user_agent_string
+        },
+        postflight: -> val {
+          NSApp.delegate.viewer_controllers.map do |wc|
+            wc.browser_vc.web_view.user_agent_string = val
+          end
+        },
+      },
+      # inspector: {
+      #   preference_spec: {
+      #     label: "Web Inspector",
+      #     view_type: :boolean,
+      #   },
+      #   postflight: -> val {
+      #   },
+      # },
+    } 
   end
 
 #=
