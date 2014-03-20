@@ -16,6 +16,16 @@ class WebView
     self.mainFrameURL.copy
   end
 
+  def user_agent_string
+    str = self.customUserAgent
+    str ||= self.windowScriptObject.kvc_get 'navigator.userAgent'
+  end
+  
+  def user_agent_string=(val)
+    self.customUserAgent = val
+  end
+  
+  
   def delegate
     # TODO ensure all delegates point to same instance
 
