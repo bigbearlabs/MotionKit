@@ -150,7 +150,9 @@ module Preferences
     }
     
     view.subview :text_field do |text_field|
-      text_field.stringValue = pref_spec[:value]
+      val = component.default(default) || pref_spec[:value]
+
+      text_field.stringValue = val
       text_field.on_change = proc do |val|
         puts val
         component.update_default default, val

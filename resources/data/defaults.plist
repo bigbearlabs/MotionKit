@@ -221,8 +221,6 @@
 		</dict>
 		<key>browser_vc</key>
 		<dict>
-			<key>user_agent_string</key>
-			<string>Version/5.1.1 Safari/534.51.22</string>
 			<key>WebViewComponent</key>
 			<dict>
 				<key>policy_error_url</key>
