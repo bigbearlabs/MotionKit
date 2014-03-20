@@ -23,6 +23,8 @@ module FilesystemAccess
     case location_sym
     when :docs
       BW::App.documents_path
+    when :bundle_resources
+      NSBundle.mainBundle.resourcePath
     else
       raise "unhandled location_sym #{location_sym}"
     end

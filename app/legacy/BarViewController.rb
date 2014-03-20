@@ -336,7 +336,8 @@ class BarViewController
 
   # show the action plugin as a popover.
 	def edit_action action_spec, button
-		show_popover button, web_view_controller( "http://localhost:59124/plugins/#/action")
+		@edit_c = action_edit_controller(action_spec)
+		show_popover button, @edit_c
 	end
 	
 	def show_popover anchor_view, view_controller
@@ -344,8 +345,28 @@ class BarViewController
 	  popover.show anchor: anchor_view
 	end
 	
-	def web_view_controller url
-		WebViewController.new url:url
+	include FilesystemAccess
+
+	def action_edit_controller action_spec
+		# WebViewController.new url:"http://localhost:59124/plugins/#/action",
+		# 	data: {
+		# 		title: 'stub title',
+		# 		href: 'stub href'
+		# 	},
+		# 	handlers: {
+		# 		on_ok: -> {
+		# 			puts "on_ok"
+		# 		},
+		# 		on_cancel: -> {
+		# 			puts "on_cancel"
+		# 		}
+		# 	}
+		c = BarActionViewController.new
+		c.item = {
+			'title' => action_spec[:title],
+			'content' => load( action_spec[:path], :bundle_resources)
+		}
+		c
 	end
 	
 	#=
@@ -354,5 +375,15 @@ class BarViewController
 	  self.view.window.windowController.browser_vc.url
 	end
 	
+end
 
+
+class BarActionViewController < PEViewController
+  extend IB
+
+  outlet :item
+
+  def handle_save(sender)
+    
+  end
 end
