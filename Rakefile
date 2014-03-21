@@ -49,6 +49,19 @@ Motion::Project::App.setup do |app|
   # work around ib
   # require 'ib/outlets'
   # app.files_dependencies 'app/_rm_dep_hack.rb' => "#{ENV["HOME"].strip}/lib/ib.rb"
+
+
+    app.development do
+    app.codesign_certificate = 'iPhone Developer: Sang-Heum Park (WKRGFK8SQY)'
+    app.provisioning_profile "PE testing provisioning profile"
+    
+    app.entitlements['get-task-allow'] = true
+    app.entitlements['keychain-access-groups'] = [
+      app.seed_id + '.' + app.identifier
+    ]
+
+  end
+
 end
 
 # Track and specify files and their mutual dependencies within the :motion 
