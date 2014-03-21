@@ -80,3 +80,58 @@ task :copy => 'target/' do
   sh 'rsync -ru web/ target'  # trailing slash is significant; target will be created
 done
 =end
+
+
+
+desc 'increment version and upload to hockeyapp.'
+task :'deploy:h' => [:hockeyapp, :'version:increment_build' ]
+
+
+desc 'release.'
+task :release do
+  sh %(
+    rake archive:distribution mode=release version:increment_build tag
+    open http://itunesconnect.apple.com
+    open -a 'application loader'
+  )
+end
+
+
+
+desc 'increment build'
+task :'version:increment_build' do
+  rakefile = 'Rakefile'
+
+  bump = -> {
+    EXPR_BUILD_NUMBER = /app\.version.*"(\d+)"/
+
+    content = File.read(rakefile)
+    content_to = content.each_line.map { |line| 
+      if line =~ EXPR_BUILD_NUMBER
+        version = $1
+        new_version = ($1.to_i + 1).to_s
+        puts "incrementing #{version} to #{new_version}"
+        line.gsub version, new_version
+      else
+        line
+      end
+    }
+
+    File.open(rakefile, "w") { |file| 
+      file.puts content_to
+    }
+
+  }
+
+  bump.call
+
+  sh "git ci Rakefile -m 'incremented build number.'"
+end
+
+desc 'tag'
+task :tag do
+  sh %(
+    git tag #{Time.new.utc.to_s.gsub(' ', '_').gsub(':', '_')}
+  )
+end
+
