@@ -1,17 +1,14 @@
+motion_require '../../ui/view_controller'
+
 require "cgi"
 
-
-
 # TODO this is the conceptual equivalent of the BrowserWindowController. Need to reconcile the compositional manager role between ios an osx.
-# work around for now by making code contingent to ios.
-if BubbleWrap::App.ios?
-  
-class BrowserViewController < MotionViewController
+
+class WebViewController < MotionViewController
   extend IB
 
   outlet :web_view
-  outlet :input_field
-
+  
   attr_accessor :data_handler
   
   def awakeFromNib
@@ -47,56 +44,7 @@ class BrowserViewController < MotionViewController
   end
   
 
-  #= text field integration
-  
-  def handle_input_changed(sender)
-    input = sender.text
 
-    case input
-    when /^(js|javascript):/
-      result = eval_js input
-      puts result
-      # NOTE result should strictly be a string.
-
-      # self.js_alert result
-    when /^http/
-      self.load_url input
-    else
-      begin
-        # attempt to load file.
-        self.load_file input
-      rescue
-        # default to preprend http:// and re-call.
-        sender.text = "http://#{sender.text}"
-        self.handle_input_changed sender
-      end
-    end
-
-  end
-  
-  def toggle_input sender
-    input_field.hidden = ! input_field.hidden
-    if input_field.hidden
-      @web_view.set_height @web_view.height + input_field.height
-    else
-      @web_view.set_height @web_view.height - input_field.height
-    end
-  end
-
-  #== ios platform integration layer
-
-  #= input
-
-  def textFieldShouldReturn(textField)
-    # return pressed - just raise the event.
-    self.handle_input_changed textField
-
-    textField.resignFirstResponder
-    
-    true
-  end
-  
-  
   #= webview integration
 
   def webView(webView, shouldStartLoadWithRequest:request, navigationType:navigationType)
@@ -150,10 +98,15 @@ class BrowserViewController < MotionViewController
     puts "loading url #{url_obj.description}"
 
     req = NSURLRequest.requestWithURL url_obj
+
+    # ensure nib loading finished by poking the view.
+    puts "view: #{self.view}"
+
     @web_view.loadRequest req
   end
   
 end
+
 
 
 class BBLWebView < PlatformWebView
@@ -176,6 +129,4 @@ class NSString
   def decode_uri_component
     self.stringByReplacingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
   end
-end
-
 end

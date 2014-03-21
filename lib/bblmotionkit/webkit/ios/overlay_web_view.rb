@@ -1,5 +1,5 @@
 # REFACTOR decouple from the webview to make a proper decorator.
-class OverlayWebViewController < BrowserViewController
+class OverlayWebViewController < WebViewController
   extend IB
 
   outlet :frame_view
