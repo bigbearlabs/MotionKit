@@ -16,7 +16,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
             <subviews>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" tag="102" id="QdI-EJ-4mC">
-                    <rect key="frame" x="-3" y="5" width="256" height="17"/>
+                    <rect key="frame" x="-3" y="5" width="87" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Label" id="Ea6-fv-ST5">
                         <font key="font" metaFont="system"/>
@@ -25,7 +25,7 @@
                     </textFieldCell>
                 </textField>
                 <textField verticalHuggingPriority="750" tag="101" id="KkL-dk-4EK">
-                    <rect key="frame" x="259" y="2" width="179" height="22"/>
+                    <rect key="frame" x="90" y="2" width="328" height="22"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="EXT-QE-hgK">
                         <font key="font" metaFont="system"/>
