@@ -74,19 +74,10 @@ Motion::Project::App.setup do |app|
   app.version = build_number
   app.short_version = version_number
 
-  app.info_plist['NSMainNibFile'] = 'MainMenu'
-  
-  app.info_plist['CFBundleURLTypes'] = [
-    { 'CFBundleURLName' => 'Web site URL',
-      'CFBundleURLSchemes' => ['http', 'https'] },
-    { 'CFBundleURLName' => 'Local file URL',
-      'CFBundleURLSchemes' => ['file'] }
-  ]
+  # agent mode - no dock icon
+  app.info_plist['LSUIElement'] = true
 
-  # TODO declare document types
-
-  # app.info_plist['LSUIElement'] = true
-
+  # services
   app.info_plist['NSServices'] = [
     {
       'NSKeyEquivalent' =>  {
@@ -105,6 +96,14 @@ Motion::Project::App.setup do |app|
           # TODO elaborate use case for non-text and add types, funnel into marketing.
       ],
     },
+  ]
+
+  # url schemes
+  app.info_plist['CFBundleURLTypes'] = [
+    { 'CFBundleURLName' => 'Web site URL',
+      'CFBundleURLSchemes' => ['http', 'https'] },
+    { 'CFBundleURLName' => 'Local file URL',
+      'CFBundleURLSchemes' => ['file'] }
   ]
 
   # document types
@@ -268,6 +267,8 @@ Motion::Project::App.setup do |app|
 
   ## files
 
+  app.info_plist['NSMainNibFile'] = 'MainMenu'
+  
   app.delegate_class = "WebBuddyAppDelegate"
 
   # archive:distribution fails with i386 arch - just build for x86_64
@@ -312,7 +313,7 @@ end
 
 namespace :plugins do
   desc "all plugins tasks"
-  task :all => [ :build ]
+  task :all => [ :build, :hotdeploy ]
 
   desc "build and remove stubs"
   task :build => [] do
