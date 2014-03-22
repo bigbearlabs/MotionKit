@@ -1,3 +1,18 @@
+## MOVE
+# a view controller that works with a client-instantiated view.
+class GenericViewController < PEViewController
+  def initWithView( view )
+    self.initWithNibName(nil, bundle:nil)
+    self.view = view
+
+    pe_log "set #{self}'s view #{view}: #{view.tree}"
+    self
+  end
+end
+
+
+
+
 # TODO reconcile postflight proc, calls to on_setup, another call to on_update.
 
 module Preferences
@@ -8,7 +23,7 @@ module Preferences
   def preference_pane_controllers flavour
     [ 
       GeneralPrefPaneController.new(factory:self),
-      # DeveloperPrefPaneController.new(factory:self),
+      # WebKitPrefPaneController.new(factory:self),
     ].tap do |a|
       if flavour == :dev || RUBYMOTION_ENV == 'development'
         a << PreviewPrefPaneController.new(factory:self)
@@ -16,7 +31,7 @@ module Preferences
     end
   end
   
-#=
+  #=
 
   def new_pref_window(sender)
     flavour =  
@@ -55,6 +70,10 @@ module Preferences
         new_boolean_preference_view default, pref_spec, pref_owner
       when :list
         new_list_preference_view default, pref_spec, pref_owner
+      when :text
+        new_text_preference_view default, pref_spec, pref_owner
+      else
+        raise "view_type not implemented: #{pref_spec}"
       end
       .tap do |view|
         # watch for default specified by :depends_on and update state.
@@ -124,6 +143,29 @@ module Preferences
     view
   end
   
+  def new_text_preference_view default, pref_spec, component
+    view = NSBundle.load_nib 'TextPreference', {
+      text_field: 101,
+      label: 102
+    }
+    
+    view.subview :text_field do |text_field|
+      val = component.default(default) || pref_spec[:value]
+
+      text_field.stringValue = val
+      text_field.on_change = proc do |val|
+        puts val
+        component.update_default default, val
+      end
+    end
+    view.subview :label do |label|
+      label.stringValue = pref_spec[:label]
+    end
+
+    view
+  end
+  
+
 
   # FIXME replace this with a mechanism to always display up-to-date defaults with e.g. hotkey.
   def handle_Preference_updated_notification( notification )
@@ -140,6 +182,155 @@ class PreferencesWindowController < MASPreferencesWindowController
     self.alloc.initWithViewControllers(controllers)
   end
 end
+
+class PreferencePaneViewController < GenericViewController
+  def self.new(args = {})
+    pane = new_view
+
+    obj = self.alloc.initWithView pane
+    obj.instance_variable_set :@factory, args[:factory]
+
+    pane.translatesAutoresizingMaskIntoConstraints = false
+    pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
+    pane.add_view *obj.preference_views
+    pane.arrange_single_column
+    pane.size_to_fit
+    
+    obj
+  end
+
+  def toolbarItemImage
+    p = Pointer.new '@'
+    p[0] = NSImage.imageNamed(NSImageNamePreferencesGeneral)
+  end
+
+  # need this to get the views to show up.
+  def viewWillAppear
+    self.view.arrange_single_column
+    self.view.size_to_fit
+    pe_log "#{self} resized view: #{self.view.tree}"
+  end
+  
+
+  # def identifier
+  #   "general-preferences"
+  # end
+
+  # def toolbarItemLabel
+  #   "General"
+  # end
+
+  # a way to define properties without def_method so as to allow objc code to call in.
+  def def_properties prop_retval_map
+    prop_retval_map.map do |prop, retval|
+      def_expr = %Q(
+        def #{prop}
+          pe_trace "#{prop} called, will return #{retval}"
+          '#{retval}'
+        end
+      )
+      eval def_expr
+    end
+  end
+  
+end
+
+# work around annoying layout anomaly
+class GeneralPrefPaneController < PreferencePaneViewController
+  # MASPreferences interface compliance
+  def identifier
+    'General'
+  end
+  def toolbarItemLabel
+    'General'
+  end
+
+  def preference_views
+    [
+      @factory.new_pref_section(DefaultBrowserHandler), 
+      @factory.new_pref_section(BrowserDispatch),
+      @factory.new_pref_section(NSApp.delegate.wc.browser_vc.component(WebViewComponent)), 
+    ]
+  end
+
+  def self.new(args = {})
+    # load with nib
+    obj = self.alloc.initWithNibName('GeneralPrefPane', bundle:nil)
+
+    obj.instance_variable_set :@factory, args[:factory]
+
+    obj.preference_views.each_with_index do |pref_view, i|
+      obj.view.subviews[i].add_view pref_view
+      pref_view.centre_horizontal
+    end
+
+    obj
+  end
+
+  # override resizing in PreferencePaneViewController
+  def viewWillAppear
+  end
+  
+end
+
+class PreviewPrefPaneController < PreferencePaneViewController
+  # MASPreferences interface compliance
+  def identifier
+    'Prerelease'
+  end
+  def toolbarItemLabel
+    'Prerelease'
+  end
+
+  def preference_views
+    [
+      @factory.new_pref_section(HotkeyHandler), 
+      @factory.new_pref_section(WindowPreferenceExposer), 
+      @factory.new_pref_section(ContextLoader)
+    ]
+  end
+end
+
+  
+# expose defaults on BrowserWindowController as preferences and bridge data flow.
+class WindowPreferenceExposer < BBLComponent
+    # override and insert the segment that maps to wc.
+  def full_key key = nil
+    full_key = "ViewerWindowController"
+    full_key += ".#{key}" if key
+    full_key
+  end
+
+  def on_setup
+  end
+  
+  def defaults_spec
+    {
+      handle_focus_input_field: {
+        postflight: -> val {
+          if val
+            self.client.wc.handle_focus_input_field self
+          else
+            self.client.wc.handle_hide_input_field self
+          end
+        },
+        preference_spec: {
+          view_type: :boolean,
+          label: "Input Field",
+        }
+        # MAYBE post_register to specify actions after defaults registered.
+        # MAYBE initial val
+      },
+
+      # migrate to another pref pane.
+
+    }
+  end
+
+end
+
+
+#= MOVE
 
 
 class NSBox
@@ -225,206 +416,15 @@ class NSPopUpButton
 end
 
 
-# a view controller that works with a client-instantiated view.
-class GenericViewController < PEViewController
-  def initWithView( view )
-    self.initWithNibName(nil, bundle:nil)
-    self.view = view
-
-    pe_log "set #{self}'s view #{view}: #{view.tree}"
-    self
-  end
-end
-
-class PreferencePaneViewController < GenericViewController
-  def self.new(args = {})
-    pane = new_view
-
-    obj = self.alloc.initWithView pane
-    obj.instance_variable_set :@factory, args[:factory]
-
-    pane.translatesAutoresizingMaskIntoConstraints = false
-    pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
-    pane.add_view *obj.preference_views
-    pane.arrange_single_column
-    pane.size_to_fit
-    
-    obj
-  end
-
-  def toolbarItemImage
-    p = Pointer.new '@'
-    p[0] = NSImage.imageNamed(NSImageNamePreferencesGeneral)
-  end
-
-  # need this to get the views to show up.
-  def viewWillAppear
-    self.view.arrange_single_column
-    self.view.size_to_fit
-    pe_log "#{self} resized view: #{self.view.tree}"
-  end
-  
-
-  # def identifier
-  #   "general-preferences"
-  # end
-
-  # def toolbarItemLabel
-  #   "General"
-  # end
-
-  # a way to define properties without def_method so as to allow objc code to call in.
-  def def_properties prop_retval_map
-    prop_retval_map.map do |prop, retval|
-      def_expr = %Q(
-        def #{prop}
-          pe_trace "#{prop} called, will return #{retval}"
-          '#{retval}'
-        end
-      )
-      eval def_expr
-    end
-  end
-  
-end
-
-# work around annoying layout anomaly
-class GeneralPrefPaneController < PreferencePaneViewController
-  # MASPreferences interface compliance
-  def identifier
-    'General'
-  end
-  def toolbarItemLabel
-    'General'
-  end
-
-  def preference_views
-    [
-      @factory.new_pref_section(DefaultBrowserHandler), 
-      @factory.new_pref_section(BrowserDispatch)
-    ]
-  end
-
-  def self.new(args = {})
-    # load with nib
-    obj = self.alloc.initWithNibName('GeneralPrefPane', bundle:nil)
-
-    obj.instance_variable_set :@factory, args[:factory]
-
-    obj.preference_views.each_with_index do |pref_view, i|
-      obj.view.subviews[i].add_view pref_view
-      pref_view.centre_horizontal
-    end
-
-    obj
-  end
-
-  # override resizing in PreferencePaneViewController
-  def viewWillAppear
-  end
-  
-end
-
-class PreviewPrefPaneController < PreferencePaneViewController
-  # MASPreferences interface compliance
-  def identifier
-    'Prerelease'
-  end
-  def toolbarItemLabel
-    'Prerelease'
-  end
-
-  def preference_views
-    [
-      @factory.new_pref_section(HotkeyHandler), 
-      @factory.new_pref_section(WindowPreferenceExposer), 
-      @factory.new_pref_section(ContextLoader)
-    ]
-  end
-end
-
-  
-class DeveloperPrefPaneController < PreferencePaneViewController
-  # MASPreferences interface compliance
-  def identifier
-    'Developer'
-  end
-  def toolbarItemLabel
-    'Developer'
-  end
-
-  def preference_views
-    [
-      @factory.new_pref_section(WebViewPreferenceExposer.new), 
-    ]
-  end
-end
-
-
-# expose defaults on BrowserWindowController as preferences and bridge data flow.
-class WindowPreferenceExposer < BBLComponent
-  def on_setup
-    
-  end
-  
-  def defaults_spec
-    {
-      handle_focus_input_field: {
-        postflight: -> val {
-          if val
-            self.client.wc.handle_focus_input_field self
-          else
-            self.client.wc.handle_hide_input_field self
-          end
-        },
-        preference_spec: {
-          view_type: :boolean,
-          label: "Input Field",
-        }
-        # MAYBE post_register to specify actions after defaults registered.
-        # MAYBE initial val
-      },
-
-      # migrate to another pref pane.
-
+class NSTextField
+  def on_change=(handler)
+    @motion_kit_delegate = {
+      handler: handler
     }
+    def @motion_kit_delegate.controlTextDidChange(notification)
+      self[:handler].call notification.object.stringValue
+    end
+    self.delegate = @motion_kit_delegate
   end
-
-  # override and insert the segment that maps to wc.
-  def full_key key = nil
-    full_key = "ViewerWindowController"
-    full_key += ".#{key}" if key
-    full_key
-  end
-
 end
 
-
-# WIP
-class WebViewPreferenceExposer
-
-  def on_setup
-  end
-
-  def defaults_spec
-    {
-      inspector: {
-        postflight: -> val {
-        },
-        preference_spec: {
-          view_type: :boolean,
-          label: "Web Inspector"
-        }
-      },
-      inspector: {
-        postflight: -> val {
-        },
-        preference_spec: {
-          view_type: :text,
-          label: "User Agent String"
-        }
-      }
-    } 
-  end
-      
-end

@@ -86,7 +86,7 @@ class BrowserViewController < PEViewController
 		# set own pref id to work around 'define..' bug
 		@web_view.preferencesIdentifier = 'WebBuddy_web_view_preferences'
 		
-		@web_view.setApplicationNameForUserAgent( default(:user_agent_string) )
+		# @web_view.setApplicationNameForUserAgent( default(:user_agent_string) )
 		
 		# just a name to group all the frames.
 		@web_view.setGroupName("singleton_web_view")

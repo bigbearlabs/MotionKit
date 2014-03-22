@@ -555,6 +555,10 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		viewer_wc
 	end
 
+	def viewer_controllers
+	  @viewer_controllers_by_space.values
+	end
+	
 	def handle_destroy_window( sender )
 		current_viewer_wc.window.releasedWhenClosed = true  # TODO set once in nib.
 		current_viewer_wc.should_close = true
