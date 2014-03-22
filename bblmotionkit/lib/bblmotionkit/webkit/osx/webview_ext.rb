@@ -1,16 +1,15 @@
 class WebView
-  def init args = {}
-    frame = args[:frame]
+  def self.new(args = {})
+    frame = args[:frame] || NSZeroRect
     frame_name = args[:frame_name]
     group_name = args[:group_name]
-    obj = self.initWithFrame frame, frameName:frame_name, groupName:group_name
+    view = self.alloc.initWithFrame frame, frameName:frame_name, groupName:group_name
 
-    url = args[:url]
-    if url
-      obj.mainFrameURL = url
+    if url = args[:url]
+      view.mainFrameURL = url
     end
 
-    obj
+    view
   end
 
   def url

@@ -1,3 +1,5 @@
+motion_require '../legacy/PERubyUtil'
+
 class NSURL
   def last_path_segment
     return '' if self.path.nil?

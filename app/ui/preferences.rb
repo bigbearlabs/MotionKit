@@ -7,11 +7,11 @@ module Preferences
   # TODO sizing
   def preference_pane_controllers flavour
     [ 
-      GeneralPrefPaneController.alloc.initWithViewFactory(self),
-      # DeveloperPrefPaneController.alloc.initWithViewFactory(self),
+      GeneralPrefPaneController.new(factory:self),
+      # DeveloperPrefPaneController.new(factory:self),
     ].tap do |a|
       if flavour == :dev || RUBYMOTION_ENV == 'development'
-        a << PreviewPrefPaneController.alloc.initWithViewFactory(self)
+        a << PreviewPrefPaneController.new(factory:self)
       end
     end
   end
@@ -136,10 +136,8 @@ end
 
 
 class PreferencesWindowController < MASPreferencesWindowController
-  def initialize( controllers )
-    self.initWithViewControllers(controllers)
-
-    self
+  def self.new( controllers )
+    self.alloc.initWithViewControllers(controllers)
   end
 end
 
@@ -239,17 +237,19 @@ class GenericViewController < PEViewController
 end
 
 class PreferencePaneViewController < GenericViewController
-  def initWithViewFactory(factory)
-    @factory = factory
-
+  def self.new(args = {})
     pane = new_view
+
+    obj = self.alloc.initWithView pane
+    obj.instance_variable_set :@factory, args[:factory]
+
     pane.translatesAutoresizingMaskIntoConstraints = false
     pane.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable
-    pane.add_view *self.preference_views
+    pane.add_view *obj.preference_views
     pane.arrange_single_column
     pane.size_to_fit
     
-    self.initWithView pane
+    obj
   end
 
   def toolbarItemImage
@@ -286,7 +286,6 @@ class PreferencePaneViewController < GenericViewController
     end
   end
   
-
 end
 
 # work around annoying layout anomaly
@@ -306,18 +305,18 @@ class GeneralPrefPaneController < PreferencePaneViewController
     ]
   end
 
-  def initWithViewFactory(factory)
+  def self.new(args = {})
     # load with nib
-    self.init
+    obj = self.alloc.initWithNibName('GeneralPrefPane', bundle:nil)
 
-    @factory = factory
+    obj.instance_variable_set :@factory, args[:factory]
 
-    self.preference_views.each_with_index do |pref_view, i|
-      self.view.subviews[i].add_view pref_view
+    obj.preference_views.each_with_index do |pref_view, i|
+      obj.view.subviews[i].add_view pref_view
       pref_view.centre_horizontal
     end
 
-    self
+    obj
   end
 
   # override resizing in PreferencePaneViewController
