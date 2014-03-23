@@ -250,6 +250,7 @@ class BrowserViewController < PEViewController
 		self.show_dialog message: "Send the URL '#{url}' to default handler?",
 			confirm_handler: proc {
 				handle_open_url_in role: :scheme_handler
+		    NSApp.delegate.deactivate_viewer_window
 			}
 	end
 
