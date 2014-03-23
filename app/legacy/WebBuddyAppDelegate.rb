@@ -125,6 +125,10 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	end
 
 	def setup_part2_2
+		# deactivate when viewer window dismissed.
+		NSApp.extend(Reactive).react_to 'mainWindow' do
+			self.deactivate_if_needed
+		end
 
 		try {
 			# after introducing modkey double-down / hold actions, this is now out of date 
