@@ -179,7 +179,7 @@ class BarViewController
 		browsers_to_add.map do |browser|
 			title = "Open page in #{browser[:description]}"
 			title = nil  # TODO change prop consumption
-			button = new_button title,  browser[:icon] do
+			new_button title, browser[:icon] do
 				NSApp.send_to_responder 'handle_open_url_in:', browser
 			end
 		end
@@ -244,7 +244,7 @@ class BarViewController
 
 	def bookmark_buttons
 		context.sites.collect {|site| site[1] }.map do |site|	# FIXME reconcile strange context.sites data structure
-			bookmark = new_bookmark_from site
+				new_bookmark_from site
 		end
 	end
 
@@ -273,7 +273,7 @@ class BarViewController
 		button = new_button site.name do |sender|
 			pe_debug "button #{button} clicked - site #{site}"
 
-	    send_notification :Bar_item_selected_notification, site
+			send_notification :Bar_item_selected_notification, site
 		end
 
 		button.on_r_click do |the_button, event|
@@ -292,16 +292,16 @@ class BarViewController
 	#= realising reading list action. move
 
 	def pasteboard(name)
-	  pb = NSPasteboard.pasteboardWithName(name.to_s)
-	  def pb.copy_content( content )
-	  	unless content.is_a? Array
-	  		content = [ content ]
-	  	end
+		pb = NSPasteboard.pasteboardWithName(name.to_s)
+		def pb.copy_content( content )
+			unless content.is_a? Array
+				content = [ content ]
+			end
 
-	  	self.writeObjects(content)
-	  	self
-  	end
-  	pb
+			self.writeObjects(content)
+			self
+		end
+		pb
 	end
 	
 
@@ -309,12 +309,12 @@ class BarViewController
 		case service_name
 		when :safari_reading_list
 			p = pasteboard(:page_url).copy_content params
-		  item = 'Add to Reading List'
-		  
-		  retval = NSPerformService item, p
-		  pe_log "performed service with #{p}, got #{retval}"
+			item = 'Add to Reading List'
+			
+			retval = NSPerformService item, p
+			pe_log "performed service with #{p}, got #{retval}"
 		 else
-		 	raise "service #{service_name} unimplemented."
+			raise "service #{service_name} unimplemented."
 		end
 
 	end
@@ -355,16 +355,16 @@ class BarViewController
 	end
 
 	def show_popover anchor_view, view_controller
-	  @popover = Popover.new view_controller
-	  @popover.show anchor: anchor_view
+		@popover = Popover.new view_controller
+		@popover.show anchor: anchor_view
 	end
 	
 	def popover_shown
-	  @popover && @popover.shown
+		@popover && @popover.shown
 	end
 	
 	def dismiss_popover
-	  @popover.dismiss
+		@popover.dismiss
 	end
 	
 
@@ -394,18 +394,14 @@ class BarViewController
 	#=
 
 	def page_url
-	  self.view.window.windowController.browser_vc.url
+		self.view.window.windowController.browser_vc.url
 	end
 	
 end
 
 
 class BarActionViewController < PEViewController
-  extend IB
+	extend IB
 
-  outlet :item
-
-  def handle_save(sender)
-    
-  end
+	outlet :item
 end
