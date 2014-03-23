@@ -2,12 +2,15 @@ module FilesystemAccess
   
   def save( filename, content, location_sym = :docs )
     loc = parse_location_sym location_sym
+    file = File.join(loc, filename)
+    dir = File.dirname file
+    Dir.mkdir_p dir unless File.directory? dir
 
-    File.open(File.join(loc, filename), 'w') do |f|
-      f << content
+    File.open file, "w" do |f|
+      bytes = f.write content
+
+      pe_log "wrote #{file}, (#{bytes} bytes)"
     end
-
-    pe_log "wrote #{filename} at #{loc}"
   end
   
   def load( filename, location_sym = :docs )
@@ -24,7 +27,9 @@ module FilesystemAccess
     when :docs
       BW::App.documents_path
     when :bundle_resources
-      NSBundle.mainBundle.resourcePath
+      NSApp.bundle_resources_path
+    when :app_support
+      NSApp.app_support_path
     else
       raise "unhandled location_sym #{location_sym}"
     end

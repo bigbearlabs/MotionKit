@@ -240,18 +240,16 @@ class BarViewController
 
 		bookmarklets.map do |bookmarklet|
 			
-			new_button bookmarklet[:title], nil do |sender|
+			button = new_button bookmarklet[:title], nil do |sender|
 				pe_log "bookmarklet button #{bookmarklet[:title]}"
 				self.eval_bookmarklet bookmarklet[:path]
+			end 
+			button.on_r_click do |b, event|
+				puts "rclick!"
+				edit_action bookmarklet, b unless popover_shown
 			end
 
-			new_button.tap do |button|
-				button.on_r_click do |button, event|
-					puts "rclick!"
-					edit_action bookmarklet, button
-				end
-			end
-
+			button
 		end
 	end
 
@@ -334,39 +332,64 @@ class BarViewController
 	
 	#=
 
+	include FilesystemAccess
+
   # show the action plugin as a popover.
 	def edit_action action_spec, button
 		@edit_c = action_edit_controller(action_spec)
 		show_popover button, @edit_c
 	end
 	
-	def show_popover anchor_view, view_controller
-	  popover = Popover.new view_controller
-	  popover.show anchor: anchor_view
+	def save_action action_spec
+	  puts "TODO save #{action_spec}"
+
+	  save "#{bookmarklets_path}/#{action_spec[:title]}.js", action_spec[:content], :app_support
+
+	  # dismiss if ok. TODO
+
+	  # CASE title change -- need to delete previous file.
+
 	end
 	
-	include FilesystemAccess
+	def bookmarklets_path
+	  "plugins/bookmarklets"
+	end
+
+	def show_popover anchor_view, view_controller
+	  @popover = Popover.new view_controller
+	  @popover.show anchor: anchor_view
+	end
+	
+	def popover_shown
+	  @popover && @popover.shown
+	end
+	
+	def dismiss_popover
+	  @popover.dismiss
+	end
+	
 
 	def action_edit_controller action_spec
-		# WebViewController.new url:"http://localhost:59124/plugins/#/action",
-		# 	data: {
-		# 		title: 'stub title',
-		# 		href: 'stub href'
-		# 	},
-		# 	handlers: {
-		# 		on_ok: -> {
-		# 			puts "on_ok"
-		# 		},
-		# 		on_cancel: -> {
-		# 			puts "on_cancel"
-		# 		}
-		# 	}
-		c = BarActionViewController.new
-		c.item = {
-			'title' => action_spec[:title],
-			'content' => load( action_spec[:path], :bundle_resources)
-		}
-		c
+		BarActionViewController.new.tap do |c|
+			c.item = {
+				'title' => action_spec[:title],
+				'content' => load( action_spec[:path], :bundle_resources)
+			}
+			c.view.setup_tags save:101, cancel: 102
+			
+			c.view.subview :save do |save_button|
+				save_button.on_click = proc do |button|
+					save_action title: c.item['title'],
+						content: c.item['content']
+				end
+			end
+
+			c.view.subview :cancel do |cancel_button|
+				cancel_button.on_click = proc do |button|
+					dismiss_popover
+				end
+			end
+		end
 	end
 	
 	#=

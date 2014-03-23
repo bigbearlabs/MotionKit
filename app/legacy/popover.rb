@@ -9,6 +9,14 @@ class Popover
     @popover.showRelativeToRect(NSZeroRect, ofView:anchor_view, preferredEdge:NSMinYEdge)
   end
   
+  def dismiss
+    @popover.close
+  end
+  
+  def shown
+    @popover.isShown
+  end
+  
 end   
 
 
