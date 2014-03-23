@@ -9,7 +9,6 @@
 # REFACTOR reorganise members.
 # RENAME morphing into a toolbar controller.
 class InputFieldViewController < PEViewController
-	include KVOMixin
 	include Reactive
 	include DefaultsAccess
 		
@@ -50,19 +49,19 @@ class InputFieldViewController < PEViewController
 
 	## debug the mysterious change for respondsToSelector.
 
-	def respondsToSelector( selector )
-		val_from_super = super
+	# def respondsToSelector( selector )
+	# 	val_from_super = super
 
-		val_from_respond_to = self.respond_to? selector
+	# 	val_from_respond_to = self.respond_to? selector
 
-		if val_from_super == val_from_respond_to
-			pe_debug "respondsToSelector: values from the sources are same."
-			return val_from_super
-		else
-			pe_warn "respondsToSelector: deviating values for #{selector}! returning macruby version."
-			return val_from_respond_to
-		end
-	end
+	# 	if val_from_super == val_from_respond_to
+	# 		pe_debug "respondsToSelector: values from the sources are same."
+	# 		return val_from_super
+	# 	else
+	# 		pe_warn "respondsToSelector: deviating values for #{selector}! returning macruby version."
+	# 		return val_from_respond_to
+	# 	end
+	# end
 
 	def setup
 		super
@@ -218,15 +217,15 @@ class InputFieldViewController < PEViewController
 #= managing the menu
 
 	def setup_kvo_display_strings 
-		observe_kvo self, :current_enquiry do |obj, change, ctx|
+		react_to :current_enquiry do
 			self.enquiry_display_string = "Enquiry: #{self.current_enquiry}"
 			self.refresh_menu
 		end
-		observe_kvo self, :current_url do |obj, change, ctx|
+		react_to :current_url do
 			self.url_display_string = "Address: #{self.current_url}"
 			self.refresh_menu
 		end
-		observe_kvo self, :current_filter do |obj, change, ctx|
+		react_to :current_filter do
 			self.filter_display_string = "Filter: #{self.current_filter}"
 			self.refresh_menu
 		end
@@ -239,7 +238,7 @@ class InputFieldViewController < PEViewController
 
 	def setup_kvo_display_mode
 		# update input field based on current display mode.
-		observe_kvo self, :display_mode do |obj, change, context|
+		react_to :display_mode do
 			self.refresh_input_field
 		
 			@input_field_menu.update_display_mode self.display_mode
