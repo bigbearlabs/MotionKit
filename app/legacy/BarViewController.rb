@@ -214,39 +214,25 @@ class BarViewController
 		end
 	end
 
+	# TODO retire the path property.
 	def bookmarklet_buttons
-		bookmarklets = [
+		bookmarklet_files = glob "#{bookmarklets_path}/*.js", :app_support
+		action_specs = bookmarklet_files.map do |bookmarklet_file|
 			{
-				title: 'LastPass',
-				path: "plugins/bookmarklets/lastpass.js"
-			},
-			{
-				title: 'Pocket',
-				path: "plugins/bookmarklets/pocket.js"
-			},
-			{
-				title: 'Feedly',
-				path: "plugins/bookmarklets/feedly.js"
-			},
-			{
-				title: 'Instapaper',
-				path: "plugins/bookmarklets/instapaper.js"
-			},
-			{
-				title: 'Evernote',
-				path: "plugins/bookmarklets/evernote.js"
-			},
-		]
+				title: File.basename(bookmarklet_file).to_s.gsub(/\.js$/, ''),
+				path: bookmarklet_file,
+				content: load(bookmarklet_file)
+			}
+		end
 
-		bookmarklets.map do |bookmarklet|
-			
-			button = new_button bookmarklet[:title], nil do |sender|
-				pe_log "bookmarklet button #{bookmarklet[:title]}"
-				self.eval_bookmarklet bookmarklet[:path]
+		action_specs.map do |spec|
+			button = new_button spec[:title], nil do |sender|
+				pe_log "bookmarklet button #{spec[:title]}"
+				self.eval_bookmarklet spec[:path]
 			end 
 			button.on_r_click do |b, event|
 				puts "rclick!"
-				edit_action bookmarklet, b unless popover_shown
+				edit_action spec, b unless popover_shown
 			end
 
 			button
@@ -334,25 +320,35 @@ class BarViewController
 
 	include FilesystemAccess
 
-  # show the action plugin as a popover.
+	# show the action plugin as a popover.
 	def edit_action action_spec, button
 		@edit_c = action_edit_controller(action_spec)
 		show_popover button, @edit_c
 	end
 	
-	def save_action action_spec
-	  puts "TODO save #{action_spec}"
+	def save_action item
+		puts "TODO save #{item}"
 
-	  save "#{bookmarklets_path}/#{action_spec[:title]}.js", action_spec[:content], :app_support
+		save "#{bookmarklets_path}/#{item['title']}.js", item['content'], :app_support
 
-	  # dismiss if ok. TODO
+		# CASE title change -- need to delete previous file.
+		if (previous_title = item['spec'][:title]) != item['title']
+			delete "#{bookmarklets_path}/#{previous_title}.js", :app_support
+		end
 
-	  # CASE title change -- need to delete previous file.
+		# TODO validate.
 
+		dismiss_popover
+
+		self.refresh
+
+	rescue => e
+		pe_report e, "saving action #{item}"
+		# TODO warn user.
 	end
 	
 	def bookmarklets_path
-	  "plugins/bookmarklets"
+		"docroot/plugins/bookmarklets"
 	end
 
 	def show_popover anchor_view, view_controller
@@ -373,14 +369,14 @@ class BarViewController
 		BarActionViewController.new.tap do |c|
 			c.item = {
 				'title' => action_spec[:title],
-				'content' => load( action_spec[:path], :bundle_resources)
+				'content' => action_spec[:content],
+				'spec' => action_spec
 			}
 			c.view.setup_tags save:101, cancel: 102
 			
 			c.view.subview :save do |save_button|
 				save_button.on_click = proc do |button|
-					save_action title: c.item['title'],
-						content: c.item['content']
+					save_action c.item
 				end
 			end
 
