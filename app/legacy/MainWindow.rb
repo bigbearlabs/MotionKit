@@ -51,9 +51,11 @@ class MainWindow < NSPanel
 	end
 
 	def do_activate( completion_proc = nil )
-		window_info = NSApp.windows.collect { |w| dump_attrs w, :title, :windowNumber, :isVisible }
-		pe_debug "windows pre-activate: #{window_info}"
-
+		if $DEBUG
+			window_info = NSApp.windows.collect { |w| dump_attrs w, :title, :windowNumber, :isVisible }
+			pe_log "windows pre-activate: #{window_info}"
+		end
+		
 		# workaround attempt #1 at killing the 'invisible-but-visible window after spaces'.
 		self.nudge_frame
 		
