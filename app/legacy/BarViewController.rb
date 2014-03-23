@@ -79,6 +79,9 @@ class BarViewController < PEViewController
 			# add the buttons
 			buttons.map do |button|
 				add_button button
+
+				# work around system colour lagging when used in HUD setting.
+				button.color = NSColor.whiteColor
 			end
 
 			# add_folder
