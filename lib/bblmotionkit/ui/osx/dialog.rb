@@ -56,8 +56,6 @@ class DialogSheetController < NSWindowController
   def handle_modal_confirm( sender )
     dismiss_sheet
     
-    NSApp.delegate.deactivate_viewer_window
-    
     on_confirm.call 
   end
 
