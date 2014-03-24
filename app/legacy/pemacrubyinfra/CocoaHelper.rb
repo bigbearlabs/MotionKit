@@ -466,6 +466,8 @@ class Dir
 		err = Pointer.new :object
     NSFileManager.defaultManager.createDirectoryAtPath(dir, withIntermediateDirectories:true, attributes: nil, error:err)
     raise err[0].description if err[0]
-  end
+
+    pe_log "created path #{dir}"
+	end
 	
 end

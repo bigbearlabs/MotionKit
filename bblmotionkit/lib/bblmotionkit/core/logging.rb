@@ -41,7 +41,7 @@ module Logging
 
 
 	def pe_report( exception, msg = nil )
-		pe_warn "** Exception ** #{msg ? msg : nil} ** #{exception.inspect} #{exception.description}** backtrace: #{exception.report}"
+		pe_warn "** Exception ** #{msg ? msg : nil} ** #{exception.send :inspect} #{exception.description}** backtrace: #{exception.report}"
 		debug exception: exception
 	end
 	
