@@ -223,7 +223,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 	def load_intro(sender = nil)
 		wc.do_activate
-		wc.window.center
+		# wc.window.center
 
 		url = default :intro_url
 
