@@ -7,8 +7,6 @@ class MotionViewController < PlatformViewController
     # ensure view is loaded.
     pe_debug self.view
     
-    self.add_view_to_frame
-
     # other stuff to be performed by subclasses
   end
   
@@ -86,7 +84,7 @@ class MotionViewController < PlatformViewController
 
     # RECONCILE PEViewController modelled setup external to awakeFromNib. resolve.
     if @frame_view
-      @frame_view.addSubview self.view
+      self.add_view_to_frame
     else
       pe_warn "no frame view set up for for #{self}"
     end
