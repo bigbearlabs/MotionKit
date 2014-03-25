@@ -141,16 +141,9 @@ class BrowserWindowController < NSWindowController
 
 			# self.setup_overlay
 
-			watch_notification :Load_request_notification, @browser_vc.web_view_delegate
-			watch_notification :Title_received_notification, @browser_vc.web_view_delegate
-			watch_notification :Url_load_finished_notification, @browser_vc.web_view_delegate
-			# watch_notification :Link_navigation_notification, @browser_vc.web_view_delegate
 
-			# user
-			watch_notification :Bf_navigation_notification
 
-			# history views
-			watch_notification :Item_selected_notification
+			watch_notifications
 
 			self.setup_reactive_title_bar
 			self.setup_reactive_history_item_sync
@@ -164,6 +157,19 @@ class BrowserWindowController < NSWindowController
 			# self.setup_popover
 
 		end
+
+	def watch_notifications
+	  # FIXME let's decomm these soon, by replacing them with kvo and reactions.
+	  watch_notification :Load_request_notification, @browser_vc.web_view_delegate
+	  watch_notification :Title_received_notification, @browser_vc.web_view_delegate
+	  watch_notification :Url_load_finished_notification, @browser_vc.web_view_delegate
+	  # watch_notification :Link_navigation_notification, @browser_vc.web_view_delegate
+
+	  # user
+	  watch_notification :Bf_navigation_notification
+
+	  # history views
+	  watch_notification :Item_selected_notification
 	end
 
 	def setup_reactive_update_stack
