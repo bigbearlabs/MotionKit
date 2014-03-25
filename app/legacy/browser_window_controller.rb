@@ -41,35 +41,21 @@ class BrowserWindowController < NSWindowController
 	# subsystems
 	attr_accessor :browser_vc
 	attr_accessor :progress_vc
-	attr_accessor :input_field_vc
 	attr_accessor :page_details_vc
 	attr_accessor :bar_vc
 
+	# FIXME push down to MainWindowController.
+	attr_accessor :input_field_vc
 	attr_accessor :plugin_vc
 
 	def components
 		[
 			{
-				module: InputInterpreter
+				module: FindPlugin
 			},
 			{
 				module: RubyEvalPlugin
 			},
-			{
-				module: FilteringPlugin,
-				deps: {
-					context_store: @context_store
-				}
-			},
-	  	{
-	  		module: FindPlugin
-	  	},
-	  	{
-	  		module: InputFieldComponent,
-  			deps: {
-  				input_field_vc: @input_field_vc
-  			}
-	  	}
 		]
 	end
 	
@@ -101,52 +87,33 @@ class BrowserWindowController < NSWindowController
 		# self.setup_tracking_region
 		# self.setup_nav_long_click
 
-		self.window_title_mode = :title
-
-		@plugin_vc.setup( {} )			
-
 		@browser_vc.setup context_store: @context_store
 
-		setup_components
-
-
-		self.setup_reactive_update_stack
 
 		pe_log "#{self} synchronous setup complete."
 
 		# asynchronously set up the rest, for more responsive windows.
-		on_main_async do
+		# on_main_async do
+			# secondary collaborators
+			# @plugin_vc.setup( {} )			
 
-			# TODO extract stack-population related workflow like this into an appropriate abstraction.
-			# populate model's redirections 
-			react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
-				# just keep adding the current page - it should be enough.
-				self.stack.add_redirect redirections[0], @browser_vc.web_view.url
-			end
+			## bblcomponent
+			setup_components
 
-			react_to :activation_type do |val|
-				if val == :hotkey		# initial view state
-					self.handle_focus_input_field(self)
-				else
-					self.handle_hide_input_field(self)
-				end
-			end
-
-			# new window case.
-			if @activation_type == :hotkey
-				on_main_async { self.handle_focus_input_field self}
-			end			
-
-			@browser_vc.web_view.make_first_responder 
-
+			## secondary ui
 			# self.setup_overlay
 
+
+			## misc attributes
+
+			self.window_title_mode = :title
+
+			@browser_vc.web_view.make_first_responder 
 
 
 			watch_notifications
 
 			self.setup_reactive_title_bar
-			self.setup_reactive_history_item_sync
 			self.setup_responder_chain
 
 			self.setup_actions_bar
@@ -156,6 +123,7 @@ class BrowserWindowController < NSWindowController
 			# self.setup_reactive_detail_input
 			# self.setup_popover
 
+		# end
 		end
 
 	def watch_notifications
@@ -171,6 +139,7 @@ class BrowserWindowController < NSWindowController
 	  # history views
 	  watch_notification :Item_selected_notification
 	end
+
 
 	def setup_reactive_update_stack
 	  react_to 'browser_vc.web_view_delegate.state' do |state|
@@ -193,6 +162,16 @@ class BrowserWindowController < NSWindowController
 	  end
 	end
 	
+	def setup_reactive_build_trail
+	  # TODO extract stack-population related workflow like this into an appropriate abstraction.
+	  # populate model's redirections 
+	  react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
+	  	# just keep adding the current page - it should be enough.
+	  	self.stack.add_redirect redirections[0], @browser_vc.web_view.url
+	  end
+	end
+	
+
 	def setup_popover
 		self.setup_reactive_first_responder
 	end

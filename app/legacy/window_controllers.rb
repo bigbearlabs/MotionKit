@@ -30,11 +30,6 @@ class ViewerWindowController < BrowserWindowController
 				end
 			end
 			
-			react_to 'input_field_vc.input_field_focused' do |focused|
-				if focused
-					component(FilteringPlugin).show_plugin
-				end
-			end
 
 			self.title_bar_view.track_mouse_entered
 			react_to 'title_bar_view.mouse_entered' do |entered|
@@ -113,6 +108,81 @@ class ViewerWindowController < BrowserWindowController
 
 end
 
+
+class MainWindowController < BrowserWindowController
+# MOTION-MIGRATION
+ #  include CollectionGallery
+
+	# def setup
+	# 	super
+
+	# 	# in order to work with the main-async routine in super, these need dispatching too.
+	# 	# on_main_async do
+	# 	# 	if self.class.ancestors.include? CollectionGallery
+	# 	# 		self.setup_gallery
+	# 	# 		self.show_gallery_view self
+	# 	# 	end
+	# 	# end
+	# end
+	
+	def components
+		super + [
+			{
+				module: InputInterpreter
+			},
+			{
+				module: InputFieldComponent,
+				deps: {
+					input_field_vc: @input_field_vc
+				}
+			},
+			{
+				module: FilteringPlugin,
+				deps: {
+					context_store: @context_store
+				}
+			},
+
+		]
+	end
+	
+
+	def filter( filter_spec )
+		# gallery_vc.update_filter_spec filter_spec
+	end
+	
+	def setup
+	  super
+
+		react_to 'input_field_vc.input_field_focused' do |focused|
+			if focused
+				component(FilteringPlugin).show_plugin
+			end
+		end
+
+
+		react_to_and_init :activation_type do |val|
+			if val == :hotkey		# initial view state
+				self.handle_focus_input_field(self)
+			else
+				self.handle_hide_input_field(self)
+			end
+		end
+
+
+		## set up domain data operations.
+
+		self.setup_reactive_history_item_sync
+
+		self.setup_reactive_update_stack
+
+		self.setup_reactive_build_trail
+	end
+	
+end
+
+
+
 class NSWindowController
 
 	def title_bar_view
@@ -145,24 +215,3 @@ class NSView
 end
 
 
-class MainWindowController < BrowserWindowController
-# MOTION-MIGRATION
- #  include CollectionGallery
-
-	# def setup
-	# 	super
-
-	# 	# in order to work with the main-async routine in super, these need dispatching too.
-	# 	# on_main_async do
-	# 	# 	if self.class.ancestors.include? CollectionGallery
-	# 	# 		self.setup_gallery
-	# 	# 		self.show_gallery_view self
-	# 	# 	end
-	# 	# end
-	# end
-	
-	def filter( filter_spec )
-		# gallery_vc.update_filter_spec filter_spec
-	end
-	
-end
