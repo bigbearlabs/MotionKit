@@ -144,7 +144,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		}
 
 		try {
-			# self.setup_main_window
+			self.setup_main_wc
 
 			NSApp.activate
 
@@ -384,8 +384,8 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 #= main window
 
-	def setup_main_window
-		self.new_main_window
+	def setup_main_wc
+		self.new_main_wc
 
 		self.main_window_shown = false
 		# self.restore_main_window_frame
@@ -393,10 +393,10 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 	end
 
-	def new_main_window
+	def new_main_wc
 		# subsystems
 		# @anchor_window_controller.load_anchor_for_space @spaces_manager.current_space_id, true
-		self.main_window_controller = MainWindowController.alloc.init
+		@main_window_controller = MainWindowController.alloc.init
 		@main_window_controller.setup	context_store: @context_store
 
 		@main_window_controller.stack = @context_store.current_context  # REDUNDANT
@@ -425,7 +425,8 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		self.main_window_shown = ! self.wc.window.visible
 	end
 
-	def toggle_main_window(sender)
+	# TODO handle activation_type param (:hotkey)
+	def toggle_main_window(params = {})
 
 		# FIXME disable before hotkey is set.
 
@@ -443,12 +444,12 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 		else
 			self.active_status = :deactivating
-			self.hide_main_window(sender)
+			self.hide_main_window(params)
 			# TODO refactor to a user#perform_*
 		end
 	end
 
-	def activate_main_window
+	def activate_main_window( params )
 		@main_window_controller.do_activate on_complete: -> {
 			self.active_status = :activated
 		}
@@ -460,7 +461,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		}
 	end
 	
-	def hide_main_window(sender)
+	def hide_main_window(params)
 		self.main_window_shown = false
 	end
 	
@@ -645,7 +646,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 			end
 			end
 		end
-	end
 
 	def handle_NSWindowDidEndLiveResizeNotification( notification )
 		pe_debug notification.description

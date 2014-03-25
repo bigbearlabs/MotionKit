@@ -3,9 +3,6 @@
 # a Viewer is used for all links originating from other apps.
 class ViewerWindowController < BrowserWindowController
 
-	# bindable
-	attr_accessor :input_field_shown
-
 	def init
 		super
 
@@ -109,7 +106,12 @@ class ViewerWindowController < BrowserWindowController
 end
 
 
+# isolate concerns for filtering, input field.
 class MainWindowController < BrowserWindowController
+	# bindable
+	attr_accessor :input_field_shown
+
+
 # MOTION-MIGRATION
  #  include CollectionGallery
 
