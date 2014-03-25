@@ -79,6 +79,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 		# important domain object
 		self.user = User.new
+		@viewer_wcs_by_space = {}
 
 		# the app's domain model / storage scheme.
 		self.setup_context_store
@@ -87,9 +88,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 		component(ContextLoader).if_enabled :load_context
 
-		# legacy defaults
-		@intro_enabled = default :intro_enabled
-		@load_welcome = default :load_welcome
 
 		# deprecated / unused defaults
 		# @show_toolbar_on_hotkey = default :show_toolbar_on_hotkey
@@ -150,7 +148,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 			NSApp.activate
 
-			if @intro_enabled
+			if  default :intro_enabled
 				self.load_intro
 			else
 				trace_time :load_start, true do
@@ -177,7 +175,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 			# skip loading welcome page.
 		else
 
-			if @load_welcome
+			if default :load_welcome
 				on_main {
 					self.load_welcome_page
 				}
@@ -525,7 +523,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 	def current_viewer_wc
 		current_space_id = @spaces_manager.current_space_id
-		viewer_wc = @viewer_controllers_by_space[current_space_id] if @viewer_controllers_by_space
+		viewer_wc = @viewer_wcs_by_space[current_space_id] if @viewer_wcs_by_space
 
 		if viewer_wc.nil?
 			# EDGECASE sometimes we end up not picking up the viewer_wc for the space - check for this case and rectify.
@@ -547,7 +545,8 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 				viewer_wc = new_viewer_window_controller
 			end
 
-			( @viewer_controllers_by_space ||= {} )[current_space_id] = viewer_wc
+			# and now update.
+			@viewer_wcs_by_space[current_space_id] = viewer_wc
 		end
 
 		# update the current context.
@@ -560,7 +559,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	end
 
 	def viewer_controllers
-	  @viewer_controllers_by_space.values
+	  @viewer_wcs_by_space.values
 	end
 	
 	def handle_destroy_window( sender )
@@ -568,7 +567,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		current_viewer_wc.should_close = true
 		current_viewer_wc.window.close
 
-		@viewer_controllers_by_space.delete_value current_viewer_wc
+		@viewer_wcs_by_space.delete_value current_viewer_wc
 	end
 
 #= system events
@@ -638,11 +637,12 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 				redundant_wc.close
 				
-				pe_log "closed window for #{redundant_wc}, mapped to space #{@viewer_controllers_by_space.key redundant_wc}"
+				pe_log "closed window for #{redundant_wc}, mapped to space #{@viewer_wcs_by_space.key redundant_wc}"
 				
-				debug [redundant_wc, @spaces_manager.windows_in_space, @spaces_manager.current_space_id, @viewer_controllers_by_space ]
+				debug [redundant_wc, @spaces_manager.windows_in_space, @spaces_manager.current_space_id, @viewer_wcs_by_space ]
 				
-				@viewer_controllers_by_space.delete_value redundant_wc
+				@viewer_wcs_by_space.delete_value redundant_wc
+			end
 			end
 		end
 	end
