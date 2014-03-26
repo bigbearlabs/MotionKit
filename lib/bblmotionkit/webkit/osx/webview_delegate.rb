@@ -1,7 +1,7 @@
 
 # adapted from WebBuddy with tactical modifications.
 # FIXME resolve delta from WebViewDelegate.rb since migration.
-class BBLWebViewDelegate
+class WebViewDelegate
 
   # a running history 
   attr_reader :events
