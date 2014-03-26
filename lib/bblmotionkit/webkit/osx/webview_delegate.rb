@@ -32,7 +32,8 @@ class BBLWebViewDelegate
 #= event logging
 
   def push_event( event_name, event_data = {} )
-    if new_url = event_data[:new_url]
+    # get the latest url from the webview, as urls from delegate methods can be tarnished by WKJSB
+    if (new_url = @web_view.mainFrameURL) != @url
       kvo_change :url, new_url
     end
     # EDGECASE when policy ignores url, no longer accurately reflects webview detail.
@@ -267,13 +268,13 @@ class BBLWebViewDelegate
         nil
       end
 
-    to_url = request.URL.absoluteString
+    new_url = request.URL.absoluteString
 
-    # page redirects have a to_url same as one already set on frame.
-    if to_url == webView.url
+    # page redirects have a new_url same as one already set on frame.
+    if new_url == webView.url
       self.push_event 'willSendRequestForRedirectResponse', { 
         from_url: response_url,
-        to_url: to_url, 
+        new_url: new_url, 
       }
     end
 
@@ -285,7 +286,7 @@ class BBLWebViewDelegate
     # if frame == webView.mainFrame
       self.push_event 'willPerformClientRedirect', { 
         from_url: webView.url,
-        to_url: url.absoluteString,
+        new_url: url.absoluteString,
       }
     # end
   end
