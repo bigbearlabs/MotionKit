@@ -7,7 +7,7 @@ module Reactive
 
     key_paths.map do |keypath|
       value = self.kvc_get keypath
-      self.kvc_set keypath, value
+      self.kvo_change keypath, value
     end
   end
 

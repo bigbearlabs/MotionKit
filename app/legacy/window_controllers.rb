@@ -27,29 +27,9 @@ class ViewerWindowController < BrowserWindowController
 				end
 			end
 			
+			setup_reactive_refresh_bar
 
-			self.title_bar_view.track_mouse_entered
-			react_to 'title_bar_view.mouse_entered' do |entered|
-				if entered
-					self.bar_shown = true
-
-					# react to mouse out of the wider tracking area TODO
-				else
-					# self.hide_toolbar delay:2
-				end
-			end
-
-			react_to 'browser_vc.web_view.scroll_event' do |event|
-				if event
-					self.bar_shown = false
-				end
-
-				# using a small delay, attach a thumbnail for the history item for the swipe handler to use to to animate paging.
-				(@thumbnail_throttle ||= Object.new).delayed_cancelling_previous 0.1, -> {
-					pe_log "taking thumbnail after scroll event #{event}"
-					@browser_vc.snapshot
-				}
-			end
+			setup_reactive_update_thumbnail
 
 		end
 
@@ -68,24 +48,34 @@ class ViewerWindowController < BrowserWindowController
 
 	# TODO browser_view.event
 	# TODO revise mouse tracking routines to interface via .mouse_entered
+	def setup_reactive_refresh_bar
+	  self.title_bar_view.track_mouse_entered
+	  react_to 'title_bar_view.mouse_entered' do |entered|
+	  	if entered
+	  		self.bar_shown = true
 
-	def on_setup_complete
-		# # load stack.
-		# if self.stack
-		# 	self.load_url last_url
-		# else
-		# 	"no stack, not loading."
-		# end
+	  		# react to mouse out of the wider tracking area TODO
+	  	else
+	  		# self.hide_toolbar delay:2
+	  	end
+	  end
 
-		# # show filtering.
-		# if browser_vc.url.nil?
-		# 	self.component(FilteringPlugin).show_plugin
-		# end
+	  react_to 'browser_vc.web_view.scroll_event' do |event|
+	  	if event
+	  		self.bar_shown = false
+	  	end
+	  end
+	end
+	
+	def setup_reactive_update_thumbnail
+	  react_to 'browser_vc.web_view.scroll_event' do |event|
+	  	# using a small delay, attach a thumbnail for the history item for the swipe handler to use to to animate paging.
+	  	(@thumbnail_throttle ||= Object.new).delayed_cancelling_previous 0.1, -> {
+	  		pe_log "taking thumbnail after scroll event #{event}"
+	  		@browser_vc.snapshot
+	  	}
+	  end
 
-		# show initial.
-		if browser_vc.url.nil?
-			self.load_url default(:initial_url), stack_id: 'Default Stack'
-		end
 	end
 	
 
@@ -154,15 +144,20 @@ class MainWindowController < BrowserWindowController
 	
 
 	def setup(collaborators)
-	  super
-		
-		setup_default_keys :input_field_vc, :plugin_vc
+		# ensure outlets all set.
+		self.window.show
 
-	  # view state
-	  @input_field_vc.frame_view.visible = true
+
+		setup_default_keys :input_field_vc, :plugin_vc
 
 		# secondary collaborators
 		@plugin_vc.setup context_store: 'stub-context-store'
+
+
+	  super
+		
+	  # view state
+	  @input_field_vc.frame_view.visible = true
 
 		# reactively show filtering plugin.
 		react_to 'input_field_vc.input_field_focused' do |focused|
@@ -180,14 +175,6 @@ class MainWindowController < BrowserWindowController
 			end
 		end
 
-
-		## set up domain data operations.
-
-		self.setup_reactive_history_item_sync
-
-		self.setup_reactive_update_stack
-
-		self.setup_reactive_build_trail
 	end
 
 	def load_url(urls, details = {})

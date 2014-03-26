@@ -200,6 +200,8 @@
 		<integer>2</integer>
 		<key>activation_style</key>
 		<string>sidekick</string>
+		<key>touch_stack</key>
+		<true/>
 	</dict>
 	<key>ViewerWindowController</key>
 	<dict>

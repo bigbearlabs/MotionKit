@@ -72,7 +72,7 @@ class BrowserWindowController < NSWindowController
 		super
 	end
 	
-	def setup(collaborators)    
+	def setup(collaborators)
 		raise "no window for #{self}" unless self.window
 				
 		inject_collaborators collaborators
@@ -117,8 +117,36 @@ class BrowserWindowController < NSWindowController
 			# self.setup_reactive_detail_input
 			# self.setup_popover
 
+
+			## set up domain data operations.
+
+			self.setup_reactive_add_redirections
+
+			self.setup_reactive_history_item_sync
+
+			self.setup_reactive_update_stack
+
 		# end
 	end
+
+  def on_setup_complete
+    # # load stack.
+    # if self.stack
+    # 	self.load_url last_url
+    # else
+    # 	"no stack, not loading."
+    # end
+
+    # # show filtering.
+    # if browser_vc.url.nil?
+    # 	self.component(FilteringPlugin).show_plugin
+    # end
+
+    # show initial.
+    if browser_vc.url.nil?
+      self.load_url default(:initial_url), stack_id: 'Default Stack'
+    end
+  end
 
 	def setup_default_keys *subsystem_names
 	  subsystem_names.map do |subsystem|
@@ -166,15 +194,28 @@ class BrowserWindowController < NSWindowController
 	  end
 	end
 	
-	def setup_reactive_build_trail
+	def setup_reactive_add_redirections
 	  # TODO extract stack-population related workflow like this into an appropriate abstraction.
 	  # populate model's redirections 
 	  react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
 	  	# just keep adding the current page - it should be enough.
-	  	self.stack.add_redirect redirections[0], @browser_vc.web_view.url
+	  	if default(:touch_stack) && self.stack
+		  	self.stack.add_redirect @browser_vc.url, redirections[0]
+		  else
+		  	pe_warn "ignoring redirections #{redirections} for #{@browser_vc.url}"
+		  end
 	  end
 	end
 	
+	def setup_reactive_history_item_sync
+		react_to 'browser_vc.web_view_delegate.state' do |new_state|
+			# update the WebHistoryItem
+			if new_state == :loaded
+				self.stack.update_item @browser_vc.url, @browser_vc.current_history_item if self.stack
+			end
+		end
+	end
+
 
 	def setup_popover
 		self.setup_reactive_first_responder
@@ -239,15 +280,6 @@ class BrowserWindowController < NSWindowController
 		#     handle_toggle_page_detail self
 		#   end
 		# end
-	end
-
-	def setup_reactive_history_item_sync
-		react_to 'browser_vc.web_view_delegate.state' do |new_state|
-			# update the WebHistoryItem
-			if new_state == :loaded
-				self.stack.update_item @browser_vc.url, @browser_vc.current_history_item if self.stack
-			end
-		end
 	end
 
 	def handle_carousel_title( sender )
@@ -406,9 +438,11 @@ class BrowserWindowController < NSWindowController
 	# stack_id: the id of stack if stack retrieval not suitable.
 	# FIXME migrate objc_interface to webbuddy.interface, migrate webbuddy.module use cases.
 	def load_url(urls, details = {})
-		sid = details[:stack_id]  # can be nil.
-		
-		self.stack = @context_store.stack_for( sid ) if sid
+		if stack_id = details[:stack_id]  # can be nil.
+			self.stack = @context_store.stack_for( stack_id )
+		else
+			pe_log "#{self}: no stack id on load_url, leaving stack as: #{self.stack}"
+		end
 
 		@browser_vc.load_url urls, details
 	end
@@ -512,7 +546,7 @@ class BrowserWindowController < NSWindowController
 
 
 			# TACTICAL update view data. TODO rework to initiate based on kvo.
-			NSApp.windows.map { |w| w.windowController }.select {|e| e.is_a? BrowserWindowController}.map do |wc|
+			NSApp.windows.map { |w| w.windowController }.select {|e| e.is_a? MainWindowController}.map do |wc|
 				wc.component(FilteringPlugin).update_data searches_delta:[ self.stack.to_hash ]
 			end
 		else
