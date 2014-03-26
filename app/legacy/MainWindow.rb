@@ -12,7 +12,9 @@ class MainWindow < NSPanel
 
 	def awakeFromNib
 		super
-		
+	end
+
+	def setup
 		# mask_window does the slide in/out activation.
 		if default(:animation_style) == "slide"
 			setup_mask_window

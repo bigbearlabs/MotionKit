@@ -79,6 +79,7 @@ class BrowserWindowController < NSWindowController
 
 		setup_default_keys :window, :bar_vc, :browser_vc
 
+		self.setup_window
 		# self.setup_tracking_region
 		# self.setup_nav_long_click
 
@@ -137,6 +138,12 @@ class BrowserWindowController < NSWindowController
 
 	  # history views
 	  watch_notification :Item_selected_notification
+	end
+
+	def setup_window
+		self.window.defaults_root_key = self.defaults_root_key + ".window"
+
+		self.window.setup
 	end
 
 
