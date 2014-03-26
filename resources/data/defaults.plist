@@ -145,6 +145,8 @@
 		<false/>
 		<key>enable_selection_grab</key>
 		<false/>
+		<key>setup_main_wc</key>
+		<true/>
 	</dict>
 	<key>ContextStore</key>
 	<dict>

@@ -144,7 +144,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		}
 
 		try {
-			self.setup_main_wc
+			if_enabled :setup_main_wc
 
 			NSApp.activate
 
