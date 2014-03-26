@@ -546,7 +546,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 					redundant_wc.should_close = true
 					redundant_wc.close
 
-					@viewer_window_controllers_by_space.delete_if {|k,v| v == redundant_wc}
+					@viewer_wcs_by_space.delete_if {|k,v| v == redundant_wc}
 				end
 			else
 				viewer_wc = new_viewer_window_controller

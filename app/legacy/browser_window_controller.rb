@@ -1,8 +1,3 @@
-# for BBLWebViewDelegate backwards compatibility after refactor.
-
-class WebViewDelegate < BBLWebViewDelegate
-end
-
 class BrowserWindowController < NSWindowController
 	include ComponentClient
 
