@@ -79,12 +79,12 @@ class BrowserWindowController < NSWindowController
 
 		setup_default_keys :window, :bar_vc, :browser_vc
 
-		self.setup_window
+		self.window.setup
+
 		# self.setup_tracking_region
 		# self.setup_nav_long_click
 
 		@browser_vc.setup context_store: @context_store
-
 
 		pe_log "#{self} synchronous setup complete."
 
@@ -122,7 +122,11 @@ class BrowserWindowController < NSWindowController
 
 	def setup_default_keys *subsystem_names
 	  subsystem_names.map do |subsystem|
-			self.send(subsystem).defaults_root_key = "#{self.defaults_root_key}.#{subsystem}"
+	  	begin
+				self.send(subsystem).defaults_root_key = "#{self.defaults_root_key}.#{subsystem}"
+			rescue => e
+				pe_report e, "subsystem #{subsystem}"
+			end
 		end
 	end
 	
@@ -138,12 +142,6 @@ class BrowserWindowController < NSWindowController
 
 	  # history views
 	  watch_notification :Item_selected_notification
-	end
-
-	def setup_window
-		self.window.defaults_root_key = self.defaults_root_key + ".window"
-
-		self.window.setup
 	end
 
 

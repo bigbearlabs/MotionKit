@@ -430,7 +430,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 		# FIXME disable before hotkey is set.
 
-		# FIXME .active_status smells very badly.
+		# FIXME .active_status smells very bad.
 
 		should_activate = ! @main_window_controller.window.active?
 		pe_debug "should_activate: #{should_activate}"
@@ -439,8 +439,9 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 			self.active_status = :activating
 
 			activation_params = execute_policy :parse_activation_parameters
+			activation_params && params.merge!( activation_params)
 
-			self.activate_main_window activation_params
+			self.activate_main_window params
 
 		else
 			self.active_status = :deactivating
@@ -450,9 +451,10 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	end
 
 	def activate_main_window( params )
-		@main_window_controller.do_activate on_complete: -> {
+		params = params.dup.merge on_complete: -> {
 			self.active_status = :activated
 		}
+		@main_window_controller.do_activate params
 	end
 	
 	def deactivate_main_window
@@ -497,7 +499,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		end
 	end
 	
-	def new_viewer_window_controller( initially_visible = false )
+	def new_viewer_window_controller
 		pe_log "initialising a new viewer."
 
 		current_space_id = @spaces_manager.current_space_id
@@ -507,13 +509,16 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 			viewer_wc = ViewerWindowController.alloc.init
 		end
 
-		# only if same space.
-		if current_space_id == @spaces_manager.current_space_id
-			viewer_wc.window.visible = initially_visible
-		else
-			raise "space changed while creating new viewer_window_controller"
+		viewer_wc.window.visible = false
+		on_main_async do
+			# show only if in same space.
+			if current_space_id == @spaces_manager.current_space_id
+				viewer_wc.window.visible = true
+			else
+				raise "space changed while creating new viewer_window_controller"
+			end
 		end
-		
+
 		trace_time 'viewer_wc setup' do
 			viewer_wc.setup context_store: @context_store
 		end

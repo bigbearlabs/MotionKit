@@ -50,6 +50,7 @@ class ViewerWindowController < BrowserWindowController
 					@browser_vc.snapshot
 				}
 			end
+
 		end
 
 		on_main_async do
@@ -62,6 +63,7 @@ class ViewerWindowController < BrowserWindowController
 				NSApp.delegate.on_load_error e
 			end
 		end
+
 	end
 
 	# TODO browser_view.event
@@ -151,21 +153,25 @@ class MainWindowController < BrowserWindowController
 	end
 	
 
-	def setup
-		setup_default_keys :input_field_vc, :plugin_vc
-
+	def setup(collaborators)
 	  super
 		
+		setup_default_keys :input_field_vc, :plugin_vc
+
+	  # view state
+	  @input_field_vc.frame_view.visible = true
+
 		# secondary collaborators
 		@plugin_vc.setup context_store: 'stub-context-store'
 
+		# reactively show filtering plugin.
 		react_to 'input_field_vc.input_field_focused' do |focused|
 			if focused
 				component(FilteringPlugin).show_plugin
 			end
 		end
 
-
+		# reactively forcus / hide input field.
 		react_to_and_init :activation_type do |val|
 			if val == :hotkey		# initial view state
 				self.handle_focus_input_field(self)
@@ -212,6 +218,7 @@ class MainWindowController < BrowserWindowController
 end
 
 
+#= relocate.
 
 class NSWindowController
 
