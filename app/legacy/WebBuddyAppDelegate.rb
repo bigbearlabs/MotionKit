@@ -78,7 +78,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		super
 
 		# important domain object
-		self.user = User.new
+		@user = User.new
 		@viewer_wcs_by_space = {}
 
 		# the app's domain model / storage scheme.
@@ -369,7 +369,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 #= view-layer preliminary
 
 	attr_accessor :window_active
-	attr_accessor :main_window_shown
+	attr_accessor :main_window_shown  # FIXME obsolete?
 
 #= current window
 
@@ -379,7 +379,8 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	end
 
 	def handle_new_window( sender )
-		new_viewer_window # STUB
+		wc = new_viewer_window_controller
+		wc.do_activate
 	end
 
 #= main window
