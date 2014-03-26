@@ -71,7 +71,7 @@ class HotkeyHandler < BBLComponent
 	end
 	
 	def hotkey_action_activate_main_window( params )
-		client.toggle_main_window({ activation_type: :hotkey })
+		client.toggle_main_window activation_type: :hotkey
 	end
 
 	def hotkey_action_activate_viewer_window( params )
@@ -112,7 +112,7 @@ class HotkeyHandler < BBLComponent
 	#= events
 
 	def on_double_tap params
-		hotkey_action_activate_viewer_window params
+		hotkey_action_activate_main_window params
 	end
 	
 	def on_double_tap_hold params
