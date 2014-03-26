@@ -17,31 +17,26 @@ class ViewerWindowController < BrowserWindowController
 	def setup(collaborators)
 		super
 
-		on_main_async do
-
-			react_to :bar_shown do |shown|
-				if shown
-					self.show_toolbar
-				else
-					self.hide_toolbar
-				end
+		react_to :bar_shown do |shown|
+			if shown
+				self.show_toolbar
+			else
+				self.hide_toolbar
 			end
-			
-			setup_reactive_refresh_bar
-
-			setup_reactive_update_thumbnail
-
 		end
+		
+		setup_reactive_refresh_bar
 
-		on_main_async do
-			begin
-				on_setup_complete
-			rescue Exception => e
-				# case: first-time launch
-				# case: etc etc
+		setup_reactive_update_thumbnail
 
-				NSApp.delegate.on_load_error e
-			end
+
+		begin
+			on_setup_complete
+		rescue => e
+			# case: first-time launch
+			# case: etc etc
+
+			NSApp.delegate.on_load_error e
 		end
 
 	end

@@ -83,45 +83,41 @@ class BrowserWindowController < NSWindowController
 
 		pe_log "#{self} synchronous setup complete."
 
-		# asynchronously set up the rest, for more responsive windows.
-		# on_main_async do
+		## bblcomponent
+		setup_components
 
-			## bblcomponent
-			setup_components
-
-			## secondary ui
-			# self.setup_overlay
+		## secondary ui
+		# self.setup_overlay
 
 
-			## misc attributes
+		## misc attributes
 
-			self.window_title_mode = :title
+		self.window_title_mode = :title
 
-			@browser_vc.web_view.make_first_responder 
-
-
-			watch_notifications
-
-			self.setup_reactive_title_bar
-			self.setup_responder_chain
-
-			self.setup_actions_bar
-
-			# MOTION-MIGRATION
-			# @progress_vc.setup
-			# self.setup_reactive_detail_input
-			# self.setup_popover
+		@browser_vc.web_view.make_first_responder 
 
 
-			## set up domain data operations.
+		watch_notifications
 
-			self.setup_reactive_add_redirections
+		self.setup_reactive_title_bar
+		self.setup_responder_chain
 
-			self.setup_reactive_history_item_sync
+		self.setup_actions_bar
 
-			self.setup_reactive_update_stack
+		# MOTION-MIGRATION
+		# @progress_vc.setup
+		# self.setup_reactive_detail_input
+		# self.setup_popover
 
-		# end
+
+		## set up domain data operations.
+
+		self.setup_reactive_add_redirections
+
+		self.setup_reactive_history_item_sync
+
+		self.setup_reactive_update_stack
+
 	end
 
   def on_setup_complete
@@ -483,7 +479,7 @@ class BrowserWindowController < NSWindowController
 				end
 			end
 
-			@page_details_vc.hide_popover
+			# @page_details_vc.hide_popover
 		}
 	end
 
@@ -542,7 +538,9 @@ class BrowserWindowController < NSWindowController
 
 			# TACTICAL update view data. TODO rework to initiate based on kvo.
 			NSApp.windows.map { |w| w.windowController }.select {|e| e.is_a? MainWindowController}.map do |wc|
-				wc.component(FilteringPlugin).update_data searches_delta:[ self.stack.to_hash ]
+				on_main_async do
+					wc.component(FilteringPlugin).update_data searches_delta:[ self.stack.to_hash ]
+				end
 			end
 		else
 			pe_warn "#{self} has no stack. #{url_or_item} will not go in a stack."
@@ -627,7 +625,7 @@ class BrowserWindowController < NSWindowController
 		case default(:activation_style)
 		when :popover
 			status_bar_window = NSApp.windows.select {|w| w.is_a? NSStatusBarWindow } [0]
-			@window_page_details_vc.show_popover status_bar_window.contentView
+			# @window_page_details_vc.show_popover status_bar_window.contentView
 
 			# REFACTOR move out to a policy implementation.
 		else
