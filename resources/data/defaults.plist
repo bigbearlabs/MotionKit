@@ -159,23 +159,15 @@
 	</dict>
 	<key>MainWindowController</key>
 	<dict>
-		<key>overlay_dismissal_delay</key>
-		<integer>2</integer>
-		<key>activation_style</key>
-		<string>sidekick</string>
+		<key>FilteringPlugin</key>
+		<dict>
+			<key>plugin_view_template</key>
+			<string>http://localhost:59124/plugins/#/filtering, http://localhost:9000/#/#{name}</string>
+		</dict>
 		<key>window</key>
 		<dict>
 			<key>animation_style</key>
 			<string>fade</string>
-		</dict>
-		<key>input_field_vc</key>
-		<dict>
-			<key>filter_delay</key>
-			<real>0.2</real>
-			<key>display_mode</key>
-			<string>Display_enquiry</string>
-			<key>submit_on_activation</key>
-			<true/>
 		</dict>
 		<key>browser_vc</key>
 		<dict>
@@ -193,14 +185,24 @@
 				<string>policy_error_prompt_action</string>
 			</dict>
 		</dict>
+		<key>input_field_vc</key>
+		<dict>
+			<key>filter_delay</key>
+			<real>0.2</real>
+			<key>display_mode</key>
+			<string>Display_enquiry</string>
+			<key>submit_on_activation</key>
+			<true/>
+		</dict>
+		<key>handle_focus_input_field</key>
+		<true/>
+		<key>overlay_dismissal_delay</key>
+		<integer>2</integer>
+		<key>activation_style</key>
+		<string>sidekick</string>
 	</dict>
 	<key>ViewerWindowController</key>
 	<dict>
-		<key>FilteringPlugin</key>
-		<dict>
-			<key>plugin_view_template</key>
-			<string>http://localhost:59124/plugins/#/filtering, http://localhost:9000/#/#{name}</string>
-		</dict>
 		<key>overlay_dismissal_delay</key>
 		<integer>2</integer>
 		<key>activation_style</key>
@@ -238,8 +240,6 @@
 			<key>action_buttons</key>
 			<true/>
 		</dict>
-		<key>handle_focus_input_field</key>
-		<true/>
 		<key>touch_stack</key>
 		<true/>
 		<key>initial_url</key>

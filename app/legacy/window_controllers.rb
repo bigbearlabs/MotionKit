@@ -144,17 +144,20 @@ class MainWindowController < BrowserWindowController
 					context_store: @context_store
 				}
 			},
-
+			{
+				module: RubyEvalPlugin
+			},
 		]
 	end
 	
 
-	def filter( filter_spec )
-		# gallery_vc.update_filter_spec filter_spec
-	end
-	
 	def setup
+		setup_default_keys :input_field_vc, :plugin_vc
+
 	  super
+		
+		# secondary collaborators
+		@plugin_vc.setup context_store: 'stub-context-store'
 
 		react_to 'input_field_vc.input_field_focused' do |focused|
 			if focused
@@ -180,7 +183,32 @@ class MainWindowController < BrowserWindowController
 
 		self.setup_reactive_build_trail
 	end
+
+	def load_url(urls, details = {})
+		super
+
+		component(FilteringPlugin).hide_plugin
+	end
+
+
+	def filter( filter_spec )
+		# gallery_vc.update_filter_spec filter_spec
+	end
 	
+	#= input field
+
+	# OBSOLETE
+	# TODO wire with a system menu handler
+	# include MenuHandling
+	def on_menu_item( item )
+		case item_lookup[item.tag]
+		when :url, :enquiry
+			@input_field_vc.show :url  # TODO tidy up the old methods and get the menus to properly switch between display modes.
+		else
+			# what's the default?
+		end
+	end
+
 end
 
 

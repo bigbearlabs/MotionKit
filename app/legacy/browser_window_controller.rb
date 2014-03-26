@@ -53,9 +53,6 @@ class BrowserWindowController < NSWindowController
 			{
 				module: FindPlugin
 			},
-			{
-				module: RubyEvalPlugin
-			},
 		]
 	end
 	
@@ -80,9 +77,7 @@ class BrowserWindowController < NSWindowController
 				
 		inject_collaborators collaborators
 
-		[ :window, :bar_vc, :browser_vc, :input_field_vc, :plugin_vc ].map do |subsystem|
-			self.send(subsystem).defaults_root_key = "#{self.defaults_root_key}.#{subsystem}"
-		end
+		setup_default_keys :window, :bar_vc, :browser_vc
 
 		# self.setup_tracking_region
 		# self.setup_nav_long_click
@@ -94,8 +89,6 @@ class BrowserWindowController < NSWindowController
 
 		# asynchronously set up the rest, for more responsive windows.
 		# on_main_async do
-			# secondary collaborators
-			# @plugin_vc.setup( {} )			
 
 			## bblcomponent
 			setup_components
@@ -124,8 +117,14 @@ class BrowserWindowController < NSWindowController
 			# self.setup_popover
 
 		# end
-		end
+	end
 
+	def setup_default_keys *subsystem_names
+	  subsystem_names.map do |subsystem|
+			self.send(subsystem).defaults_root_key = "#{self.defaults_root_key}.#{subsystem}"
+		end
+	end
+	
 	def watch_notifications
 	  # FIXME let's decomm these soon, by replacing them with kvo and reactions.
 	  watch_notification :Load_request_notification, @browser_vc.web_view_delegate
@@ -392,17 +391,6 @@ class BrowserWindowController < NSWindowController
 		pe_log "responder chain post-setup: #{self.window.responder_chain}"
 	end
 
-	# TODO wire with a system menu handler
-	# include MenuHandling
-	def on_menu_item( item )
-		case item_lookup[item.tag]
-		when :url, :enquiry
-			@input_field_vc.show :url  # TODO tidy up the old methods and get the menus to properly switch between display modes.
-		else
-			# what's the default?
-		end
-	end
-
 #= browsing
 
 	#= interface
@@ -418,8 +406,6 @@ class BrowserWindowController < NSWindowController
 		self.stack = @context_store.stack_for( sid ) if sid
 
 		@browser_vc.load_url urls, details
-
-		component(FilteringPlugin).hide_plugin
 	end
 
 	#= browsing workflow
@@ -488,7 +474,7 @@ class BrowserWindowController < NSWindowController
 		}
 	end
 	
-#= bar
+#= bar OBSOLETE
 
 	def handle_Bar_item_selected_notification( notification )
 		# perform a site visit or search.
