@@ -90,6 +90,27 @@ if BW::App.ios?
 
   class CALayer
 
+    def self.new_layer( frame )
+      CALayer.layer.tap do |obj|
+        obj.frame = frame
+        # obj.position = frame.center
+      end
+    end
+    
+
+    def new_sublayer( frame = self.bounds )
+      layer = CALayer.new_layer frame
+      self.add_layer layer
+      layer
+    end
+    
+    def add_layer layer
+      self.addSublayer layer
+      layer.position = self.bounds.center
+      layer
+    end
+
+
     # not working?
     def rotate( angles_rad )
       # self.transform = CATransform3DMakeRotation(angles_rad, 0, 0, 1)
@@ -97,21 +118,8 @@ if BW::App.ios?
       self.setNeedsDisplay
     end
 
-    def self.new_layer( frame )
-      CALayer.layer.tap do |obj|
-        obj.frame = frame
-      end
-    end
-    
 
-    def new_layer( frame = self.bounds )
-      layer = CALayer.new_layer frame
-      self.add_layer layer
-      layer
-    end
-    
-
-    def circle( radius, args = nil )
+    def add_circle( radius, args = nil )
       args[:width] ||= 1
       args[:stroke] ||= :red
       args[:fill] ||= :clear
@@ -129,14 +137,26 @@ if BW::App.ios?
       end
     end
     
-    def add_layer layer
-      self.addSublayer layer
-      layer.frame = self.bounds
-      layer
-    end
+    def colour( colour = :yellow )
+      the_colour = 
+        case colour
+        when :yellow
+          UIColor.yellowColor
+        when :red
+          UIColor.redColor
+        when :blue
+          UIColor.blueColor
+        when :purple
+          UIColor.purpleColor
+        else
+          raise "unknown colour #{colour}"
+        end
 
+      self.backgroundColor = the_colour.CGColor
+    end
+    
     def center
-      CGPointMake( CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds) )
+      self.bounds.center
     end  
 
   end
