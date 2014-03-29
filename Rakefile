@@ -51,7 +51,7 @@ Motion::Project::App.setup do |app|
   # app.files_dependencies 'app/_rm_dep_hack.rb' => "#{ENV["HOME"].strip}/lib/ib.rb"
 
 
-    app.development do
+  app.development do
     app.codesign_certificate = 'iPhone Developer: Sang-Heum Park (WKRGFK8SQY)'
     app.provisioning_profile "PE testing provisioning profile"
     
@@ -59,7 +59,6 @@ Motion::Project::App.setup do |app|
     app.entitlements['keychain-access-groups'] = [
       app.seed_id + '.' + app.identifier
     ]
-
   end
 
 end
