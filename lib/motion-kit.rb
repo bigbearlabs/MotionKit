@@ -2,8 +2,6 @@
 #   raise "This file must be required within a RubyMotion project Rakefile."
 # end
 
-require 'bblmotionkit/version'
-
 if defined? Motion
   Motion::Project::App.setup do |app|
 
@@ -27,7 +25,7 @@ if defined? Motion
         [ 'osx' ]
       end
 
-    Dir.glob(File.join(File.dirname(__FILE__), 'bblmotionkit/**/*.rb')).each do |file|
+    Dir.glob(File.join(File.dirname(__FILE__), 'motion-kit/**/*.rb')).each do |file|
       # app.files.unshift(file)
       # add to app.files only if no path segment is named as another platform.
       app.files.unshift(file) if (file.split('/') & other_platforms).empty?
