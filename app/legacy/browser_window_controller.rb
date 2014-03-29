@@ -191,7 +191,7 @@ class BrowserWindowController < NSWindowController
 	  react_to 'browser_vc.web_view_delegate.redirections' do |redirections|
 	  	# just keep adding the current page - it should be enough.
 	  	if default(:touch_stack) && self.stack
-		  	self.stack.add_redirect @browser_vc.url, redirections[0]
+		  	self.stack.add_redirect redirections[0], @browser_vc.url
 		  else
 		  	pe_warn "ignoring redirections #{redirections} for #{@browser_vc.url}"
 		  end

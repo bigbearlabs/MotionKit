@@ -477,9 +477,12 @@ class ItemContainer
   def add_redirect( redirect_info )
     kvo_change :redirect_info do
       @redirect_info ||= []
-      @redirect_info << redirect_info unless @redirect_info.include? redirect_info
+      [ self.url, redirect_info ].map do |i|
+        @redirect_info << i unless @redirect_info.include? i
+      end
       
-      pe_log "added #{redirect_info} to #{self}"
+      
+      pe_log "#{self} redirect info: #{@redirect_info}"
     end
   end
 
