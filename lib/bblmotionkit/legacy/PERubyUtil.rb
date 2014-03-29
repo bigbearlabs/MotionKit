@@ -77,10 +77,10 @@ end
 
 
 def dump_attrs( obj,  *attr_names )
-	attr_names.collect do |attr|
-		val = obj.send(attr)
-		"#{attr}: #{val}"
-	end
+  attr_names.collect do |attr|
+    val = obj.send(attr)
+    "#{attr}: #{val}"
+  end
 end
 
 
@@ -190,17 +190,17 @@ end
 
 
 class Array
-	def summary
-		if self.count > 0
-			return "#{self.count} items [0:#{self[0]}, #{self.count-1}:#{self[-1]}]"
-		else
-			return "empty."
-		end
-	end
+  def summary
+    if self.count > 0
+      return "#{self.count} items [0:#{self[0]}, #{self.count-1}:#{self[-1]}]"
+    else
+      return "empty."
+    end
+  end
   
-	def slice_after_position
-		self.slice! [@position+1, self.length-1].min..-1 if @position
-	end
+  def slice_after_position
+    self.slice! [@position+1, self.length-1].min..-1 if @position
+  end
 
 #= diff / sync
 
@@ -421,10 +421,10 @@ module PathRetrieval
   end
 end
 class Hash
-	include PathRetrieval
+  include PathRetrieval
 end
 class Array
-	include PathRetrieval
+  include PathRetrieval
 end
 
 
@@ -444,9 +444,9 @@ end
 
 
 class Time
-	def seconds_since_now 
-		Time.new - self
-	end
+  def seconds_since_now 
+    Time.new - self
+  end
 end
 
 
@@ -456,8 +456,8 @@ def trace_time( description = 'anonymous block', condition = $DEBUG )
   # MOTION-MIGRATION
   # if condition
   #   time = Benchmark.measure {
-  # 		yield
-  # 	}
+  #     yield
+  #   }
   #   puts "##trace_time #{description} took #{time}"
   # else
     yield
