@@ -16,9 +16,9 @@ class UIBezierPath
   def paint( stroke_color = NSColor.blueColor, fill_color = NSColor.redColor )
 
     stroke_color.setStroke
-    self.stroke
-    
     fill_color.setFill
+    
+    self.stroke
     self.fill
   end
   
