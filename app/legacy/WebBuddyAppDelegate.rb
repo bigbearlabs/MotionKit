@@ -203,14 +203,14 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		## MAIN-WINDOW
 		# self.main_window_shown = true
 		
-		wc.component(FilteringPlugin).show_plugin
+		@main_window_controller.component(FilteringPlugin).show_plugin
 	end
 
 	def handle_hide_gallery( sender )
 		## MAIN-WINDOW
 		# self.main_window_shown = false
 
-		wc.component(FilteringPlugin).hide_plugin
+		@main_window_controller.component(FilteringPlugin).hide_plugin
 	end
 
 	def toggle_front( sender )
