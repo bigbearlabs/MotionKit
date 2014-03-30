@@ -1,12 +1,3 @@
-# require 'CocoaHelper'
-# require 'defaults'
-
-# begin
-# 	# for mac os x 10.8
-# 	macruby_framework 'CoreGraphics'
-# rescue
-# end
-
 require 'singleton'
 
 class ScreensManager
@@ -18,6 +9,8 @@ class ScreensManager
 		@display_set_data_by_id = data
 
 		@handlers ||= []
+
+		self.update_display_sets
 	end
 	
 	def update_display_sets

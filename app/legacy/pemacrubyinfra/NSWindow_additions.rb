@@ -91,6 +91,8 @@ class NSWindow
 #== animation
 
 	def animate_fade( direction = :in, completion_handler = nil )
+    NSAnimationContext.currentContext.duration = 0.1
+
 		case direction
 		when :in
 			from_opacity = 0
@@ -218,7 +220,12 @@ class MaskingWindow < TransparentWindow
 		do_animate -> animator {
 			pe_log "animate #{self} from #{self.frame} to #{to_frame}"
 			
-			animator.setFrame(to_frame, display:true)   
+			# RM-BUG?
+			# self.animator.setFrame(to_frame, display:true)
+
+			# WORKAROUND
+			self.setFrame(to_frame, display:true, animate:true)
+
 		}, completion_handler
 	end
 

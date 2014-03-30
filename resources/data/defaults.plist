@@ -169,7 +169,7 @@
 		<key>window</key>
 		<dict>
 			<key>animation_style</key>
-			<string>fade</string>
+			<string>slide</string>
 		</dict>
 		<key>browser_vc</key>
 		<dict>
