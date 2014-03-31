@@ -1,22 +1,31 @@
 class WebView
-  def init args = {}
-    frame = args[:frame]
+  def self.new(args = {})
+    frame = args[:frame] || NSZeroRect
     frame_name = args[:frame_name]
     group_name = args[:group_name]
-    obj = self.initWithFrame frame, frameName:frame_name, groupName:group_name
+    view = self.alloc.initWithFrame frame, frameName:frame_name, groupName:group_name
 
-    url = args[:url]
-    if url
-      obj.mainFrameURL = url
+    if url = args[:url]
+      view.mainFrameURL = url
     end
 
-    obj
+    view
   end
 
   def url
     self.mainFrameURL.copy
   end
 
+  def user_agent_string
+    str = self.customUserAgent
+    str ||= self.windowScriptObject.kvc_get 'navigator.userAgent'
+  end
+  
+  def user_agent_string=(val)
+    self.customUserAgent = val
+  end
+  
+  
   def delegate
     # TODO ensure all delegates point to same instance
 

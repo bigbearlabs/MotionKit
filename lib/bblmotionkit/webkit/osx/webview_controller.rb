@@ -1,25 +1,54 @@
-class WebViewController < BBLComponent
-  include IvarInjection
+class WebViewController < MotionKitViewController
 
   def log_level
     :warn
   end
   
-  def initialize(client, deps)
-    super(client)
+  # def initialize(args = {})
+  #   # load without the xib.
+  #   super nil
 
-    inject_collaborators deps
-  end
+  #   @web_view = args[:web_view]
+  #   @web_view ||= WebView.new args
 
-  def on_setup
-    init_bridge @web_view
+  #   self.view = @web_view
 
-    # setup downloads
-    @download_delegate = DownloadDelegate.new downloads_path: default(:downloads_path)
-    @web_view.downloadDelegate = @download_delegate
-  end
+  #   # if url = args[:url]
+  #   #   load_url url
+  #   # end
+
+  #   self
+  # end
+
+  # def init(args = {})
+  #   # load without the xib.
+  #   self.initWithNibName(nil, bundle:nil)
+
+  #   @web_view = args[:web_view]
+  #   @web_view ||= WebView.new args
+
+  #   self.view = @web_view
+
+  #   # if url = args[:url]
+  #   #   load_url url
+  #   # end
+
+  #   self
+  # end
+
+  attr_accessor :web_view
   
-#=
+  def self.new(args = {})
+    # load without the xib.
+    obj = super nil
+
+    obj.view = obj.web_view = args[:web_view] || WebView.new(args)
+
+    obj
+  end
+
+
+  #=
 
   def dev_extras=(enable)
     @web_view.preferences.developerExtrasEnabled = enable
@@ -98,20 +127,8 @@ class WebViewController < BBLComponent
     }
   end
 
-#=
 
-  def init_bridge( web_view = NSApp.delegate.wc.browser_vc.web_view )
-    original_delegate = web_view.delegate
-    @bridge = WebViewJavascriptBridge.bridgeForWebView(web_view, 
-      webViewDelegate: original_delegate,
-      handler: -> data,responseCallback {
-        pe_log "Received message from javascript: #{data}"
-        responseCallback.call("Right back atcha") if responseCallback
-    })
-    @bridge.web_view_delegate = original_delegate  # to ensure calls to delegate from other collaborators are handled sensibly.
-  end
-
-#=
+  #=
 
   # UNUSED SCAR this results in occasional PM's.
   def chain(*procs)
@@ -127,6 +144,16 @@ class WebViewController < BBLComponent
     }
   end
   
+end
+
+def new_web_view_window
+  on_main do
+    wc = NSWindowController.new
+    web_vc = WebViewController.new
+    wc.window.view = web_vc.view
+    wc.instance_variable_set :@web_vc, web_vc
+    wc.show
+  end
 end
 
 
@@ -192,5 +219,4 @@ class WebViewJavascriptBridge
   end
   
 end
-
 

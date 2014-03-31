@@ -7,8 +7,6 @@ class MotionViewController < PlatformViewController
     # ensure view is loaded.
     pe_debug self.view
     
-    self.add_view_to_frame
-
     # other stuff to be performed by subclasses
   end
   
@@ -59,9 +57,8 @@ class MotionViewController < PlatformViewController
 #= init
 # FIXME resolve with Promotion #new, replace alloc.inits with new calls.
 
-  def init( nib_name = self.class.name.gsub(/Controller$/,'') )
-    obj = self.initWithNibName(nib_name, bundle:nil)
-    obj
+  def self.new( nib_name = self.name.gsub(/Controller$/,'') )
+    self.alloc.initWithNibName(nib_name, bundle:nil)
   end
 
   def initWithNibName(nib, bundle:bundle)
@@ -87,7 +84,7 @@ class MotionViewController < PlatformViewController
 
     # RECONCILE PEViewController modelled setup external to awakeFromNib. resolve.
     if @frame_view
-      @frame_view.addSubview self.view
+      self.add_view_to_frame
     else
       pe_warn "no frame view set up for for #{self}"
     end
