@@ -43,6 +43,7 @@ class BrowserWindowController < NSWindowController
 	attr_accessor :input_field_vc
 	attr_accessor :plugin_vc
 
+
 	def components
 		[
 			{

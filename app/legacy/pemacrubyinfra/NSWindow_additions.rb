@@ -21,6 +21,26 @@ class NSWindow
 	def visible=(new_val)
 		self.isVisible = new_val
 	end
+	
+	def window_id
+		self.windowNumber
+	end
+
+	def controller
+	  self.windowController
+	end
+	
+#= delegate events
+
+	def did_become_key(&handler)
+		# UH? this looks off -- delegate method being defined on delegator.
+		self.def_method_once :'windowDidBecomeKey:' do
+			yield
+		end
+	end
+
+
+#= content view
 
 	def view
 		self.contentView
@@ -33,21 +53,6 @@ class NSWindow
 	# the view that contains the contentView as well as the title bar, menu bar etc.
 	def frame_view
 		self.contentView.superview
-	end
-	
-	def frame=(frame)
-		self.setFrame(frame, display:true)
-	end
-	
-	def window_id
-		self.windowNumber
-	end
-
-	def did_become_key
-		# UH? this looks off -- delegate method being defined on delegator.
-		self.def_method_once :'windowDidBecomeKey:' do
-			yield
-		end
 	end
 
 	def close_button
@@ -158,6 +163,10 @@ class NSWindow
 	
 #== frame manipulation
 	
+	def frame=(frame)
+		self.setFrame(frame, display:true)
+	end
+
 	def center_x=(center_x)
 		old_center_x = frame.x + (frame.width/2)
 		delta = center_x - old_center_x

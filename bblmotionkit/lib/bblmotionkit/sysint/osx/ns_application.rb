@@ -32,6 +32,11 @@ class NSApplication
   
   #=
 
+  #= move
+  def key_window
+    self.keyWindow
+  end
+
   def status_bar_window
     selection = self.windows.select do |w|
       w.is_a? NSStatusBarWindow

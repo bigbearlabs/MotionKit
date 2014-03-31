@@ -1,9 +1,22 @@
+motion_require '../legacy/WebBuddyAppDelegate'
+
 # NOTE touching the rough edges of plugin abstraction - independent from plugin_vc, loading scheme different etc.
 
-# NOTE text finder responder behaviour can break when multiple BrowserViewControllers are used in the same window.
-# the vc that's set up later will 'win' the text finder.
+
+# integration.
+class WebBuddyAppDelegate < MotionKitAppDelegate
+
+  # when input field is first responder, unwanted menu validation early in the responder chain disables the find menu item. work around by adding the find method on appd.
+  def performTextFinderAction(sender)
+    pe_debug "#{sender} invoked text finder action"
+    
+    NSApp.key_window.controller.component(FindPlugin).handle_TextFinderAction sender  # rename
+  end
+end  
+
 
 class FindPlugin < WebBuddyPlugin
+  include FilesystemAccess
 
   #= plugin methods
   def view_url
@@ -11,10 +24,17 @@ class FindPlugin < WebBuddyPlugin
   end
   
   def load_view
+    condition_js = 'return (window.jQuery == null)'
 
-    client.browser_vc.load_js_lib :jquery
+    if client.browser_vc.eval_js condition_js
+      jquery_content = load "docroot/plugins/js/jquery-1.7.1.min.js", :app_support
+      client.browser_vc.eval_js jquery_content
+    else
+      pe_log "'#{condition_js}' returned false, not loading jquery"
+    end
 
-    client.browser_vc.eval_js_file 'plugins/injectees/find.js'
+    find_script = load 'docroot/plugins/injectees/find.js', :app_support
+    client.browser_vc.eval_js find_script
   end
   
   def view_loaded?
@@ -24,14 +44,14 @@ class FindPlugin < WebBuddyPlugin
   def on_setup
     setup_ns_text_finder
     watch_notification :Find_request_notification
-    watch_notification :Text_finder_notification, self
   end
 
+  # UNUSED
   def toggle_find
     if find_shown
       pe_log 'TODO hide find field'
     else
-      send_notification :Text_finder_notification, sender
+      handle_TextFinderAction sender
     end
   end
   
@@ -112,8 +132,7 @@ class FindPlugin < WebBuddyPlugin
     # end
   end
   
-  def handle_Text_finder_notification(notification)
-    sender = notification.userInfo
+  def handle_TextFinderAction(sender)
     if sender.respond_to? :tag
       tag = sender.tag 
     else
