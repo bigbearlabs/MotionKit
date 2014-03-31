@@ -1,4 +1,6 @@
-# MotionKit -- Opinionated Rapid Application Framework for Mac and iOS using RubyMotion
+# MotionKit
+
+## Opinionated Rapid Application Framework for Mac and iOS using RubyMotion
 
 
 It's tough getting an application together. We want to get you running _fast_ when you're targeting iOS and Mac platforms at the same time.
