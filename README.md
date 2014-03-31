@@ -16,6 +16,13 @@ TODO
 
 ## Current status
 
-Things are still being extracted from MotionKit apps such as [WebBuddy] and [OneHour] into this project.
+Things are still being extracted from MotionKit apps such as [WebBuddy][] and [OneHour][] into this project.
+
+If you find any issues, it's likely to be fixed but pending factoring out. Let us know by raising an issue.
+
+
+
+[WebBuddy]: http://bigbearlabs.com/webbuddy
+[OneHour]: http://bigbearlabs.com/onehour
 
 
