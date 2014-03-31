@@ -86,13 +86,13 @@ end
 
 
 def concurrently( lambda, completion_lambda = nil )
-	Dispatch::Queue.concurrent.async do
-		begin
-			lambda.call
-		ensure
-			completion_lambda.call if completion_lambda
-		end
-	end
+  Dispatch::Queue.concurrent.async do
+    begin
+      lambda.call
+    ensure
+      completion_lambda.call if completion_lambda
+    end
+  end
 end
 
 def periodically(interval = 5, delay = 0, leeway = 0.5, &block)
@@ -108,13 +108,13 @@ end
 # wraps selector invocation queuing / cancelling.
 # TODO make requests queued up per a specified key, defaulting to something unique to the proc. currently too coarse-grain.
 class NSObject
-	def run_proc( proc )
-		proc.call
-	end
+  def run_proc( proc )
+    proc.call
+  end
 
   def delayed( delay, proc )
     pe_debug "queuing #{proc}"
-		self.performSelector('run_proc:', withObject:proc, afterDelay:delay)
+    self.performSelector('run_proc:', withObject:proc, afterDelay:delay)
   end
 
   def cancel_procs
@@ -122,10 +122,10 @@ class NSObject
     self.class.cancelPreviousPerformRequestsWithTarget(self)
   end
   
-	def delayed_cancelling_previous( delay, proc )
+  def delayed_cancelling_previous( delay, proc )
     self.cancel_procs
     self.delayed delay, proc
-	end
+  end
 end
 
 
@@ -133,22 +133,22 @@ end
 class DelayedExecution
   @@queue = Dispatch::Queue.new(self.class.name)
 
-	attr_reader :delay
-	
-	def initialize(delay, proc)
+  attr_reader :delay
+  
+  def initialize(delay, proc)
     
-		pe_log "execute #{proc} after #{delay}"
+    pe_log "execute #{proc} after #{delay}"
     
     # @timer = NSTimer.scheduledTimerWithTimeInterval(delay, target:self, selector:'run_proc:', userInfo:nil, repeats:false)
     @@queue.after(delay) {
       # invoke after @delay
       proc.call
     }
-	end
-	
-	def cancel # IMPL
-	end
-	
+  end
+  
+  def cancel # IMPL
+  end
+  
 end
 
 
