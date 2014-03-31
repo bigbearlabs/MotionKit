@@ -10,7 +10,7 @@ GIT
 PATH
   remote: .
   specs:
-    bblmotionkit (0.0.5)
+    motion-kit (0.0.5)
       bubble-wrap
       ib
       motion-bundler
@@ -124,13 +124,13 @@ PLATFORMS
 
 DEPENDENCIES
   ProMotion!
-  bblmotionkit!
   bubble-wrap (~> 1.4.0)
   cocoapods-core
   ib (~> 0.4.0)
   motion-bundler
   motion-cocoapods
   motion-hockeyrink
+  motion-kit!
   motion-live
   motion-logger
   motion-require

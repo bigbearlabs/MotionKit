@@ -1,3 +1,3 @@
-module BblMotionKit
+module MotionKit
   VERSION = "0.0.5"
 end
