@@ -144,8 +144,6 @@ class MainWindow < NSPanel
   		raise "direction #{direction} inimplemented."
   	end
 
-    NSAnimationContext.currentContext.duration = 0.1
-
     if direction == :out
       set_to_state.call
     end

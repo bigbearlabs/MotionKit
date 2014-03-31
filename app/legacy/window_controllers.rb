@@ -137,9 +137,11 @@ class MainWindowController < BrowserWindowController
 	
 
 	def setup(collaborators)
+		# show in all spaces but hide on new space by default.
+		self.window.collectionBehavior = NSWindowCollectionBehaviorMoveToActiveSpace
+
 		# ensure outlets all set.
 		self.window.show
-
 
 		setup_default_keys :input_field_vc, :plugin_vc
 

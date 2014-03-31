@@ -201,13 +201,15 @@ class MaskingWindow < TransparentWindow
 			pe_warn "nil view given to animate to #{to_frame}. #{caller}"
 		end
 		
+    # NSAnimationContext.currentContext.duration = 0.05
+
+		self.view.clear_subviews
 		self.view.addSubview view if view
 
 		# animate window frame change
 		
 		self.isVisible = true
 		self.orderFrontRegardless
-		from_frame = self.frame
 		
 		completion_handler = -> {
 			NSDisableScreenUpdates()
@@ -227,6 +229,12 @@ class MaskingWindow < TransparentWindow
 			self.setFrame(to_frame, display:true, animate:true)
 
 		}, completion_handler
+	end
+
+	#= osx
+
+	def animationResizeTime(newFrame)
+	  0.08
 	end
 
 end
