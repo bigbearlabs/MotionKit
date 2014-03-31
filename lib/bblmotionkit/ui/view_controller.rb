@@ -19,7 +19,7 @@ class MotionViewController < PlatformViewController
   def add_view_to_frame
     if @frame_view
       @frame_view.addSubview( self.view )
-      self.view.fit_to_superview
+      self.view.fit_superview
     else
       pe_log "#{self} has nil frame_view, skipping view setup."
       debug

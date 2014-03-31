@@ -17,10 +17,11 @@ class AppDelegate
 # class AppDelegate < ProMotion::Delegate
 #   def on_load(application, launchOptions)
     
-    browser_vc = BrowserViewController.alloc.init
+    browser_vc = BrowserViewController.new
     setup_window browser_vc
     
-    browser_vc.toggle_input self
+    browser_vc.toggle_input self  # TODO wire up with ui event.
+
     # browser_vc.load_file 'testfile.html'
     browser_vc.load_url 'http://flappybird.io'
 
