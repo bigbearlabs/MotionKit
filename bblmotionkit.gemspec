@@ -1,16 +1,16 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'motion-kit/version'
+require 'bblmotionkit/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "motion-kit"
-  gem.version       = MotionKit::VERSION
+  gem.name          = "bblmotionkit"
+  gem.version       = BblMotionKit::VERSION
   gem.authors       = ["Andy Park"]
   gem.email         = ["andy@bigbearlabs.com"]
-  gem.description   = %q{Rapid application development toolkit}
-  gem.summary       = %q{motion-kit is a set of idiomatic API for app development abstracted above specitic target platforms such as iOS, Mac, Android or web. App suites must have presence in all of them, so we provide an abstraction for expressing unique functionality of your app. Adapters plug in to realise compatibility.[]}
-  gem.homepage      = "http://github.com/bigbearlabs/MotionKit"
+  gem.description   = %q{kit for BBL RubyMotion apps}
+  gem.summary       = %q{kit for BBL RubyMotion apps}
+  gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

@@ -2,7 +2,7 @@
 require 'ib/outlets'
 
 
-# TODO move into a file addition next to motionkit.rb
+# TODO move into a file addition next to bblmotionkit.rb
 if BW::App.ios?
   PlatformViewController =  ProMotion::Screen
   PlatformView = UIView

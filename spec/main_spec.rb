@@ -1,4 +1,4 @@
-describe "Application 'MotionKit'" do
+describe "Application 'BBLMotionKit'" do
   before do
     @app = UIApplication.sharedApplication
   end
