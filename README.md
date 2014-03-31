@@ -3,16 +3,19 @@
 
 It's tough getting an application together. We want to get you running _fast_ when you're targeting iOS and Mac platforms at the same time.
 
-You'll need to learn Objective-C and the foundational aspects of Apple's APIs for Mac and iOS devices. And you're a Ruby shop. 
+You'll need to learn Objective-C and the foundational aspects of Apple's APIs for Mac and iOS devices. If you're a Ruby shop, this mean your road to excellence is going to be quite long-winded. 
 
-The opportunity to really go fast on these 2 platforms is the reason RubyMotion is so successful. We aim to share and accelerate the layers above that, and your company's mission.
+The opportunity for teams familiar with Ruby to really go fast on these 2 platforms is the reason RubyMotion is so successful. We aim to share and accelerate the layers we built above RubyMotion, so you can reuse our experience.
 
 So it's an honour to present to you MotionKit. We model our role after Rails for the server-side Ruby world. 
 
-Feature matrix
+
+## Feature matrix
+TODO
 
 
+## Current status
 
-[footnote] In a day, we'll get you running the first screens of your app. We'll bring the idea to life very quickly.
+Things are still being extracted from MotionKit apps such as [WebBuddy] and [OneHour] into this project.
 
-Things are still being published and ironed out. This is as much of a movement as it is a business venture, so thank you all for [supporting us]. Let's [make information self-organise.]
+
