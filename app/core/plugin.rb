@@ -3,7 +3,7 @@ class WebBuddyPlugin < BBLComponent
   extend Delegating
   include Reactive
 
-  def_delegator :'client.plugin_vc', :eval_js, :eval_expr, :eval_js_file
+  def_delegator :'client.plugin_vc', :eval_js, :eval_expr
 
 
   # TODO doesn't work with static plugins.
