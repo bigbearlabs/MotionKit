@@ -299,12 +299,6 @@ class NSView
 
 #= positioning / sizing in relation to superview / siblings
 
-  def fit_to_superview  # FIXME rename
-    if self.superview
-      self.frame = self.superview.bounds
-    end
-  end
-  
   def snap_to_top( opts = { ref_view: self.superview } )
     new_y = opts[:ref_view].height - self.height
     self.frame = CGRectMake(self.frame.origin.x, new_y, self.width, self.height)
