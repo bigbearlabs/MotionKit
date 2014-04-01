@@ -39,6 +39,9 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 				module: BrowserDispatch,
 			},
 			{
+				module: AppSupportStager
+			},
+			{
 				module: HotkeyHandler,
 			},
 			{

@@ -351,7 +351,7 @@ class BarViewController
 	end
 	
 	def bookmarklets_path
-		"docroot/plugins/bookmarklets"
+		"bookmarklets"
 	end
 
 	def show_popover anchor_view, view_controller
