@@ -35,9 +35,11 @@ class NSObject
     end
 
     key_path = key_path_or_hash.to_s
-    if val.nil?
-      raise "nil value given for #{key_path}"
-    end
+
+    ## disable raise on nil.
+    # if val.nil?
+    #   raise "nil value given for #{key_path}"
+    # end
     
     # # check for an intermediate nil.
     # key_path_segments = key_path.split('.')
