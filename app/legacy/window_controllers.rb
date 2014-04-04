@@ -117,9 +117,6 @@ class MainWindowController < BrowserWindowController
 	def components
 		super + [
 			{
-				module: InputInterpreter
-			},
-			{
 				module: InputFieldComponent,
 				deps: {
 					input_field_vc: @input_field_vc
