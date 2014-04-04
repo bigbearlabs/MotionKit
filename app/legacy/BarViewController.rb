@@ -98,7 +98,7 @@ class BarViewController < PEViewController
 				]
 			}
 		]
-		menu = new_menu menu_data
+		menu = PlatformMenu.new menu_data
 
 		button = new_button 'stub-folder' do 
 			# drop down a menu.

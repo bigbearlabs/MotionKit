@@ -429,6 +429,13 @@ class WebViewDelegate
     self.push_event 'loadFailed'
   end
 
+#= context menu
+  attr_accessor :on_show_menu
+
+  def webView(webView, contextMenuItemsForElement:elem, defaultMenuItems:defaultItems)
+    on_show_menu && on_show_menu.call(elem, defaultItems)
+  end
+
 end
 
 

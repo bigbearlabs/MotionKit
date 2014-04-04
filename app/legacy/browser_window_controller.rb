@@ -48,6 +48,9 @@ class BrowserWindowController < NSWindowController
 			{
 				module: FindPlugin
 			},
+			{
+				module: InputInterpreter
+			},
 		]
 	end
 	
@@ -61,10 +64,6 @@ class BrowserWindowController < NSWindowController
 		self.shouldCascadeWindows = false
 
 		self
-	end
-	
-	def awakeFromNib
-		super
 	end
 	
 	def setup(collaborators)
@@ -96,6 +95,7 @@ class BrowserWindowController < NSWindowController
 
 		@browser_vc.web_view.make_first_responder 
 
+		self.setup_contextual_menu
 
 		watch_notifications
 
@@ -140,14 +140,36 @@ class BrowserWindowController < NSWindowController
   end
 
 	def setup_default_keys *subsystem_names
-	  subsystem_names.map do |subsystem|
-	  	begin
+		subsystem_names.map do |subsystem|
+			begin
 				self.send(subsystem).defaults_root_key = "#{self.defaults_root_key}.#{subsystem}"
 			rescue => e
 				pe_report e, "subsystem #{subsystem}"
 			end
 		end
 	end
+	
+	def setup_contextual_menu
+	  @browser_vc.web_view_delegate.on_show_menu = proc { |element, default_items|
+	    # if tag == WebMenuItemTagSearchWeb, replace target / action with webbuddy search action.
+	    web_search_item = default_items.find {|e| e.tag == WebMenuItemTagSearchWeb }
+	    if web_search_item
+	    	web_search_item.target = self
+	    	web_search_item.action = 'handle_search:'
+
+	    	# TODO title?
+	    end
+
+	    default_items
+	  }
+	end
+
+	def handle_search(sender)
+		pe_trace
+	  selection = @browser_vc.eval_js 'return document.getSelection().toString()'
+	  self.component(InputInterpreter).process_input selection
+	end
+	
 	
 	def watch_notifications
 	  # FIXME let's decomm these soon, by replacing them with kvo and reactions.

@@ -86,7 +86,7 @@ class BrowserDispatch < BBLComponent
     end
     pe_debug "created menu data #{menu_data}"
 
-    new_menu menu_data
+    PlatformMenu.new menu_data
   end
 
   
