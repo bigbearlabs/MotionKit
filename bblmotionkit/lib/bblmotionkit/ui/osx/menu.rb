@@ -29,7 +29,7 @@ class PlatformMenu
   end
 
   # creates a menu item that invokes selection_handler with itself as the proc param when selected.
-  def new_menu_item( title = 'stub-title', &selection_handler)
+  def new_menu_item( title = 'stub-title', selection_handler)
     action = 'handle_menu_item_select:'
     item = NSMenuItem.alloc.initWithTitle(title, action:action, keyEquivalent:'')
 
