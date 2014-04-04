@@ -374,7 +374,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 #= current window
 
 	def wc
-		# @main_window_controller
 		self.current_viewer_wc
 	end
 
@@ -385,6 +384,10 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 #= main window
 
+	def main_wc
+		@main_window_controller
+	end
+	
 	def setup_main_wc
 		self.new_main_wc
 
@@ -464,6 +467,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		}
 	end
 	
+	# FIXME untested.
 	def hide_main_window(params)
 		self.main_window_shown = false
 	end

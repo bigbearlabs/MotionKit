@@ -21,7 +21,7 @@ class BrowserWindowController < NSWindowController
 
 	# bindable data
 	attr_accessor :title
-	attr_accessor :url
+	attr_accessor :url  # FIXME redundant.
 	attr_accessor :window_title_mode
 
 	# view-layer references
