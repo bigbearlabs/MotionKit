@@ -115,45 +115,6 @@ class NSResponder
 
 end
 
-class NSWindowController
-
-	#= idioms
-
-	def init
-		self.initWithWindowNibName(self.class.name.gsub('Controller', ''))
-		self
-
-		# TODO refactor usages
-	end
-
-	def show
-		showWindow(self)
-	end
-
-	#=
-
-	def view
-		self.window.contentView
-	end
-
-
-	def title_frame_view
-		rect = window.frame_view._titleControlRect
-
-		unless @title_frame_view
-			@title_frame_view = new_view rect.x, rect.y, rect.width, rect.height
-			window.frame_view.addSubview @title_frame_view
-		else
-			@title_frame_view.frame = rect
-		end
-		
-		@title_frame_view
-	end
-
-end
-
-
-
 
 #= animation
 

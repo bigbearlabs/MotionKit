@@ -1,3 +1,15 @@
+def new_web_view_window
+  on_main do
+    wc = NSWindowController.new init_window:true
+    web_vc = WebViewController.new
+    wc.window.view = web_vc.view
+    wc.instance_variable_set :@web_vc, web_vc
+    wc.show
+  end
+end
+
+
+
 class WebViewController < MotionKitViewController
 
   def log_level
@@ -144,16 +156,6 @@ class WebViewController < MotionKitViewController
     }
   end
   
-end
-
-def new_web_view_window
-  on_main do
-    wc = NSWindowController.new
-    web_vc = WebViewController.new
-    wc.window.view = web_vc.view
-    wc.instance_variable_set :@web_vc, web_vc
-    wc.show
-  end
 end
 
 

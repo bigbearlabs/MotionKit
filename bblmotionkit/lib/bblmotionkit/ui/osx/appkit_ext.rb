@@ -21,6 +21,19 @@ class NSWindowController
 
 #= lifecycle
 
+  def self.new(opts)
+      if opts[:init_window]
+        # set up the window myself.
+        window = NSWindow.alloc.initWithContentRect([[240, 180], [480, 360]],
+          styleMask: NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask,
+          backing: NSBackingStoreBuffered,
+          defer: false)
+        self.alloc.initWithWindow(window)
+      else
+        self.alloc.init
+      end
+  end
+
   def init
     self.initWithWindowNibName(self.class.name.gsub('Controller', ''))
 
