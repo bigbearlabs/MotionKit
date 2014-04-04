@@ -376,6 +376,11 @@ class BrowserWindowController < NSWindowController
 		end
 	end
 
+	# DISABLED
+	def hide_page_details
+		# @page_details_vc.hide_popover
+	end
+	
 #=
 
 	# a tracking region for the toolbar area.
@@ -501,7 +506,7 @@ class BrowserWindowController < NSWindowController
 				end
 			end
 
-			# @page_details_vc.hide_popover
+			self.hide_page_details
 		}
 	end
 
@@ -670,7 +675,8 @@ class BrowserWindowController < NSWindowController
 		when :popover
 			@window_page_details_vc.hide_popover
 		else
-			@page_details_vc.hide_popover
+			self.hide_page_details
+
 			self.window.do_deactivate completion_proc
 		end
 
