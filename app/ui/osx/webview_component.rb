@@ -51,7 +51,10 @@ class WebViewComponent < BBLComponent
     @bridge = WebViewJavascriptBridge.bridgeForWebView(web_view, 
       webViewDelegate: original_delegate,
       handler: -> data,responseCallback {
-        pe_log "Received message from javascript: #{data}"
+        if $DEBUG
+          pe_debug "Received message from javascript: #{data}"
+        end
+        
         responseCallback.call("Right back atcha") if responseCallback
     })
     @bridge.web_view_delegate = original_delegate  # to ensure calls to delegate from other collaborators are handled sensibly.

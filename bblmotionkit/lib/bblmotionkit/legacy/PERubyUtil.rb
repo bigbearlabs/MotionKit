@@ -460,8 +460,12 @@ def trace_time( description = 'anonymous block', condition = $DEBUG )
   # 	}
   #   puts "##trace_time #{description} took #{time}"
   # else
-    yield
+  # yield
   # end
+
+  Benchmark.bm do |x|
+    x.report { yield }
+  end  
 end
 
 
