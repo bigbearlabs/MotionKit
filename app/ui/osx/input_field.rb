@@ -49,37 +49,12 @@ class InputFieldComponent < BBLComponent
     # client.extend ClientMethods
   end
 
-#= obsolete notification handlers
-
-  def handle_Input_field_focused_notification( notification )
-    # self.show_popover(@nav_buttons_view)
-  
-    # disable the overlay for now.    
-=begin
-    case @input_field_vc.mode 
-    when :Filter
-      self.show_filter_overlay
-    else
-      self.show_navigation_overlay
-    end
-=end
-  end
-
-  def handle_Input_field_unfocused_notification( notification )
-    # self.hide_overlay
-  end
-  
-  def handle_Input_field_cancelled_notification( notification )
-    # self.handle_transition_to_browser
-    # self.hide_overlay
-  end
-
 end
 
 
+# WORKAROUND add traits to client.
 class BrowserWindowController < NSWindowController
 
-  # WORKAROUND add traits to client.
   def focus_input_field
     pe_trace "may be redundant"
     self.handle_focus_input_field self
@@ -93,9 +68,6 @@ class BrowserWindowController < NSWindowController
     pe_trace
 
     self.input_field_shown = true
-    # @input_field_vc.input_field_focused = true
-
-    # component(FilteringPlugin).show_plugin    
   end
 
   

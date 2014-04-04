@@ -55,6 +55,8 @@ class BrowserWindowController < NSWindowController
 	end
 	
 #= state machine
+	# NOTE the events defined here can call the directives after_*.
+	# problem is that when the window server causes state change, (cf. controller requesting state change through the state machine), we need to avoid calling the directives, unless it's ok to call directives twice in such cases.
 
 	# FIXME state machine - window state sync for new window case.
 	
@@ -131,11 +133,16 @@ class BrowserWindowController < NSWindowController
 	def init_window_state_machine
 	  @state = WindowState.new self
 
-	  react_to 'window.visible', 'window.active' do
+	  react_to 'window.visible', 'window.active', 'input_field_vc.input_field_focused' do
+	  	pe_trace "visible: #{window.visible}, active: #{window.active}" 
 
 	  	if window.active?
-	  		# if input selected, update to :accepting_input TODO
-	  		@state.aasm.current_state = :active
+	  		# if input selected, update to :accepting_input
+	  		if @input_field_vc && @input_field_vc.input_field_focused
+	  			@state.aasm.current_state = :accepting_input
+	  		else
+		  		@state.aasm.current_state = :active
+		  	end
 	  	elsif window.visible
 	  		@state.aasm.current_state = :inactive
 	  	else
@@ -301,7 +308,7 @@ class BrowserWindowController < NSWindowController
 	  react_to 'browser_vc.web_view_delegate.state' do |state|
 	  	url = @browser_vc.web_view_delegate.url
 
-	  	pe_trace "#{state} #{url}"
+	  	pe_trace "#{state} #{url}" if $DEBUG
 
 			touch_params = {}
 			

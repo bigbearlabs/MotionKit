@@ -72,10 +72,10 @@ class InputFieldViewController < PEViewController
 
 			# a lot of the following looks redundant.
 
-			self.setup_click_tracking
 			self.setup_token_field
 			
 			self.setup_reactive_refresh
+			self.setup_reactive_focused_status
 
 			self.setup_kvo_display_mode
 			self.setup_kvo_display_strings
@@ -86,16 +86,28 @@ class InputFieldViewController < PEViewController
 		 	watch_notification :Url_load_finished_notification
 
 			self.refresh_input_field
+
 		end
 		
 	end
-	
+
+	#= model -> ui
+
 	def setup_reactive_refresh
     react_to :current_url, :current_enquiry do
       refresh_input_field
     end
 	end
 	
+	#= ui -> model
+
+	def setup_reactive_focused_status
+		react_to 'view.window.firstResponder' do |responder|
+			pe_log "responder changed: #{responder}"
+			self.input_field_focused = (responder == @input_field.field_editor)
+		end	  
+	end
+
 #=
 
 	def update_with_text( text )
@@ -170,26 +182,6 @@ class InputFieldViewController < PEViewController
 	end
 
 #= ui -> controller
-
-	#= mouse
-
-	def setup_click_tracking
-		# w = self.view.window
-		# w.add_handler @input_field_hit_box, proc { |view|
-		#   self.handle_focus_input_field(self)
-		# }
-	
-		# watch the clicks and fire a notification.
-		# why did we have to do this rather than watch first responder notifications? field editor concerns?
-		@input_field.track_mouse_down do |event, view|
-			pe_debug "clicked: #{event}"
-			if view
-				self.input_field_focused = true
-			end
-		end
-
-	end
-	
 
 	#= text input
 
