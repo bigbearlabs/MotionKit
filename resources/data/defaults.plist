@@ -138,7 +138,7 @@
 		<key>load_welcome</key>
 		<true/>
 		<key>welcome_url</key>
-		<string>http://start.webbuddyapp.com</string>
+		<string>http://bigbearlabs.com/researches/intro</string>
 		<key>load_ext_url_policy</key>
 		<string>in_space_window</string>
 		<key>deactivate_on_resign</key>
