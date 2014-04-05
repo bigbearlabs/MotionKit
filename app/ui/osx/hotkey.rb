@@ -3,6 +3,8 @@ class HotkeyHandler < BBLComponent
 	attr_accessor :hotkey_manager
 
 	def on_setup
+		Accessibility.ask_if_needed
+		
 		@hotkey_manager ||= HotkeyManager.new
 
 		if default :enable_hotkey_dtap
