@@ -94,6 +94,7 @@ end
 
 
 # isolate concerns for filtering, input field.
+# FIXME rename!!
 class MainWindowController < BrowserWindowController
 	# bindable
 	attr_accessor :input_field_shown
@@ -145,11 +146,12 @@ class MainWindowController < BrowserWindowController
 		# secondary collaborators
 		@plugin_vc.setup context_store: 'stub-context-store'
 
-
 	  super
+
+
+	  # initial state
 		
-	  # view state
-	  @input_field_vc.frame_view.visible = true
+	  self.input_field_shown = true
 
 		# reactively show filtering plugin.
 		react_to 'input_field_vc.input_field_focused' do |focused|
@@ -158,15 +160,17 @@ class MainWindowController < BrowserWindowController
 			end
 		end
 
-		# reactively forcus / hide input field.
-		react_to_and_init :activation_type do |val|
-			if val == :hotkey		# initial view state
-				self.handle_focus_input_field(self)
-			else
-				self.handle_hide_input_field(self)
-			end
-		end
+		component(FilteringPlugin).show_plugin
 
+
+		# # reactively forcus / hide input field.
+		# react_to_and_init :activation_type do |val|
+		# 	if val == :hotkey		# initial view state
+		# 		self.handle_focus_input_field(self)
+		# 	else
+		# 		self.handle_hide_input_field(self)
+		# 	end
+		# end
 	end
 
 	def load_url(urls, details = {})
