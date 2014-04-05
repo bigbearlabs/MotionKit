@@ -115,7 +115,7 @@ class BrowserWindowController < NSWindowController
 		def after_hide(*args)
 			puts "IMPL hide"	
 
-			@callback_obj._hide *args
+			@callback_obj._deactivate *args
 		end
 		
 		def after_focus_input(*args)
@@ -771,6 +771,12 @@ class BrowserWindowController < NSWindowController
 		self
 	end
 
+	def do_deactivate( completion_proc = -> {} )
+		@state.hide :hidden, completion_proc
+
+		self
+	end
+
 	def _activate( params = {})
 		# debug
 		case default(:activation_style)
@@ -794,7 +800,7 @@ class BrowserWindowController < NSWindowController
 		self
 	end
 
-	def do_deactivate( completion_proc = -> {} )
+	def _deactivate( completion_proc = -> {} )
 		case default(:activation_style)
 		when :popover
 			@window_page_details_vc.hide_popover
@@ -808,12 +814,6 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def do_hide
-		@state.hide
-
-		self
-	end
-
-	def _hide
 		# first hide the window to prevent flickering
 		self.window.orderOut(self)
 
