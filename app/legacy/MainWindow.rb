@@ -64,28 +64,29 @@ class MainWindow < NSPanel
     # workaround attempt #1 at killing the 'invisible-but-visible window after spaces'.
     self.nudge_frame
     
-    if self.shown? && ! self.active?
-      # window is visible and out of focus - just bring to front.
-      pe_debug "just bringing main window forward."
+    if self.shown?
+      if self.active?
+        # nothing to do here, already active.
+      else
+        # window is visible and out of focus - just bring to front.
+        pe_debug "just bringing main window forward."
 
-      completion_proc.call if completion_proc
+        completion_proc.call if completion_proc
 
-      self.really_fucking_focus
-      
+        self.really_fucking_focus
+      end
     else
+      # animate the activation.
+      
       completion_handler = -> { 
-        # post-animation state
-
         on_main_async do
           window_info = NSApp.windows.collect { |w| dump_attrs w, :title, :windowNumber, :isVisible }
           pe_debug "windows post-activate: #{window_info}"
 
           completion_proc.call if completion_proc
           
-          self.really_fucking_focus
         end
       }
-
 
       case default(:animation_style)
       when 'slide'
@@ -105,6 +106,10 @@ class MainWindow < NSPanel
       else
         raise "unsupported animation style '#{default(:animation_style)}'"
       end
+
+      # post-animation state
+      self.really_fucking_focus
+
     end
   end
   

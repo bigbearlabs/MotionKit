@@ -74,19 +74,19 @@ class BrowserWindowController < NSWindowController
 			event :focus_input do
 				transitions from:[ :inactive, :hidden, :active ], 
 					to: :accepting_input,
-					on_transition: -> obj, *args { obj.after_focus_input(*args) } 
+					on_transition: -> obj, *args { obj.on_transition_focus_input(*args) } 
 			end
 
 			event :activate do
 				transitions from:[ :hidden, :inactive ], 
 					to: :active,
-					on_transition: -> obj, *args { obj.after_activate(*args) } 
+					on_transition: -> obj, *args { obj.on_transition_activate(*args) } 
 			end
 
 			event :hide  do
 				transitions from:[ :active, :accepting_input, :inactive], 
 					to: :hidden,
-					on_transition: -> obj, *args { obj.after_hide(*args) }
+					on_transition: -> obj, *args { obj.on_transition_deactivate(*args) }
 			end
 		end
 
@@ -98,7 +98,7 @@ class BrowserWindowController < NSWindowController
 
 		def carousel
 		  if accepting_input?
-		  	hide
+		  	deactivate
 		  else
 		  	focus_input
 		  end
@@ -106,25 +106,23 @@ class BrowserWindowController < NSWindowController
 		
 		#= 
 
-		def after_activate(*args)
-			puts "IMPL activate #{args}"
+		def on_transition_activate(*args)
+			puts "state transition: activate #{args}"
 
 			@callback_obj._activate *args
 		end
 		
-		def after_hide(*args)
-			puts "IMPL hide"	
+		def on_transition_deactivate(*args)
+			puts "state transition: deactivate"	
 
 			@callback_obj._deactivate *args
 		end
 		
-		def after_focus_input(*args)
-			puts "IMPL focus_input"	
+		def on_transition_focus_input(*args)
+			puts "state transition: focus_input #{args}"	
 
-			on_main_async do
-				@callback_obj._activate *args
-				@callback_obj.handle_focus_input_field self
-			end
+			@callback_obj.handle_focus_input_field self
+			@callback_obj._activate *args
 		end
 
 		# TODO on window active change, update state.
@@ -133,8 +131,12 @@ class BrowserWindowController < NSWindowController
 	def init_window_state_machine
 	  @state = WindowState.new self
 
+	  setup_reactive_update_window_state
+	end
+
+	def setup_reactive_update_window_state
 	  react_to 'window.visible', 'window.active', 'input_field_vc.input_field_focused' do
-	  	pe_trace "visible: #{window.visible}, active: #{window.active}" 
+	  	pe_trace "visible: #{window.visible}, active: #{window.active}, input field status: #{@input_field_vc && @input_field_vc.input_field_focused}" 
 
 	  	if window.active?
 	  		# if input selected, update to :accepting_input
@@ -143,8 +145,10 @@ class BrowserWindowController < NSWindowController
 	  		else
 		  		@state.aasm.current_state = :active
 		  	end
+
 	  	elsif window.visible
 	  		@state.aasm.current_state = :inactive
+
 	  	else
 	  		@state.aasm.current_state = :hidden
 	  	end
@@ -212,10 +216,10 @@ class BrowserWindowController < NSWindowController
 
 		watch_notifications
 
-			# # new window case.
-			# if @activation_type == :hotkey
-			# 	on_main_async { self.handle_focus_input_field self}
-			# end			
+		# # new window case.
+		# if @activation_type == :hotkey
+		# 	on_main_async { self.handle_focus_input_field self}
+		# end			
 
 		self.setup_reactive_title_bar
 		self.setup_responder_chain
@@ -781,17 +785,19 @@ class BrowserWindowController < NSWindowController
 		# debug
 		case default(:activation_style)
 		when :popover
-			status_bar_window = NSApp.windows.select {|w| w.is_a? NSStatusBarWindow } [0]
-			# @window_page_details_vc.show_popover status_bar_window.contentView
-
 			# REFACTOR move out to a policy implementation.
-		else
 			
+			status_bar_window = NSApp.windows.select {|w| w.is_a? NSStatusBarWindow } [0]
+			
+			@window_page_details_vc.show_popover status_bar_window.contentView
+		
+		else	
 			self.window.do_activate -> {
 				NSApp.activate
 
 				params[:on_complete].call if params[:on_complete]
 			}
+
 		end
 
 		activation_type = params[:activation_type]

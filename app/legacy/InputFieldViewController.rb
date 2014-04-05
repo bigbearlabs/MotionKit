@@ -156,9 +156,7 @@ class InputFieldViewController < PEViewController
 	def focus_input_field
 		# ensure the view is loaded first.
 		# raise "view not available" unless self.view.visible
-		debug self.view
 
-		@input_field.notification_on_next_first_responder = false
 		@input_field.make_first_responder
 
 		@input_field.selectText(self)
@@ -555,8 +553,6 @@ end
 class InputField < NSTokenField
 	include NSTextFieldResponderHandling
 	
-	attr_accessor :notification_on_next_first_responder
-
 	def awakeFromNib
 		
 		super

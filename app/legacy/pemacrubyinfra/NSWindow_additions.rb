@@ -186,12 +186,15 @@ end
 class MaskingWindow < TransparentWindow
 	#@ designated
 	def init(frame_rect)
-		if super
-			#      self.setLevel(NSScreenSaverWindowLevel + 100)
-			self.setHasShadow(false)
+		super
 			
-			self.isVisible = false
-		end
+		self.setHasShadow(false)
+			
+		self.isVisible = false
+
+		# set the level high to avoid flickering.
+		self.setLevel(NSScreenSaverWindowLevel + 100)
+		
 
 		self
 	end
@@ -203,19 +206,22 @@ class MaskingWindow < TransparentWindow
 		
     # NSAnimationContext.currentContext.duration = 0.05
 
-		self.view.clear_subviews
-		self.view.addSubview view if view
+		self.view.addSubview(view)
 
 		# animate window frame change
 		
 		self.isVisible = true
-		self.orderFrontRegardless
-		
+		# self.orderFrontRegardless
+
 		completion_handler = -> {
 			NSDisableScreenUpdates()
+
 			completion_proc.call if completion_proc
+			
 			self.isVisible = false
-			view.removeFromSuperview if view
+
+			view.removeFromSuperview
+			
 			NSEnableScreenUpdates()
 		}
 
