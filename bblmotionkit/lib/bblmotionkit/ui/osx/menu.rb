@@ -6,7 +6,7 @@ PlatformMenu = NSMenu
 
 class PlatformMenu
   def initialize( data )
-    menu = NSMenu.alloc.initWithTitle('')
+    menu = self.initWithTitle('')
     data.each do |item_data|
       item = new_menu_item item_data[:title], item_data[:proc]
       item.representedObject = item_data[:value]
