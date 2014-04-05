@@ -17,6 +17,7 @@ class FilteringPlugin < WebBuddyPlugin
     end
 
     # set up a policy on the web view delegate to prevent href navigation.
+    # obsolete?
     set_policy = -> delegate {
       delegate.policies_by_pattern = {
         /.+/ => -> url, listener {
@@ -52,6 +53,8 @@ class FilteringPlugin < WebBuddyPlugin
 
   def on_item_click( item )
     client.load_url item.kvc_get :url
+
+    hide_plugin
   end
   
   # TODO abstract.
