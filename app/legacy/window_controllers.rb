@@ -160,6 +160,7 @@ class MainWindowController < BrowserWindowController
 			end
 		end
 
+		component(FilteringPlugin).show_plugin
 
 
 		# # reactively forcus / hide input field.
