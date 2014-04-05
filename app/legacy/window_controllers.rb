@@ -165,14 +165,14 @@ class MainWindowController < BrowserWindowController
 		component(FilteringPlugin).show_plugin
 
 
-		# # reactively forcus / hide input field.
-		# react_to_and_init :activation_type do |val|
-		# 	if val == :hotkey		# initial view state
-		# 		self.handle_focus_input_field(self)
-		# 	else
-		# 		self.handle_hide_input_field(self)
-		# 	end
-		# end
+		# reactively forcus / hide input field.
+		react_to_and_init :activation_type do |val|
+			if val == :hotkey		# initial view state
+				self.handle_focus_input_field(self)
+			# else
+			# 	self.handle_hide_input_field(self)
+			end
+		end
 	end
 
 	def load_url(urls, details = {})

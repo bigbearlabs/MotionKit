@@ -68,6 +68,8 @@ class BrowserWindowController < NSWindowController
     pe_trace
 
     self.input_field_shown = true
+
+    @input_field_vc.focus_input_field
   end
 
   
