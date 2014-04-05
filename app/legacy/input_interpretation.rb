@@ -13,7 +13,7 @@ class InputInterpreter < BBLComponent
   end
   
   def process_input( input )
-    input = input.dup
+    input = input.to_s.dup
     type = input.pe_type
     pe_log "input type for '#{input}': #{type}"
     case type
