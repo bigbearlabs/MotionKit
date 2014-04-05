@@ -123,20 +123,25 @@ class WebViewDelegate
         end
         
       when 'provisionalLoadFailed', 'loadFailed'
-        kvo_change :state do
-          @state = :failed
-        end
-
-        pe_log event
-
-        if @fail_handler
-          @fail_handler.call @url
+        @last_error = event_data[:error]
+        if @last_error.code == -999
+          pe_log "#{@url}: cancelled. ##{@last_error.description}"
         else
-          pe_warn "no fail handler set for #{@url}"
-        end
+          pe_log "#{@url}: failed with #{@last_error.description}"
+          kvo_change :state do
+            @state = :failed
+          end
 
-        @success_handler = nil
-        @fail_handler = nil
+          if @fail_handler
+            pe_log "invoking fail handler."
+            @fail_handler.call @url
+          else
+            pe_warn "no fail handler set for #{@url}"
+          end
+
+          @success_handler = nil
+          @fail_handler = nil
+        end
 
       when 'policyImplError'
         @policy_error_handler.call url if @policy_error_handler
@@ -418,15 +423,17 @@ class WebViewDelegate
 
     url = error.userInfo['NSErrorFailingURLStringKey']
 
-    self.push_event 'policyImplError', { error: error, url: url }
+    self.push_event 'policyImplError', error: error, url: url
   end
 
   def webView(webView, didFailProvisionalLoadWithError:err, forFrame:frame)
-    self.push_event 'provisionalLoadFailed'
+    if frame == webView.mainFrame
+      self.push_event 'provisionalLoadFailed', error: err
+    end
   end
 
   def webView(webView, didFailLoadWithError:err, forFrame:frame)
-    self.push_event 'loadFailed'
+    self.push_event 'loadFailed', error: err
   end
 
 #= context menu
