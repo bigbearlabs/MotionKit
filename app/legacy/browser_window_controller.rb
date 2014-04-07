@@ -83,7 +83,7 @@ class BrowserWindowController < NSWindowController
 					on_transition: -> obj, *args { obj.on_transition_activate(*args) } 
 			end
 
-			event :hide  do
+			event :deactivate  do
 				transitions from:[ :active, :accepting_input, :inactive], 
 					to: :hidden,
 					on_transition: -> obj, *args { obj.on_transition_deactivate(*args) }
