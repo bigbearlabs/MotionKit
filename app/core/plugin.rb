@@ -57,7 +57,7 @@ class WebBuddyPlugin < BBLComponent
   def update_data(data = nil)
     data ||= self.data
 
-    pe_log "updating data, keys: #{data.keys}"
+    pe_log "updating data, keys: #{data.keys}" if $DEBUG
 
     self.client.plugin_vc.web_view.delegate.send %(
       setTimeout( function() {

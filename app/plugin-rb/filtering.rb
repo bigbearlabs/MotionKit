@@ -81,7 +81,7 @@ class FilteringPlugin < WebBuddyPlugin
   end
 
   def on_updated_stack stack
-    pe_log "sending updated stack #{stack} to filtering plugin"
+    pe_debug "sending updated stack #{stack}, #{stack.items.size} items to filtering plugin"
     update_data searches_delta: data_searches([ stack ])
   end
   
