@@ -179,6 +179,9 @@ class WebViewDelegate
         @redirections << from_url
       end
     end
+  rescue => e
+    # investigate redirects occurring without prior prep_load.
+    pe_report e, "redirecting: #{@url}"
   end
 
   # only for casual inspection - will not work properly when request in flight.
