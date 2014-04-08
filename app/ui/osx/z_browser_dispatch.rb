@@ -29,7 +29,7 @@ class BrowserDispatch < BBLComponent
     @refresh_bar_p ||= -> {
       NSApp.windows.map(&:windowController).select {|e| e.is_a? BrowserWindowController}
         .map do |wc|
-          wc.bar_vc.setup_browsers
+          wc.bar_vc.setup_browsers true
           wc.bar_vc.refresh
         end
     }

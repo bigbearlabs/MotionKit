@@ -64,6 +64,7 @@ class BarViewController < PEViewController
 			
 		# FIXME push down
 		self.setup_browsers
+
 		observe_kvo self, 'context.sites' do |obj, change, context|
 			self.refresh
 		end
@@ -254,7 +255,12 @@ class BarViewController
 	end
 
 
-	def setup_browsers
+	def setup_browsers(force = true)
+		# lazy setup.
+		return if @browsers_setup and ! force
+
+		@browsers_setup = true
+
 		# FIXME encapsulation violation - migrate to component.
 		click_handlers = NSApp.delegate.component(BrowserDispatch).defaults
 		handler_assigned_browsers = click_handlers.map do |key, handler_bundle_id|
