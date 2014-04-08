@@ -23,7 +23,7 @@ module GetUrlHandler
 		begin
 			dispatcher = url_dispatcher
 			if dispatcher
-				on_main_async do
+				on_main do
 					dispatcher.on_get_url details
 				end
 			else
