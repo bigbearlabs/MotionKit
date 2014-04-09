@@ -464,6 +464,8 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	def deactivate_main_window
 		@main_window_controller.do_deactivate -> {
 			self.active_status = :deactivated
+			
+			self.deactivate_if_needed
 		}
 	end
 	
