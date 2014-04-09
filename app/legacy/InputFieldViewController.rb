@@ -102,10 +102,26 @@ class InputFieldViewController < PEViewController
 	#= ui -> model
 
 	def setup_reactive_focused_status
+		# ui -> model
 		react_to 'view.window.firstResponder' do |responder|
 			pe_log "responder changed: #{responder}"
-			self.input_field_focused = (responder == @input_field.field_editor)
+
+			# sometimes the window temporarily becomes the first responder -- ignore.
+			if responder != self.view.window
+				self.input_field_focused = (responder == @input_field.field_editor)
+			end
 		end	  
+
+		# model -> ui
+		# will this echo?
+		react_to :input_field_focused do |focused|
+			if focused
+				# update first responder if needed.
+				@input_field.make_first_responder unless view.window.firstResponder == @input_field.field_editor
+
+				@input_field.selectText(self)
+			end
+		end
 	end
 
 #=
@@ -146,7 +162,7 @@ class InputFieldViewController < PEViewController
 		self.display_mode = :Display_url
 	end
 
-  def handle_Url_load_finished_notification( notif )
+	def handle_Url_load_finished_notification( notif )
 		self.current_url = notif.userInfo
 	end
 		
@@ -157,9 +173,7 @@ class InputFieldViewController < PEViewController
 		# ensure the view is loaded first.
 		# raise "view not available" unless self.view.visible
 
-		@input_field.make_first_responder
-
-		@input_field.selectText(self)
+		self.input_field_focused = true
 	end
 
 	def refresh_input_field
