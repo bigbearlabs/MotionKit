@@ -776,7 +776,7 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def do_deactivate( completion_proc = -> {} )
-		@state.hide :hidden, completion_proc
+		@state.deactivate :hidden, completion_proc
 
 		self
 	end
