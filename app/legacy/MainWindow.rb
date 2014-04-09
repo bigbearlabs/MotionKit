@@ -293,9 +293,9 @@ end
 
 class WBMaskingWindow < MaskingWindow
   def canBecomeMainWindow
-    true
+    false
   end
   def canBecomeKeyWindow
-    true
+    false
   end
 end
