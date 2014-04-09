@@ -73,7 +73,7 @@
 		<key>DefaultBrowserHandler</key>
 		<dict>
 			<key>make_default_browser</key>
-			<false/>
+			<true/>
 		</dict>
 		<key>BrowserDispatch</key>
 		<dict>
