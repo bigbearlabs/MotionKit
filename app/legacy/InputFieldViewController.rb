@@ -174,6 +174,8 @@ class InputFieldViewController < PEViewController
 		# raise "view not available" unless self.view.visible
 
 		self.input_field_focused = true
+
+		@input_field.selectText(self)
 	end
 
 	def refresh_input_field
