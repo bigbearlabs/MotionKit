@@ -1,3 +1,5 @@
+motion_require '../legacy/PERubyUtil'
+
 # a duck-typing-compliant replacement for Forwardable that works with RubyMotion.
 # use with #extend on class or module, rather than #include.
 module Delegating

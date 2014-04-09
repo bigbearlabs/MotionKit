@@ -1,3 +1,6 @@
+motion_require '../../ui/view_controller'
+motion_require '../../core/delegating'
+
 class WebViewController < MotionKitViewController
 
   def log_level

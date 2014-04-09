@@ -1,3 +1,4 @@
+=begin
 # require 'CocoaHelper'
 # require 'appkit_additions'
 # require 'defaults'
@@ -296,3 +297,4 @@ end
 # ensure the anchor window is taken off screen where nessary, and synchronise panel behaviour.
 # review all app activation points and isolate to routines which are activated only when needed
 # (full screen)
+=end

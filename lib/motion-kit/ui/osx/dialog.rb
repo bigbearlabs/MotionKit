@@ -1,3 +1,5 @@
+motion_require '../../core/reactive'
+
 module DialogPresenter
 
   def show_dialog( details )

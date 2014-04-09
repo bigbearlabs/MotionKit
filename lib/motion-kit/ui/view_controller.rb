@@ -1,3 +1,19 @@
+if BW::App.osx?
+  PlatformViewController =  NSViewController
+  PlatformView = NSView
+  PlatformWebView = WebView
+
+else
+  BW.require 'motion-logger'
+  BW.require 'ProMotion'
+  BW.require 'ProMotion/screen/screen'
+
+  # PlatformViewController = ProMotion::Screen
+  # PlatformView = UIView
+  # PlatformWebView = UIWebView
+end
+
+
 class MotionViewController < PlatformViewController
 
 

@@ -1,3 +1,5 @@
+motion_require '../../component/component'
+
 class HotloaderComponent < BBLComponent
   
   def on_setup
