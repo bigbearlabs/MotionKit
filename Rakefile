@@ -289,7 +289,7 @@ end
 
 # Track and specify files and their mutual dependencies within the :motion Bundler group
 MotionBundler.setup do |app|
-  app.require "cgi"
+  # app.require "cgi"
   # app.require 'addressable/uri'
 
   app.require 'ostruct'  # required for aasm
