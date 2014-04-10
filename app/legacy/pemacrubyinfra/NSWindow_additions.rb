@@ -213,6 +213,8 @@ class MaskingWindow < TransparentWindow
 		self.isVisible = true
 		# self.orderFrontRegardless
 
+		self.orderFrontRegardless
+		
 		completion_handler = -> {
 			NSDisableScreenUpdates()
 
