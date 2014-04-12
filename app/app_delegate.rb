@@ -7,30 +7,21 @@ class AppDelegate < ProMotion::Delegate
     
     browser_vc.toggle_input self  # TODO wire up with ui event.
 
-    # browser_vc.load_file 'testfile.html'
-    browser_vc.load_url 'http://flappybird.io'
+    resource_path = 'http://flappybird.io'
+    resource_path = 'plugins/index.html#/sneakers/quiz'
 
+    browser_vc.load_resource resource_path
     
     true
   end
   
-  #=
-
-  def load_url url
-    browser_vc.load_url url
-  end
-
-  def browser_vc
-    @window.rootViewController
-  end
 
   #= 
 
-
-  def setup_window vc
+  def setup_window root_view_controlelr
     @window = UIWindow.alloc.initWithFrame(UIScreen.mainScreen.bounds)
     @window.makeKeyAndVisible
-    @window.rootViewController = vc
+    @window.rootViewController = root_view_controlelr
     @window.rootViewController.wantsFullScreenLayout = true
   end
 

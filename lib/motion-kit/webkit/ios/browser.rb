@@ -4,6 +4,9 @@ class BrowserViewController < MotionViewController
 
   outlet :browser_vc
 
+  def load_resource path
+    load_file "#{NSBundle.mainBundle.resourcePath}/#{path}"
+  end
 
   def load_file filename
     @browser_vc.load_file filename

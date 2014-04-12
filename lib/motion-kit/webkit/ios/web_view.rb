@@ -72,7 +72,7 @@ class WebViewController < MotionViewController
   def load_file(name, location = :bundle)
     case location
     when :bundle
-      url = name.to_url
+      url = name.to_url_string
 
       # check, fail to documents.
       exists = true  # stub
