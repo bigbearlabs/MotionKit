@@ -5,7 +5,19 @@ class BrowserViewController < MotionViewController
   outlet :browser_vc
 
   def load_resource path
-    load_file "#{NSBundle.mainBundle.resourcePath}/#{path}"
+    case path
+    when /^http/
+      load_url path
+    else
+      begin
+        load_file "#{NSBundle.mainBundle.resourcePath}/#{path}"
+      rescue
+        # default to preprend http:// and re-call.
+        path = "http://#{path}"
+        load_resource path
+      end
+    end
+
   end
 
   def load_file filename
@@ -31,17 +43,9 @@ class BrowserViewController < MotionViewController
       # NOTE result should strictly be a string.
 
       # self.js_alert result
-    when /^http/
-      @browser_vc.load_url input
     else
-      begin
-        # attempt to load file.
-        @browser_vc.load_file input
-      rescue
-        # default to preprend http:// and re-call.
-        sender.text = "http://#{sender.text}"
-        self.handle_input_changed sender
-      end
+      # attempt to load file.
+      load_resource input
     end
 
   end
