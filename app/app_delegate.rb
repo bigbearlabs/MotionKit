@@ -1,6 +1,6 @@
-class AppDelegate < ProMotion::Delegate
+class AppDelegate < MotionKitAppDelegate
 
-  def on_load(application, launchOptions)
+  def on_load(application, options)
     
     browser_vc = BrowserViewController.new
     setup_window browser_vc
