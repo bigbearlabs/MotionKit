@@ -1,3 +1,5 @@
+motion_require 'web_view'
+
 # REFACTOR decouple from the webview to make a proper decorator.
 class OverlayWebViewController < WebViewController
   extend IB

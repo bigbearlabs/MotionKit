@@ -6,10 +6,9 @@ if defined? Motion
   Motion::Project::App.setup do |app|
 
     # explicitly require external deps so bundler clients can relax.
-    require 'ib'
-    require 'ib/outlets'
-    require 'bubble-wrap'
-    require 'bubble-wrap/core'
+    require 'bubble-wrap/loader'
+
+    BW.require 'ib/outlets'
 
     # BubbleWrap.require 'lib/ib/**/*.rb'
 

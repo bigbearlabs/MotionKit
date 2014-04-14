@@ -17,9 +17,14 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_dependency 'bubble-wrap'
+  gem.add_dependency 'motion-require'
   gem.add_dependency 'motion-bundler'
   gem.add_dependency 'ib'
+  gem.add_dependency 'motion-logger'
+  gem.add_dependency 'bubble-wrap'
+  gem.add_dependency 'ProMotion'
+  gem.add_dependency 'cocoapods-core'
+  gem.add_dependency 'motion-cocoapods'
   gem.add_development_dependency 'rake'
 
 end

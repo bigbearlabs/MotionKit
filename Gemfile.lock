@@ -11,9 +11,14 @@ PATH
   remote: .
   specs:
     motion-kit (0.0.5)
+      ProMotion
       bubble-wrap
+      cocoapods-core
       ib
       motion-bundler
+      motion-cocoapods
+      motion-logger
+      motion-require
 
 GEM
   remote: https://rubygems.org/

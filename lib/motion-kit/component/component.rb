@@ -1,3 +1,6 @@
+motion_require '../legacy/PERubyUtil'
+
+
 module ComponentClient
 
   # should call setup_components for each element in order.
