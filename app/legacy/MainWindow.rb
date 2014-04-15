@@ -100,6 +100,10 @@ class MainWindow < NSPanel
       else
         raise "unsupported animation style '#{default(:animation_style)}'"
       end
+
+      # post-animation state
+      self.really_fucking_focus
+
     end
   end
   
