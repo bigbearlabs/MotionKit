@@ -455,6 +455,9 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	end
 
 	def activate_main_window( params )
+		# aggressively activate the app.
+		NSApp.activateIgnoringOtherApps(true)
+		
 		params = params.dup.merge on_complete: -> {
 			self.active_status = :activated
 		}
