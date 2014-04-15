@@ -79,7 +79,7 @@ class MainWindow < NSPanel
       # animate the activation.
       
       completion_handler = -> { 
-        on_main_async do
+        on_main do
           window_info = NSApp.windows.collect { |w| dump_attrs w, :title, :windowNumber, :isVisible }
           pe_debug "windows post-activate: #{window_info}"
 
@@ -90,12 +90,6 @@ class MainWindow < NSPanel
 
       case default(:animation_style)
       when 'slide'
-        # animation prep
-        @mask_window.frame = self.deactivated_frame
-
-        # animation go
-        @window_image ||= self.image_view   # for the nil case on first-time activation
-
         self.animate_slide :in, completion_handler
       when 'fade'
         self.animate_fade :in, completion_handler
@@ -106,10 +100,6 @@ class MainWindow < NSPanel
       else
         raise "unsupported animation style '#{default(:animation_style)}'"
       end
-
-      # post-animation state
-      self.really_fucking_focus
-
     end
   end
   
@@ -136,13 +126,18 @@ class MainWindow < NSPanel
   end
 
   def animate_slide direction, completion_proc
-  	case direction
-  	when :in
+
+    case direction
+    when :in
+      # animation prep
+      @mask_window.frame = self.deactivated_frame
+
       to_frame = self.frame
-  		set_to_state = -> {
-	      self.show
-  		}
-  	when :out
+      set_to_state = -> {
+        # post-animation state
+        self.really_fucking_focus
+      }
+    when :out
       @window_image = self.image_view
       to_frame = self.deactivated_frame
   		set_to_state = -> {
@@ -159,7 +154,7 @@ class MainWindow < NSPanel
     # instruct masking window to animate to a 0-width frame
     @mask_window.animate_grow @window_image, to_frame, completion_proc
 
-    if direction == :out
+    if direction == :in
       set_to_state.call
     end
     
@@ -173,8 +168,11 @@ class MainWindow < NSPanel
   end
   
   def really_fucking_focus
-    self.makeMainWindow
+    # avoid multiple changes of the visible property by first calling orderFront.
+    self.orderFront(self)
+
     self.makeKeyAndOrderFront(self)
+    self.makeMainWindow
 
     # key the anchor window to ensure correct focusing on space switch.
     #@space_anchor_window.makeKeyAndOrderFront(self)

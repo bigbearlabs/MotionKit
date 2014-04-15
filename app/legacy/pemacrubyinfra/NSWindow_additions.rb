@@ -71,8 +71,6 @@ class NSWindow
 	
 	# a version based on CGWindowListCreateImage, cribbed from chromimum
 	def image_view
-		self.orderFront(self)
-		
 		windowImage = CGWindowListCreateImage(CGRectNull, KCGWindowListOptionIncludingWindow, self.windowNumber, KCGWindowImageBoundsIgnoreFraming)
 		viewRep = NSBitmapImageRep.alloc.initWithCGImage(windowImage)
 		
@@ -88,6 +86,27 @@ class NSWindow
 		outputView
 	end
 	
+	# captures frame region excluding this window.
+	def region_image_view
+	  # self.orderFront(self)
+	  
+	  rect = self.frame
+	  windowImage = CGWindowListCreateImage(rect, KCGWindowListOptionAll, KCGNullWindowID, KCGWindowImageBoundsIgnoreFraming)
+	  viewRep = NSBitmapImageRep.alloc.initWithCGImage(windowImage)
+	  
+	  # Create an NSImage and add the bitmap rep to it...
+	  image = NSImage.alloc.init
+	  image.addRepresentation(viewRep)
+	  
+	  # Set the output view to the new NSImage.
+	  outputView = NSImageView.alloc.initWithFrame(NSMakeRect(0,0,image.size.width, image.size.height))
+	  outputView.imageScaling = NSScaleNone
+	  outputView.setImage(image)
+	  
+	  outputView
+	end
+
+
 #== animation
 
 	def animate_fade( direction = :in, completion_handler = nil )
