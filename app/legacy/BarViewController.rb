@@ -77,7 +77,7 @@ class BarViewController < PEViewController
 			self.clear_all
 
 			# add the buttons
-			buttons.map do |button|
+			new_buttons.map do |button|
 				add_button button
 
 				# work around system colour lagging when used in HUD setting.
@@ -128,6 +128,16 @@ class BarViewController < PEViewController
 
 #= platform integration
 
+	def buttons
+		self.view.subviews
+	end
+	
+	def add_button( button )
+		self.view.addSubview(button)
+		self.view.arrange_single_row
+	end
+
+
 	def update_view_model( site )
 		@context_menu.itemArray.each do |item|
 			item.representedObject = site
@@ -148,11 +158,6 @@ class BarViewController < PEViewController
 		button
 	end
 
-	def add_button( button )
-		self.view.addSubview(button)
-		self.view.arrange_single_row
-	end
-
 	def eval_bookmarklet(path)
 		wc = self.view.window.windowController
 		browser_vc = wc.browser_vc
@@ -168,7 +173,7 @@ class BarViewController
 	# view model
 	attr_accessor :browsers_to_add
 
-	def buttons
+	def new_buttons
 		browser_buttons + 
 		if_enabled(:bookmarklet_buttons).to_a +
 		if_enabled(:action_buttons).to_a
@@ -229,23 +234,71 @@ class BarViewController
 		end
 
 		action_specs.map do |spec|
-			button = new_button spec[:title], nil do |sender|
-				pe_log "bookmarklet button #{spec[:title]}"
-				self.eval_bookmarklet spec[:path]
-			end 
-			button.on_r_click do |b, event|
-				puts "rclick!"
-				edit_action spec, b unless popover_shown
-			end
+			new_bookmarklet_button spec
+		end .push new_add_button
+	end
 
-			button
+	def new_bookmarklet_button spec
+		button = new_button spec[:title], nil do |sender|
+			pe_log "bookmarklet button #{spec[:title]}"
+			self.eval_bookmarklet spec[:path]
+		end
+
+		button.on_r_click do |b, event|
+			puts "rclick!"
+			edit_bookmarklet spec, b unless popover_shown
+		end
+
+		button
+	end
+
+	def new_add_button
+		add_button = new_button 'New...', nil do |sender|				
+			bookmarklet_name = 'Unnamed bookmarklet'  # CASE cancellations, sloppy names
+			
+			spec = {
+				title: bookmarklet_name,
+				content: 'javascript:'
+			}
+
+			save_bookmarklet 'title' => spec[:title], 'content' => spec[:content], 'spec' => spec
+
+			self.refresh
+
+			on_main_async do
+				new_bookmarklet_button = buttons.find {|e| e.title == bookmarklet_name }
+				edit_bookmarklet spec, new_bookmarklet_button
+			end
 		end
 	end
+
+	#=
 
 	def bookmark_buttons
 		context.sites.collect {|site| site[1] }.map do |site|	# FIXME reconcile strange context.sites data structure
 				new_bookmark_from site
 		end
+	end
+
+	#=
+
+	def new_bookmark_from( site )
+		button = new_button site.name do |sender|
+			pe_debug "button #{button} clicked - site #{site}"
+
+			send_notification :Bar_item_selected_notification, site
+		end
+
+		button.on_r_click do |the_button, event|
+			# TODO highlight the button, unhighlight on menu dismissal
+
+			# attach right model to menu items.
+			update_view_model site
+
+			button.display_context_menu @context_menu
+		end
+
+		button
 	end
 
 	#=
@@ -267,25 +320,6 @@ class BarViewController
 			( handler_assigned_browsers.include? bid ) && 
 				( bid.casecmp(NSApp.bundle_id) != 0 )  # webbuddy shouldn't go in.
 		end
-	end
-
-	def new_bookmark_from( site )
-		button = new_button site.name do |sender|
-			pe_debug "button #{button} clicked - site #{site}"
-
-			send_notification :Bar_item_selected_notification, site
-		end
-
-		button.on_r_click do |the_button, event|
-			# TODO highlight the button, unhighlight on menu dismissal
-
-			# attach right model to menu items.
-			update_view_model site
-
-			button.display_context_menu @context_menu
-		end
-
-		button
 	end
 
 
@@ -324,12 +358,12 @@ class BarViewController
 	include FilesystemAccess
 
 	# show the action plugin as a popover.
-	def edit_action action_spec, button
-		@edit_c = action_edit_controller(action_spec)
+	def edit_bookmarklet action_spec, button
+		@edit_c = edit_bookmarklet_controller(action_spec)
 		show_popover button, @edit_c
 	end
 	
-	def save_action item
+	def save_bookmarklet item
 		puts "TODO save #{item}"
 
 		save "#{bookmarklets_path}/#{item['title']}.js", item['content'], :app_support
@@ -341,7 +375,8 @@ class BarViewController
 
 		# TODO validate.
 
-		dismiss_popover
+		dismiss_popover if @edit_c
+		@edit_c = nil
 
 		self.refresh
 
@@ -368,18 +403,18 @@ class BarViewController
 	end
 	
 
-	def action_edit_controller action_spec
+	def edit_bookmarklet_controller bookmarklet_spec
 		BarActionViewController.new.tap do |c|
 			c.item = {
-				'title' => action_spec[:title],
-				'content' => action_spec[:content],
-				'spec' => action_spec
+				'title' => bookmarklet_spec[:title],
+				'content' => bookmarklet_spec[:content],
+				'spec' => bookmarklet_spec
 			}
 			c.view.setup_tags save:101, cancel: 102
 			
 			c.view.subview :save do |save_button|
 				save_button.on_click = proc do |button|
-					save_action c.item
+					save_bookmarklet c.item
 				end
 			end
 
