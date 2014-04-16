@@ -19,7 +19,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	attr_reader :context_store
 
 	# we modelled the domain a bit inaccurately with regards to things like 'page'.
-	attr_accessor :user
+	attr_reader :user
 
 	# outlets
 	attr_accessor :toggle_menu_item
@@ -75,11 +75,15 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 #= major lifecycle
 
 	def setup
-		super
-
+		## would have gone to initialize!
 		# important domain object
 		@user = User.new
+		@spaces_manager = SpacesManager.new
+
 		@viewer_wcs_by_space = {}
+
+
+		super
 
 		# the app's domain model / storage scheme.
 		self.setup_context_store
