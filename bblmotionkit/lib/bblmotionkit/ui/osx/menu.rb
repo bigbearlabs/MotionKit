@@ -30,9 +30,16 @@ class PlatformMenu
 
   # creates a menu item that invokes selection_handler with itself as the proc param when selected.
   def new_menu_item( title = 'stub-title', selection_handler)
-    action = 'handle_menu_item_select:'
+    action = 
+      if selection_handler
+        'handle_menu_item_select:'
+      else
+        nil
+      end
+
     item = NSMenuItem.alloc.initWithTitle(title, action:action, keyEquivalent:'')
 
+    # work around kvo
     if selection_handler
       def item.selection_handler(handler)
         @selection_handler = handler
@@ -40,9 +47,9 @@ class PlatformMenu
       def item.handle_menu_item_select(sender)
         @selection_handler.call item
       end
-    end
 
-    item.target = item
+      item.target = item
+    end
 
     item
   end
