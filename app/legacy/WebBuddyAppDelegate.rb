@@ -499,7 +499,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		self.current_viewer_wc
 			.do_activate params
 
-		self.update_main_window_state
 	end
 
 	def deactivate_viewer_window
@@ -508,9 +507,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 			self.deactivate_if_needed
 		}
 
-		on_main_async do
-			self.update_main_window_state
-		end
 	end
 	
 	def new_viewer_window_controller

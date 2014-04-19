@@ -155,7 +155,7 @@ class MainWindowController < BrowserWindowController
 		self.window.collectionBehavior = NSWindowCollectionBehaviorMoveToActiveSpace
 
 		# ensure outlets all set.
-		self.window.show
+		self.window.visible = default :visible_on_init
 
 		setup_default_keys :input_field_vc, :plugin_vc
 

@@ -200,6 +200,8 @@
 		<string>sidekick</string>
 		<key>touch_stack</key>
 		<true/>
+		<key>visible_on_init</key>
+		<false/>
 	</dict>
 	<key>ViewerWindowController</key>
 	<dict>

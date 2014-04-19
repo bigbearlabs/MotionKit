@@ -136,6 +136,7 @@ class MainWindow < NSPanel
     case direction
     when :in
       # animation prep
+      @window_image ||= self.image_view
       @mask_window.frame = self.deactivated_frame
 
       to_frame = self.frame
