@@ -349,8 +349,8 @@ class BrowserWindowController < NSWindowController
 	def setup_reactive_history_item_sync
 		react_to 'browser_vc.web_view_delegate.state' do |new_state|
 			# update the WebHistoryItem
-			if new_state == :loaded
-				self.stack.update_item @browser_vc.url, @browser_vc.current_history_item if self.stack
+			if default(:touch_stack) and new_state == :loaded
+				self.stack.update_item @browser_vc.url, @browser_vc.current_history_item
 			end
 		end
 	end
