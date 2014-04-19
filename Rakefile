@@ -418,3 +418,10 @@ task :'clean:env' do
     rm -rf ~/Library/Containers/com.bigbearlabs.WebBuddy  # sandboxed prefs
   )
 end
+
+
+
+desc 'src'
+task :src do
+  sh %(open -a SourceTree .)
+end
