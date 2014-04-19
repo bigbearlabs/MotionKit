@@ -66,7 +66,7 @@ class Context
     end
     
     details.each do |k,v|
-      item.invoke_setter k, v
+      item.kvc_set k, v
 
       # additional actions      
       if k == :thumbnail
