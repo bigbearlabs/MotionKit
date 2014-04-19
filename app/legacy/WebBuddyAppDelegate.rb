@@ -527,7 +527,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		on_main_async do
 			# show only if in same space.
 			if current_space_id == @spaces_manager.current_space_id
-				viewer_wc.window.visible = true
 			else
 				raise "space changed while creating new viewer_window_controller"
 			end

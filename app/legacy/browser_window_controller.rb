@@ -66,10 +66,10 @@ class BrowserWindowController < NSWindowController
 		include AASM
 
 		aasm do
-			state :active, initial: true
+			state :active
 			state :accepting_input
 			state :inactive
-			state :hidden
+			state :hidden, initial: true
 
 			event :focus_input do
 				transitions from:[ :inactive, :hidden, :active ], 
@@ -131,6 +131,9 @@ class BrowserWindowController < NSWindowController
 	def init_window_state_machine
 	  @state = WindowState.new self
 
+	  # sync the initial state.
+	  self.window.visible = false
+
 	  setup_reactive_update_window_state
 	end
 
@@ -153,6 +156,7 @@ class BrowserWindowController < NSWindowController
 	  		@state.aasm.current_state = :hidden
 	  	end
 	  end
+
 	end
 	
 #= lifecycle
