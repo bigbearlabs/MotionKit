@@ -53,8 +53,12 @@ end
 
 class Object
 
-  def ivar( name )
-    instance_variable_get "@#{name}"
+  def ivar( name = nil )
+    if name
+      instance_variable_get "@#{name}"
+    else
+      instance_variables
+    end
   end
 
   # http://robots.thoughtbot.com/post/159806033/irb-script-console-tips
@@ -65,7 +69,9 @@ class Object
   
   def def_method_once( method_name, &def_block )
     p = -> {
-      unless self.local_methods.include? method_name
+      if self.local_methods.include? method_name
+        pe_warn "method #{method_name} exists on #{self}, not defining."
+      else
         self.define_singleton_method method_name, def_block
       end
     }
