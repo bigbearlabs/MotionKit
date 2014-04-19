@@ -29,6 +29,20 @@ class ViewerWindowController < BrowserWindowController
 
 		setup_reactive_update_thumbnail
 
+		# work around bug: close button doesn't get click event when window not active.
+		window.on_click = -> event {
+			point = event.locationInWindow
+
+			close_button = window.close_button
+			my_point = close_button.convertPoint(point, fromView:nil)
+			clicked_on_close = close_button.mouse(my_point, inRect:close_button.bounds)
+
+			pe_debug "point: #{point} for event #{event} hit close button: #{clicked_on_close}"
+
+			if clicked_on_close
+				close_button.performClick(self)
+			end
+		}
 
 		begin
 			on_setup_complete

@@ -5,6 +5,8 @@
 # restoring main window ui state is unreliable without 'anchoring' the app active status to a particularly crafted window, hence the anchor window.
 ##
 class MainWindow < NSPanel
+  include WindowEventHandling
+
   include DefaultsAccess
 
 	#= kvo props

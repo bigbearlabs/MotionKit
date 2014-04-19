@@ -50,6 +50,10 @@ class NSWindow
 		end
 	end
 
+	def close_button
+	  self.standardWindowButton(NSWindowCloseButton)
+	end
+	
 		
 # == image capturing
 	
@@ -266,65 +270,25 @@ class MaskingWindow < TransparentWindow
 
 end
 
-# NOTE deprecated over NSViewMouseTracking?
+
+# mixin on window to monitor and invoke any registered handlers.
 module WindowEventHandling
-	# monitor events to this window and invoke any registered handlers.
-	# a result of trying to intercept clicks on NSTextField (in summary, some controls don't have mouseDown event handlers invoked due to their implementation)
-	# for now, only works with left mouse clicks on an nsbox or its subviews.
-	
-	attr_accessor :pass_events_to_super
-	
-	# REFACTOR pull up
-	def init_module
-		if ! @module_inited
-			@click_handlers = {}
-			@event_handlers = {}
-			
-			@module_inited = true
-		end
-	end
-	
-	# as a last-resort workaround against the problem of detecting clicks in nested views where the click is snatched by first responder, we override the sendEvent to get the click handled by a handler registered for the appropriate view. this doesn't work with all kinds of windows due to parculiarities with sendEvent.
+
+	attr_accessor :on_click
+
 	def sendEvent( event )
-		#pe_debug "debug: event: #{event.description}"
-		
-		unless @click_handlers
-			pe_debug "#{self} not initialised - will just pass through."
-			return super if @pass_events_to_super
-			return
-		end
-		
-		# find the view that would get this event.
 		case event.type
 		when NSLeftMouseDown
-			location = event.locationInWindow
-			hit_view = self.view.superview.hitTest(location)
+			@last_mouse_down = event
 
-			pe_debug "hit view:#{hit_view}"
-
-			# grab view of interest (currently a bounding NSBox) and send event to previously regged handler
-			# TODO move client-specific logic to the client code
-			if hit_view
-				view_of_interest = hit_view.superview_where { |v| v.kind_of? NSBox }
-				if view_of_interest
-					handler = @click_handlers[view_of_interest]
-					handler.call(view_of_interest) if handler
-				end
-			end
+			@on_click.call event if @on_click
 		end
 		
-		super if @pass_events_to_super
+		# super if @pass_events_to_super
+
+		super
 	end
 	
-	def add_handler(view, proc)
-		init_module
-		@click_handlers[view] = proc
-	end
-	
-	def add_event_handler( event_type, handler )
-		init_module
-		@event_handlers[event_type] = handler
-	end
 end
 
 
