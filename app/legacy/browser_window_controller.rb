@@ -236,9 +236,9 @@ class BrowserWindowController < NSWindowController
 
 		self.setup_reactive_add_redirections
 
-		self.setup_reactive_history_item_sync
-
 		self.setup_reactive_update_stack
+
+		self.setup_reactive_history_item_sync
 
 	end
 

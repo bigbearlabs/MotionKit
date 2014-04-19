@@ -574,6 +574,11 @@ class ItemContainer
     o2.last_accessed_timestamp = item_data['last_accessed_timestamp']
     o2.enquiry = item_data['enquiry']
     
+    # assert for sanity.
+    if o2.url.nil? or o2.url != item_data['url']
+      raise "check data sanity. url:#{o2.url}, data:#{self.item_data}"
+    end
+    
     o2
   end
 
