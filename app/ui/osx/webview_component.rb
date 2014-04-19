@@ -17,6 +17,7 @@ class WebViewComponent < BBLComponent
     # setup downloads
     @download_delegate = DownloadDelegate.new downloads_path: default(:downloads_path)
     @web_view.downloadDelegate = @download_delegate
+    @web_view.user_agent_string = default :user_agent
   end
 
   def defaults_spec
