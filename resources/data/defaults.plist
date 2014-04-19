@@ -171,22 +171,6 @@
 			<key>animation_style</key>
 			<string>slide</string>
 		</dict>
-		<key>browser_vc</key>
-		<dict>
-			<key>user_agent_string</key>
-			<string>Version/5.1.1 Safari/534.51.22</string>
-			<key>policy_error_policy</key>
-			<string>prompt_action</string>
-			<key>policy_error_url</key>
-			<string>http://webbuddyapp.com/help/policy_error</string>
-			<key>web_view_delegate</key>
-			<dict>
-				<key>download_path</key>
-				<string>~/Downloads</string>
-				<key>policy_error_policy</key>
-				<string>policy_error_prompt_action</string>
-			</dict>
-		</dict>
 		<key>input_field_vc</key>
 		<dict>
 			<key>filter_delay</key>
@@ -195,6 +179,18 @@
 			<string>Display_enquiry</string>
 			<key>submit_on_activation</key>
 			<true/>
+		</dict>
+		<key>browser_vc</key>
+		<dict>
+			<key>WebViewComponent</key>
+			<dict>
+				<key>policy_error_url</key>
+				<string>http://webbuddyapp.com/help/policy_error</string>
+				<key>policy_error_policy</key>
+				<string>prompt_action</string>
+				<key>downloads_path</key>
+				<string>~/Downloads</string>
+			</dict>
 		</dict>
 		<key>handle_focus_input_field</key>
 		<true/>
