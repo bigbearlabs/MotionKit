@@ -90,8 +90,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		
 		setup_components
 
-		component(ContextLoader).if_enabled :load_context
-
 
 		# deprecated / unused defaults
 		# @show_toolbar_on_hotkey = default :show_toolbar_on_hotkey
@@ -149,6 +147,8 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 		try {
 			if_enabled :setup_main_wc
+
+			component(ContextLoader).if_enabled :load_context
 
 			NSApp.activate
 

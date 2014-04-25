@@ -226,14 +226,17 @@ module CoreDataPersistence
     pe_report e, "error saving stacks"
   end
   
-  def load_stacks
+  def load_stacks( size = nil )
     # fetch CoreDataStack, then -> Stack.
 
     # pe_trace
 
     # stack_records = CoreDataStack.all_prefetching ['name, pages.url, pages.title, pages.last_accessed, pages.first_accessed']
     stack_records = CoreDataStack.all
-    
+    if size
+      stack_records = stack_records[0..size-1]
+    end
+
     pe_log "loading #{stack_records.size} stack records."
     stack_records.map do |record|
       if @abort_load
@@ -241,16 +244,16 @@ module CoreDataPersistence
         return
       end
       
-      stack = to_stack record
+      stack = stack_from record
 
-      # workaround notif to the stack users.
-      NSApp.delegate.updated_stack = stack
+      # # workaround notif to the stack users.
+      # NSApp.delegate.updated_stack = stack
     end
 
     pe_log "finished loading #{stack_records.size} stacks."
   end
 
-  def to_stack( record )
+  def stack_from( record )
     stack = self.stack_for record.name
 
     page_hashes = record.pages.to_a.map do |page_record|
