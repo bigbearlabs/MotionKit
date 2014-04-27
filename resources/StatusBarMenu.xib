@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="PEAppDelegate">
@@ -51,7 +51,7 @@
                         <action selector="load_intro:" target="-1" id="68"/>
                     </connections>
                 </menuItem>
-                <menuItem title="About WebBuddy" id="3">
+                <menuItem title="About..." id="3">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="handle_show_about:" target="-1" id="70"/>
@@ -63,7 +63,7 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="Zgd-J0-y4b"/>
-                <menuItem title="Quit" keyEquivalent="q" id="7">
+                <menuItem title="Quit WebBuddy" keyEquivalent="q" id="7">
                     <connections>
                         <action selector="terminate:" target="-3" id="62"/>
                         <binding destination="51" name="enabled" keyPath="values.statusbar.menu.quitMenuItem.enabled" id="58">
