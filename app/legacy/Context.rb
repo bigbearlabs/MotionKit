@@ -328,13 +328,15 @@ class Context
   def to_hash
     # filter out provisional pages for now.
     pages = self.pages.select { |e| ! e.provisional }
-
+    
     stack_url = pages.empty? ? '' : pages.first.url
+
     { 
       'name' => self.name, 
       'url' => stack_url,
       # thumbnail_url: 'stub-thumbnail-url',
-      'last_accessed_timestamp' => self.last_accessed_timestamp.to_s,
+      'last_accessed_timestamp' => self.last_accessed_timestamp.strftime("%FT%T%z"),
+      'first_accessed_timestamp' => self.first_accessed_timestamp.strftime("%FT%T%z"),
       'pages' => pages.map(&:to_hash), 
       # disabling unused stuff for agile core data modeling.
       # 'sites' => self.site_data,
@@ -344,16 +346,24 @@ class Context
 #==
 
   def last_accessed_timestamp
-    ts = self.items.map(&:last_accessed_timestamp).map do |timestamp|
+    timestamp(:last_accessed_timestamp).max or NilTime
+  end
+
+  def first_accessed_timestamp
+    timestamp(:timestamp).min or NilTime
+  end
+
+  def timestamp(field_name)
+    self.items.map(&field_name).map do |timestamp|
       if timestamp.nil?
         NilTime
       elsif timestamp.is_a? String
-        Time.cached_date_formatter('yyyy-MM-dd HH:mm:ss ZZZZZ').dateFromString(timestamp)
+        # Time.cached_date_formatter('yyyy-MM-dd HH:mm:ss ZZZZZ').dateFromString(timestamp)
+        raise "check why this was a string"
       else
         timestamp
       end
-    end.max
-    ts or NilTime
+    end
   end
 
 
@@ -551,7 +561,8 @@ class ItemContainer
     { 
       'url'=> self.url, 
       'name'=> self.title, 
-      'last_accessed_timestamp'=> self.last_accessed_timestamp.to_s, 
+      'last_accessed_timestamp'=> self.last_accessed_timestamp.strftime("%FT%T%z"), 
+      'first_accessed_timestamp'=> self.timestamp.strftime("%FT%T%z"), 
       'thumbnail_url'=> NSApp.delegate.context_store.thumbnail_url(self)
 
       # leftovers from the file persistence days.
