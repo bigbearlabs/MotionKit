@@ -260,8 +260,8 @@ module CoreDataPersistence
       {
         title: page_record.title,
         url: page_record.url,
-        last_accessed_timestamp: page_record.last_accessed,
-        timestamp: page_record.first_accessed,
+        first_accessed: page_record.first_accessed,
+        last_accessed: page_record.last_accessed,
       }.to_stringified
     end
     # FIXME reconcile all attribute names.
@@ -280,10 +280,10 @@ module CoreDataPersistence
       p = CoreDataPage.find_by_url(page.url)  # TODO multiple matches
 
       if ! p
-        p = CoreDataPage.new title:page.title, 
-          url:page.url, 
-          last_accessed:page.last_accessed_timestamp, 
-          first_accessed:page.timestamp
+        p = CoreDataPage.new title: page.title, 
+          url: page.url, 
+          last_accessed: page.last_accessed, 
+          first_accessed: page.first_accessed
         if moc = stack.persistence_record.managedObjectContext
           moc.insertObject(p)
         end
