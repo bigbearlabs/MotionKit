@@ -149,6 +149,8 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		}
 
 		try {
+			setup_space_stabiliser_window
+			
 			if_enabled :setup_main_wc
 
 			component(ContextLoader).if_enabled :load_context
@@ -375,7 +377,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 #= view-layer preliminary
 
-	attr_accessor :window_active
 	attr_accessor :main_window_shown  # FIXME obsolete?
 
 #= current window
@@ -397,6 +398,9 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	
 	def setup_main_wc
 		self.new_main_wc
+
+		# touch window state.
+		@main_window_controller.window.visible = false
 
 		self.main_window_shown = false
 		# self.restore_main_window_frame
@@ -862,5 +866,19 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		end
 	end
 
+#=
+
+	# create a transparent window to prevent intermittent space-jumping on an gurl event due to the mainWindow being set to a viewer in another space.
+	def setup_space_stabiliser_window
+		@space_stabiliser_window = TransparentWindow.alloc.init new_rect -3, 100, 1, 1
+		@space_stabiliser_window.visible = true
+		@space_stabiliser_window.collectionBehavior = NSWindowCollectionBehaviorCanJoinAllSpaces
+		def @space_stabiliser_window.canBecomeMainWindow
+			true
+		end
+		def @space_stabiliser_window.canBecomeKeyWindow
+			true
+		end
+	end
 end
 

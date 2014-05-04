@@ -1,11 +1,18 @@
-def new_web_view_window
-  on_main do
-    wc = NSWindowController.new init_window:true
-    web_vc = WebViewController.new
-    wc.window.view = web_vc.view
-    wc.instance_variable_set :@web_vc, web_vc
-    wc.show
+def new_web_view_window(opts = {})
+  opts[:show] = true unless opts.key? :show
+
+  wc = NSWindowController.new init_window:true
+  web_vc = WebViewController.new
+  wc.window.view = web_vc.view
+  wc.instance_variable_set :@web_vc, web_vc
+  
+  wc.show
+  if opts[:show]
+  else
+    wc.window.visible = false
   end
+
+  wc.window
 end
 
 

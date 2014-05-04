@@ -140,7 +140,7 @@ class BrowserWindowController < NSWindowController
 
 	def setup_reactive_update_window_state
 	  react_to 'window.visible', 'window.active', 'input_field_vc.input_field_focused' do
-	  	pe_trace "visible: #{window.visible}, active: #{window.active}, input field status: #{@input_field_vc && @input_field_vc.input_field_focused}" 
+	  	pe_trace "#{self} visible: #{window.visible}, active: #{window.active}, input field status: #{@input_field_vc && @input_field_vc.input_field_focused}" 
 
 	  	if window.active?
 	  		# if input selected, update to :accepting_input
