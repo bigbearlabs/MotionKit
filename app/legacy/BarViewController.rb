@@ -227,7 +227,7 @@ class BarViewController
 		bookmarklet_files = glob "#{bookmarklets_path}/*.js", :app_support
 		action_specs = bookmarklet_files.map do |bookmarklet_file|
 			{
-				title: File.basename(bookmarklet_file).to_s.gsub(/\.js$/, ''),
+				title: File.basename(bookmarklet_file).to_s.gsub(/\.js$/, '').capitalize,
 				path: bookmarklet_file,
 				content: load(bookmarklet_file)
 			}
