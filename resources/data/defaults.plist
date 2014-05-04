@@ -198,8 +198,17 @@
 		<integer>2</integer>
 		<key>activation_style</key>
 		<string>sidekick</string>
+		<key>bar_vc</key>
+		<dict>
+			<key>bookmarklet_buttons</key>
+			<true/>
+			<key>action_buttons</key>
+			<true/>
+		</dict>
 		<key>touch_stack</key>
 		<true/>
+		<key>visible_on_init</key>
+		<false/>
 	</dict>
 	<key>ViewerWindowController</key>
 	<dict>

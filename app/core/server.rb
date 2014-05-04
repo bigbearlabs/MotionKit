@@ -79,7 +79,7 @@ class ServerComponent < BBLComponent
     dest = "#{docroot}/plugins"
 
     if_enabled :rmdir, dest
-    cp_r plugins_dir, dest
+    FileUtils.cp_r plugins_dir, dest
 
     # TODO reliably overwrite old files and also allow hacking. dejavu with defaults cascading
   end
@@ -129,18 +129,9 @@ class ServerComponent < BBLComponent
   end
 
   #=
-
-  def rmdir dir
-    if Dir.exist? dir
-      error = Pointer.new :object
-      NSFileManager.defaultManager.removeItemAtPath(dir, error:error)
-      raise error[0].description if error[0]
-    end
+  def rmdir(*args)
+    FileUtils.rmdir *args
   end
   
-  def cp_r src, dest
-    error = Pointer.new :object
-    NSFileManager.defaultManager.copyItemAtPath(src, toPath:dest, error:error)
-    raise error[0].description if error[0]
-  end
 end
+

@@ -296,14 +296,6 @@ MotionBundler.setup do |app|
 end
 
 
-namespace :vendor do
-  desc "copy resources"
-  task :cprsc => [] do
-    # copy over xibs from vendor dir, following symlinks
-    FileUtils.cp_r Dir.glob('vendor/**{,/*/**}/*.xib'), 'resources', verbose:true
-  end
-end
-
 desc "loop build"
 task :loop do
   sh %(
@@ -312,6 +304,26 @@ task :loop do
     done
   )
 end
+
+
+desc "set up ramdisk"
+task :ramdisk do
+  sh %(
+    etc/ramdisk.rb; (cd /Volumes/ramdisk/webbuddy; rake)
+  )
+end
+
+
+
+namespace :vendor do
+  desc "copy resources"
+  task :cprsc => [] do
+    # copy over xibs from vendor dir, following symlinks
+    FileUtils.cp_r Dir.glob('vendor/**{,/*/**}/*.xib'), 'resources', verbose:true
+  end
+end
+
+
 
 namespace :plugins do
   desc "all plugins tasks"
@@ -418,7 +430,6 @@ task :'clean:env' do
     rm -rf ~/Library/Containers/com.bigbearlabs.WebBuddy  # sandboxed prefs
   )
 end
-
 
 
 desc 'src'

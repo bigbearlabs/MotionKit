@@ -1,30 +1,5 @@
 module JsEval
-
-  # TODO generalise
-  def load_js_lib( lib )
-    case lib
-    when :jquery
-      file_name = "plugins/js/jquery-1.7.1.min.js"
-      condition_js = 'return (window.jQuery == null)'
-    else
-      raise "js lib #{lib} unimplemented"
-    end
-
-    if eval_js condition_js
-      eval_js_file file_name
-    else
-      pe_log "'#{condition_js}' returned false, not loading #{lib}"
-    end
-  end
   
-  def eval_js_file file_name
-    js_content = js_content file_name
-    result = self.eval_js js_content, "contents of #{file_name}"
-    pe_log "#{file_name} loaded."
-    result
-  end
-  
-
   # FIXME depends on json2/cycle.js
   def eval_expr( single_line_expr, description = 'anonymous expression' )
     result = eval_js %(
@@ -112,10 +87,9 @@ module JsEval
   end
 
   def js_content(file_name)
-    # docroot = default server.docroot  # TODO move 
-    docroot = "#{NSApp.app_support_path}/docroot"
-
-    File.read "#{docroot}/#{file_name}"
+    File.read file_name
+  rescue => e
+    pe_report e, "loading file #{file_name}"
   end
   
 

@@ -81,15 +81,6 @@ class HotkeyHandler < BBLComponent
 		# so, let's just fix the activate to activate.
 		params[:activation_type] = :hotkey
 		client.activate_viewer_window params
-
-		# # temporarily mirror with main window.
-		# if ! current_viewer_wc.window.visible  # taking advantage of main runloop
-		# 	self.activate_main_window
-		# end
-		#
-		# it2
-		client.main_window_shown = ! client.main_window_shown
-
 	end
 
 	#= modkey pref CLEANUP

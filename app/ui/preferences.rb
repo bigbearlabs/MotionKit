@@ -347,7 +347,7 @@ class NSBundle
     first_tlo = temp_vc.view
 
     if tag_defs
-      first_tlo.tag_defs = tag_defs
+      first_tlo.setup_tags tag_defs
     end
 
     first_tlo
@@ -358,23 +358,30 @@ end
 
 # subview retrieval based on mapping of tag symbols and tags
 class NSView
-  attr_accessor :tag_defs
+  def setup_tags tag_defs
+    class << self
+      attr_accessor :tag_defs
+      
+      def subview( tag_symbol_or_number )
+        if tag_symbol_or_number.is_a? Numeric
+          tag = tag_symbol_or_number
+        else
+          tag_symbol = tag_symbol_or_number
+          tag = tag_defs[tag_symbol]
+        end
 
-  def subview( tag_symbol_or_number )
-    if tag_symbol_or_number.is_a? Numeric
-      tag = tag_symbol_or_number
-    else
-      tag_symbol = tag_symbol_or_number
-      tag = tag_defs[tag_symbol]
+        raise "no tag defined for #{tag_symbol}" if tag.nil?
+        view = self.viewWithTag(tag)
+        raise "no subview tagged #{tag_symbol}" if view.nil?
+
+        yield view if block_given?
+
+        view
+      end
     end
 
-    raise "no tag defined for #{tag_symbol}" if tag.nil?
-    view = self.viewWithTag(tag)
-    raise "no subview tagged #{tag_symbol}" if view.nil?
-
-    yield view if block_given?
-
-    view
+    self.tag_defs = tag_defs
+    self
   end
 end
 

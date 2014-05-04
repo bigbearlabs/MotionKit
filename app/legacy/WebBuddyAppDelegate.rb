@@ -39,6 +39,9 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 				module: BrowserDispatch,
 			},
 			{
+				module: AppSupportStager
+			},
+			{
 				module: HotkeyHandler,
 			},
 			{
@@ -89,8 +92,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		self.setup_context_store
 		
 		setup_components
-
-		component(ContextLoader).if_enabled :load_context
 
 
 		# deprecated / unused defaults
@@ -149,6 +150,8 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 		try {
 			if_enabled :setup_main_wc
+
+			component(ContextLoader).if_enabled :load_context
 
 			NSApp.activate
 
@@ -499,7 +502,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		self.current_viewer_wc
 			.do_activate params
 
-		self.update_main_window_state
 	end
 
 	def deactivate_viewer_window
@@ -508,9 +510,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 			self.deactivate_if_needed
 		}
 
-		on_main_async do
-			self.update_main_window_state
-		end
 	end
 	
 	def new_viewer_window_controller
@@ -862,17 +861,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 			# TODO teardown.
 		end
 	end
-
-#= finding
-
-  # when input field is first responder, unwanted menu validation early in the responder chain disables the find menu item. work around by adding the find method on appd.
-  def performTextFinderAction(sender)
-    pe_debug "#{sender} invoked text finder action"
-    
-    send_notification :Text_finder_notification, sender, wc.component(FindPlugin)
-
-		wc.bar_shown = false
-  end
 
 end
 
