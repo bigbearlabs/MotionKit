@@ -144,7 +144,7 @@ class WebViewDelegate
         end
 
       when 'policyImplError'
-        @policy_error_handler.call url if @policy_error_handler
+        @policy_error_handler.call event_data[:url] if @policy_error_handler
 
       end
 

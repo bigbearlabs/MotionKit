@@ -243,14 +243,12 @@ class BrowserViewController < PEViewController
 #= 
 	
 	def policy_error_prompt_action( url )
-		handler = {
-			bundle_id: 'com.apple.safari'  # TODO work out how to go from scheme to handler.
-		}
-
 		self.show_dialog message: "Send the URL '#{url}' to default handler?",
 			confirm_handler: proc {
-				handle_open_url_in role: :scheme_handler
+				handle_open_url_in role: :scheme_handler, url: url
+		    
 		    NSApp.delegate.deactivate_viewer_window
+		    # TODO abstract deactivation as a dispatch to responder chain.
 			}
 	end
 
@@ -282,7 +280,7 @@ class BrowserViewController < PEViewController
 		role = params[:role]
 
 		if role == :scheme_handler
-			NSWorkspace.sharedWorkspace.openURL self.url.to_url
+			NSWorkspace.sharedWorkspace.openURL params[:url].to_url
 			return
 		end
 
