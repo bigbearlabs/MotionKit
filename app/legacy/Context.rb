@@ -328,13 +328,15 @@ class Context
   def to_hash
     # filter out provisional pages for now.
     pages = self.pages.select { |e| ! e.provisional }
-
+    
     stack_url = pages.empty? ? '' : pages.first.url
+
     { 
       'name' => self.name, 
       'url' => stack_url,
       # thumbnail_url: 'stub-thumbnail-url',
-      'last_accessed_timestamp' => self.last_accessed_timestamp.to_s,
+      'last_accessed' => self.last_accessed.strftime("%FT%T%:z"),
+      'first_accessed' => self.first_accessed.strftime("%FT%T%:z"),
       'pages' => pages.map(&:to_hash), 
       # disabling unused stuff for agile core data modeling.
       # 'sites' => self.site_data,
@@ -343,17 +345,25 @@ class Context
 
 #==
 
-  def last_accessed_timestamp
-    ts = self.items.map(&:last_accessed_timestamp).map do |timestamp|
+  def last_accessed
+    timestamp(:last_accessed).max or NilTime
+  end
+
+  def first_accessed
+    timestamp(:first_accessed).min or NilTime
+  end
+
+  def timestamp(field_name)
+    self.items.map(&field_name).map do |timestamp|
       if timestamp.nil?
         NilTime
       elsif timestamp.is_a? String
-        Time.cached_date_formatter('yyyy-MM-dd HH:mm:ss ZZZZZ').dateFromString(timestamp)
+        # Time.cached_date_formatter('yyyy-MM-dd HH:mm:ss ZZZZZ').dateFromString(timestamp)
+        raise "check why this was a string"
       else
         timestamp
       end
-    end.max
-    ts or NilTime
+    end
   end
 
 
@@ -381,9 +391,9 @@ protected
         'url' => url,
         'title' => url,
         'pinned' => false,
-        'timestamp' => NSDate.date,
+        'first_accessed' => NSDate.date,
       })
-      item_container.filter_tag = item_container.timestamp
+      item_container.filter_tag = item_container.first_accessed
 
       self.add_item item_container
 
@@ -398,8 +408,8 @@ protected
       pe_debug "update_access: #{caller}"
 
       item = item_for_url url
-      item.last_accessed_timestamp = NSDate.date
-      item.filter_tag = item.timestamp
+      item.last_accessed = NSDate.date
+      item.filter_tag = item.first_accessed
 
       self.update_current_page item
 
@@ -421,8 +431,8 @@ class ItemContainer
   
   # other properties
   attr_accessor :thumbnail
-  attr_accessor :timestamp  # first encountered
-  attr_accessor :last_accessed_timestamp
+  attr_accessor :first_accessed
+  attr_accessor :last_accessed
   
   attr_accessor :redirect_info
 
@@ -495,7 +505,7 @@ class ItemContainer
 #=
 
   def detail_string
-    str = "#{self.title}\nURL: #{self.url}\nFirst accessed: #{timestamp}\nLast accessed: #{last_accessed_timestamp}"
+    str = "#{self.title}\nURL: #{self.url}\nFirst accessed: #{first_accessed}\nLast accessed: #{last_accessed}"
     if $DEBUG
       str += "\n" + self.debug_info
     end
@@ -526,15 +536,19 @@ class ItemContainer
   
 #=
 
-  def last_accessed_timestamp
+  def last_accessed
     ts = 
-      unless @last_accessed_timestamp.to_s.empty?
-        @last_accessed_timestamp
+      unless @last_accessed.to_s.empty?
+        @last_accessed
       else
-        @timestamp  # see, you knew this would get confusing.
+        first_accessed  # see, you knew this would get confusing.
       end
 
     ts or NilTime
+  end
+
+  def first_accessed
+    @last_accessed or NilTime
   end
   
   def url
@@ -551,11 +565,12 @@ class ItemContainer
     { 
       'url'=> self.url, 
       'name'=> self.title, 
-      'last_accessed_timestamp'=> self.last_accessed_timestamp.to_s, 
+      'last_accessed'=> self.last_accessed.strftime("%FT%T%z"), 
+      'first_accessed'=> self.first_accessed.strftime("%FT%T%z"), 
       'thumbnail_url'=> NSApp.delegate.context_store.thumbnail_url(self)
 
       # leftovers from the file persistence days.
-      # 'timestamp'=> self.timestamp, 
+      # 'timestamp'=> self.first_accessed, 
       # 'pinned'=> (self.pinned ? true : false), 
       # 'enquiry'=> ( self.enquiry ? self.enquiry : '' ),
       # 'id' => self.url.hash  # id redundant?
@@ -570,8 +585,8 @@ class ItemContainer
   
     o2 = ItemContainer.new(o)
     o2.pinned = item_data['pinned'] # IMPROVE write some kind of serialisation spec to avoid noddy sets like this one
-    o2.timestamp = item_data['timestamp']
-    o2.last_accessed_timestamp = item_data['last_accessed_timestamp']
+    o2.first_accessed = item_data['first_accessed']
+    o2.last_accessed = item_data['last_accessed']
     o2.enquiry = item_data['enquiry']
     
     # assert for sanity.
@@ -587,7 +602,7 @@ class ItemContainer
   def self.keyPathsForValuesAffectingValueForKey(key)
     case key
     when 'debug_info', 'detail_string'
-      return NSSet.setWithArray( [ 'url', 'originalURLString', 'title', 'enquiry', 'timestamp', 'last_accessed_timestamp', 'redirect_info'  ] + super.allObjects )
+      return NSSet.setWithArray( [ 'url', 'originalURLString', 'title', 'enquiry', 'first_accessed', 'last_accessed', 'redirect_info'  ] + super.allObjects )
     when 'url', 'originalURLString', 'title'
       return NSSet.setWithArray( [ 'history_item' ] + super.allObjects )
     else

@@ -465,7 +465,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		end
 	end
 
-	def activate_main_window( params )
+	def activate_main_window( params = {})
 		# aggressively activate the app.
 		NSApp.activateIgnoringOtherApps(true)
 		
