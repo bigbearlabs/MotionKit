@@ -222,7 +222,8 @@ class MotionKitAppDelegate
 			! w.kind_of?(MaskingWindow) && 
 			w.parentWindow == nil && # no child windows
 			! w.title.eql?('AnchorWindow') && # no anchor windows
-			! (w.class.name =~ /^_|OverlayWindow/) # no overlay windows
+			! (w.class.name =~ /^_|OverlayWindow/) && # no overlay windows
+			! (w.alphaValue == 0)
 		}
 
 		# reject the irb windows too

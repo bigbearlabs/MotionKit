@@ -872,6 +872,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	def setup_space_stabiliser_window
 		@space_stabiliser_window = TransparentWindow.alloc.init new_rect -3, 100, 1, 1
 		@space_stabiliser_window.visible = true
+		@space_stabiliser_window.alphaValue = 0
 		@space_stabiliser_window.collectionBehavior = NSWindowCollectionBehaviorCanJoinAllSpaces
 		def @space_stabiliser_window.canBecomeMainWindow
 			true
