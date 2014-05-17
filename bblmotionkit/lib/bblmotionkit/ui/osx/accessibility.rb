@@ -12,7 +12,10 @@ module Accessibility
   end
   
   def self.ask_if_needed
-    unless trusted
+    if trusted
+      pe_log "AXIsProcessTrusted() returned true"
+    else
+      pe_log "AXIsProcessTrusted() returned false; presenting dialog"
       trusted_presenting_dialog
     end
   end

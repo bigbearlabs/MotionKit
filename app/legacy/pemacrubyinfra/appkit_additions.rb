@@ -442,7 +442,8 @@ class NSEvent
 			return false
 		end
 
-		return (self.modifierFlags & NSDeviceIndependentModifierFlagsMask) & key_mask == key_mask
+		# test for strict matching (cf. masking.)
+		return (self.modifierFlags & NSDeviceIndependentModifierFlagsMask) == key_mask
 	end
 
 	def match_mask?(mask)
