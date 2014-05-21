@@ -1,7 +1,5 @@
 motion_require '../../ui/view_controller'
 
-require "cgi"
-
 # TODO this is the conceptual equivalent of the BrowserWindowController. Need to reconcile the compositional manager role between ios an osx.
 
 class WebViewController < MotionViewController
