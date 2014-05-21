@@ -31,13 +31,6 @@ Motion::Project::App.setup do |app|
   app.hockeyapp.status = "allow" 
 
 
-  # work around 'unrecognised constants' for bubblewrap 
-  bw_core_dependenents = app.files.select {|f| f.match(%r{/(uikit_ext.rb|browser.rb|platform.rb)}) }
-  bw_core = app.files.select {|f| f.match('app.rb') }.first
-  puts "setting up #{bw_core_dependenents} to depend on #{bw_core}"
-  app.files_dependencies Hash[ * bw_core_dependenents.map { |dep| [ dep, bw_core ] }.flatten ]
-
-
   app.development do
     app.codesign_certificate = 'iPhone Developer: Sang-Heum Park (WKRGFK8SQY)'
     app.provisioning_profile "PE testing provisioning profile"
