@@ -128,9 +128,12 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	end
 
 	def setup_part2_2
-		# deactivate when viewer window dismissed.
+		# reactively deactivate when main window changes. this is in place in addition to calls from deactivate_* methods, because the user could dismiss straight from the ui layer. (e.g. close window button)
 		NSApp.extend(Reactive).react_to 'mainWindow' do
-			self.deactivate_if_needed
+			if NSApp.active?
+				pe_log "app active and mainWindow changed, deactivating"
+				self.deactivate_if_needed
+			end
 		end
 
 		try {
