@@ -347,7 +347,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 		self.current_viewer_wc
 			.do_activate
-			.hide_toolbar
 			
 		self.load_url url, stack_id:app_stack_id
 	end
