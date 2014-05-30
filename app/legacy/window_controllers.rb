@@ -17,14 +17,6 @@ class ViewerWindowController < BrowserWindowController
 	def setup(collaborators)
 		super
 
-		react_to :bar_shown do |shown|
-			if shown
-				self.show_toolbar
-			else
-				self.hide_toolbar
-			end
-		end
-		
 		setup_reactive_refresh_bar
 
 		setup_reactive_update_thumbnail
@@ -55,23 +47,35 @@ class ViewerWindowController < BrowserWindowController
 
 	end
 
-	# TODO browser_view.event
-	# TODO revise mouse tracking routines to interface via .mouse_entered
 	def setup_reactive_refresh_bar
+
+		# when mouse entered in title bar area, show toolbar.
+		# when mouse leaves title bar area, hide after delay.
 	  self.title_bar_view.track_mouse_entered
 	  react_to 'title_bar_view.mouse_entered' do |entered|
 	  	if entered
-	  		self.bar_shown = true
-
-	  		# react to mouse out of the wider tracking area TODO
+	  		self.show_toolbar
 	  	else
-	  		# self.hide_toolbar delay:2
 	  	end
 	  end
 
+		# TODO need to react to mouse out of the wider tracking area enclosing the toolbar area.
+	  self.top_portion_frame.track_mouse_entered
+	  react_to 'top_portion_frame.mouse_entered' do |entered|
+	  	if entered
+	  		# cancel the delayed hide
+  			self.show_toolbar
+	  	else
+	  		if toolbar_shown?
+		  		self.hide_toolbar delay:2
+		  	end
+		  end
+		end
+
+	  # when page scrolled, hide toolbar.
 	  react_to 'browser_vc.web_view.scroll_event' do |event|
 	  	if event
-	  		self.bar_shown = false
+	  		self.hide_toolbar
 	  	end
 	  end
 	end

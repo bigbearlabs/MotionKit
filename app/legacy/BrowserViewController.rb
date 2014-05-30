@@ -123,7 +123,7 @@ class BrowserViewController < PEViewController
 			kvo_change :url, url
 		end
 		
-		# the cleanest pattern we've seen so far for composition.
+		# the cleanest composition pattern we've found so far.
 		@web_view.extend ScrollTracking
 
 		# self.setup_switcher

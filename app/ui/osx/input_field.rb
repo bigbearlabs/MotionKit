@@ -31,7 +31,7 @@ class InputFieldComponent < BBLComponent
         end
 
         # bar must be visible
-        client.bar_shown = true
+        client.show_toolbar
 
         ## END native input field
 

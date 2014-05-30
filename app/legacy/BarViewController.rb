@@ -1,10 +1,9 @@
 class BrowserWindowController
 
-	attr_accessor :bar_shown
+#= toolbar
 
-
-	def hide_toolbar( delay = 0 )
-		delayed_cancelling_previous delay, -> {
+	def hide_toolbar( args = { delay: 0} )
+		toolbar_invoker.delayed_cancelling_previous args[:delay], -> {
 			on_main {
 				@top_portion_frame.do_animate -> animator {
 					animator.alphaValue = 0
@@ -22,14 +21,15 @@ class BrowserWindowController
 
 	# TODO there are cases where this doesn't render properly - implement the top-of-scroll-view solution.
 	def show_toolbar
-		on_main {
-			@top_portion_frame.do_animate -> animator {
-				animator.hidden = false
+		toolbar_invoker.delayed_cancelling_previous 0, -> {
+				on_main {
+				@top_portion_frame.do_animate -> animator {
+					animator.hidden = false
 
-				# @bar_vc.frame_view.snap_to_bottom_of @input_field_vc.frame_view
-				# @browser_vc.frame_view.fit_to_bottom_of @bar_vc.frame_view
+					# @bar_vc.frame_view.snap_to_bottom_of @input_field_vc.frame_view
+					# @browser_vc.frame_view.fit_to_bottom_of @bar_vc.frame_view
+				}
 			}
-
 		}
 
 	end
@@ -38,7 +38,11 @@ class BrowserWindowController
 		@top_portion_frame.visible
 	end
 
+	private
 
+	def toolbar_invoker
+		@toolbar_invoker ||= Object.new
+	end
 end
 
 
