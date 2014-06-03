@@ -140,7 +140,7 @@ class BrowserWindowController < NSWindowController
 
 	def setup_reactive_update_window_state
 	  react_to 'window.visible', 'window.active', 'input_field_vc.input_field_focused' do
-	  	pe_trace "#{self} visible: #{window.visible}, active: #{window.active}, input field status: #{@input_field_vc && @input_field_vc.input_field_focused}" 
+	  	pe_debug "#{self} visible: #{window.visible}, active: #{window.active}, input field status: #{@input_field_vc && @input_field_vc.input_field_focused}" 
 
 	  	if window.active?
 	  		# if input selected, update to :accepting_input
@@ -292,7 +292,7 @@ class BrowserWindowController < NSWindowController
 	end
 
 	def handle_search(sender)
-		pe_trace
+		pe_trace if $DEBUG
 	  selection = @browser_vc.eval_js 'return document.getSelection().toString()'
 	  self.component(InputInterpreter).process_input selection
 	end
@@ -570,7 +570,9 @@ class BrowserWindowController < NSWindowController
 		# FIXME disabled due to responder-chain mangling anomaly when webview becomes first responder
 		# self.window.insert_responder @browser_vc.web_view
 
-		pe_log "responder chain post-setup: #{self.window.responder_chain}"
+		if $DEBUG
+			pe_log "responder chain post-setup: #{self.window.responder_chain}"
+		end
 	end
 
 #= browsing

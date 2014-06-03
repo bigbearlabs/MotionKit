@@ -159,7 +159,7 @@ class FilteringPlugin < WebBuddyPlugin
   def on_request( request, response )
     pe_log 'filtering request received'
 
-    pe_trace  # seems to be looping: why?
+    pe_trace if $DEBUG # seems to be looping: why?
     
     # TODO when method is put, update store with potentially tainted data.
     pe_log "request: #{request.body.to_str}"

@@ -697,7 +697,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	
 	def validateMenuItem( item )
 		pe_debug "validate menu item #{item}"
-		pe_log "responder chain: #{NSApp.mainWindow.responder_chain}" if NSApp.mainWindow
+		pe_debug "responder chain: #{NSApp.mainWindow.responder_chain}" if NSApp.mainWindow
 
 		# precondition to implementation: main_window_controller should have been initialised.
 		# return false unless @main_window_controller && @main_window_controller.window
