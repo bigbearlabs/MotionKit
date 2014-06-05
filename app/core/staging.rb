@@ -31,6 +31,12 @@ class FileUtils
   def self.cp_r src, dest
     error = Pointer.new :object
     NSFileManager.defaultManager.copyItemAtPath(src, toPath:dest, error:error)
-    raise error[0].description if error[0]
+    if error[0]
+      if error[0].code == 516
+        # file exists.
+      else
+        raise error[0].description 
+      end
+    end
   end
 end
