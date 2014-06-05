@@ -81,7 +81,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		## would have gone to initialize!
 		# important domain object
 		@user = User.new
-		@spaces_manager = SpacesManager.new
 
 		@viewer_wcs_by_space = {}
 
@@ -412,7 +411,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 	def new_main_wc
 		# subsystems
-		# @anchor_window_controller.load_anchor_for_space @spaces_manager.current_space_id, true
+		# @anchor_window_controller.load_anchor_for_space spaces_manager.current_space_id, true
 		@main_window_controller = MainWindowController.alloc.init
 		@main_window_controller.setup	context_store: @context_store
 
@@ -521,7 +520,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	def new_viewer_window_controller
 		pe_log "initialising a new viewer."
 
-		current_space_id = @spaces_manager.current_space_id
+		current_space_id = spaces_manager.current_space_id
 		viewer_wc = nil
 
 		trace_time 'viewer_wc init' do
@@ -531,7 +530,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		viewer_wc.window.visible = false
 		on_main_async do
 			# show only if in same space.
-			if current_space_id == @spaces_manager.current_space_id
+			if current_space_id == spaces_manager.current_space_id
 			else
 				raise "space changed while creating new viewer_window_controller"
 			end
@@ -546,12 +545,12 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 
 
 	def current_viewer_wc
-		current_space_id = @spaces_manager.current_space_id
+		current_space_id = spaces_manager.current_space_id
 		viewer_wc = @viewer_wcs_by_space[current_space_id] if @viewer_wcs_by_space
 
 		if viewer_wc.nil?
 			# EDGECASE sometimes we end up not picking up the viewer_wc for the space - check for this case and rectify.
-			viewer_wcs = @spaces_manager.windows_in_space
+			viewer_wcs = spaces_manager.windows_in_space
 				.map(&:windowController)
 				.select {|e| e.is_a? ViewerWindowController}
 
@@ -641,7 +640,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	def on_space_change( notification )
 		pe_log "space changed: #{notification.description}"
 
-		@spaces_manager.space_changed
+		spaces_manager.space_changed
 
 		# update_main_window_state
 
@@ -653,7 +652,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		#  [AnchorWindow:17208655200>, MainWindow:17208957600>, MainWindow:17227692704>, IRBWindow:17227767040>, IRBWindow:17237527840>]
 		# - duplicate viewer windows and main window for space.
 		# [MainWindow:17205275200>, AnchorWindow:17208655200>, MainWindow:17208957600>, MainWindow:17227692704>, IRBWindow:17227767040>, IRBWindow:17237527840>]
-		viewer_windows = @spaces_manager.windows_in_space.select { |e| e.windowController.is_a? ViewerWindowController }
+		viewer_windows = spaces_manager.windows_in_space.select { |e| e.windowController.is_a? ViewerWindowController }
 		if viewer_windows.size > 1
 			pe_warn "multiple viewer windows detected. just keeping the first"
 			viewer_windows[1..-1].map do |redundant_window|
@@ -663,7 +662,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 				
 				pe_log "closed window for #{redundant_wc}, mapped to space #{@viewer_wcs_by_space.key redundant_wc}"
 				
-				debug [redundant_wc, @spaces_manager.windows_in_space, @spaces_manager.current_space_id, @viewer_wcs_by_space ]
+				debug [redundant_wc, spaces_manager.windows_in_space, spaces_manager.current_space_id, @viewer_wcs_by_space ]
 				
 				@viewer_wcs_by_space.delete_value redundant_wc
 			end
@@ -869,6 +868,10 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 	end
 
 #=
+
+	def spaces_manager
+		@spaces_manager ||= SpacesManager.new
+	end
 
 	# create a transparent window to prevent intermittent space-jumping on an gurl event due to the mainWindow being set to a viewer in another space.
 	def setup_space_stabiliser_window
