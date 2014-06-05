@@ -32,7 +32,7 @@ module DefaultsAccess
 
     final_val = merged_defaults.kvc_get qualified_key
 
-    pe_warn "nil value for default '#{qualified_key}'" if final_val.nil?
+    pe_log "nil value for default '#{qualified_key}'" if final_val.nil?
     debug [ self ] if final_val.nil?
     
     case final_val

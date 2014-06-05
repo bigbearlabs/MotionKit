@@ -28,7 +28,7 @@ module DynamicServer
   # TODO redundant given routinghttpserver. register directly
   def add_handler( path, *methods, &handler)
     unless @server
-      pe_warn "server not started, ignoring request handler for #{path}"
+      pe_log "server not started, ignoring request handler for #{path}"
       return
     end
 
@@ -90,7 +90,7 @@ class ServerComponent < BBLComponent
   
   def on_entity_request method, path, handler_obj
     unless @server
-      pe_warn "server not started, ignoring request handler for #{path}"
+      pe_log "server not started, ignoring request handler for #{path}"
       return
     end    
 
