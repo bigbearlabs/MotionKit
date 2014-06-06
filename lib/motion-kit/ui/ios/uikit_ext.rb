@@ -18,7 +18,7 @@ class UIView
 
 #= radian
 
-  def radian_for_point( p, q = self.center )
+  def radian_for_point( p, q = self.bounds.center )
     deltaVector = CGPointMake(p.x - q.x, p.y - q.y)
     angle = Math.atan(deltaVector.y / deltaVector.x) + (deltaVector.x < 0 ? Math::PI : 0)
   end
@@ -105,6 +105,10 @@ class CALayer
   end
   
   def add_layer layer
+    if layer.bounds == CGRectZero
+      layer.bounds = self.bounds
+    end
+
     self.addSublayer layer
     layer.position = self.bounds.center
     layer
@@ -125,8 +129,6 @@ class CALayer
     args[:fill] ||= :clear
 
     CAShapeLayer.layer.tap do |layer|
-      self.add_layer layer
-  
       path = UIBezierPath.bezierPathWithArcCenter(self.center, radius:radius, startAngle:0, endAngle:2*Math::PI, clockwise:true)
 
       layer.path = path.CGPath
@@ -134,6 +136,8 @@ class CALayer
       layer.lineWidth = args[:width]
       layer.strokeColor = args[:stroke].to_s.dup.to_color.CGColor
       layer.fillColor = args[:fill].to_s.dup.to_color.CGColor
+  
+      self.add_layer layer
     end
   end
   
