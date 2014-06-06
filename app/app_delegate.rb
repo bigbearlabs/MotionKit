@@ -1,3 +1,6 @@
+class MotionKitAppDelegate < ProMotion::Delegate
+end
+
 class AppDelegate < MotionKitAppDelegate
 
   def on_load(application, options)

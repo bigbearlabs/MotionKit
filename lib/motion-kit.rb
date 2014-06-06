@@ -9,6 +9,8 @@ if defined? Motion
     require 'bubble-wrap/loader'
 
     BW.require 'ib/outlets'
+    BW.require 'ProMotion'
+    BW.require 'motion-logger'
 
     # BubbleWrap.require 'lib/ib/**/*.rb'
 
@@ -27,7 +29,7 @@ if defined? Motion
     Dir.glob(File.join(File.dirname(__FILE__), 'motion-kit/**/*.rb')).each do |file|
       # app.files.unshift(file)
       # add to app.files only if no path segment is named as another platform.
-      app.files.unshift(file) if (file.split('/') & other_platforms).empty?
+      app.files.push(file) if (file.split('/') & other_platforms).empty?
     end
 
     # TODO exclude 

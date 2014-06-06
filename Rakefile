@@ -8,9 +8,10 @@ require 'bundler'
 Bundler.require
 
 
+require 'motion-kit'
+
 # motion-require.
 Motion::Require.all
-
 
 Motion::Project::App.setup do |app|
   app.deployment_target = "6.0"

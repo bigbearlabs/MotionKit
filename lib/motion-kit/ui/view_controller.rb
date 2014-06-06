@@ -1,5 +1,5 @@
 # motion-bundler
-require 'ProMotion/screen/screen'
+# require 'ProMotion/screen/screen'
 
 if BW::App.osx?
   PlatformViewController =  NSViewController
