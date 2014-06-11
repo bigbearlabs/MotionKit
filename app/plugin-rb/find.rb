@@ -19,18 +19,15 @@ class FindPlugin < WebBuddyPlugin
   include FilesystemAccess
 
   #= plugin methods
-  def view_url
-    raise "plugin #{self} doesn't have a view url."
-  end
-  
-  def load_view
-    condition_js = 'return (window.jQuery == null)'
 
-    if client.browser_vc.eval_js condition_js
+  # inject the injectee component.
+  def load_view
+
+    if client.browser_vc.eval_js 'return (window.jQuery == null)'
       jquery_content = load "docroot/plugins/js/jquery-1.7.1.min.js", :app_support
       client.browser_vc.eval_js jquery_content
     else
-      pe_log "'#{condition_js}' returned false, not loading jquery"
+      pe_log "jquery already loaded."
     end
 
     find_script = load 'docroot/plugins/injectees/find.js', :app_support
@@ -40,6 +37,11 @@ class FindPlugin < WebBuddyPlugin
   def view_loaded?
     raise "unimplemented"
   end
+
+  def view_url
+    raise "plugin #{self} doesn't have a view url."
+  end
+  
 
   def on_setup
     setup_ns_text_finder
@@ -55,24 +57,8 @@ class FindPlugin < WebBuddyPlugin
     end
   end
   
-
-  # unused.
-  def handle_Find_request_notification(notification)
-    input_string = notification.userInfo
-
-    self.find_string input_string
-  end
-
   
 =begin
-  # API-compliant version of an in-page find.
-  # issues: snatches first responder status
-  def find_string( string )
-    first_responder = self.view.window.firstResponder
-    @web_view.searchFor(string, direction:(@find_direction != :back), caseSensitive:false, wrap:true)
-    # first_responder.
-
-  end
 
   # js version using window.find
   def find_string( string )
@@ -82,11 +68,11 @@ class FindPlugin < WebBuddyPlugin
 =end
 
   # js version with jquery
-  def find_string( string )
+  def find_string( string = self.find_input )
     # be a bit paranoid about the content's state, to avoid deviations between js-based matching and NSTextFinder internal matching / counting.
     @text_finder.noteClientStringWillChange
 
-    js = "jQuery.searchText($(), '#{string}', $('body'), null);"
+    js = "$.searchText($(), '#{string}', $('body'), null);"
     result = self.client.browser_vc.eval_js js
   end
 
@@ -96,16 +82,30 @@ class FindPlugin < WebBuddyPlugin
     )
   end
 
+  def next_match( string = self.find_input )
+    puts "TODO find next"
+    # the native version takes care of the scrolling of the selection into view.
+    # web_view.searchFor(string, direction:true, caseSensitive:false, wrap:true)  # FIXME this snatches first responder from find bar.
+
+  end
+
+  def previous_match( string = self.find_input )
+    puts "TODO find previous"
+    web_view.searchFor(string, direction:false, caseSensitive:false, wrap:true)
+  end
+
+
 #= system integration: osx text finder
 
   def setup_ns_text_finder
-    # wire webview's scroll view as find bar container.
-    scroll_view = self.client.browser_vc.view.views_where {|e| e.is_a? NSScrollView}.flatten.first
-    @find_bar_container = scroll_view
-
     @text_finder = NSTextFinder.alloc.init
     @text_finder.client = self
     @text_finder.incrementalSearchingEnabled = true
+    @text_finder.incrementalSearchingShouldDimContentView = true
+
+    # wire webview's scroll view as find bar container.
+    scroll_view = self.client.browser_vc.view.views_where {|e| e.is_a? NSScrollView}.flatten.first
+    @find_bar_container = scroll_view
     @text_finder.findBarContainer = @find_bar_container
 
     # # observe system property indicating find feature activation. provided by the scroll view.
@@ -159,20 +159,26 @@ class FindPlugin < WebBuddyPlugin
       #   }
       # end
       
+    when NSTextFinderActionSetSearchString
+
     when NSTextFinderActionNextMatch
       pe_log "find: next match"
       @action_type = :next_match
       
-      string = @text_finder.search_field.stringValue
-      self.find_string string
+      # string = @text_finder.search_field.stringValue
+      # self.find_string string
       
+      # self.next_match
+
     when NSTextFinderActionPreviousMatch
       pe_log "find: previous match"
       @action_type = :previous_match
       
-      string = @text_finder.search_field.stringValue
-      self.find_string string
+      # string = @text_finder.search_field.stringValue
+      # self.find_string string
       
+      # self.previous_match
+
     when NSTextFinderActionHideFindInterface
       pe_log "find: hide interface"
       @action_type = nil
@@ -186,32 +192,11 @@ class FindPlugin < WebBuddyPlugin
     @text_finder.performAction(tag)
   end
 
+#= NSTextFinderClient methods
+
   def string
     pe_log "string request"
     search_content = self.client.browser_vc.eval_js 'return document.documentElement.innerText'
-  end
-
-  # this is the hook that triggers incremental search
-  def contentViewAtIndex(index, effectiveCharacterRange:range)
-    
-    pe_log "view request; #{index}, #{range[0].location}, #{range[0].length}"
-    
-    if ! @action_type
-      pe_log "TODO clear search highlights"
-    else
-      #incremental search -
-      # trigger the find in the webview. 
-      @text_finder_field ||= @text_finder.search_field
-      string = @text_finder_field.stringValue # PVT-API
-      self.find_string string 
-    end
-    
-    self.client.browser_vc.view
-  end
-
-  def rectsForCharacterRange(range)
-    pe_log "rect reqeust"
-    [ NSZeroRect ]
   end
 
 =begin # this stuff unnecessary unless frames come in and make things ugly.
@@ -229,21 +214,85 @@ class FindPlugin < WebBuddyPlugin
   end
 =end
 
-# TODO golden way to implement incremental find is to supply the rects for the matches. if this turns out to be infeasible due to webview api shortcomings, we should observe incrementalMatchRanges to detect incremental search progress, and eval the js.
-
-=begin
   def firstSelectedRange
-    # docs suggest this is needed for text finder-based 'find next' operation to work.
-    # plan to use text finder may go tits up if we can't get the range of the selection in webview.
-    pe_log "firstSelectedRange"
+    # NSMakeRange(0, 0)
+
+    @selected_range || NSMakeRange(0, 0)
   end
-=end
+
+  def scrollRangeToVisible(range)
+    p "TODO scroll"
+    
+    @selected_range = range
+
+    # searchFor('the', direction:true, caseSensitive:false, wrap:true) does the scrolling. 
+  end
+
+  # this is called on incremental search
+  def contentViewAtIndex(index, effectiveCharacterRange:range)
+    
+    p "view request; #{index}, #{range[0].location}, #{range[0].length}"
+    
+    # case @action_type
+    # when :start_find
+    #   #incremental search -
+    #   # trigger the find in the webview. 
+    #   # FIXME very hacky location 
+    #   self.find_string
   
+    #   # select the first match.
+    #   self.next_match
+
+    # else
+    #   # raise "don't know how to handle action_type #{@action_type}"
+    #   p "action_type #{@action_type}, not doing anything."
+    # end
+    
+    range[0] = NSMakeRange(0, self.string.length)
+
+    self.web_view
+  end
+
+  # TODO golden way to implement incremental find is to supply the rects for the matches. if this turns out to be infeasible due to webview api shortcomings, we should observe incrementalMatchRanges to detect incremental search progress, and eval the js.
+  def rectsForCharacterRange(range)
+    pe_log "rect request"
+
+    # [ NSValue.valueWithRect(NSZeroRect) ]
+
+    # [ NSValue.valueWithRect(NSMakeRect(100,100,20,10)) ]
+
+    # web_view.markAllMatchesForText(find_input, caseSensitive:false, highlight:false, limit:0)
+
+    # web_view.send 'markAllMatchesForText:caseSensitive:highlight:limit:', find_input, false, false, 0
+    
+    (@adapter ||= WebViewAdapter.new).markText(find_input, forWebView:web_view)
+    
+    web_view.rectsForTextMatches
+  end
+
+  def visibleCharacterRanges
+    # stub
+    [ NSValue.valueWithRange(NSMakeRange(0,100)) ]
+  end
+
   def cancelOperation( sender )
     pe_debug "cancel find bar"
     
     @find_bar_container.findBarVisible = false
   end
+
+#= props
+
+  def find_input
+    @text_finder_field ||= @text_finder.search_field
+    @string = @text_finder_field.stringValue # PVT-API
+  end
+
+  def web_view
+    # TACTICAL
+    client.browser_vc.web_view
+  end
+
 end
 
 
