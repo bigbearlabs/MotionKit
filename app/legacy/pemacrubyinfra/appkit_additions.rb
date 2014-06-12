@@ -462,3 +462,18 @@ class NSEvent
 end
 
 
+
+# special case for making an NSTextField the first responder.
+class NSTextField
+  def field_editor
+    currentEditor
+  end
+  
+  def make_first_responder
+    if (field_editor = self.field_editor)
+      self.window.makeFirstResponder(field_editor)
+    else
+      super
+    end
+  end
+end
