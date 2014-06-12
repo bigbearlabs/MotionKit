@@ -12,7 +12,6 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
     
     NSApp.key_window.controller.component(FindPlugin).on_TextFinderAction sender  # rename
   end
-  # FIXME this doesn't get invoked when find bar is first responder.
 end  
 
 
@@ -42,7 +41,32 @@ class FindPlugin < WebBuddyPlugin
     setup_ns_text_finder
   end
 
-  
+  def perform_find string
+    # patch field editor to hold onto first responder status so webview's find method can't snatch it.
+    if ! @field_editor_patched
+      field_editor = @text_finder.search_field.field_editor
+      if field_editor
+        class << field_editor
+          attr_accessor :should_resign
+          def resignFirstResponder
+            @should_resign.nil? ? super : should_resign
+          end
+        end
+
+        @field_editor_patched = true
+      end
+    end
+
+    @text_finder.search_field.field_editor.should_resign = false
+
+    (@adapter ||= WebViewAdapter.new).findString(string, inWebView:web_view)
+    # CASE nil selectedDOMRange.
+
+    @text_finder.search_field.field_editor.should_resign = true
+
+
+  end
+
 #= system integration: osx text finder
 
   def setup_ns_text_finder
@@ -52,7 +76,6 @@ class FindPlugin < WebBuddyPlugin
     @text_finder.incrementalSearchingShouldDimContentView = true
 
     # wire webview's scroll view as find bar container.
-    scroll_view = self.client.browser_vc.view.views_where {|e| e.is_a? NSScrollView}.flatten.first
     @find_bar_container = scroll_view
     @text_finder.findBarContainer = @find_bar_container
   end
@@ -75,31 +98,21 @@ class FindPlugin < WebBuddyPlugin
       
       self.load_view
 
-      # web_view.accepts_first_responder = false
-
-
       @dom_range = nil
       @find_index = 0
 
     when NSTextFinderActionSetSearchString
+      p "find: set search string"
 
     when NSTextFinderActionNextMatch
       pe_log "find: next match"
       @action_type = :next_match 
 
-      # options = NSCaseInsensitiveSearch
-      # @dom_range = web_view.DOMRangeOfString(find_input, relativeTo:@dom_range, options:options)
-      # update_index 1
-
-      web_view.searchFor(find_input, direction:true, caseSensitive:false, wrap:true, startInSelection:true)
+      perform_find find_input
 
     when NSTextFinderActionPreviousMatch
-      pe_log "find: previous match"
-      @action_type = :previous_match
-
-      options = NSCaseInsensitiveSearch|NSBackwardsSearch
-      @dom_range = web_view.DOMRangeOfString(find_input, relativeTo:@dom_range, options:options)
-      update_index -1
+      pe_log "TODO find: previous match"
+      
       
     when NSTextFinderActionHideFindInterface
       pe_log "find: hide interface"
@@ -113,6 +126,16 @@ class FindPlugin < WebBuddyPlugin
 
     # pass on to the text finder.
     @text_finder.performAction(tag)
+
+    # ensure responder chain priority so we received the finder actions.
+    on_main_async do
+      if scroll_view.isFindBarVisible
+        @action_relayer ||= ActionRelayer.new
+
+        scroll_view.window.firstResponder.insert_responder @action_relayer
+      end
+    end
+
   end
 
   def update_index delta
@@ -168,9 +191,16 @@ class FindPlugin < WebBuddyPlugin
     # hold onto the range so firstSelectedRange can use it for next / previous actions.
     @selected_range = range
 
-    # searchFor('the', direction:true, caseSensitive:false, wrap:true) does the scrolling. 
+    # use this point to trigger actions on webview when incrementally typing into find field.
+    previous_find_input = @find_input
+    @find_input = find_input
+    if @find_input != previous_find_input
+      perform_find @find_input
+    else
+      # no incremental search to perform.
+    end
 
-    web_view.scrollDOMRangeToVisible(@dom_range)
+    # TODO reset state on cancel.
   end
 
   # this is called on incremental search
@@ -183,31 +213,16 @@ class FindPlugin < WebBuddyPlugin
     self.web_view
   end
 
-  # this delegate method is necesary to display text find indicators.
+  # this delegate method is necessary to display text find indicators.
+  # range: the current find match.
   def rectsForCharacterRange(range)
     p "rects request for #{range}"
 
-    # range is the current find match.
-
     (@adapter ||= WebViewAdapter.new).markText(find_input, forWebView:web_view)
-    rects = web_view.rectsForTextMatches  # NOTE this only returns rects within viewable area.
-
-    # scrolling / highlighting the 'current' find match:
-    # get dom range for current_match. ##
-    # ask webview to scroll.
-
-    # i = match_ranges.index NSValue.valueWithRange(range)
-    # if i
-    #   current_rect = rects[i]
-    #   if current_rect
-    #     web_view.scrollRectToVisible(current_rect.rectValue)
-    #   end
-    # end
-    # NOTE doesn't work because rectsForTextMatches only returns visible rects.
+    rects = web_view.rectsForTextMatches  
 
     rects
 
-    # FIXME to get accurate 'current match' rendering, need to return element corresponding to find index, then offset by number of items not visible. 
   end
 
   # def visibleCharacterRanges
@@ -217,10 +232,10 @@ class FindPlugin < WebBuddyPlugin
   #   [ NSValue.valueWithRange(NSMakeRange(0,100)) ]
   # end
 
-  def drawCharactersInRange(range, forContentView:view)
-    # but this is not useful. we need to solve the nsrange -> domrange conversion.
-    # it does seem to draw a yellow gradient fill.
-  end
+  # def drawCharactersInRange(range, forContentView:view)
+  #   # but this is not useful. we need to solve the nsrange -> domrange conversion.
+  #   # it does seem to draw a yellow gradient fill.
+  # end
 
 #= props
 
@@ -234,10 +249,32 @@ class FindPlugin < WebBuddyPlugin
     client.browser_vc.web_view
   end
 
+  def scroll_view
+    client.browser_vc.view.views_where {|e| e.is_a? NSScrollView}.flatten.first
+  end
+
   def match_ranges
     @text_finder.incrementalMatchRanges
   end
 end
+
+
+
+class ActionRelayer < NSResponder
+  def performTextFinderAction(sender)
+    NSApp.delegate.performTextFinderAction(sender)
+  end
+end
+
+
+
+
+class NSTextFinder
+  def search_field
+    findBarContainer.findBarView.views_where {|v| v.kind_of? NSFindPatternSearchField }.flatten.first
+  end
+end
+
 
 
 

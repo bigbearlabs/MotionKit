@@ -10,4 +10,6 @@
 
 -(void) markText:(NSString*)find_input forWebView:(id)web_view;
 
+-(void) findString:(NSString*)string inWebView:(id)web_view;
+
 @end

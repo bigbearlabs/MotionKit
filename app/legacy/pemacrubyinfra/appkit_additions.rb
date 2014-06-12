@@ -344,13 +344,6 @@ class NSCollectionViewItem
 end
 
 
-class NSTextFinder
-	def search_field
-		findBarContainer.findBarView.views_where {|v| v.kind_of? NSFindPatternSearchField }.flatten.first
-	end
-end
-
-
 class NSArrayController
 	def empty!
 	 range = NSMakeRange(0, self.arrangedObjects.count)
