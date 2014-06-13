@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+$:.unshift("/Library/RubyMotion/lib")
+# $:.unshift("/Library/RubyMotion2.28/lib")
+
+
 desc "archive, zip, rsync, version, release"
 task :release => [ :'plugins:all', :fix_perms, :'release:increment', :'archive:distribution', :'release:zip', :'release:commit_version' ]
 
@@ -10,7 +14,6 @@ version_number = "2.0.0"
 build_number = `cat build.VERSION`.strip
 
 
-$:.unshift("/Library/RubyMotion/lib")
 require 'motion/project/template/osx'
 
 require 'rubygems'
