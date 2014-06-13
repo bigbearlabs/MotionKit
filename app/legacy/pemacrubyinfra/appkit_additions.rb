@@ -80,6 +80,8 @@ class NSResponder
 	end
 	
 	def make_first_responder
+		the_window = nil
+
 		case self
 		when NSWindow
 			raise "can't make the window the first responder."
@@ -94,7 +96,7 @@ class NSResponder
 		if the_window
 			the_window.makeFirstResponder(self)
 		else
-			pe_log "window not set, ignoring request to make first responder."
+			pe_log "#{self} has no window (#{self.window}), can't make first responder"
 		end
 	end
 

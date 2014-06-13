@@ -69,7 +69,7 @@ class BrowserViewController < PEViewController
 
 	end
 	
-	def setup( collaborators)
+	def setup(collaborators)
 		super()
 
 		inject_collaborators collaborators
