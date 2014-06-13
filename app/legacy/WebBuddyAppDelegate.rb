@@ -304,7 +304,9 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 		pe_debug "visible windows on space: #{visible_windows_in_space}"
 
 		if visible_windows_in_space.empty?
+			# hide, then unhide in order to activate the previous app without changing window states for other spaces.
 			NSApp.hide(self)
+			NSApp.unhideWithoutActivation
 		end
 	end
 
