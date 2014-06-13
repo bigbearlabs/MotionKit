@@ -73,8 +73,8 @@ class ViewerWindowController < BrowserWindowController
 		end
 
 	  # when page scrolled, hide toolbar.
-	  react_to 'browser_vc.web_view.scroll_event' do |event|
-	  	if event
+	  react_to 'browser_vc.web_view.scroll_event', 'browser_vc.web_view.enclosingScrollView.findBarVisible' do |val|
+	  	if val
 	  		self.hide_toolbar
 	  	end
 	  end
