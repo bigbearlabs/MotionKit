@@ -1,16 +1,13 @@
 motion_require '../legacy/WebBuddyAppDelegate'
 
-# NOTE touching the rough edges of plugin abstraction - independent from plugin_vc, loading scheme different etc.
-
-
-# integration.
+## feature integration.
 class WebBuddyAppDelegate < MotionKitAppDelegate
 
   # when input field is first responder, unwanted menu validation early in the responder chain disables the find menu item. work around by adding the find method on appd.
   def performTextFinderAction(sender)
     pe_debug "#{sender} invoked text finder action"
     
-    NSApp.key_window.controller.component(FindPlugin).on_TextFinderAction sender  # rename
+    NSApp.key_window.controller.component(FindPlugin).on_TextFinderAction sender
   end
 end  
 
@@ -41,7 +38,13 @@ class FindPlugin < WebBuddyPlugin
     setup_ns_text_finder
   end
 
-  def perform_find string
+  def perform_find( string, options = {} )
+    forward = options[:forward]
+    forward = true if forward.nil?
+
+    case_sensitive = self.case_sensitive?
+    wrap = true
+
     # patch field editor to hold onto first responder status so webview's find method can't snatch it.
     if ! @field_editor_patched
       field_editor = @text_finder.search_field.field_editor
@@ -57,12 +60,13 @@ class FindPlugin < WebBuddyPlugin
       end
     end
 
-    @text_finder.search_field.field_editor.should_resign = false
+    field_editor_shown = @text_finder.search_field.field_editor
+    @text_finder.search_field.field_editor.should_resign = false if field_editor_shown
 
-    (@adapter ||= WebViewAdapter.new).findString(string, inWebView:web_view)
+    (@adapter ||= WebViewAdapter.new).findString(string, forward:forward, caseSensitive:case_sensitive, wrap:wrap, inWebView:web_view)
     # CASE nil selectedDOMRange.
 
-    @text_finder.search_field.field_editor.should_resign = true
+    @text_finder.search_field.field_editor.should_resign = true if field_editor_shown
 
 
   end
@@ -112,15 +116,15 @@ class FindPlugin < WebBuddyPlugin
 
     when NSTextFinderActionPreviousMatch
       pe_log "TODO find: previous match"
+      @action_type = :previous_match
+
+      perform_find find_input, forward: false
       
       
-    when NSTextFinderActionHideFindInterface
-      pe_log "find: hide interface"
+    else
+      pe_log "find: got #{tag}"
+
       @action_type = nil
-
-      clear_highlights
-
-      # NOTE not called.
 
     end
 
@@ -232,6 +236,7 @@ class FindPlugin < WebBuddyPlugin
   #   [ NSValue.valueWithRange(NSMakeRange(0,100)) ]
   # end
 
+  # TODO draw the text in this method in order to get platform-provided find indicator.
   # def drawCharactersInRange(range, forContentView:view)
   #   # but this is not useful. we need to solve the nsrange -> domrange conversion.
   #   # it does seem to draw a yellow gradient fill.
@@ -240,8 +245,7 @@ class FindPlugin < WebBuddyPlugin
 #= props
 
   def find_input
-    @text_finder_field ||= @text_finder.search_field
-    @string = @text_finder_field.stringValue # PVT-API
+    find_pboard.stringForType('public.utf8-plain-text')
   end
 
   def web_view
@@ -255,6 +259,16 @@ class FindPlugin < WebBuddyPlugin
 
   def match_ranges
     @text_finder.incrementalMatchRanges
+  end
+
+  def find_pboard
+    NSPasteboard.pasteboardWithName(NSFindPboard)
+  end
+
+  def case_sensitive?
+    pboard_settings = find_pboard.pasteboardItems[0].propertyListForType('com.apple.cocoa.pasteboard.find-panel-search-options')
+
+    pboard_settings[NSFindPanelCaseInsensitiveSearch] == false
   end
 end
 
