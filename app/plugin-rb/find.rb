@@ -1,5 +1,12 @@
 motion_require '../legacy/WebBuddyAppDelegate'
 
+
+# TODO wrap around
+# TODO starts-with
+# TODO full-word
+# TODO pattern
+# TODO tactically, remove these menu items from the find bar menu.
+
 ## feature integration.
 class WebBuddyAppDelegate < MotionKitAppDelegate
 
@@ -13,7 +20,10 @@ end
 
 
 
-
+# NOTE on enhancing feature to support regexp:
+# - find a way to control the match count displayed by find bar.
+# - find matches myself.
+# - make next / previous work with the sequence of matches.
 class FindPlugin < WebBuddyPlugin
   include FilesystemAccess
 
