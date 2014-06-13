@@ -155,9 +155,6 @@ class MainWindowController < BrowserWindowController
 	
 
 	def setup(collaborators)
-		# show in all spaces but hide on new space by default.
-		self.window.collectionBehavior = NSWindowCollectionBehaviorMoveToActiveSpace
-
 		# ensure outlets all set.
 		self.window.visible = default :visible_on_init
 
@@ -168,9 +165,16 @@ class MainWindowController < BrowserWindowController
 
 	  super
 
-
-	  # initial state
+	  ## initial state
 		
+		# show in all spaces but hide on new space by default.
+		self.window.collectionBehavior = NSWindowCollectionBehaviorMoveToActiveSpace
+
+		self.window.animationBehavior = NSWindowAnimationBehaviorNone
+
+		# separate autosave key
+		self.window.frameAutosaveName = self.class.name
+
 	  self.input_field_shown = true
 
 		# reactively show filtering plugin.
