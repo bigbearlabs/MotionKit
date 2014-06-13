@@ -222,7 +222,7 @@ class NSSize
 	end
 	
 	def self.from_pretty_description( desc )
-		x, y = desc.split('x')
+		x, y = desc.to_s.split('x')
 		NSSize.new(x, y)
 	end
 end

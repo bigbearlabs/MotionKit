@@ -39,7 +39,7 @@ class NSException
     if defined? super
       super
     else
-      self.symbolised_stack_trace.split '\n'
+      self.symbolised_stack_trace.to_s.split '\n'
     end
   end
 
