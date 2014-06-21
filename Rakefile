@@ -429,7 +429,8 @@ desc 'clean-env'
 task :'clean:env' do
   sh %(
     rm -rf ~/Library/Preferences/com.bigbearlabs.WebBuddy.plist  # prefs
-    rm -rf ~/Library/"Application Support"/*WebBuddy*  # sandboxed prefs
+    defaults delete com.bigbearlabs.WebBuddy  # 10.9 prefs
+    rm -rf ~/Library/"Application Support"/*WebBuddy*  # non-sandboxed prefs
     rm -rf ~/Library/Containers/com.bigbearlabs.WebBuddy  # sandboxed prefs
   )
 end
