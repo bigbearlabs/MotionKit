@@ -1,3 +1,10 @@
+def caller
+  if rubymotion_dev
+    Kernel.caller
+  else
+    queuer = NSThread.callStackSymbols  # badly formatted RM symbols
+  end
+end
 class NSThread
   def self.is_main?
     self.currentThread == NSThread.mainThread

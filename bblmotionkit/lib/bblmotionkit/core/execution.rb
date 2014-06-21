@@ -46,7 +46,6 @@ def on_main_async( &block )
   #   queuer = e.backtrace
   # end
 
-  queuer = NSThread.callStackSymbols  # badly formatted RM symbols
   queuer = caller  # empty in RM (sometimes?)
 
   Dispatch::Queue.main.async do
