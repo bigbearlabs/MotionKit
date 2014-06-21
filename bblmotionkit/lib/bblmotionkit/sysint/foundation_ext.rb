@@ -1,3 +1,7 @@
+def rubymotion_dev
+  RUBYMOTION_ENV == 'development'
+end
+
 def caller
   if rubymotion_dev
     Kernel.caller

@@ -65,7 +65,7 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 			}
 		].tap do | cs|
 			# dev-only
-			if RUBYMOTION_ENV == 'development'
+			if rubymotion_dev
 				cs <<
 					{
 						module: HotloaderComponent,

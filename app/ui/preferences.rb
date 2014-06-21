@@ -25,7 +25,7 @@ module Preferences
       GeneralPrefPaneController.new(factory:self),
       # WebKitPrefPaneController.new(factory:self),
     ].tap do |a|
-      if flavour == :dev || RUBYMOTION_ENV == 'development'
+      if flavour == :dev || rubymotion_dev
         a << PreviewPrefPaneController.new(factory:self)
       end
     end
