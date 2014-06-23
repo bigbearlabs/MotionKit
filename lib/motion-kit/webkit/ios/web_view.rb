@@ -11,8 +11,23 @@ class WebViewController < MotionViewController
   
   def awakeFromNib
     super
+
+    setup_bridge
   end
 
+  def setup_bridge
+    @bridge = WebViewJavascriptBridge.bridgeForWebView(@web_view, handler: -> msg, callback {
+      puts "got #{msg}"
+
+      data = {}
+      if id = msg['get']
+        data['description'] = 'stub timer from native-land'
+        data['id'] = id
+      end
+
+      callback.call( data ) if callback
+    })
+  end
 
   # parse the query string and perform the op. TODO
   def perform_op( query_hash )
@@ -93,14 +108,21 @@ class WebViewController < MotionViewController
       url_obj = NSURL.URLWithString url
     end
 
-    puts "loading url #{url_obj.description}"
+    puts "loading url #{url_obj.absoluteString}"
 
-    req = NSURLRequest.requestWithURL url_obj
+    req = NSURLRequest.requestWithURL(url_obj)
 
     # ensure nib loading finished by poking the view.
     puts "view: #{self.view}"
 
-    @web_view.loadRequest req
+    @web_view.loadRequest(req)
+
+    # # work around fragment / query order incompatibility with angular.
+    # @web_view.stringByEvaluatingJavaScriptFromString(
+    #   %(
+    #     window.location.href = #{url_obj.absoluteString};
+    #   )
+    # )
   end
   
 end
