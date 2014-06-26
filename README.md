@@ -20,7 +20,7 @@ TODO
 
 Things are still being extracted from MotionKit apps such as [WebBuddy][] and [OneHour][] into this project.
 
-If you find any issues, it's likely to be fixed but pending factoring out. Let us know by raising an issue.
+If you find any issues, it's likely to be fixed but pending a factor-out and drop. Let us know by raising an issue.
 
 
 

@@ -8,3 +8,4 @@ vendor
 ib.xcodeproj
 .motion-bundler.rb
 *.gem
+resources/docroot

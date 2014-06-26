@@ -9,7 +9,7 @@ class AppDelegate < MotionKitAppDelegate
     setup_window browser_vc
 
     
-    browser_vc.load_resource 'http://coffeenotes.io'
+    browser_vc.load_resource 'docroot/index.html'
 
     # browser_vc.toggle_input self  # TODO wire up with ui event.
 
