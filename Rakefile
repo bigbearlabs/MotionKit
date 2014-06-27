@@ -14,18 +14,23 @@ require 'motion-kit'
 Motion::Require.all
 
 Motion::Project::App.setup do |app|
-  app.deployment_target = "6.0"
+  app.deployment_target = "7.0"
 
   # Use `rake config' to see complete project settings.
   app.name = 'MotionKit'
   app.identifier = 'com.bigbearlabs.MotionKit.adhoc'
+
   app.device_family = [:iphone, :ipad]
+
 
   app.pods do
     pod 'HockeySDK'
     pod 'CocoaLumberjack'
     pod 'WebViewJavascriptBridge'
   end
+
+  app.archs['iPhoneSimulator'] << 'x86_64'
+  app.archs['iPhoneOS'] << 'arm64'
 
   # motion-hockeyrink
   app.hockeyapp.api_token = "575af155f66340e1a6a2c974f889c9c4"
