@@ -238,7 +238,7 @@ module CoreDataPersistence
     end
 
     pe_log "loading #{stack_records.size} stack records."
-    stack_records.map do |record|
+    stacks = stack_records.map do |record|
       if @abort_load
         pe_warn "aborting load_stacks"
         return
@@ -248,6 +248,11 @@ module CoreDataPersistence
 
       # # workaround notif to the stack users.
       # NSApp.delegate.updated_stack = stack
+    end
+
+    # HACK work around missing pages to updated stack by re-setting the updated stack.
+    stacks.map do |stack|
+      stack_updated stack
     end
 
     pe_log "finished loading #{stack_records.size} stacks."
@@ -270,6 +275,7 @@ module CoreDataPersistence
     stack.load_items pages
 
     stack.persistence_record = record
+
     stack
   end
   

@@ -155,21 +155,24 @@ class WebBuddyAppDelegate < MotionKitAppDelegate
 			
 			if_enabled :setup_main_wc
 
-			component(ContextLoader).if_enabled :load_context
-
 			NSApp.activate
 
-			if  default :intro_enabled
+			if default :intro_enabled
 				self.load_intro
 			else
 				trace_time :load_start, true do
 					self.load_start
 				end
 			end
+
+			on_main_async do
+				component(ContextLoader).if_enabled :load_context
+			end
 		}
 
 		## dev aliases.
 		$appd = NSApp.delegate
+		$s = NSApp.delegate.context_store
 		$wc = $appd.wc
 
 	end
