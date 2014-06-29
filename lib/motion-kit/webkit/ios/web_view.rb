@@ -22,13 +22,7 @@ class WebViewController < MotionViewController
     @bridge = WebViewJavascriptBridge.bridgeForWebView(@web_view, handler: -> msg, callback {
       puts "got #{msg}"
 
-      data = {}
-      if id = msg['get']
-        data['description'] = 'stub timer from native-land'
-        data['id'] = id
-      end
-
-      callback.call( data ) if callback
+      @data_handler.on_msg msg, callback
     })
   end
 
