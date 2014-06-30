@@ -9,6 +9,15 @@ class CGRect
   def center
     CGPointMake( CGRectGetMidX(self), CGRectGetMidY(self) )
   end
+
+  def self.rect_with_center(center, width, height)
+    # center.x = origin.x + mid(width), center.y = origin.y + mid(height)
+    x = center.x - (width / 2)
+    y = center.y - (height / 2)
+    
+    CGRectMake(x, y, width, height)
+  end
+
 end
 
 
