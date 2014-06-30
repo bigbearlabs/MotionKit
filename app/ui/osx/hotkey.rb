@@ -45,12 +45,12 @@ class HotkeyHandler < BBLComponent
 	end
 	
 	def hotkey_enabled( params )
-		@dtap_definition = {
+		modkey_spec = {
 			modifier: default(:hotkey_modkey),
-			handler: -> {
+			dtap: -> {
 				on_double_tap params
 			},
-			handler_hold: -> {
+			dtap_hold: -> {
 				# DISABLE activation on hold because it can trigger by mistake.
 				if ! NSApp.active? && @hotkey_manager.modkey_counter == 2
 					self.on_double_tap_hold params
@@ -61,7 +61,7 @@ class HotkeyHandler < BBLComponent
 		}
 
 		# set up the modkey.
-		@hotkey_manager.add_modkey_action_definition @dtap_definition
+		@hotkey_manager.register_modkey_spec modkey_spec
 
 =begin
 		@hotkey_manager.add_hotkey_definition( {
@@ -237,30 +237,30 @@ class HotkeyManager
 
 	def init_modkey_reactions
 		react_to :modkey_status do |args|
-			pe_debug "keys: #{args}"
+			pe_debug "modkey: #{args}"
 			self.react_to_modkey
 		end
 
 		react_to :key_down do |args|
-			pe_debug "keys: #{args}"
+			pe_debug "keycode: #{args}"
 			self.react_to_key_down
 		end
 	end
 
-	def add_modkey_action_definition( details )
+	def register_modkey_spec( spec )
 		# client passes block, we register on system layer and watch for the action.
 		# if it involves timers, encapsulate implementation details here.
 
-		@modkey_def = details
+		@modkey_spec = spec
 
 		self.modkey_counter ||= 0
 
 		global_handler = -> event {
-			self.on_nsevent event, details
+			self.on_nsevent event, spec
 			nil
 		}
 		local_handler = -> event {
-			self.on_nsevent event, details
+			self.on_nsevent event, spec
 			event
 		}
 
@@ -271,7 +271,7 @@ class HotkeyManager
 		@handlers[:key_global] = NSEvent.addGlobalMonitorForEventsMatchingMask(NSKeyDownMask, handler:global_handler)
 		@handlers[:key_local] = NSEvent.addLocalMonitorForEventsMatchingMask(NSKeyDownMask, handler:local_handler)
 
-		pe_log "set up modkey action for #{details}"
+		pe_log "registered modkey action for #{spec}"
 	end
 
 	def remove_modkey_action_definition
@@ -280,6 +280,7 @@ class HotkeyManager
 		@handlers.values.map do |handler|
 			NSEvent.removeMonitor(handler)
 		end
+		@handlers = {}
 	end
 
 	# event handlers
@@ -302,7 +303,7 @@ class HotkeyManager
 			if self.modkey_counter == 2
 				pe_debug "modkey default action."
 				
-				@modkey_def[:handler].call
+				@modkey_spec[:dtap].call
 
 				self.modkey_counter = 0
 
@@ -331,7 +332,7 @@ class HotkeyManager
 
 				# fire hold handler if modkey was held.
 				if self.modkey_status == :down
-					@modkey_def[:handler_hold].call
+					@modkey_spec[:dtap_hold].call
 				end
 			end
 
@@ -356,8 +357,8 @@ class HotkeyManager
 		when NSKeyDown
 			self.key_down = event.keyCode
 		when NSFlagsChanged
-			if event.keyCode != 0
-				modkey_status = event.modifier_down?(details[:modifier]) ? :down : :up
+			if event.modifier?(details[:modifier])
+				modkey_status = NSEvent.modifier_down?(details[:modifier]) ? :down : :up  # FIXME qualify with keycode match.
 				self.kvc_set_if_needed :modkey_status, modkey_status
 			end
 		else

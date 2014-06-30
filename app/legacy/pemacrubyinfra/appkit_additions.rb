@@ -424,8 +424,29 @@ end
 
 class NSEvent
 	
-	# true for both the mod down and mod up events.
-	def modifier_down?(modifier_symbol)
+	def match_mask?(mask)
+		(NSEventMaskFromType(self.type) & mask ) != 0
+	end
+
+	def modifier?(modifier_symbol)
+		case modifier_symbol.intern
+		when :alt
+			self.keyCode == 58
+		else
+			raise "unknown modifier symbol #{modifier_symbol}"
+		end
+
+	end
+
+	def self.modifiers_down?( flags )		
+		self.modifiers & flags != 0
+	end
+	
+	def self.modifiers
+		self.modifierFlags
+	end
+
+	def self.modifier_down?(modifier_symbol)
 		case modifier_symbol.intern
 		when :cmd
 			key_mask = NSCommandKeyMask
@@ -434,24 +455,11 @@ class NSEvent
 		else
 			# TODO finish implementing.
 
-			return false
+			raise "unknown modifier symbol #{modifier_symbol}"
 		end
 
 		# test for strict matching (cf. masking.)
 		return (self.modifierFlags & NSDeviceIndependentModifierFlagsMask) == key_mask
-	end
-
-	def match_mask?(mask)
-		(NSEventMaskFromType(self.type) & mask ) != 0
-	end
-
-
-	def self.modifiers_down?( flags )		
-		self.modifiers & flags != 0
-	end
-	
-	def self.modifiers
-		self.modifierFlags
 	end
 
 end
