@@ -51,6 +51,7 @@ class UIView
 
 #= animations
 
+  # FIXME when called even number of tiems (e.g. 2), pulse_off doesn't work.
   def pulse
     # @full_circle_view.hidden = false
     
@@ -72,7 +73,7 @@ class UIView
   end
 
   def pulse_off( end_alpha = 0.0)
-    duration = 0.5
+    duration = 1
     delay = 0
     options = UIViewAnimationOptionBeginFromCurrentState
     animations = -> {
