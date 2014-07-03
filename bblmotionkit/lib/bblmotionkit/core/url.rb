@@ -32,6 +32,13 @@ class NSString
 
     pe_debug  "#{url.description}, #{url.class}"
     
+    if url.nil?
+      # CASE from the wild: threadless
+      # http%3a%2f%2fview.email.threadless.com%2f%3fj%3dfe6116707263017b7614%26m%3d%%ex2%3bMemberID%%%26ls%3d%%ex2%3blistsubid%%%26l%3d%%ex2%3blistid%%%26s%3d%%ex2%3bSubscriberID%%%26jb%3d%%ex2%3b_JobSubscriberBatchID%%%26ju%3d%%ex2%3bjoburlid%%&r=0
+      url = self.gsub('%%', '').to_url
+    end
+
+    raise "can't create url with #{self}" unless url.is_a? NSURL
     return url
   end  
 
