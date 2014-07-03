@@ -87,7 +87,7 @@
 		<key>ServerComponent</key>
 		<dict>
 			<key>port</key>
-			<integer>59124</integer>
+			<real>59125</real>
 			<key>start_server</key>
 			<true/>
 			<key>serve_plugins</key>
@@ -164,7 +164,7 @@
 		<key>FilteringPlugin</key>
 		<dict>
 			<key>plugin_view_template</key>
-			<string>http://localhost:59124/plugins/#/filtering, http://localhost:9000/#/#{name}</string>
+			<string>http://localhost:59125/plugins/#/filtering, http://localhost:9000/#/#{name}</string>
 		</dict>
 		<key>window</key>
 		<dict>
