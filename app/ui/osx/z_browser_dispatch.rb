@@ -113,7 +113,7 @@ class BrowserDispatch < BBLComponent
 
   # OBSOLETE salvage any difference and remove.
   def open_browser(browser_id, url_string)  
-    pe_log "request to handle url in #{browser_id}"
+    pe_log "request to handle url #{url_string} in #{browser_id}"
     
     case browser_id
     # me!!!

@@ -277,19 +277,15 @@ class BrowserViewController < PEViewController
 
 	# MOVE to BrowserDispatch.
 	def handle_open_url_in( params = { role: :primary_browser } )
-		role = params[:role]
-
-		if role == :scheme_handler
+		case role = params[:role]
+		when :scheme_handler
 			NSWorkspace.sharedWorkspace.openURL params[:url].to_url
 			return
-		end
-
-
-		if role == :primary_browser
+		when :primary_browser
 			browser_bundle_id = self.bundle_id_for role
+		else
+			browser_bundle_id ||= params[:bundle_id]
 		end
-
-		browser_bundle_id ||= params[:bundle_id]
 
 		NSApp.delegate.component(BrowserDispatch).open_browser browser_bundle_id, self.url
 
