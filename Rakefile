@@ -309,15 +309,6 @@ task :loop do
 end
 
 
-desc "set up ramdisk"
-task :ramdisk do
-  sh %(
-    etc/ramdisk.rb; (cd /Volumes/ramdisk/webbuddy; rake)
-  )
-end
-
-
-
 namespace :vendor do
   desc "copy resources"
   task :cprsc => [] do
