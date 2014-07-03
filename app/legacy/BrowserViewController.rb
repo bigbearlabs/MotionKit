@@ -18,8 +18,6 @@ class BrowserViewController < PEViewController
 
 	include DefaultsAccess
 	
-	attr_reader :url
-
 	attr_accessor :web_view
 	attr_accessor :nav_buttons_toolbar_item
 	attr_accessor :nav_buttons
@@ -147,6 +145,10 @@ class BrowserViewController < PEViewController
 	
 #=
 
+	def url
+		@web_view.url
+	end
+		
 	def load_url(url_or_array, options = {})
 		load_proc = proc {
 
