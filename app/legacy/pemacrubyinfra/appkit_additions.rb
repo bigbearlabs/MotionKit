@@ -431,7 +431,7 @@ class NSEvent
 	def modifier?(modifier_symbol)
 		case modifier_symbol.intern
 		when :alt
-			self.keyCode == 58
+			[ 58, 61 ].include? self.keyCode
 		else
 			raise "unknown modifier symbol #{modifier_symbol}"
 		end
