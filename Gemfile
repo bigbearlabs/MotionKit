@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # bblmotionkit is a library project with its own git origin.
-gem 'bblmotionkit', :path => './bblmotionkit'
+gem 'motion-kit', :path => './motion-kit'
 
 # unfortunately, the dependencies of the lib project don't get properly 'exported' for rubymotion to use. so they need to be re-listed here for the compilation to work.
 
