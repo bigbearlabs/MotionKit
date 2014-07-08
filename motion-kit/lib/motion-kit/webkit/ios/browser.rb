@@ -2,7 +2,9 @@
 class BrowserViewController < MotionViewController
   extend IB
 
-  outlet :browser_vc
+  outlet :web_vc
+
+  #= loading
 
   def load_resource path
     case path
@@ -21,11 +23,11 @@ class BrowserViewController < MotionViewController
   end
 
   def load_file filename
-    @browser_vc.load_file filename
+    @web_vc.load_file filename
   end
   
   def load_url url
-    @browser_vc.load_url url
+    @web_vc.load_url url
   end
 
 
@@ -58,6 +60,7 @@ class BrowserViewController < MotionViewController
       self.view.set_height self.view.height - input_field.height
     end
   end
+
 
   #== ios platform integration layer
 

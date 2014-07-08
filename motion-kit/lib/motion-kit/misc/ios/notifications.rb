@@ -2,19 +2,27 @@
 
 module Notifications
 
-  def notify_in( time_interval = 10, message = 'Notification', badge_count = nil, owner = self, sound = nil)
-    sound ||= UILocalNotificationDefaultSoundName
-    since = Time.now
+  def notify_in( time_interval = 10, opts)
+    message = opts[:message] || 'Notification'
+    sound = opts[:sound] || UILocalNotificationDefaultSoundName
+    owner = opts[:owner] || self
 
-    application = UIApplication.sharedApplication
+    repeat = 
+      case opts[:repeat]
+      when :second
+        NSSecondCalendarUnit
+      else
+        NSMinuteCalendarUnit
+      end
+
+    badge_count = opts[:badge_count]
 
     notification = UILocalNotification.alloc.init
-    notification.userInfo = { "owner" => owner.to_s }
-    
+    notification.userInfo = { "owner" => owner.to_s }   
+     
     notification.fireDate = NSDate.dateWithTimeIntervalSinceNow(time_interval)
     notification.timeZone = NSTimeZone.defaultTimeZone
-    
-    notification.repeatInterval = NSMinuteCalendarUnit
+    notification.repeatInterval = repeat
 
     notification.applicationIconBadgeNumber = badge_count if badge_count
 
@@ -25,7 +33,7 @@ module Notifications
 
     # TODO set dismiss button message.
 
-    application.scheduleLocalNotification(notification)
+    app.scheduleLocalNotification(notification)
 
     pe_log "scheduled #{notification}, time_interval:#{time_interval}, badge_count:#{badge_count}, sound:#{notification.soundName}, owner:#{owner.to_s}" 
 

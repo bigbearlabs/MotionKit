@@ -15,19 +15,19 @@ class WebViewController < MotionViewController
     setup_bridge
   end
 
+
+#= objc-webview bridge
+
   def setup_bridge
     @bridge = WebViewJavascriptBridge.bridgeForWebView(@web_view, handler: -> msg, callback {
       puts "got #{msg}"
 
-      data = {}
-      if id = msg['get']
-        data['description'] = 'stub timer from native-land'
-        data['id'] = id
-      end
-
-      callback.call( data ) if callback
+      @data_handler.on_msg msg, callback
     })
   end
+
+
+  #= webview -> objc
 
   # parse the query string and perform the op. TODO
   def perform_op( query_hash )
@@ -45,6 +45,8 @@ class WebViewController < MotionViewController
     end
   end
 
+
+  #= objc -> webview
   
   def eval_js input
     tidied_input = input.gsub(/^(js|javascript):/, '')
@@ -57,27 +59,6 @@ class WebViewController < MotionViewController
   end
   
 
-
-  #= webview integration
-
-  def webView(webView, shouldStartLoadWithRequest:request, navigationType:navigationType)
-    # working with perform_op
-    if request.url.last_path_segment.eql? "perform"
-      puts "got request #{request.url.absoluteString}"
-
-      @req = request
-      puts request.description
-
-      query = request.url.query.decode_uri_component
-      self.perform_op Hash[*query.split(/&|=/)]
-
-      return false
-
-      # TODO async return to calling script. document protocol.
-    end
-
-    true
-  end
 
 #= loading
 
@@ -124,6 +105,28 @@ class WebViewController < MotionViewController
     #   )
     # )
   end
+
+
+#= webview integration
+
+  def webView(webView, shouldStartLoadWithRequest:request, navigationType:navigationType)
+    # working with perform_op
+    if request.url.last_path_segment.eql? "perform"
+      puts "got request #{request.url.absoluteString}"
+
+      @req = request
+      puts request.description
+
+      query = request.url.query.decode_uri_component
+      self.perform_op Hash[*query.split(/&|=/)]
+
+      return false
+
+      # TODO async return to calling script. document protocol.
+    end
+
+    true
+  end
   
 end
 
@@ -134,6 +137,7 @@ class BBLWebView < PlatformWebView
   def js_alert( js )
     self.stringByEvaluatingJavaScriptFromString "alert(#{js});"
   end
+
 end
 
 

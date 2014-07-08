@@ -150,72 +150,10 @@ class NSView
 
 #= general / geometry
 
-  def visible
-    ! self.isHidden
-  end
-  
-  def visible=( is_visible )
-    self.hidden = ! is_visible
-  end
-  
-  def x
-    self.frame.x
-  end
-
-  def y
-    self.frame.y
-  end
-
-  def x=( x )
-    self.frame = new_rect x, y, width, height
-  end
-  
-  def y=( y )
-    self.frame = new_rect x, y, width, height
-  end
-
-  def width
-    self.frame.size.width
-  end
-  
-  def height
-    self.frame.size.height
-  end
-
-  def width=( width )
-    self.frame = NSRect.rect_with_center self.center, width, height
-  end
-
-  def height=( height )
-    self.frame = NSRect.rect_with_center self.center, width, height
-  end
-    
-  def center
-    CGPointMake(self.frame.origin.x + (self.width/2), self.frame.origin.y + (self.height/2))
-  end
-  
-  def center=(new_center)
-    new_x = new_center.x - (self.width / 2)
-    new_y = new_center.y - (self.height / 2)
-    self.frame = CGRectMake(new_x, new_y, self.width, self.height)
-  end
-
-
   def origin=(new_origin)
     self.frameOrigin = new_origin
   end
 
-  #= redundant: x=, x +=
-
-  def move_x offset
-    new_frame = NSMakeRect( frame.origin.x + offset, frame.origin.y, frame.size.width, frame.size.height)
-    self.frame = new_frame
-  end
-
-  def set_x new_x
-    new_frame = NSMakeRect( new_x, frame.origin.y, frame.size.width, frame.size.height)
-    self.frame = new_frame
-  end
 
 #= sizing in relation to subviews
   
@@ -235,14 +173,6 @@ class NSView
   #   self.frame = NSRect.rect_with_center self.center, self.width + margin * 2, self.height + margin * 2
   # end
 
-  def frame_for_subviews
-    union = NSZeroRect
-    self.subviews.each do |v|
-      union = NSUnionRect(union, v.frame)
-    end
-    
-    union
-  end
 
   # get the union rect of the subviews and resize vertically, anchored at top edge.
   def fit_pinning_top
