@@ -50,6 +50,9 @@ Motion::Project::App.setup do |app|
   # frameworks
   app.frameworks += %w( WebKit Carbon ExceptionHandling CoreData )
 
+  # work around bubble-wrap dep detection failure
+  # app.files = Dir.glob('etc/bubble-wrap-1.4.0/**/*.rb') + app.files
+
 
   # dev-only
   # FIXME this bleeds into release builds - fix or work around.

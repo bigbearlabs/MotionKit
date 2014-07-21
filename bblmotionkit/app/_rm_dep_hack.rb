@@ -3,13 +3,13 @@ require 'ib/outlets'
 
 
 # TODO move into a file addition next to bblmotionkit.rb
-if BW::App.ios?
-  PlatformViewController =  ProMotion::Screen
-  PlatformView = UIView
-  PlatformWebView = UIWebView
-else
+# if BW::App.ios?
+#   PlatformViewController =  ProMotion::Screen
+#   PlatformView = UIView
+#   PlatformWebView = UIWebView
+# else
   PlatformViewController =  NSViewController
   PlatformView = NSView
   PlatformWebView = WebView
-end
+# end
 
