@@ -14,10 +14,14 @@ end
 if BW::App.ios?
   PlatformViewController =  ProMotion::Screen
   PlatformView = UIView
+
   PlatformWebView = UIWebView
 else
   PlatformViewController =  NSViewController
   PlatformView = NSView
+
   PlatformWebView = WebView
+
+  PlatformMenu = NSMenu
 end
 

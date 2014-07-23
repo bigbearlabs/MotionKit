@@ -24,6 +24,13 @@ class NSButton
     end
     self.r_click_handler = handler
   end
+
+  def color=(color)
+    attr_str = NSMutableAttributedString.new self.attributedTitle
+    attr_str.color = color
+    self.attributedTitle = attr_str
+  end
+  
 end
 
 class NSPopUpButton
