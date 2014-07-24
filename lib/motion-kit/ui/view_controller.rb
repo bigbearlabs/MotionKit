@@ -1,16 +1,16 @@
 # motion-bundler
 # require 'ProMotion/screen/screen'
 
-if BW::App.osx?
-  PlatformViewController =  NSViewController
-  PlatformView = NSView
-  PlatformWebView = WebView
+# if BW::App.osx?
+#   PlatformViewController =  NSViewController
+#   PlatformView = NSView
+#   PlatformWebView = WebView
 
-else
-  PlatformViewController = ProMotion::Screen
-  PlatformView = UIView
-  PlatformWebView = UIWebView
-end
+# else
+#   PlatformViewController = ProMotion::Screen
+#   PlatformView = UIView
+#   PlatformWebView = UIWebView
+# end
 
 
 class MotionViewController < PlatformViewController
