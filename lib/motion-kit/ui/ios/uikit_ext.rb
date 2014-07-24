@@ -160,10 +160,6 @@ class CALayer
     self.backgroundColor = the_colour.CGColor
   end
   
-  def center
-    self.bounds.center
-  end  
-
 end
 
 
