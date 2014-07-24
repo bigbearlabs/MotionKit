@@ -1,9 +1,6 @@
 
 #= menus
 
-# osx
-PlatformMenu = NSMenu
-
 class PlatformMenu
   def initialize( data )
     menu = self.initWithTitle('')
