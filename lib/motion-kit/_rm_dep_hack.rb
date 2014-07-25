@@ -2,14 +2,26 @@
 # require 'ib/outlets'
 
 
-# # TODO move into a file addition next to motionkit.rb
+# WORKAROUND incorrect load path order resulting in BW:App not defined when needed
+module BW
+  module App
+    def self.ios?
+      Kernel.const_defined?(:UIApplication)
+    end
+  end
+end
+
 if BW::App.ios?
   PlatformViewController =  ProMotion::Screen
   PlatformView = UIView
+
   PlatformWebView = UIWebView
 else
   PlatformViewController =  NSViewController
   PlatformView = NSView
+
   PlatformWebView = WebView
+
+  PlatformMenu = NSMenu
 end
 

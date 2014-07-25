@@ -411,6 +411,13 @@ class WebViewDelegate
     
   end
 
+#= context menu
+  attr_accessor :on_show_menu
+
+  def webView(webView, contextMenuItemsForElement:elem, defaultMenuItems:defaultItems)
+    on_show_menu && on_show_menu.call(elem, defaultItems)
+  end
+
 #= misc
 
   def webView(webView, unableToImplementPolicyWithError:error, frame:frame)
