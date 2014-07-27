@@ -162,8 +162,7 @@ class CALayer
   
   def center
     self.bounds.center
-  end  
-
+  end
 end
 
 

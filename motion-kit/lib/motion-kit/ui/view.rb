@@ -37,10 +37,6 @@ class PlatformView
     union || CGRectZero
   end
 
-  def center
-    CGPointMake(self.frame.origin.x + (self.width/2), self.frame.origin.y + (self.height/2))
-  end
-  
 
 #= setters
 

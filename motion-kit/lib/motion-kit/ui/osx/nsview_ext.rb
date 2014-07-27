@@ -150,6 +150,10 @@ class NSView
 
 #= general / geometry
 
+  def center
+    self.bounds.center
+  end  
+
   def origin=(new_origin)
     self.frameOrigin = new_origin
   end
