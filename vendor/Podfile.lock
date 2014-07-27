@@ -1,5 +1,5 @@
 PODS:
-  - CocoaAsyncSocket (7.3.4)
+  - CocoaAsyncSocket (7.3.5)
   - CocoaHTTPServer (2.3):
     - CocoaAsyncSocket
     - CocoaLumberjack
@@ -23,12 +23,12 @@ DEPENDENCIES:
   - WebViewJavascriptBridge (~> 4.1.0)
 
 SPEC CHECKSUMS:
-  CocoaAsyncSocket: 534d09416f992fd51efb23f534742ce70b3a7999
-  CocoaHTTPServer: 7c2fce6617f7fda0e3f4fc34f96e562caa7c7bd8
-  CocoaLumberjack: 6ed94046d2ca7fde03a73b3d01b8cfc56574b314
-  MASPreferences: 2c2f30b38c3dfceb0d3b29132a13417706a5adac
-  RoutingHTTPServer: 7436429cb81c560b55557a830d51367f3107d9cc
-  StandardPaths: 5bad1cc906f561f0872734409396e7929deca0d3
-  WebViewJavascriptBridge: eb504e9485f5b7f3fa036b6f0d748cfccb2aa18b
+  CocoaAsyncSocket: 45bdbbc1c0a5ed0640ff4c42af325ba43a2f099a
+  CocoaHTTPServer: 217df4cba4e48803db2480f97b805aaad2230dd1
+  CocoaLumberjack: 2799baf46a4587116e97e85483538e0e92818430
+  MASPreferences: 971d03da4b3818f8ea0d0ef10b86b02b2c052d17
+  RoutingHTTPServer: 38888344bec8f1b202d18c62b0146cb33b8ada88
+  StandardPaths: 009f9c1699e26e46b2fb1a46b8bacc693d34460e
+  WebViewJavascriptBridge: 81cfaf48e1f9bafa8de3d4bf503981c9da10e08f
 
 COCOAPODS: 0.32.1
