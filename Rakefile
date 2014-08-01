@@ -39,9 +39,6 @@ Motion::Project::App.setup do |app|
 
 
   app.development do
-    app.codesign_certificate = 'iPhone Developer: Sang-Heum Park (WKRGFK8SQY)'
-    app.provisioning_profile "PE testing provisioning profile"
-    
     app.entitlements['get-task-allow'] = true
     app.entitlements['keychain-access-groups'] = [
       app.seed_id + '.' + app.identifier
