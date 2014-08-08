@@ -51,37 +51,36 @@ class UIView
 
 #= animations
 
-  # FIXME when called even number of tiems (e.g. 2), pulse_off doesn't work.
   def pulse
     # @full_circle_view.hidden = false
     
-    if self.alpha == 0.0
-      target_alpha = 1.0
-    else
-      target_alpha = 0.0
-    end
+    self.alpha = 1.0
+    target_alpha = 0.0
     
+    @pulsing = true
+
     duration = 1
     delay = 0
-    options = UIViewAnimationOptionRepeat|UIViewAnimationOptionAutoreverse
+    options = UIViewAnimationOptionAutoreverse
     animations = -> {
-        self.alpha = target_alpha
-        nil
-      }
-    completion = nil
+      self.alpha = target_alpha
+      nil
+    }
+    completion = -> finished {
+      if finished
+        if @pulsing
+          self.pulse
+        else
+          self.alpha = 1.0
+        end
+      end
+      nil
+    }
     UIView.animateWithDuration(duration, delay:delay, options:options, animations:animations, completion:completion)
   end
 
   def pulse_off( end_alpha = 0.0)
-    duration = 1
-    delay = 0
-    options = UIViewAnimationOptionBeginFromCurrentState
-    animations = -> {
-        self.alpha = end_alpha
-        nil
-      }
-    completion = nil
-    UIView.animateWithDuration(duration, delay:delay, options:options, animations:animations, completion:completion)
+    @pulsing = false
   end
 
 
