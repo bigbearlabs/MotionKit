@@ -8,7 +8,8 @@ require 'bundler'
 Bundler.require
 
 
-require 'motion-kit'
+desc "build static library"
+task :default => [:static]
 
 # motion-require.
 Motion::Require.all
@@ -24,18 +25,12 @@ Motion::Project::App.setup do |app|
 
 
   app.pods do
-    pod 'HockeySDK'
     pod 'CocoaLumberjack'
     pod 'WebViewJavascriptBridge'
   end
 
   app.archs['iPhoneSimulator'] << 'x86_64'
   app.archs['iPhoneOS'] << 'arm64'
-
-  # motion-hockeyrink
-  app.hockeyapp.api_token = "575af155f66340e1a6a2c974f889c9c4"
-  app.hockeyapp.app_id = "7a4f593356d12375b19d9ed86b285d79"
-  app.hockeyapp.status = "allow" 
 
 
   app.development do
