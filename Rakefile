@@ -15,7 +15,6 @@ task :default => [:static]
 Motion::Require.all
 
 Motion::Project::App.setup do |app|
-  app.deployment_target = "7.0"
 
   # Use `rake config' to see complete project settings.
   app.name = 'MotionKit'
@@ -32,6 +31,9 @@ Motion::Project::App.setup do |app|
   app.archs['iPhoneSimulator'] << 'x86_64'
   app.archs['iPhoneOS'] << 'arm64'
 
+  # app.deployment_target = "7.0"
+
+  # app.xcode_dir = "#{ENV['HOME']}/dev/tools/Xcode6-Beta5.app/Contents/Developer"
 
   app.development do
     app.entitlements['get-task-allow'] = true

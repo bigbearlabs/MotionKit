@@ -48,6 +48,10 @@ class WebViewController < MotionViewController
 
   #= objc -> webview
   
+  def eval input
+    eval_js input
+  end
+  
   def eval_js input
     tidied_input = input.gsub(/^(js|javascript):/, '')
     tidied_input = CGI::unescape tidied_input
