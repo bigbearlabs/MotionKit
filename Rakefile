@@ -68,7 +68,6 @@ Motion::Project::App.setup do |app|
   # FIXME need to copy resource.
 
   app.resources_dirs += [
-    'etc/ext-resources',
     'etc/static'
   ]
 
@@ -329,17 +328,17 @@ namespace :plugins do
   desc "build and remove stubs"
   task :build => [] do
     sh '
-      cd ../webbuddy-plugins
+      cd webbuddy-plugins
       rake release
     '
 
-    system 'rm -r ../webbuddy-plugins/build/data'
+    system 'rm -r webbuddy-plugins/build/data'
   end
 
   desc "deploy plugins to app support"
   task :hotdeploy do
     sh %(
-      rsync -avv --delete ../webbuddy-plugins/build/* ~/"Library/Application Support/WebBuddy/docroot/plugins/"  
+      rsync -avv --delete webbuddy-plugins/build/* ~/"Library/Application Support/WebBuddy/docroot/plugins/"  
     )
   end
 end
@@ -391,8 +390,8 @@ namespace :release do
     sh %(
       while [ 0 ]; do
         git pull
-        (cd ../webbuddy-plugins; git pull)
-        rake release:all
+        (cd webbuddy-plugins; git pull)
+        rake release
     
         echo "### sleeping..."
         sleep 36000
@@ -403,7 +402,7 @@ namespace :release do
   desc 'clean all'
   task :'clean:all' do
     sh %(
-      (cd ../webbudy-plugins; rake clean)
+      (cd webbudy-plugins; rake clean)
       rake clean
     )
   end
