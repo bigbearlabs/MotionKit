@@ -70,3 +70,15 @@ class NSString
   end
 end
 
+
+# duck-punch ruby classes for RM
+class Dir
+  def self.mkdir_p dir
+    err = Pointer.new :object
+    NSFileManager.defaultManager.createDirectoryAtPath(dir, withIntermediateDirectories:true, attributes: nil, error:err)
+    raise err[0].description if err[0]
+
+    pe_log "created path #{dir}"
+  end
+  
+end
