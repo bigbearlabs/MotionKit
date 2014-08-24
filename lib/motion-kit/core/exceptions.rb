@@ -34,19 +34,16 @@ module ExceptionHandling
 
 end
 
+
 class NSException
   def backtrace
-    if defined? super
-      super
-    else
-      self.symbolised_stack_trace.split '\n'
-    end
+    self.symbolised_stack_trace.split '\n'
   end
 
   def report
     backtrace = caller.to_a.join "\n"
     if bt = self.backtrace
-      backtrace + "\n:::" + bt.join("\n")
+      backtrace += backtrace + "\n:::" + bt.join("\n")
     end
 
     # seems obsolete now.
@@ -58,7 +55,7 @@ class NSException
 
   def symbolised_stack_trace
     addresses = self.callStackReturnAddresses
-    if RUBYMOTION_ENV == 'development'
+    if rubymotion_dev
       addresses = addresses.to_a.map{|e| e.to_s(16)}  # convert to hex
       `atos -d -p #{NSApp.pid} #{addresses.join ' '}`
     else
