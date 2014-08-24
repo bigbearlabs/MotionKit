@@ -18,9 +18,12 @@ module JsEval
   end
   
   def eval_js_file file_name
-    js_content = js_content file_name
+    docroot = "#{NSApp.app_support_path}/docroot"
+
+    js_content = js_content "#{docroot}/file_name"
     result = self.eval_js js_content, "contents of #{file_name}"
     pe_log "#{file_name} loaded."
+
     result
   end
   
@@ -112,10 +115,9 @@ module JsEval
   end
 
   def js_content(file_name)
-    # docroot = default server.docroot  # TODO move 
-    docroot = "#{NSApp.app_support_path}/docroot"
-
-    File.read "#{docroot}/#{file_name}"
+    File.read file_name
+  rescue => e
+    pe_report e, "failed to load #{file_name}"
   end
   
 

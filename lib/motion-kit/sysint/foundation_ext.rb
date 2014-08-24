@@ -9,11 +9,15 @@ def caller
     queuer = NSThread.callStackSymbols  # badly formatted RM symbols
   end
 end
+
+
+
 class NSThread
   def self.is_main?
     self.currentThread == NSThread.mainThread
   end
 end
+
 
 
 class NSTimer

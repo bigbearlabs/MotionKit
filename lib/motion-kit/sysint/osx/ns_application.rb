@@ -46,6 +46,10 @@ class NSApplication
 
   #=
 
+  def key_window
+    self.keyWindow
+  end
+  
   def windows_report
     ws = windows.collect do |w|
       w.to_s + ":" + w.title.to_s
