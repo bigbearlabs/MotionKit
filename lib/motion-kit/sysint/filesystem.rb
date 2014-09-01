@@ -73,13 +73,6 @@ module FilesystemAccess
 end
 
 
-class NSString
-  def resource_url
-    nsurl = NSURL.fileURLWithPath(File.join(NSBundle.mainBundle.resourcePath, self))
-    nsurl.to_s
-  end
-end
-
 
 # duck-punch ruby classes for RM
 class Dir

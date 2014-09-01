@@ -88,6 +88,7 @@ GEM
       thor
     motion-cocoapods (1.5.0)
       cocoapods (>= 0.32.1)
+    motion-fileutils (0.1.1)
     motion-hockeyrink (0.2.2)
       hockeyapp-config
     motion-live (0.1)
@@ -137,6 +138,7 @@ DEPENDENCIES
   ib (~> 0.4.0)
   motion-bundler
   motion-cocoapods
+  motion-fileutils
   motion-hockeyrink
   motion-kit!
   motion-live

@@ -26,6 +26,7 @@ Motion::Project::App.setup do |app|
   app.pods do
     pod 'CocoaLumberjack'
     pod 'WebViewJavascriptBridge'
+    pod 'StandardPaths'
   end
 
   app.archs['iPhoneSimulator'] << 'x86_64'
@@ -51,6 +52,7 @@ MotionBundler.setup do |app|
   # app.require "cgi/cookie"
   # app.require "cgi/util"
   # app.require "cgi/html"
+  app.require "motion-fileutils"
 end
 
 

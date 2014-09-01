@@ -25,6 +25,9 @@ gem 'motion-live'
 # gem 'formotion'
 
 
+gem 'motion-fileutils', :require => ['motion-fileutils']
+
+
 # RubyMotion unaware gems
 group :motion do
 #   gem "slot_machine"

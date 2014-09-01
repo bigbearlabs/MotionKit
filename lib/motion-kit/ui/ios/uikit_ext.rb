@@ -4,6 +4,7 @@ end
 
 
 class UIApplication
+
   def window
     self.windows[0]
   end
@@ -11,6 +12,40 @@ class UIApplication
   def controller
     self.window.rootViewController
   end
+
+  #= fairly static properties
+
+  def app_support_path
+    NSFileManager.defaultManager.privateDataPath
+  end
+
+  def resource_url
+    NSBundle.mainBundle.resourceURL
+  end
+
+  def app_group_url
+    url = NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier(self.delegate.group_id)
+    raise "container URL for '#{self.delegate.group_id}' is nil." if url.nil?
+    url
+  end
+  
+
+  def stage_resource( filename, 
+    dest = app.app_group_url.URLByAppendingPathComponent(filename) 
+  )
+    # copy to the app's writable area.
+
+    # this is highly implementation-specific. we default to the app group dir.
+    src = app.resource_url.URLByAppendingPathComponent(filename)
+
+    copy_url src, dest
+  end
+
+  def copy_url src, dest
+    dest_path = dest.is_a?(NSURL) ? dest.path : dest
+    Motion::FileUtils.cp src.path, dest_path  # assuming local paths.
+  end
+
 end
 
 
