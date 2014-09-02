@@ -9,17 +9,20 @@ class WebViewController < MotionViewController
   
   attr_accessor :data_handler
   
-  def awakeFromNib
+  def viewDidLoad
     super
 
     setup_bridge
+
+    puts "delegate: #{web_view.delegate}"
   end
 
 
 #= objc-webview bridge
 
   def setup_bridge
-    @bridge = WebViewJavascriptBridge.bridgeForWebView(@web_view, handler: -> msg, callback {
+    # DISABLED WVJSBridge
+    @bridge ||= WebViewJavascriptBridge.bridgeForWebView(@web_view, handler: -> msg, callback {
       puts "got #{msg}"
 
       @data_handler.on_msg msg, callback
@@ -40,6 +43,8 @@ class WebViewController < MotionViewController
       load_url_in_overlay query_hash['url']  # CLEANUP
     when 'send_data'
       @data_handler.data_received BubbleWrap::JSON.parse( query_hash['data'] )
+    when 'get'
+      puts "!! get with #{query_hash}"
     else
       puts "can't handle query #{query_hash}"
     end
@@ -113,24 +118,25 @@ class WebViewController < MotionViewController
 
 #= webview integration
 
-  def webView(webView, shouldStartLoadWithRequest:request, navigationType:navigationType)
-    # working with perform_op
-    if request.url.last_path_segment.eql? "perform"
-      puts "got request #{request.url.absoluteString}"
+  # # NOTE doesn't get invoked with xhr's
+  # def webView(webView, shouldStartLoadWithRequest:request, navigationType:navigationType)
+  #   # working with perform_op
+  #   if request.url.last_path_segment.eql? "perform"
+  #     puts "got request #{request.url.absoluteString}"
 
-      @req = request
-      puts request.description
+  #     @req = request
+  #     puts request.description
 
-      query = request.url.query.decode_uri_component
-      self.perform_op Hash[*query.split(/&|=/)]
+  #     query = request.url.query.decode_uri_component
+  #     self.perform_op Hash[*query.split(/&|=/)]
 
-      return false
+  #     return false
 
-      # TODO async return to calling script. document protocol.
-    end
+  #     # TODO async return to calling script. document protocol.
+  #   end
 
-    true
-  end
+  #   true
+  # end
   
 end
 
