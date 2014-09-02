@@ -12,7 +12,8 @@ gem 'motion-logger'
 gem 'bubble-wrap'
 
 gem 'sugarcube'
-gem 'ProMotion', :git => 'https://github.com/clearsightstudio/ProMotion', :branch => 'master'
+gem 'ProMotion', "~> 1.2.0"
+  # , :git => 'https://github.com/clearsightstudio/ProMotion', :branch => 'master'
 
 # gem 'motion-pixate'
 
