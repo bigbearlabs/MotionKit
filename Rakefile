@@ -45,15 +45,15 @@ Motion::Project::App.setup do |app|
 
 end
 
-# Track and specify files and their mutual dependencies within the :motion 
-# Bundler group
-MotionBundler.setup do |app|
-  # app.require "cgi/core"
-  # app.require "cgi/cookie"
-  # app.require "cgi/util"
-  # app.require "cgi/html"
-  app.require "motion-fileutils"
-end
+# # Track and specify files and their mutual dependencies within the :motion 
+# # Bundler group
+# MotionBundler.setup do |app|
+#   # app.require "cgi/core"
+#   # app.require "cgi/cookie"
+#   # app.require "cgi/util"
+#   # app.require "cgi/html"
+#   # app.require "motion-fileutils"
+# end
 
 
 
