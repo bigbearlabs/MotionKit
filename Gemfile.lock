@@ -30,7 +30,9 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     awesome_print (1.2.0)
-    bubble-wrap (1.4.0)
+    bubble-wrap (1.7.1)
+      bubble-wrap-http (= 1.7.1)
+    bubble-wrap-http (1.7.1)
     builder (3.0.4)
     claide (0.5.0)
     cocoapods (0.32.1)
@@ -74,7 +76,7 @@ GEM
     httparty (0.13.1)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
-    i18n (0.6.9)
+    i18n (0.6.11)
     ib (0.4.7)
       thor (~> 0.15.4)
       tilt (~> 1.4.1)
@@ -133,9 +135,9 @@ PLATFORMS
 
 DEPENDENCIES
   ProMotion!
-  bubble-wrap (~> 1.4.0)
+  bubble-wrap
   cocoapods-core
-  ib (~> 0.4.0)
+  ib
   motion-bundler
   motion-cocoapods
   motion-fileutils

@@ -9,14 +9,14 @@ gem 'cocoapods-core'
 
 gem 'motion-logger'
 
-gem 'bubble-wrap', '~> 1.4.0', :require => ['bubble-wrap', 'bubble-wrap/core', 'bubble-wrap/media']
+gem 'bubble-wrap'
 
 gem 'sugarcube'
 gem 'ProMotion', :git => 'https://github.com/clearsightstudio/ProMotion', :branch => 'master'
 
 # gem 'motion-pixate'
 
-gem 'ib', '~> 0.4.0', :require => ['ib', 'ib/outlets']
+gem 'ib'
 
 # gem 'motion-xray'
 gem 'motion-hockeyrink'
