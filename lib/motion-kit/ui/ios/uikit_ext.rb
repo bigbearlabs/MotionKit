@@ -32,15 +32,14 @@ class UIApplication
   
 
   def stage_resource( filename, 
-    dest = app.app_group_url.URLByAppendingPathComponent(filename) 
+    destination:dest 
   )
-    dest = app.app_group_url.URLByAppendingPathComponent(filename) # WORKAROUND rm-swift interop
-
     # copy to the app's writable area.
 
     # this is highly implementation-specific. we default to the app group dir.
+    dest ||= app.app_group_url.URLByAppendingPathComponent(filename)
+    
     src = app.resource_url.URLByAppendingPathComponent(filename)
-
     copy_url src, dest
 
     pe_log "staged #{src} to #{dest}"
