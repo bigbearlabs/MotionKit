@@ -24,8 +24,9 @@ class UIApplication
   end
 
   def app_group_url
-    url = NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier(self.delegate.group_id)
-    raise "container URL for '#{self.delegate.group_id}' is nil." if url.nil?
+    group_id = self.delegate.group_id
+    url = NSFileManager.defaultManager().containerURLForSecurityApplicationGroupIdentifier(group_id)
+    raise "container URL for '#{group_id}' is nil." if url.nil?
     url
   end
   
@@ -33,12 +34,16 @@ class UIApplication
   def stage_resource( filename, 
     dest = app.app_group_url.URLByAppendingPathComponent(filename) 
   )
+    dest = app.app_group_url.URLByAppendingPathComponent(filename) # WORKAROUND rm-swift interop
+
     # copy to the app's writable area.
 
     # this is highly implementation-specific. we default to the app group dir.
     src = app.resource_url.URLByAppendingPathComponent(filename)
 
     copy_url src, dest
+
+    pe_log "staged #{src} to #{dest}"
   end
 
   def copy_url src, dest
