@@ -1,0 +1,15 @@
+source 'https://rubygems.org'
+
+gem 'rake'
+# Add your dependencies here:
+
+# gem 'sinatra'
+
+
+gem 'motion-kit', path: ".."
+  gem 'motion-require', :require => ['motion-require']
+  gem 'motion-logger'
+  gem 'bubble-wrap'
+  gem 'ib'
+
+gem 'guard-motion'

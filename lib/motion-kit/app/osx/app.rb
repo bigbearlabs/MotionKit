@@ -1,6 +1,7 @@
 # require 'CocoaHelper'
 # require 'appkit_additions'
-# require 'defaults'
+motion_require 'defaults'
+motion_require '../../core/exceptions'
 # require 'osx_process'
 # require 'get_url_handler'
 

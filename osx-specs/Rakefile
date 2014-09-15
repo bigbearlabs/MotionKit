@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+$:.unshift("/Library/RubyMotion/lib")
+require 'motion/project/template/osx'
+
+# begin
+  require 'bundler'
+  Bundler.require
+# rescue LoadError
+# end
+
+# motion-require.
+Motion::Require.all
+
+
+Motion::Project::App.setup do |app|
+  # Use `rake config' to see complete project settings.
+  app.name = 'my-motion-osx-2'
+
+  app.frameworks += [ 'Foundation', 'WebKit' ]
+
+  app.pods do
+    pod 'CocoaLumberjack'
+    # pod 'WebViewJavascriptBridge'
+    # pod 'StandardPaths'
+  end
+end
+
+
