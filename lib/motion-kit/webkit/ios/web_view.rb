@@ -30,27 +30,6 @@ class WebViewController < MotionViewController
   end
 
 
-  #= webview -> objc
-
-  # parse the query string and perform the op. TODO
-  def perform_op( query_hash )
-
-    # dispatch_action query_hash["op"], query_hash
-    # IMPL
-    
-    case query_hash['op']
-    when 'load_url'
-      load_url_in_overlay query_hash['url']  # CLEANUP
-    when 'send_data'
-      @data_handler.data_received BubbleWrap::JSON.parse( query_hash['data'] )
-    when 'get'
-      puts "!! get with #{query_hash}"
-    else
-      puts "can't handle query #{query_hash}"
-    end
-  end
-
-
   #= objc -> webview
   
   def eval input
@@ -114,29 +93,6 @@ class WebViewController < MotionViewController
     #   )
     # )
   end
-
-
-#= webview integration
-
-  # # NOTE doesn't get invoked with xhr's
-  # def webView(webView, shouldStartLoadWithRequest:request, navigationType:navigationType)
-  #   # working with perform_op
-  #   if request.url.last_path_segment.eql? "perform"
-  #     puts "got request #{request.url.absoluteString}"
-
-  #     @req = request
-  #     puts request.description
-
-  #     query = request.url.query.decode_uri_component
-  #     self.perform_op Hash[*query.split(/&|=/)]
-
-  #     return false
-
-  #     # TODO async return to calling script. document protocol.
-  #   end
-
-  #   true
-  # end
   
 end
 
