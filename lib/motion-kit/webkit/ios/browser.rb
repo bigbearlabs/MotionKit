@@ -10,10 +10,6 @@ class BrowserViewController < MotionViewController
     web_vc.data_handler = self
   end
 
-  def on_msg msg, callback
-    puts "!!! on_msg: #{msg}, #{callback}"
-  end
-  
   #= loading
 
   def load_resource path
