@@ -1,6 +1,6 @@
 # use cooca lumberjack
 Log = Motion::Log
-Log.addLogger DDASLLogger.sharedInstance, withLogLevel:LOG_LEVEL_WARN
+Log.addLogger DDASLLogger.sharedInstance, withLogLevel:LOG_LEVEL_INFO
 Log.addLogger DDTTYLogger.sharedInstance
 
 Log.level = :info
@@ -34,7 +34,10 @@ module Logging
   def pe_trace(msg = nil)
     # if Environment.instance.isDebugBuild
     if RUBYMOTION_ENV == "development"
-      stack = $DEBUG ? caller : caller[0..5]
+      # stack = $DEBUG ? caller : caller[0..5]  # not showing up on device.
+      stack = NSThread.callStackSymbols
+
+
       pe_log "** TRACE #{msg.to_s} ** #{stack.format_backtrace.join(" - ")}"
     end
   end
