@@ -4,15 +4,13 @@ module Notifications
 
   def register_platform_notifications
     # platform: ios
+    # FIXME stuff specific to OneHour -- push down.
     categories = [
       UIMutableUserNotificationCategory.new.tap do |category|
 
         category.identifier = "time_up"
         
-        # context = UIUserNotificationActionContextDefault  # try UIUserNotificationActionContextMinimal too.
-        context = UIUserNotificationActionContextMinimal
-        
-        actions = [
+        actions_minimal = [
           UIMutableUserNotificationAction.new.tap do |action|
             action.identifier = "review"
             action.title = action.identifier.capitalize
@@ -24,28 +22,34 @@ module Notifications
             action.identifier = "dismiss"
             action.title = action.identifier.capitalize
             action.activationMode = UIUserNotificationActivationModeBackground
-
-          end,
-
-          UIMutableUserNotificationAction.new.tap do |action|
-            action.identifier = "snooze_5"
-            action.title = action.identifier.capitalize
-            action.activationMode = UIUserNotificationActivationModeBackground
-
           end,
         ]
-        category.setActions(actions, forContext:context)
+
+        actions_other = [
+          UIMutableUserNotificationAction.new.tap do |action|
+            action.identifier = "dismiss"
+            action.title = action.identifier.capitalize
+            action.activationMode = UIUserNotificationActivationModeBackground
+          end,
+
+          # UIMutableUserNotificationAction.new.tap do |action|
+          #   action.identifier = "snooze_5"
+          #   action.title = action.identifier.capitalize
+          #   action.activationMode = UIUserNotificationActivationModeBackground
+          # end,
+        ]
+
+        category.setActions(actions_minimal, forContext:UIUserNotificationActionContextMinimal)
+        category.setActions(actions_other, forContext:UIUserNotificationActionContextDefault)
       end
     ]
 
     app.registerUserNotificationSettings(UIUserNotificationSettings.settingsForTypes(UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound, categories:NSSet.setWithArray(categories)))
 
-
+    pe_log "registered for platform notifications"
   end
   
   def notify_in( time_interval = 10, opts)
-    register_platform_notifications
-
     message = opts[:message] || 'Notification'
     sound = opts[:sound] || UILocalNotificationDefaultSoundName
     owner = opts[:owner] || self
