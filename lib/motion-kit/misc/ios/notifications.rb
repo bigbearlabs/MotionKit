@@ -3,48 +3,49 @@
 module Notifications
 
   def register_platform_notifications
+    # TEMP disabled for ios6 compatibility.
     # platform: ios
     # FIXME stuff specific to OneHour -- push down.
-    categories = [
-      UIMutableUserNotificationCategory.new.tap do |category|
+    # categories = [
+    #   UIMutableUserNotificationCategory.new.tap do |category|
 
-        category.identifier = "time_up"
+    #     category.identifier = "time_up"
         
-        actions_minimal = [
-          UIMutableUserNotificationAction.new.tap do |action|
-            action.identifier = "review"
-            action.title = action.identifier.capitalize
-            action.activationMode = UIUserNotificationActivationModeForeground
-            # action.destructive = 
-          end,
+    #     actions_minimal = [
+    #       UIMutableUserNotificationAction.new.tap do |action|
+    #         action.identifier = "review"
+    #         action.title = action.identifier.capitalize
+    #         action.activationMode = UIUserNotificationActivationModeForeground
+    #         # action.destructive = 
+    #       end,
         
-          UIMutableUserNotificationAction.new.tap do |action|
-            action.identifier = "dismiss"
-            action.title = action.identifier.capitalize
-            action.activationMode = UIUserNotificationActivationModeBackground
-          end,
-        ]
+    #       UIMutableUserNotificationAction.new.tap do |action|
+    #         action.identifier = "dismiss"
+    #         action.title = action.identifier.capitalize
+    #         action.activationMode = UIUserNotificationActivationModeBackground
+    #       end,
+    #     ]
 
-        actions_other = [
-          UIMutableUserNotificationAction.new.tap do |action|
-            action.identifier = "dismiss"
-            action.title = action.identifier.capitalize
-            action.activationMode = UIUserNotificationActivationModeBackground
-          end,
+    #     actions_other = [
+    #       UIMutableUserNotificationAction.new.tap do |action|
+    #         action.identifier = "dismiss"
+    #         action.title = action.identifier.capitalize
+    #         action.activationMode = UIUserNotificationActivationModeBackground
+    #       end,
 
-          # UIMutableUserNotificationAction.new.tap do |action|
-          #   action.identifier = "snooze_5"
-          #   action.title = action.identifier.capitalize
-          #   action.activationMode = UIUserNotificationActivationModeBackground
-          # end,
-        ]
+    #       # UIMutableUserNotificationAction.new.tap do |action|
+    #       #   action.identifier = "snooze_5"
+    #       #   action.title = action.identifier.capitalize
+    #       #   action.activationMode = UIUserNotificationActivationModeBackground
+    #       # end,
+    #     ]
 
-        category.setActions(actions_minimal, forContext:UIUserNotificationActionContextMinimal)
-        category.setActions(actions_other, forContext:UIUserNotificationActionContextDefault)
-      end
-    ]
+    #     category.setActions(actions_minimal, forContext:UIUserNotificationActionContextMinimal)
+    #     category.setActions(actions_other, forContext:UIUserNotificationActionContextDefault)
+    #   end
+    # ]
 
-    app.registerUserNotificationSettings(UIUserNotificationSettings.settingsForTypes(UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound, categories:NSSet.setWithArray(categories)))
+    # app.registerUserNotificationSettings(UIUserNotificationSettings.settingsForTypes(UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound, categories:NSSet.setWithArray(categories)))
 
     pe_log "registered for platform notifications"
   end
@@ -78,7 +79,8 @@ module Notifications
 
     notification.soundName = sound
 
-    notification.category = "time_up"
+    # TEMP disabled for ios6 compatibility.
+    # notification.category = "time_up"
 
     # TODO set dismiss button message.
 
